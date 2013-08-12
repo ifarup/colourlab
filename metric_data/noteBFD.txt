@@ -1,0 +1,13 @@
+BFD-P file consists those ellipses in which the perception is equal to inside the center of ellipses
+ and outside of the ellipses the perception is preceived difference.
+there are eighty ellipses.
+
+BFD-A file is  for acceptance threshold ellipses. inside of the ellipses acceptances is equal to the center and outside is different. 
+There are altogether 50 ellipses.
+
+BFD(2) file is a merged file of above two . The first eighty ellipses are type P and the rest are type A.
+
+x(0) y(0)            YL          A          RRR            TT
+
+Chrom center      Luminance	a/1000	   e=a/b	 angle
+CIE 64					   b=a/RRR
