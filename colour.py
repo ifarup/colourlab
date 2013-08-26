@@ -759,7 +759,7 @@ class MetricData:
                 space.metrics_from_XYZ(self.points, self.metrics[spaceXYZ])
             return self.metrics[space]
 
-    def get_ellipses(self, space, plane=MetricData.plane_xy, scale=1):
+    def get_ellipses(self, space, plane=plane_xy, scale=1):
         """
         Return Ellipse objects in the required plane of the given space.
 
@@ -1097,3 +1097,4 @@ if __name__ == '__main__':
     plot_ellipses(gDE.get_ellipses(spacexyY, plane=MetricData.plane_xy, scale=.08))
     plt.grid()
     plt.axis('equal')
+    plt.show()
