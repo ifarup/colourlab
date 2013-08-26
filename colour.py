@@ -615,6 +615,118 @@ class TransformGamma(SpaceTransform):
             jac[i, 2, 2] = self.gamma * np.abs(basedata[i, 2])**(self.gamma - 1)
         return jac
 
+class TransformPolar(SpaceTransform):
+    """
+    Transform form Cartesian to polar coordinates in the two last variables.
+    
+    For example CIELAB to CIELCH.
+    """
+    
+    def __init__(self, base):
+        """
+        Construct instance, setting base space.
+        """
+        super(TransformPolar, self).__init__(base)
+    
+    def to_base(self, ndata):
+        """
+        Convert from polar to rectangular.
+        """
+        Lab = np.zeros(np.shape(ndata))
+        Lab[:,0] = ndata[:,0]
+        C = ndata[:,1]
+        h = ndata[:,2]
+        Lab[:,1] = C * np.cos(h)
+        Lab[:,2] = C * np.sin(h)
+        return Lab
+    
+    def from_base(self, ndata):
+        """
+        Convert from rectangular (base) to polar.
+        """
+        LCh = np.zeros(np.shape(ndata))
+        LCh[:,0] = ndata[:,0]
+        x = ndata[:,1]
+        y = ndata[:,2]
+        LCh[:,1] = np.sqrt(x**2 + y**2)
+        LCh[:,2] = np.arctan2(y, x)
+        return LCh
+        
+    def inv_jacobian_base(self, data):
+        """
+        Return the Jacobian from CIELAB (base), dCIELAB^i/dCIELCH^j.
+        
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+        """
+        LCh = data.get_linear(self)
+        C = LCh[:,1]
+        h = LCh[:,2]
+        jac = self.empty_matrix(LCh)
+        for i in range(np.shape(jac)[0]):
+            jac[i,0,0] = 1 # dL/dL
+            jac[i,1,1] = np.cos(h[i]) # da/dC
+            jac[i,1,2] = -C[i] * np.sin(h[i]) # da/dh
+            jac[i,2,1] = np.sin(h[i]) # db/dC
+            jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
+        return jac
+
+class TransformCartesian(SpaceTransform):
+    """
+    Transform form polar to Cartesian coordinates in the two last variables.
+    
+    For example CIELCH to CIELAB.
+    """
+    
+    def __init__(self, base):
+        """
+        Construct instance, setting base space.
+        """
+        super(TransformCartesian, self).__init__(base)
+    
+    def from_base(self, ndata):
+        """
+        Convert from polar to rectangular.
+        """
+        Lab = np.zeros(np.shape(ndata))
+        Lab[:,0] = ndata[:,0]
+        C = ndata[:,1]
+        h = ndata[:,2]
+        Lab[:,1] = C * np.cos(h)
+        Lab[:,2] = C * np.sin(h)
+        return Lab
+    
+    def to_base(self, ndata):
+        """
+        Convert from rectangular (base) to polar.
+        """
+        LCh = np.zeros(np.shape(ndata))
+        LCh[:,0] = ndata[:,0]
+        x = ndata[:,1]
+        y = ndata[:,2]
+        LCh[:,1] = np.sqrt(x**2 + y**2)
+        LCh[:,2] = np.arctan2(y, x)
+        return LCh
+        
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian from CIELAB (base), dCIELAB^i/dCIELCH^j.
+        
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+        """
+        LCh = data.get_linear(self.base)
+        C = LCh[:,1]
+        h = LCh[:,2]
+        jac = self.empty_matrix(LCh)
+        for i in range(np.shape(jac)[0]):
+            jac[i,0,0] = 1 # dL/dL
+            jac[i,1,1] = np.cos(h[i]) # da/dC
+            jac[i,1,2] = -C[i] * np.sin(h[i]) # da/dh
+            jac[i,2,1] = np.sin(h[i]) # db/dC
+            jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
+        return jac
+
 #==============================================================================
 # Colour space instances
 #==============================================================================
@@ -624,9 +736,8 @@ class TransformGamma(SpaceTransform):
 spaceXYZ = SpaceXYZ()
 spacexyY = TransformxyY(spaceXYZ)
 spaceCIELAB = TransformCIELAB(spaceXYZ)
-spaceCIELABd50 = TransformCIELAB(spaceXYZ, Space.white_D50)
+spaceCIELCh = TransformPolar(spaceCIELAB)
 spaceCIELUV = TransformCIELUV(spaceXYZ)
-spaceCIELUVd50 = TransformCIELUV(spaceXYZ, Space.white_D50)
 spaceIPT = TransformLinear(TransformGamma(TransformLinear(spaceXYZ,
                 np.array([[.4002, .7075, -.0807],
                           [-.228, 1.15, .0612],
@@ -1089,12 +1200,10 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
 
 if __name__ == '__main__':
     g = build_g_MacAdam()
-    gDE = metric_Euclidean(spaceIPT, g.points)
-    d = g.points.get_linear(spacexyY)
+    spaceTmp = TransformCartesian(spaceCIELCh)
+    d = g.points.get_linear(spaceCIELAB)
     plt.clf()
-    plt.plot(d[:,0], d[:,1], '.')
-    plot_ellipses(g.get_ellipses(spacexyY, plane=MetricData.plane_xy, scale=10), edgecolor=[1,0,0])
-    plot_ellipses(gDE.get_ellipses(spacexyY, plane=MetricData.plane_xy, scale=.08))
-    plt.grid()
+    plt.plot(d[:,1], d[:,2], '.')
+    plot_ellipses(g.get_ellipses(spaceCIELAB, MetricData.plane_ab, scale=10))
     plt.axis('equal')
     plt.show()
