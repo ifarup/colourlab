@@ -979,6 +979,27 @@ def build_d_Melgosa():
     m_Lab = np.concatenate(([m_L], [m_a], [m_b]), axis=0).T
     return Data(spaceCIELAB, m_Lab)
 
+def build_d_regular(space, x_val, y_val, z_val):
+    """
+    Build regular data set of colour data in the given colour space.
+    
+    x_val, y_val, and z_val should be one-dimensional arrays.
+    """
+    x_len = np.shape(x_val)[0]
+    y_len = np.shape(y_val)[0]
+    z_len = np.shape(z_val)[0]
+    tot_len = x_len * y_len * z_len
+    ndata = np.zeros((tot_len, 3))
+    l = 0
+    for i in range(x_len):
+        for j in range(y_len):
+            for k in range(z_len):
+                ndata[l, 0] = x_val[i]
+                ndata[l, 1] = y_val[j]
+                ndata[l, 2] = z_val[k]
+                l = l + 1
+    return Data(space, ndata)
+    
 # TODO:
 #
 # Colour data sets, as needed (instances of Data):
@@ -1199,11 +1220,10 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
 #==============================================================================
 
 if __name__ == '__main__':
-    g = build_g_MacAdam()
-    spaceTmp = TransformCartesian(spaceCIELCh)
-    d = g.points.get_linear(spaceCIELAB)
+    d = build_d_regular(TransformPolar(spaceIPT), [.5], np.linspace(0, .5, 10), np.linspace(0,2 * np.pi, 17))
+    g = metric_Euclidean(spaceIPT, d)
     plt.clf()
-    plt.plot(d[:,1], d[:,2], '.')
-    plot_ellipses(g.get_ellipses(spaceCIELAB, MetricData.plane_ab, scale=10))
+    lab = d.get_linear(spaceCIELAB)
+    plt.plot(lab[:,1], lab[:,2], '.w')
+    plot_ellipses(g.get_ellipses(spaceCIELAB, plane=MetricData.plane_ab, scale=.03))
     plt.axis('equal')
-    plt.show()
