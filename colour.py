@@ -28,8 +28,7 @@ from matplotlib.patches import Ellipse
 # Colour space classes
 #
 # Throughout the code, the name ndata is used for numerical data (numpy
-# arrays), and data is used for objects of the type Data, and mdata for
-# objects of the type MetricData.
+# arrays), and data is used for objects of the type Data.
 #==============================================================================
 
 class Space(object):
@@ -630,7 +629,7 @@ class TransformPolar(SpaceTransform):
     
     def to_base(self, ndata):
         """
-        Convert from polar to rectangular.
+        Convert from polar to Cartesian.
         """
         Lab = np.zeros(np.shape(ndata))
         Lab[:,0] = ndata[:,0]
@@ -642,7 +641,7 @@ class TransformPolar(SpaceTransform):
     
     def from_base(self, ndata):
         """
-        Convert from rectangular (base) to polar.
+        Convert from Cartesian (base) to polar.
         """
         LCh = np.zeros(np.shape(ndata))
         LCh[:,0] = ndata[:,0]
@@ -686,7 +685,7 @@ class TransformCartesian(SpaceTransform):
     
     def from_base(self, ndata):
         """
-        Convert from polar to rectangular.
+        Convert from polar to Cartesian.
         """
         Lab = np.zeros(np.shape(ndata))
         Lab[:,0] = ndata[:,0]
@@ -698,7 +697,7 @@ class TransformCartesian(SpaceTransform):
     
     def to_base(self, ndata):
         """
-        Convert from rectangular (base) to polar.
+        Convert from Cartesian (base) to polar.
         """
         LCh = np.zeros(np.shape(ndata))
         LCh[:,0] = ndata[:,0]
@@ -710,7 +709,7 @@ class TransformCartesian(SpaceTransform):
         
     def jacobian_base(self, data):
         """
-        Return the Jacobian from CIELAB (base), dCIELAB^i/dCIELCH^j.
+        Return the Jacobian from CIELCh (base), dCIELAB^i/dCIELCH^j.
         
         The Jacobian is calculated at the given data points (of the
         Data class).
@@ -727,11 +726,82 @@ class TransformCartesian(SpaceTransform):
             jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
         return jac
 
+class TransformPoincareDisk(SpaceTransform):
+    """
+    Transform from Cartesian coordinates to Poincare disk coordinates.
+    
+    The coordinate transform only changes the radius (chroma, typically),
+    and does so in a way that preserves the radial distance with respect to
+    the Euclidean metric and the Poincare disk metric in the source and
+    target spaces, respectively.
+    """
+
+    def __init__(self, base):
+        """
+        Construct instance, setting base space.
+        """
+        super(TransformPoincareDisk, self).__init__(base)
+        
+    def to_base(self, ndata):
+        """
+        Transform from Poincare disk to base.
+        """
+        Lab = ndata.copy()
+        Lab[:,1:] = 0
+        x = ndata[:,1]
+        y = ndata[:,2]
+        r = np.sqrt(x**2 + y**2)
+        for i in range(np.shape(Lab)[0]):
+            if r[i] > 0:
+                Lab[i,1:] = ndata[i,1:] * (2 * np.arctanh(r[i])) / r[i]
+        return Lab
+        
+    def from_base(self, ndata):
+        """
+        Transform from base to Poincare disk
+        """
+        Lxy = ndata.copy()
+        Lxy[:,1:] = 0
+        a = ndata[:,1]
+        b = ndata[:,2]
+        C = np.sqrt(a**2 + b**2)
+        for i in range(np.shape(Lxy)[0]):
+            if C[i] > 0:
+                Lxy[i,1:] = ndata[i,1:] * np.tanh(C[i] / 2) / C[i]
+        return Lxy
+    
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian from CIELAB (base), dLxy^i/dCIELAB^j.
+        
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+        """
+        Lab = data.get_linear(self.base)
+        a = Lab[:,1]
+        b = Lab[:,2]
+        C = np.sqrt(a**2 + b**2)
+        tanhC2 = np.tanh(C / 2.)
+        tanhC2C = tanhC2 / C
+        dCda = a / C
+        dCdb = b / C
+        dtanhdC = ((C / 2 * (1 - np.tanh(C / 2))**2) - np.tanh(C / 2)) / C**2
+        jac = self.empty_matrix(Lab)
+        for i in range(np.shape(jac)[0]):
+            jac[i, 0, 0] = 1 # dL/dL
+            if C[i] == 0:
+                jac[i, 1, 1] = .5 # dx/da
+                jac[i, 2, 2] = .5 # dy/db
+            else:
+                jac[i, 1, 1] = tanhC2C[i] + a[i] * dtanhdC[i] * dCda[i] # dx/da
+                jac[i, 1, 2] = a[i] * dtanhdC[i] * dCdb[i] # dx/db
+                jac[i, 2, 1] = b[i] * dtanhdC[i] * dCda[i] # dy/da
+                jac[i, 2, 2] = tanhC2C[i] + b[i] * dtanhdC[i] * dCdb[i] # dy/db
+        return jac
+
 #==============================================================================
 # Colour space instances
 #==============================================================================
-
-#Basic
 
 spaceXYZ = SpaceXYZ()
 spacexyY = TransformxyY(spaceXYZ)
@@ -822,7 +892,7 @@ class Data:
         """
         return self.linearise(self.get(space))
 
-class MetricData:
+class TensorData:
     """
     Class for keeping colour metric data in various colour spaces.
     """
@@ -886,12 +956,11 @@ class MetricData:
             g11 = metrics[i, 0, 0]
             g22 = metrics[i, 1, 1]
             g12 = metrics[i, 0, 1]
-            if g11 == g22:
-                theta = 0
-                a = 1 / np.sqrt(g22)
-                b = 1 / np.sqrt(g11)
+            theta = np.arctan2(2*g12, g11 - g22) * 0.5
+            if theta == 0:
+                a = 1 / np.sqrt(g11)
+                b = 1 / np.sqrt(g22)    
             else:
-                theta = np.arctan2(2*g12, g11 - g22) * 0.5
                 a = 1 / np.sqrt(g22 + g12 / np.tan(theta))
                 b = 1 / np.sqrt(g11 - g12 / np.tan(theta))
             ells.append(Ellipse(points[i],
@@ -962,7 +1031,7 @@ def build_d_Melgosa():
     The data points for the Melgosa Ellipsoids (RIT-DuPont).
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
-    in CIELAB and returns MetricData.
+    in CIELAB and returns TensorData.
     """
     m_a = np.array([-1.403 ,-16.374, -0.782, -27.549, 12.606, 12.153,
                      35.646, 1.937, -10.011, -0.453, -30.732, 21.121,
@@ -1035,7 +1104,7 @@ def build_g_MacAdam():
     g[:, 2, 2] = 1e3 # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return MetricData(spacexyY, points, g)
+    return TensorData(spacexyY, points, g)
 
 def build_g_ThreeObserver():
     """
@@ -1069,14 +1138,14 @@ def build_g_ThreeObserver():
     g[:, 2, 2] = 1e3 # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return MetricData(spacexyY, points, g)
+    return TensorData(spacexyY, points, g)
 
 def build_g_Melgosa_Lab():
     """
     Melgosa's CIELAB-fitted ellipsoids for the RIT-DuPont data.
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
-    in CIELAB and returns MetricData.
+    in CIELAB and returns TensorData.
     """
     m_gaa = np.array([0.6609, 0.3920, 1.3017, 0.1742, 0.5967, 0.5374,
                       0.2837, 0.6138, 0.7252, 1.6002, 0.1760, 0.8512,
@@ -1111,14 +1180,14 @@ def build_g_Melgosa_Lab():
     m_Lab_metric[:, 2, 0] = m_gLb
     m_Lab_metric[:, 1, 2] = m_gab
     m_Lab_metric[:, 2, 1] = m_gab
-    return MetricData(spaceCIELAB, build_d_Melgosa(), m_Lab_metric)
+    return TensorData(spaceCIELAB, build_d_Melgosa(), m_Lab_metric)
     
 def build_g_Melgosa_xyY():
     """
     Melgosa's xyY-fitted ellipsoids for the RIT-DuPont data.
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
-    in xyY and returns MetricData.
+    in xyY and returns TensorData.
     """
     m_g11 = np.array([10.074, 5.604, 18.738,3.718, 5.013, 7.462, 1.229,
                       7.634, 11.805, 3.578, 5.359, 1.770, 0.368, 9.407,
@@ -1149,51 +1218,64 @@ def build_g_Melgosa_xyY():
     m_xyY_metric[:, 1, 2] = m_g23
     m_xyY_metric[:, 2, 1] = m_g23
     m_xyY_metric = 1e4*m_xyY_metric
-    return MetricData(spacexyY, build_d_Melgosa(), m_xyY_metric)
+    return TensorData(spacexyY, build_d_Melgosa(), m_xyY_metric)
 
 # TODO:
 #
-# Metric data sets, as needed (instances of MetricData):
+# Metric data sets, as needed (instances of TensorData):
 #     BrownMacAdam
 #     BFD
 #     +++
 
 #==============================================================================
-# Colour metrics
+# Colour metric tensors
 #==============================================================================
 
-def metric_Euclidean(space, data):
+def tensor_Euclidean(space, data):
     """
-    Compute the general Euclidean metric in the given colour space as MetricData.
+    Compute the general Euclidean metric in the given colour space as TensorData.
     """
     g = space.empty_matrix(data.linear_XYZ)
     for i in range(np.shape(g)[0]):
         g[i] = np.eye(3)
-    return MetricData(space, data, g)
+    return TensorData(space, data, g)
 
-def metric_DEab(data):
+def tensor_DEab(data):
     """
-    Compute the DEab metric as MetricData for the given data points.
+    Compute the DEab metric as TensorData for the given data points.
     """
-    return metric_Euclidean(spaceCIELAB, data)
+    return tensor_Euclidean(spaceCIELAB, data)
 
-def metric_DEuv(data):
+def tensor_DEuv(data):
     """
-    Compute the DEuv metric as MetricData for the given data points.
+    Compute the DEuv metric as TensorData for the given data points.
     """
-    return metric_Euclidean(spaceCIELUV, data)
+    return tensor_Euclidean(spaceCIELUV, data)
+    
+def tensor_Poincare_disk(space, data):
+    """
+    Compute the general Poincare Disk metric in the given colour space as TensorData
+    """
+    
+    d = data.get_linear(space)
+    g = space.empty_matrix(d)
+    for i in range(np.shape(g)[0]):
+        g[i, 0, 0] = 1
+        g[i, 1, 1] = 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
+        g[i, 2, 2] = 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
+    return TensorData(space, data, g)
 
 # TODO:
 #
-# Functions (returning MetricData):
-#     metric_DE00(data)
-#     metric_Stiles(data)
-#     metric_Helmholz(data)
-#     metric_Schrodinger(data)
-#     metric_Vos(data)
-#     metric_SVF(data)
-#     metric_CIECAM02
-#     metric_DIN99
+# Functions (returning TensorData):
+#     tensor_DE00(data)
+#     tensor_Stiles(data)
+#     tensor_Helmholz(data)
+#     tensor_Schrodinger(data)
+#     tensor_Vos(data)
+#     tensor_SVF(data)
+#     tensor_CIECAM02
+#     tensor_DIN99
 #     +++
 
 #==============================================================================
@@ -1220,10 +1302,16 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
 #==============================================================================
 
 if __name__ == '__main__':
-    d = build_d_regular(TransformPolar(spaceIPT), [.5], np.linspace(0, .5, 10), np.linspace(0,2 * np.pi, 17))
-    g = metric_Euclidean(spaceIPT, d)
+    ss = .01
+    spaceP = TransformPoincareDisk(TransformLinear(spaceCIELAB, ss*np.eye(3)))
+    d = build_d_regular(spaceCIELCh, [50],
+                                     np.linspace(0, 100, 5),
+                                     np.linspace(0,2 * np.pi, 9)[0:-1])
+    g = tensor_Poincare_disk(spaceP, d)
+    ipt = d.get_linear(spacexyY)
     plt.clf()
-    lab = d.get_linear(spaceCIELAB)
-    plt.plot(lab[:,1], lab[:,2], '.w')
-    plot_ellipses(g.get_ellipses(spaceCIELAB, plane=MetricData.plane_ab, scale=.03))
+    plt.plot(ipt[:,0], ipt[:,1], '.')
+    ell = g.get_ellipses(spacexyY, plane=TensorData.plane_xy, scale=5*ss)
+    plot_ellipses(ell)
     plt.axis('equal')
+    plt.show()
