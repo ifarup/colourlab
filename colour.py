@@ -1106,7 +1106,7 @@ def build_g_MacAdam():
     g[:, 1, 0] = g12
     return TensorData(spacexyY, points, g)
 
-def build_g_ThreeObserver():
+def build_g_three_observer():
     """
     Wyszecki and Fielder's three observer data set.
     
@@ -1304,14 +1304,16 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
 if __name__ == '__main__':
     ss = .01
     spaceP = TransformPoincareDisk(TransformLinear(spaceCIELAB, ss*np.eye(3)))
-    d = build_d_regular(spaceCIELCh, [50],
-                                     np.linspace(0, 100, 5),
-                                     np.linspace(0,2 * np.pi, 9)[0:-1])
-    g = tensor_Poincare_disk(spaceP, d)
-    ipt = d.get_linear(spacexyY)
+    gD = build_g_three_observer()
+#    d = build_d_regular(spaceCIELCh, [50],
+#                                     np.linspace(0, 100, 5),
+#                                     np.linspace(0,2 * np.pi, 9)[0:-1])
+    g = tensor_Poincare_disk(spaceP, gD.points)
+    ipt = gD.points.get_linear(spaceCIELAB)
     plt.clf()
-    plt.plot(ipt[:,0], ipt[:,1], '.')
-    ell = g.get_ellipses(spacexyY, plane=TensorData.plane_xy, scale=5*ss)
+    plt.plot(ipt[:,1], ipt[:,2], '.')
+    ell = g.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=3*ss)
     plot_ellipses(ell)
+    plot_ellipses(gD.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=2))
     plt.axis('equal')
     plt.show()
