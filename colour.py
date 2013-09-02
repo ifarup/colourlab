@@ -438,7 +438,7 @@ class TransformCIELUV(SpaceTransform):
         y[luv[:, 0] <= self.kappa * self.epsilon] = \
             luv[luv[:, 0] <= self.kappa * self.epsilon, 0] / self.kappa
         upr = 4 * self.white_point[0] / (self.white_point[0] + 15*self.white_point[1] + 3*self.white_point[2])
-        vpr = 9 * self.white_point[1] / (self.white_point[0] + 15*self.white_point[1] + 3*self.white_pointS[2])
+        vpr = 9 * self.white_point[1] / (self.white_point[0] + 15*self.white_point[1] + 3*self.white_point[2])
         a = (52*luv[:,0] / (luv[:,1] + 13*luv[:,0]*upr) - 1) / 3
         b = -5 * y
         c = -1/3.
@@ -1279,6 +1279,45 @@ def tensor_Poincare_disk(space, data):
 #     +++
 
 #==============================================================================
+# Colour metric functions
+#==============================================================================
+
+def metric_linear(space, data1, data2, metric_tensor_function):
+    """
+    Compute the linearised colour difference between the two data sets.
+    
+    The function metric_tensor_function is used to compute the metric tensor
+    at the midpoint between the two data sets in the given colour space. Then
+    the colour metric is computed as dC^T * g * dC.
+    """
+    d1 = data1.get_linear(space)
+    d2 = data2.get_linear(space)
+    midp = (d1 + d2) * .5
+    diff = d1 - d2
+    g = metric_tensor_function(Data(space, midp))
+    g = g.get(space)
+    m = np.zeros(np.shape(diff)[0])
+    for i in range(np.shape(m)[0]):
+        m[i] = np.sqrt(np.dot(diff[i].T, np.dot(g[i], diff[i])))
+    return m
+
+def metric_DEab(data1, data2):
+    """
+    Compute the DEab metric.
+    
+    Since the metric is Euclidean, this can be done using the linearised function.
+    """
+    return metric_linear(spaceCIELAB, data1, data2, tensor_DEab)
+
+def metric_DEuv(data1, data2):
+    """
+    Compute the DEuv metric.
+    
+    Since the metric is Euclidean, this can be done using the linearised function.
+    """
+    return metric_linear(spaceCIELUV, data1, data2, tensor_DEuv)
+
+#==============================================================================
 # Auxiliary functions
 #==============================================================================
 
@@ -1302,18 +1341,6 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
 #==============================================================================
 
 if __name__ == '__main__':
-    ss = .01
-    spaceP = TransformPoincareDisk(TransformLinear(spaceCIELAB, ss*np.eye(3)))
-    gD = build_g_three_observer()
-#    d = build_d_regular(spaceCIELCh, [50],
-#                                     np.linspace(0, 100, 5),
-#                                     np.linspace(0,2 * np.pi, 9)[0:-1])
-    g = tensor_Poincare_disk(spaceP, gD.points)
-    ipt = gD.points.get_linear(spaceCIELAB)
-    plt.clf()
-    plt.plot(ipt[:,1], ipt[:,2], '.')
-    ell = g.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=3*ss)
-    plot_ellipses(ell)
-    plot_ellipses(gD.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=2))
-    plt.axis('equal')
-    plt.show()
+    c1 = Data(spaceCIELUV, [[50, 0, 0], [50, 1, 0]])
+    c2 = Data(spaceCIELUV, [[50, 1, 1], [51, 1, 1]])
+    print metric_DEuv(c1,c2)
