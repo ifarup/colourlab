@@ -939,19 +939,19 @@ class TensorData:
             self.metrics[space] = \
                 space.metrics_from_XYZ(self.points, self.metrics[spaceXYZ])
             return self.metrics[space]
-
-    def get_ellipses(self, space, plane=plane_xy, scale=1):
+    
+    def get_ellipse_parameters(self, space, plane=plane_xy, scale=1):
         """
-        Return Ellipse objects in the required plane of the given space.
+        Return ellipse parameters a, b, theta in the required plane of the given space.
 
         For now, plane is represented by a slice giving the correct
         range for the arrays. Should perhaps be changed in the future.
         """
         metrics = self.get(space).copy()
         points = self.points.get_linear(space).copy()
+        a_b_theta = np.zeros(np.shape(points))
         metrics = metrics[:, plane, plane]
         points = points[:, plane]
-        ells = []
         for i in range(np.shape(metrics)[0]):
             g11 = metrics[i, 0, 0]
             g22 = metrics[i, 1, 1]
@@ -963,11 +963,56 @@ class TensorData:
             else:
                 a = 1 / np.sqrt(g22 + g12 / np.tan(theta))
                 b = 1 / np.sqrt(g11 - g12 / np.tan(theta))
-            ells.append(Ellipse(points[i],
-                                width=2*a*scale, height=2*b*scale,
-                                angle=theta * 180 / np.pi))
-        return ells
+            a_b_theta[i,0] = a * scale
+            a_b_theta[i,1] = b * scale
+            a_b_theta[i,2] = theta
+        return a_b_theta
 
+#    def get_ellipses(self, space, plane=plane_xy, scale=1):
+#        """
+#        Return Ellipse objects in the required plane of the given space.
+#
+#        For now, plane is represented by a slice giving the correct
+#        range for the arrays. Should perhaps be changed in the future.
+#        """
+#        metrics = self.get(space).copy()
+#        points = self.points.get_linear(space).copy()
+#        metrics = metrics[:, plane, plane]
+#        points = points[:, plane]
+#        ells = []
+#        for i in range(np.shape(metrics)[0]):
+#            g11 = metrics[i, 0, 0]
+#            g22 = metrics[i, 1, 1]
+#            g12 = metrics[i, 0, 1]
+#            theta = np.arctan2(2*g12, g11 - g22) * 0.5
+#            if theta == 0:
+#                a = 1 / np.sqrt(g11)
+#                b = 1 / np.sqrt(g22)    
+#            else:
+#                a = 1 / np.sqrt(g22 + g12 / np.tan(theta))
+#                b = 1 / np.sqrt(g11 - g12 / np.tan(theta))
+#            ells.append(Ellipse(points[i],
+#                                width=2*a*scale, height=2*b*scale,
+#                                angle=theta * 180 / np.pi))
+#        return ells
+
+    def get_ellipses(self, space, plane=plane_xy, scale=1):
+        """
+        Return Ellipse objects in the required plane of the given space.
+
+        For now, plane is represented by a slice giving the correct
+        range for the arrays. Should perhaps be changed in the future.
+        """
+        a_b_theta = self.get_ellipse_parameters(space, plane, scale)
+        points = self.points.get_linear(space).copy()
+        points = points[:, plane]
+        ells = []
+        for i in range(np.shape(a_b_theta)[0]):
+            ells.append(Ellipse(points[i],
+                                width=2 * a_b_theta[i, 0],
+                                height=2 * a_b_theta[i, 1],
+                                angle=a_b_theta[i, 2] * 180 / np.pi))
+        return ells
 #==============================================================================
 # Colour data sets
 #==============================================================================
@@ -1341,6 +1386,11 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
 #==============================================================================
 
 if __name__ == '__main__':
-    c1 = Data(spaceCIELUV, [[50, 0, 0], [50, 1, 0]])
-    c2 = Data(spaceCIELUV, [[50, 1, 1], [51, 1, 1]])
-    print metric_DEuv(c1,c2)
+    g = build_g_MacAdam()
+    plt.clf()
+    p = g.points.get_linear(spaceCIELAB)
+    plt.plot(p[:,1], p[:,2], '.')
+    plot_ellipses(g.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=10))
+    g1 = tensor_DEab(g.points)
+    plot_ellipses(g1.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=10))
+    
