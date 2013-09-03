@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import numpy as np
+import scipy.integrate
+import scipy.optimize
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 
@@ -897,11 +899,16 @@ class TensorData:
     Class for keeping colour metric data in various colour spaces.
     """
 
-    # Cross sectional planes for ellipses    
-    plane_xy = np.s_[0:2]
-    plane_ab = np.s_[1:3]
-    plane_aL = np.s_[1::-1]
-    plane_bL = np.s_[2::-2]
+    # Cross sectional planes for ellipses
+    plane_01 = np.s_[0:2]
+    plane_12 = np.s_[1:3]
+    plane_10 = np.s_[1::-1]
+    plane_20 = np.s_[2::-2]
+    
+    plane_xy = plane_01
+    plane_ab = plane_12
+    plane_aL = plane_10
+    plane_bL = plane_20
 
     def __init__(self, space, points_data, metrics_ndata):
         """
@@ -968,34 +975,6 @@ class TensorData:
             a_b_theta[i,2] = theta
         return a_b_theta
 
-#    def get_ellipses(self, space, plane=plane_xy, scale=1):
-#        """
-#        Return Ellipse objects in the required plane of the given space.
-#
-#        For now, plane is represented by a slice giving the correct
-#        range for the arrays. Should perhaps be changed in the future.
-#        """
-#        metrics = self.get(space).copy()
-#        points = self.points.get_linear(space).copy()
-#        metrics = metrics[:, plane, plane]
-#        points = points[:, plane]
-#        ells = []
-#        for i in range(np.shape(metrics)[0]):
-#            g11 = metrics[i, 0, 0]
-#            g22 = metrics[i, 1, 1]
-#            g12 = metrics[i, 0, 1]
-#            theta = np.arctan2(2*g12, g11 - g22) * 0.5
-#            if theta == 0:
-#                a = 1 / np.sqrt(g11)
-#                b = 1 / np.sqrt(g22)    
-#            else:
-#                a = 1 / np.sqrt(g22 + g12 / np.tan(theta))
-#                b = 1 / np.sqrt(g11 - g12 / np.tan(theta))
-#            ells.append(Ellipse(points[i],
-#                                width=2*a*scale, height=2*b*scale,
-#                                angle=theta * 180 / np.pi))
-#        return ells
-
     def get_ellipses(self, space, plane=plane_xy, scale=1):
         """
         Return Ellipse objects in the required plane of the given space.
@@ -1013,6 +992,7 @@ class TensorData:
                                 height=2 * a_b_theta[i, 1],
                                 angle=a_b_theta[i, 2] * 180 / np.pi))
         return ells
+
 #==============================================================================
 # Colour data sets
 #==============================================================================
@@ -1028,7 +1008,6 @@ def resource_path(relative):
         ),
         relative
     )
-    
 
 def read_csv_file(filename, pad=-np.inf):
     """
@@ -1381,16 +1360,85 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
         e.set_edgecolor(edgecolor)
         e.set_fill(fill)
 
+# For the Pant R values
+
+def _ellipse_union(th, ell1, ell2):
+    r1 = ell1[0] * ell1[1] / (np.sqrt(ell1[1]**2 * np.cos(th-ell1[2])**2 +
+                              ell1[0]**2 * np.sin(th-ell1[2])**2))
+    r2 = ell2[0] * ell2[1] / (np.sqrt(ell2[1]**2 * np.cos(th-ell2[2])**2 +
+                              ell2[0]**2 * np.sin(th-ell2[2])**2))
+    u = max(r1,r2)
+    return .5 * u**2
+
+def _ellipse_intersection(th, ell1, ell2):
+    r1 = ell1[0] * ell1[1] / (np.sqrt(ell1[1]**2 * np.cos(th-ell1[2])**2 +
+                              ell1[0]**2 * np.sin(th-ell1[2])**2))
+    r2 = ell2[0] * ell2[1] / (np.sqrt(ell2[1]**2 * np.cos(th-ell2[2])**2 +
+                              ell2[0]**2 * np.sin(th-ell2[2])**2))
+    u = min(r1,r2)
+    return .5 * u**2
+
+def _pant_R_value(ell1, ell2):
+    """
+    Compute single R value for the two given ellipses.
+    """    
+    area_intersection = scipy.integrate.quad(_ellipse_intersection, 0, 2 * np.pi, (ell1, ell2))    
+    area_union = scipy.integrate.quad(_ellipse_union, 0, 2 * np.pi, (ell1, ell2))
+    return area_intersection[0] / area_union[0]
+
+def _pant_R_values(ells1, ells2, scale=1):
+    """
+    Compute set of R values for the two given sets of ellipses.
+    """
+    ells1 = ells1.copy()
+    ells1[:,0:2] = ells1[:,0:2] * scale
+    N = np.shape(ells1)[0]
+    r_values = np.zeros(N)
+    for i in range(N):
+        r_values[i] = _pant_R_value(ells1[i], ells2[i])
+    return r_values
+
+def _cost_function(scale, ells1, ells2):
+    print "Cost function"
+    r_values = _pant_R_values(ells1, ells2, scale)
+    print r_values.mean()
+    return 1 - r_values.mean()
+    
+def pant_R_values(space, tdata1, tdata2, optimise=True, plane=None):
+    """
+    Compute the list of R values for the given metric tensors in tdataN.
+    
+    The R values are computed in the given colour space. If optimise=True,
+    the maximum overall R values are found by scaling one of the data sets.
+    The ellipses are computed in the given plane. If plane=None, all three
+    principal planes are used, and the resulting array of R values will
+    be three times the length ot tdataN.
+    
+    Returns the R values
+    """    
+    if plane == None:
+        ell1a = tdata1.get_ellipse_parameters(space, TensorData.plane_01)
+        ell1b = tdata1.get_ellipse_parameters(space, TensorData.plane_12)
+        ell1c = tdata1.get_ellipse_parameters(space, TensorData.plane_20)
+        ell1 = np.concatenate((ell1a, ell1b, ell1c))
+        ell2a = tdata2.get_ellipse_parameters(space, TensorData.plane_01)
+        ell2b = tdata2.get_ellipse_parameters(space, TensorData.plane_12)
+        ell2c = tdata2.get_ellipse_parameters(space, TensorData.plane_20)
+        ell2 = np.concatenate((ell2a, ell2b, ell2c))
+    else:
+        ell1 = tdata1.get_ellipse_parameters(space, plane)
+        ell2 = tdata2.get_ellipse_parameters(space, plane)
+    if optimise:
+        res = scipy.optimize.fmin(_cost_function, 1, (ell1, ell2))
+        return _pant_R_values(ell1, ell2, res[0]), res[0]
+    else:
+        return _pant_R_values(ell1, ell2)        
+
 #==============================================================================
 # Main, for testing only
 #==============================================================================
 
 if __name__ == '__main__':
-    g = build_g_MacAdam()
-    plt.clf()
-    p = g.points.get_linear(spaceCIELAB)
-    plt.plot(p[:,1], p[:,2], '.')
-    plot_ellipses(g.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=10))
-    g1 = tensor_DEab(g.points)
-    plot_ellipses(g1.get_ellipses(spaceCIELAB, plane=TensorData.plane_ab, scale=10))
-    
+    gMA = build_g_MacAdam()
+    gDE = tensor_DEab(gMA.points)
+    print pant_R_values(spaceCIELAB, gMA, gDE, optimise=False, plane=TensorData.plane_ab)
