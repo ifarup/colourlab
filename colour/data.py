@@ -360,7 +360,7 @@ def build_d_XYZ_31():
     xyz_31 : Data
         The XYZ 1931 colour matching functions.
     """
-    xyz = read_csv_file('data/ciexyz31_1.csv')
+    xyz = read_csv_file('colour/data/ciexyz31_1.csv')
     return Data(spaceXYZ, xyz[:,1:])
 
 def build_d_XYZ_64():
@@ -372,7 +372,7 @@ def build_d_XYZ_64():
     xyz_64 : Data
         The XYZ 1964 colour matching functions.
     """
-    xyz = read_csv_file('data/ciexyz64_1.csv')
+    xyz = read_csv_file('colour/data/ciexyz64_1.csv')
     return Data(spaceXYZ, xyz[:,1:])
 
 def build_d_Melgosa():
@@ -462,7 +462,7 @@ def build_g_MacAdam():
         The metric tensors corresponding to the MacAdam ellipsoids.
     """
     import scipy.io
-    rawdata = scipy.io.loadmat('metric_data/macdata(xyabtheta).mat')
+    rawdata = scipy.io.loadmat('colour/metric_data/macdata(xyabtheta).mat')
     rawdata = rawdata['unnamed']
     xyY = rawdata[:,0:3].copy()
     xyY[:,2] = 0.4 # arbitrary!
@@ -496,7 +496,7 @@ def build_g_three_observer():
     threeObserver : TensorData
         The metric tensors corresponding to the three observer ellipsoids.
     """
-    f = file('metric_data/3 observer.txt')
+    f = file('colour/metric_data/3 observer.txt')
     rawdata = f.readlines()[:-1]
     for line in range(len(rawdata)):
         rawdata[line] = rawdata[line].split('\t')

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-<name>: <description>
+test: Test various features of the colour package (continuosly updated)
 
 Copyright (C) 2013 Ivar Farup
 
@@ -21,7 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from colour import *
 
-ones = 1 * np.ones(30)
-diff1 = ones + np.random.random_sample(np.shape(ones)[0])
-diff2 = ones + np.random.random_sample(np.shape(ones)[0])
-print colour.stress(diff1, diff2)
+xyz = build_d_XYZ_31()
+gMA = build_g_MacAdam()
+p = gMA.points.get(spaceCIELAB)
+plt.clf()
+plt.plot(p[:,1], p[:,2], '.')
+plot_ellipses(gMA.get_ellipses(spaceCIELAB, plane=gMA.plane_ab, scale=10))
