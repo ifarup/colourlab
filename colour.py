@@ -53,6 +53,16 @@ class Space(object):
     def empty_matrix(self, ndata):
         """
         Return list of emtpy (zero) matrixes suitable for jacobians etc.
+        
+        Parameters
+        ----------
+        ndata : ndarray
+            List of colour data.
+            
+        Returns
+        -------
+        empty_matrix : ndarray
+            List of empty matrices of dimensions corresponding to ndata.
         """
         return np.zeros((np.shape(ndata)[0], 3, 3))
 
@@ -62,6 +72,16 @@ class Space(object):
 
         The Jacobian is calculated at the given data points (of the
         Data class) by inverting the inverse Jacobian.
+        
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to XYZ.
         """
         jac = self.inv_jacobian_XYZ(data)
         for i in range(np.shape(jac)[0]):
@@ -74,6 +94,16 @@ class Space(object):
 
         The inverse Jacobian is calculated at the given data points
         (of the Data class) by inverting the Jacobian.
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians from XYZ.
         """
         ijac = self.jacobian_XYZ(data)
         for i in range(np.shape(ijac)[0]):
@@ -83,6 +113,18 @@ class Space(object):
     def metrics_to_XYZ(self, points_data, metrics_ndata):
         """
         Convert metric data to the XYZ colour space.
+        
+        Parameters
+        ----------
+        points_data : Data
+            The colour data points.
+        metrics_ndata : ndarray
+            Array of colour metric tensors in current colour space.
+        
+        Returns
+        -------
+        xyz_metrics : ndarray
+            Array of colour metric tensors in XYZ.
         """
         jacobian = self.jacobian_XYZ(points_data)
         new_metric = np.zeros(np.shape(metrics_ndata))
@@ -94,6 +136,18 @@ class Space(object):
     def metrics_from_XYZ(self, points_data, metrics_ndata):
         """
         Convert metric data from the XYZ colour space.
+        
+        Parameters
+        ----------
+        points_data : Data
+            The colour data points.
+        metrics_ndata : ndarray
+            Array of colour metric tensors in XYZ.
+        
+        Returns
+        -------
+        xyz_metrics : ndarray
+            Array of colour metric tensors in the current colour space.
         """
         jacobian = self.inv_jacobian_XYZ(points_data)
         new_metric = np.zeros(np.shape(metrics_ndata))
@@ -114,12 +168,32 @@ class SpaceXYZ(Space):
     def to_XYZ(self, ndata):
         """
         Convert from current colour space to XYZ.
+        
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space.
+        
+        Returns
+        -------
+        xyz : ndarray
+            Colour data in the XYZ colour space.
         """
         return ndata.copy()      # identity transform
     
     def from_XYZ(self, ndata):
         """
         Convert from XYZ to current colour space.
+        
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the XYZ colour space.
+        
+        Returns
+        -------
+        xyz : ndarray
+            Colour data in the current colour space.
         """
         return ndata.copy()      # identity transform
         
@@ -129,6 +203,16 @@ class SpaceXYZ(Space):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to XYZ.
         """
         jac = self.empty_matrix(data.linear_XYZ)
         jac[:] = np.eye(3)
@@ -140,6 +224,16 @@ class SpaceXYZ(Space):
 
         The inverse Jacobian is calculated at the given data points
         (of the Data class).
+        
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians from XYZ.   
         """
         ijac = self.empty_matrix(data.linear_XYZ)
         ijac[:] = np.eye(3)
@@ -155,19 +249,44 @@ class SpaceTransform(Space):
     
     def __init__(self, base):
         """
-        Construct instance and set base space for transformation
+        Construct instance and set base space for transformation.
+        
+        Parameters
+        ----------
+        base : Space
+            The base for the colour space transform.
         """
         self.base = base
         
     def to_XYZ(self, ndata):
         """
         Transform data to XYZ by using the transformation to the base.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        xyz : ndarray
+            Colour data in the XYZ colour space
         """
         return self.base.to_XYZ(self.to_base(ndata))
         
     def from_XYZ(self, ndata):
         """
         Transform data from XYZ using the transformation to the base.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the XYZ colour space.
+        
+        Returns
+        -------
+        xyz : ndarray
+            Colour data in the current colour space.
         """
         return self.from_base(self.base.from_XYZ(ndata))
 
@@ -177,6 +296,16 @@ class SpaceTransform(Space):
 
         The Jacobian is calculated at the given data points (of the
         Data class) by inverting the inverse Jacobian.
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         jac = self.inv_jacobian_base(data)
         for i in range(np.shape(jac)[0]):
@@ -189,7 +318,17 @@ class SpaceTransform(Space):
 
         The inverse Jacobian is calculated at the given data points
         (of the Data class) by inverting the Jacobian.
-        """
+         
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians from the base colour space.   
+       """
         ijac = self.jacobian_base(data)
         for i in range(np.shape(ijac)[0]):
             ijac[i] = np.linalg.inv(ijac[i])
@@ -202,6 +341,17 @@ class SpaceTransform(Space):
         The Jacobian is calculated at the given data points (of the
         Data class) using the jacobian to the base and the Jacobian
         of the base space.
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to XYZ.
+
         """
         dxdbase = self.jacobian_base(data)
         dbasedXYZ = self.base.jacobian_XYZ(data)
@@ -217,6 +367,16 @@ class SpaceTransform(Space):
         The Jacobian is calculated at the given data points (of the
         Data class) using the inverse jacobian to the base and the 
         inverse Jacobian of the base space.
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians from XYZ.   
         """
         dXYZdbase = self.base.inv_jacobian_XYZ(data)
         dbasedx = self.inv_jacobian_base(data)
@@ -233,22 +393,47 @@ class TransformxyY(SpaceTransform):
     def __init__(self, base):
         """
         Construct instance.
+        
+        Parameters
+        ----------
+        base : Space
+            Base colour space.
         """
         super(TransformxyY, self).__init__(base)
     
     def to_base(self, ndata):
         """
         Convert from xyY to XYZ.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         xyz = np.zeros(np.shape(ndata))
-        xyz[:,0] = ndata[:,0]*ndata[:,2]/ndata[:,1]                        # X
-        xyz[:,1] = ndata[:,2]                                              # Y
-        xyz[:,2] = (1 - ndata[:,0] - ndata[:,1]) * ndata[:,2] / ndata[:,1] # Z
+        xyz[:,0] = ndata[:,0]*ndata[:,2]/ndata[:,1]
+        xyz[:,1] = ndata[:,2]
+        xyz[:,2] = (1 - ndata[:,0] - ndata[:,1]) * ndata[:,2] / ndata[:,1]
         return xyz
     
     def from_base(self, ndata):
         """
         Convert from XYZ to xyY.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         xyz = ndata
         xyY = np.zeros(np.shape(xyz))
@@ -264,6 +449,16 @@ class TransformxyY(SpaceTransform):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         xyzdata = data.get_linear(self.base)
         jac = self.empty_matrix(xyzdata)
@@ -289,6 +484,16 @@ class TransformxyY(SpaceTransform):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         xyYdata = data.get_linear(self)
         jac = self.empty_matrix(xyYdata)
@@ -315,6 +520,11 @@ class TransformCIELAB(SpaceTransform):
     def __init__(self, base, white_point=Space.white_D65):
         """
         Construct instance by setting base space and magnification factor.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
         """
         super(TransformCIELAB, self).__init__(base)
         self.white_point = white_point
@@ -341,6 +551,16 @@ class TransformCIELAB(SpaceTransform):
     def to_base(self, ndata):
         """
         Convert from CIELAB to XYZ (base).
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         ndata
         fy = (ndata[:, 0] + 16.) / 116.
@@ -355,7 +575,6 @@ class TransformCIELAB(SpaceTransform):
         zr = fz ** 3
         zr[zr <= self.epsilon] = ((116 * fz[zr <= self.epsilon] - 16) /
                                  self.kappa)
-        # Combine into matrix
         xyz = np.zeros(np.shape(ndata))
         xyz[:,0] = xr * self.white_point[0]
         xyz[:,1] = yr * self.white_point[1]
@@ -365,6 +584,16 @@ class TransformCIELAB(SpaceTransform):
     def from_base(self, ndata):
         """
         Convert from XYZ (base) to CIELAB.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         lab = np.zeros(np.shape(ndata))
         fx = self.f(ndata[:, 0] / self.white_point[0])
@@ -381,6 +610,16 @@ class TransformCIELAB(SpaceTransform):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         d = data.get_linear(self.base)
         dr = d.copy()
@@ -407,6 +646,11 @@ class TransformCIELUV(SpaceTransform):
     def __init__(self, base, white_point=Space.white_D65):
         """
         Construct instance by setting base space and magnification factor.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
         """
         super(TransformCIELUV, self).__init__(base)
         self.white_point = white_point
@@ -433,6 +677,16 @@ class TransformCIELUV(SpaceTransform):
     def to_base(self, ndata):
         """
         Convert from CIELUV to XYZ (base).
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         luv = ndata
         fy = (luv[:, 0] + 16.) / 116.
@@ -457,6 +711,16 @@ class TransformCIELUV(SpaceTransform):
     def from_base(self, ndata):
         """
         Convert from XYZ (base) to CIELUV.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         d = ndata
         luv = np.zeros(np.shape(d))
@@ -476,6 +740,16 @@ class TransformCIELUV(SpaceTransform):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         xyz = data.get_linear(spaceXYZ)
         luv = data.get_linear(spaceCIELUV)
@@ -525,6 +799,11 @@ class TransformLinear(SpaceTransform):
     def __init__(self, base, M=np.eye(3)):
         """
         Construct instance, setting the matrix of the linear transfrom.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
         """
         super(TransformLinear, self).__init__(base)
         self.M = M.copy()
@@ -532,7 +811,17 @@ class TransformLinear(SpaceTransform):
     
     def to_base(self, ndata):
         """
-        Convert from linear to XYZ.
+        Convert from linear to the base.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         xyz = np.zeros(np.shape(ndata))
         for i in range(np.shape(ndata)[0]):
@@ -541,7 +830,17 @@ class TransformLinear(SpaceTransform):
     
     def from_base(self, ndata):
         """
-        Convert from XYZ to linear.
+        Convert from the base to linear.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         xyz = ndata
         lins = np.zeros(np.shape(xyz))
@@ -555,6 +854,16 @@ class TransformLinear(SpaceTransform):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         xyzdata = data.get_linear(spaceXYZ)
         jac = self.empty_matrix(xyzdata)
@@ -567,6 +876,16 @@ class TransformLinear(SpaceTransform):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         xyzdata = data.get_linear(spaceXYZ)
         jac = self.empty_matrix(xyzdata)
@@ -584,6 +903,13 @@ class TransformGamma(SpaceTransform):
     def __init__(self, base, gamma=1):
         """
         Construct instance, setting the gamma of the transfrom.
+
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
+        gamma : float
+            The exponent for the gamma transformation from the base.
         """
         super(TransformGamma, self).__init__(base)
         self.gamma = float(gamma)
@@ -592,12 +918,32 @@ class TransformGamma(SpaceTransform):
     def to_base(self, ndata):
         """
         Convert from gamma corrected to XYZ (base).
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         return np.sign(ndata) * np.abs(ndata)**self.gamma_inv
 
     def from_base(self, ndata):
         """
         Convert from XYZ to gamma corrected.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         return np.sign(ndata) * np.abs(ndata)**self.gamma
         
@@ -607,6 +953,16 @@ class TransformGamma(SpaceTransform):
 
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         basedata = data.get_linear(self.base)
         jac = self.empty_matrix(basedata)
@@ -626,12 +982,27 @@ class TransformPolar(SpaceTransform):
     def __init__(self, base):
         """
         Construct instance, setting base space.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
         """
         super(TransformPolar, self).__init__(base)
     
     def to_base(self, ndata):
         """
         Convert from polar to Cartesian.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         Lab = np.zeros(np.shape(ndata))
         Lab[:,0] = ndata[:,0]
@@ -644,6 +1015,16 @@ class TransformPolar(SpaceTransform):
     def from_base(self, ndata):
         """
         Convert from Cartesian (base) to polar.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         LCh = np.zeros(np.shape(ndata))
         LCh[:,0] = ndata[:,0]
@@ -659,6 +1040,16 @@ class TransformPolar(SpaceTransform):
         
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         LCh = data.get_linear(self)
         C = LCh[:,1]
@@ -682,12 +1073,27 @@ class TransformCartesian(SpaceTransform):
     def __init__(self, base):
         """
         Construct instance, setting base space.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
         """
         super(TransformCartesian, self).__init__(base)
     
     def from_base(self, ndata):
         """
         Convert from polar to Cartesian.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         Lab = np.zeros(np.shape(ndata))
         Lab[:,0] = ndata[:,0]
@@ -700,6 +1106,16 @@ class TransformCartesian(SpaceTransform):
     def to_base(self, ndata):
         """
         Convert from Cartesian (base) to polar.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         LCh = np.zeros(np.shape(ndata))
         LCh[:,0] = ndata[:,0]
@@ -715,6 +1131,16 @@ class TransformCartesian(SpaceTransform):
         
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         LCh = data.get_linear(self.base)
         C = LCh[:,1]
@@ -741,12 +1167,27 @@ class TransformPoincareDisk(SpaceTransform):
     def __init__(self, base):
         """
         Construct instance, setting base space.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
         """
         super(TransformPoincareDisk, self).__init__(base)
         
     def to_base(self, ndata):
         """
         Transform from Poincare disk to base.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
         """
         Lab = ndata.copy()
         Lab[:,1:] = 0
@@ -761,6 +1202,16 @@ class TransformPoincareDisk(SpaceTransform):
     def from_base(self, ndata):
         """
         Transform from base to Poincare disk
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
         """
         Lxy = ndata.copy()
         Lxy[:,1:] = 0
@@ -778,6 +1229,16 @@ class TransformPoincareDisk(SpaceTransform):
         
         The Jacobian is calculated at the given data points (of the
         Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
         """
         Lab = data.get_linear(self.base)
         a = Lab[:,1]
@@ -831,6 +1292,13 @@ class Data:
     def __init__(self, space, ndata):
         """
         Construct new instance and set colour space and data.
+        
+        Parameters
+        ----------
+        space : Space
+            The colour space for the given instanisiation data.
+        ndata : ndarray
+            The colour data in the given space.
         """
         self.set(space, ndata)
 
@@ -838,10 +1306,20 @@ class Data:
         """
         Shape the data so that is becomes an PxC matrix or C vector.
         
-        The data should be of the shape Mx...xNxC, where C is the
-        number of colour channels. Returns the shaped data as a PxC
-        matrix where P=Mx...xN, as well as the shape of the input
+        The data should be of the shape M x ... x N x C, where C is the
+        number of colour channels. Returns the shaped data as a P x C
+        matrix where P = M x ... x N, as well as the shape of the input
         data. Get back to original shape by reshape(data, shape).
+        
+        Parameters
+        ----------
+        ndata : ndarray
+            M x ... x N x C array of colour data
+            
+        Returns
+        -------
+        ndata : ndarray
+            P x C array of colour data, P = M * ... * N
         """
         sh = np.shape(ndata)
         sh_array = np.array(sh)
@@ -856,6 +1334,13 @@ class Data:
         A new dictionary is constructed, and the data are added in the
         provided colour space, as well as in the XYZ colour space
         (using the SpaceXYZ class).
+        
+        Parameters
+        ----------
+        space : Space
+            The colour space for the given instanisiation data.
+        ndata : ndarray
+            The colour data in the given space.        
         """
         ndata = np.array(ndata)
         self.data = dict()
@@ -875,6 +1360,16 @@ class Data:
         If the data do not currently exist in the required colour
         space, the necessary colour conversion will take place, and
         the results stored in the object or future use.
+        
+        Parameters
+        ----------
+        space : Space
+            The colour space for the returned data.
+        
+        Returns
+        -------
+        ndata : ndarray
+            The colour data in the given colour space.
         """
         if self.data.has_key(space):
             return self.data[space]
@@ -891,6 +1386,16 @@ class Data:
         If the data do not currently exist in the required colour
         space, the necessary colour conversion will take place, and
         the results stored in the object or future use.
+        
+        Parameters
+        ----------
+        space : Space
+            The colour space for the returned data.
+        
+        Returns
+        -------
+        ndata : ndarray
+            The linearised colour data in the given colour space.
         """
         return self.linearise(self.get(space))
 
@@ -913,6 +1418,15 @@ class TensorData:
     def __init__(self, space, points_data, metrics_ndata):
         """
         Construct new instance and set colour space and data.
+        
+        Parameters
+        ----------
+        space : Space
+            The colour space for the given tensor data.
+        points_data : Data
+            The colour points for the given tensor data.
+        metrics_ndata : ndarray
+            The tensor data in the given colour space at the given points.
         """
         self.set(space, points_data, metrics_ndata)
 
@@ -924,6 +1438,15 @@ class TensorData:
         dictionary is constructed, and the metrics_ndata are added in
         the provided colour space, as well as in the XYZ colour space
         (using the SpaceXYZ class).
+        
+        Parameters
+        ----------
+        space : Space
+            The colour space for the given tensor data.
+        points_data : Data
+            The colour points for the given tensor data.
+        metrics_ndata : ndarray
+            The tensor data in the given colour space at the given points.
         """
         self.points = points_data
         self.metrics = dict()
@@ -939,6 +1462,16 @@ class TensorData:
         If the data do not currently exist in the required colour
         space, the necessary colour conversion will take place, and
         the results stored in the object or future use.
+        
+        Parameters
+        ----------
+        space : Space
+            The colour space in which to return the tensor data.
+        
+        Returns
+        -------
+        tensors : ndarray
+            Array of tensors in the given colour space.
         """
         if self.metrics.has_key(space):
             return self.metrics[space]
@@ -953,6 +1486,20 @@ class TensorData:
 
         For now, plane is represented by a slice giving the correct
         range for the arrays. Should perhaps be changed in the future.
+        
+        Parameters
+        ----------
+        space : Space
+            The space in which to give the ellipse parameters.
+        plane : slice
+            The principal plan for the ellipsoid cross sections.
+        scale : float
+            The scaling (magnification) factor for the ellipses.
+        
+        Returns
+        -------
+        a_b_theta : ndarray
+            N x 3 array of a, b, theta ellipse parameters.
         """
         metrics = self.get(space).copy()
         points = self.points.get_linear(space).copy()
@@ -981,6 +1528,20 @@ class TensorData:
 
         For now, plane is represented by a slice giving the correct
         range for the arrays. Should perhaps be changed in the future.
+        
+        Parameters
+        ----------
+        space : Space
+            The space in which to give the ellipse parameters.
+        plane : slice
+            The principal plan for the ellipsoid cross sections.
+        scale : float
+            The scaling (magnification) factor for the ellipses.
+        
+        Returns
+        -------
+        ellipses : list
+            List of Ellipse objects.
         """
         a_b_theta = self.get_ellipse_parameters(space, plane, scale)
         points = self.points.get_linear(space).copy()
@@ -1000,6 +1561,16 @@ class TensorData:
 def resource_path(relative):
     """
     Extend relative path to full path (mainly for PyInstaller integration).
+    
+    Parameters
+    ----------
+    relative : string
+        The relative path name.
+    
+    Returns
+    -------
+    absolute : string
+        The absolute path name.
     """
     return os.path.join(
         os.environ.get(
@@ -1039,6 +1610,11 @@ def read_csv_file(filename, pad=-np.inf):
 def build_d_XYZ_31():
     """
     Read CIE XYZ 1931 functions.
+    
+    Returns
+    -------
+    xyz_31 : Data
+        The XYZ 1931 colour matching functions.
     """
     xyz = read_csv_file('data/ciexyz31_1.csv')
     return Data(spaceXYZ, xyz[:,1:])
@@ -1046,6 +1622,11 @@ def build_d_XYZ_31():
 def build_d_XYZ_64():
     """
     Read CIE XYZ 1964 functions.
+
+    Returns
+    -------
+    xyz_64 : Data
+        The XYZ 1964 colour matching functions.
     """
     xyz = read_csv_file('data/ciexyz64_1.csv')
     return Data(spaceXYZ, xyz[:,1:])
@@ -1056,6 +1637,11 @@ def build_d_Melgosa():
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
     in CIELAB and returns TensorData.
+    
+    Returns
+    -------
+    d_Melgosa : Data
+        The centre points of Melgosa's RIT-DuPont ellipsoids.
     """
     m_a = np.array([-1.403 ,-16.374, -0.782, -27.549, 12.606, 12.153,
                      35.646, 1.937, -10.011, -0.453, -30.732, 21.121,
@@ -1077,6 +1663,22 @@ def build_d_regular(space, x_val, y_val, z_val):
     Build regular data set of colour data in the given colour space.
     
     x_val, y_val, and z_val should be one-dimensional arrays.
+    
+    Parameters
+    ----------
+    space : Space
+        The given colour space.
+    x_val : ndarray
+        Array of x values.
+    y_val : ndarray
+        Array of y values.
+    z_val : ndarray
+        Array of z values.
+        
+    Returns
+    -------
+    data : Data
+        Regular structure of colour data in the given colour space.
     """
     x_len = np.shape(x_val)[0]
     y_len = np.shape(y_val)[0]
@@ -1108,7 +1710,12 @@ def build_g_MacAdam():
     """
     MacAdam ellipses (defined in xy, extended arbitrarily to xyY).
     
-    Arbitrarily uses Y=0.4 and g33 = 1e3 for extension to 3D
+    Arbitrarily uses Y=0.4 and g33 = 1e3 for extension to 3D.
+    
+    Returns
+    -------
+    MacAdam : TensorData
+        The metric tensors corresponding to the MacAdam ellipsoids.
     """
     import scipy.io
     rawdata = scipy.io.loadmat('metric_data/macdata(xyabtheta).mat')
@@ -1139,6 +1746,11 @@ def build_g_three_observer():
     (JOSA, 1971) that only one of the data sets (GW) is represented in the
     file. Also, the paper reports a full 3D metric, so the arbitrary extension
     to 3D used here is not really called for.
+
+    Returns
+    -------
+    threeObserver : TensorData
+        The metric tensors corresponding to the three observer ellipsoids.
     """
     f = file('metric_data/3 observer.txt')
     rawdata = f.readlines()[:-1]
@@ -1170,6 +1782,11 @@ def build_g_Melgosa_Lab():
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
     in CIELAB and returns TensorData.
+
+    Returns
+    -------
+    Melgosa : TensorData
+        The metric tensors corresponding to Melgosa's ellipsoids.
     """
     m_gaa = np.array([0.6609, 0.3920, 1.3017, 0.1742, 0.5967, 0.5374,
                       0.2837, 0.6138, 0.7252, 1.6002, 0.1760, 0.8512,
@@ -1212,6 +1829,11 @@ def build_g_Melgosa_xyY():
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
     in xyY and returns TensorData.
+
+    Returns
+    -------
+    Melgosa : TensorData
+        The metric tensors corresponding to Melgosa's ellipsoids.
     """
     m_g11 = np.array([10.074, 5.604, 18.738,3.718, 5.013, 7.462, 1.229,
                       7.634, 11.805, 3.578, 5.359, 1.770, 0.368, 9.407,
@@ -1258,6 +1880,18 @@ def build_g_Melgosa_xyY():
 def tensor_Euclidean(space, data):
     """
     Compute the general Euclidean metric in the given colour space as TensorData.
+    
+    Parameters
+    ----------
+    space : Space
+        The colour space in which the metric tensor is Euclidean.
+    data : Data
+        The colour points for which to compute the metric.
+        
+    Returns
+    -------
+    Euclidean : TensorData
+        The metric tensors.
     """
     g = space.empty_matrix(data.linear_XYZ)
     for i in range(np.shape(g)[0]):
@@ -1267,18 +1901,48 @@ def tensor_Euclidean(space, data):
 def tensor_DEab(data):
     """
     Compute the DEab metric as TensorData for the given data points.
+
+    Parameters
+    ----------
+    data : Data
+        The colour points for which to compute the metric.
+        
+    Returns
+    -------
+    DEab : TensorData
+        The metric tensors.
     """
     return tensor_Euclidean(spaceCIELAB, data)
 
 def tensor_DEuv(data):
     """
     Compute the DEuv metric as TensorData for the given data points.
+
+    Parameters
+    ----------
+    data : Data
+        The colour points for which to compute the metric.
+        
+    Returns
+    -------
+    DEuv : TensorData
+        The metric tensors.
     """
     return tensor_Euclidean(spaceCIELUV, data)
     
 def tensor_Poincare_disk(space, data):
     """
     Compute the general Poincare Disk metric in the given colour space as TensorData
+
+    Parameters
+    ----------
+    data : Data
+        The colour points for which to compute the metric.
+        
+    Returns
+    -------
+    Poincare : TensorData
+        The metric tensors.
     """
     
     d = data.get_linear(space)
@@ -1313,6 +1977,22 @@ def metric_linear(space, data1, data2, metric_tensor_function):
     The function metric_tensor_function is used to compute the metric tensor
     at the midpoint between the two data sets in the given colour space. Then
     the colour metric is computed as dC^T * g * dC.
+    
+    Parameters
+    ----------
+    space : Space
+        The colour space in which to compute the linearised metric.
+    data1 : Data
+        The colour data of the first data set.
+    data2 : Data
+        The colour data of the second data set.
+    metric_tensor_function : function
+        Function giving the metric tensors at given colour data points.
+    
+    Returns
+    -------
+    distance : ndarray
+        Array of the difference or distances between the two data sets.
     """
     d1 = data1.get_linear(space)
     d2 = data2.get_linear(space)
@@ -1330,6 +2010,18 @@ def metric_DEab(data1, data2):
     Compute the DEab metric.
     
     Since the metric is Euclidean, this can be done using the linearised function.
+
+    Parameters
+    ----------
+    data1 : Data
+        The colour data of the first data set.
+    data2 : Data
+        The colour data of the second data set.
+    
+    Returns
+    -------
+    distance : ndarray
+        Array of the difference or distances between the two data sets.
     """
     return metric_linear(spaceCIELAB, data1, data2, tensor_DEab)
 
@@ -1338,6 +2030,18 @@ def metric_DEuv(data1, data2):
     Compute the DEuv metric.
     
     Since the metric is Euclidean, this can be done using the linearised function.
+
+    Parameters
+    ----------
+    data1 : Data
+        The colour data of the first data set.
+    data2 : Data
+        The colour data of the second data set.
+    
+    Returns
+    -------
+    distance : ndarray
+        Array of the difference or distances between the two data sets.
     """
     return metric_linear(spaceCIELUV, data1, data2, tensor_DEuv)
 
@@ -1349,6 +2053,21 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
                   facecolor=[.5, .5, .5], edgecolor=[0, 0, 0], fill=False):
     """
     Plot the list of ellipses on the given axis.
+    
+    Parameters
+    ----------
+    ellipses : list
+        List of Ellipse objects.
+    axis : AxesSubplot
+        Axis on which to plot the ellipses.
+    alpha : float
+        Alpha for colour blending.
+    facecolor : ndarray
+        RGB array of the ellipse faces.
+    edgecolor : ndarray
+        RGB array of the ellipse edges.
+    fill : bool
+        Fill the ellipses or not.
     """
     if axis == None:
         axis = plt.gca()
@@ -1360,9 +2079,10 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
         e.set_edgecolor(edgecolor)
         e.set_fill(fill)
 
-# For the Pant R values
-
 def _ellipse_union(th, ell1, ell2):
+    """
+    For the Pant R values. Integrand the union of two ellipses.
+    """
     r1 = ell1[0] * ell1[1] / (np.sqrt(ell1[1]**2 * np.cos(th-ell1[2])**2 +
                               ell1[0]**2 * np.sin(th-ell1[2])**2))
     r2 = ell2[0] * ell2[1] / (np.sqrt(ell2[1]**2 * np.cos(th-ell2[2])**2 +
@@ -1371,6 +2091,9 @@ def _ellipse_union(th, ell1, ell2):
     return .5 * u**2
 
 def _ellipse_intersection(th, ell1, ell2):
+    """
+    For the Pant R values. Integrand for the intersection of two ellipses.
+    """
     r1 = ell1[0] * ell1[1] / (np.sqrt(ell1[1]**2 * np.cos(th-ell1[2])**2 +
                               ell1[0]**2 * np.sin(th-ell1[2])**2))
     r2 = ell2[0] * ell2[1] / (np.sqrt(ell2[1]**2 * np.cos(th-ell2[2])**2 +
@@ -1399,6 +2122,9 @@ def _pant_R_values(ells1, ells2, scale=1):
     return r_values
 
 def _cost_function(scale, ells1, ells2):
+    """
+    Cost function for the optimisation of the scale for the R values.
+    """
     print "Cost function"
     r_values = _pant_R_values(ells1, ells2, scale)
     print r_values.mean()
@@ -1414,7 +2140,18 @@ def pant_R_values(space, tdata1, tdata2, optimise=True, plane=None):
     principal planes are used, and the resulting array of R values will
     be three times the length ot tdataN.
     
-    Returns the R values
+    Parameters
+    ----------
+    space : Space
+        The colour space in which to compute the R values.
+    tdata1 : TensorData
+        The first set of colour metric tensors.
+    tdata2 : TensorData
+        The second set of colour metric tensors.
+    optimise : bool
+        Whether or not to optimise the scaling of the ellipse set.
+    plane : slice
+        The principal plan for the ellipsoid cross sections.
     """    
     if plane == None:
         ell1a = tdata1.get_ellipse_parameters(space, TensorData.plane_01)
