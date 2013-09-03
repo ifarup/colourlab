@@ -2044,40 +2044,33 @@ def metric_DEuv(data1, data2):
         Array of the difference or distances between the two data sets.
     """
     return metric_linear(spaceCIELUV, data1, data2, tensor_DEuv)
-
+    
 #==============================================================================
-# Auxiliary functions
+# Statistics of metrics
 #==============================================================================
 
-def plot_ellipses(ellipses, axis=None, alpha=1,
-                  facecolor=[.5, .5, .5], edgecolor=[0, 0, 0], fill=False):
+def stress(diff1, diff2):
     """
-    Plot the list of ellipses on the given axis.
+    Compute the STRESS for the two sets of differences.
+    
+    The STRESS (standardised residual sum of squares) is returned as a
+    percentage.
     
     Parameters
     ----------
-    ellipses : list
-        List of Ellipse objects.
-    axis : AxesSubplot
-        Axis on which to plot the ellipses.
-    alpha : float
-        Alpha for colour blending.
-    facecolor : ndarray
-        RGB array of the ellipse faces.
-    edgecolor : ndarray
-        RGB array of the ellipse edges.
-    fill : bool
-        Fill the ellipses or not.
+    diff1 : ndarray
+        1D array of colour differences.
+    diff2 : ndarray
+        1D array of colour differences.
+    
+    Returns
+    -------
+    stress : float
+        Standard residual sum of squares.
     """
-    if axis == None:
-        axis = plt.gca()
-    for e in ellipses:
-        axis.add_artist(e)
-        e.set_clip_box(axis.bbox)
-        e.set_alpha(alpha)
-        e.set_facecolor(facecolor)
-        e.set_edgecolor(edgecolor)
-        e.set_fill(fill)
+    F = (diff1**2).sum() / (diff1 * diff2).sum()
+    stress = 100 *np.sqrt(((diff1 - F * diff2)**2).sum() / ((F * diff2)**2).sum())
+    return stress
 
 def _ellipse_union(th, ell1, ell2):
     """
@@ -2172,10 +2165,45 @@ def pant_R_values(space, tdata1, tdata2, optimise=True, plane=None):
         return _pant_R_values(ell1, ell2)        
 
 #==============================================================================
+# Auxiliary functions
+#==============================================================================
+
+def plot_ellipses(ellipses, axis=None, alpha=1,
+                  facecolor=[.5, .5, .5], edgecolor=[0, 0, 0], fill=False):
+    """
+    Plot the list of ellipses on the given axis.
+    
+    Parameters
+    ----------
+    ellipses : list
+        List of Ellipse objects.
+    axis : AxesSubplot
+        Axis on which to plot the ellipses.
+    alpha : float
+        Alpha for colour blending.
+    facecolor : ndarray
+        RGB array of the ellipse faces.
+    edgecolor : ndarray
+        RGB array of the ellipse edges.
+    fill : bool
+        Fill the ellipses or not.
+    """
+    if axis == None:
+        axis = plt.gca()
+    for e in ellipses:
+        axis.add_artist(e)
+        e.set_clip_box(axis.bbox)
+        e.set_alpha(alpha)
+        e.set_facecolor(facecolor)
+        e.set_edgecolor(edgecolor)
+        e.set_fill(fill)
+
+#==============================================================================
 # Main, for testing only
 #==============================================================================
 
 if __name__ == '__main__':
-    gMA = build_g_MacAdam()
-    gDE = tensor_DEab(gMA.points)
-    print pant_R_values(spaceCIELAB, gMA, gDE, optimise=False, plane=TensorData.plane_ab)
+    ones = 1 * np.ones(30)
+    diff1 = ones + np.random.random_sample(np.shape(ones)[0])
+    diff2 = ones + np.random.random_sample(np.shape(ones)[0])
+    print stress(diff1, diff2)
