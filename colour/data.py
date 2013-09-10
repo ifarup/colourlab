@@ -626,7 +626,6 @@ def build_g_BFD(dataset='P'):
     bfd : TensorData
         The BDF data set of the required type
     """
-    # TODO: Continue!!!
     if dataset == 'P':
         file_name = 'colour/metric_data/BFD_P.txt'
     elif dataset == 'A':
@@ -662,5 +661,4 @@ def build_g_BFD(dataset='P'):
 #
 # Metric data sets, as needed (instances of TensorData):
 #     BrownMacAdam
-#     BFD
 #     +++
