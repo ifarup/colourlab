@@ -1274,3 +1274,12 @@ spaceIPT = TransformLinear(TransformGamma(TransformLinear(spaceXYZ,
                 np.array([[.4, .4, .2],
                           [4.455, -4.850, .3960],
                           [.8056, .3572, -1.1628]]))
+# First attemt at Euclidean for Poincare transform:
+spaceUi = TransformLinear(TransformGamma(TransformLinear(spaceXYZ,
+                np.array([[0.1551646, 0.5430763, -0.0370161],
+                          [-0.1551646, 0.4569237, 0.0296946],
+                          [0, 0, 0.0073215]])),
+                .43),
+                np.array([[1.1032e+00, 5.0900e-01, 5.0840e-03],
+                          [2.2822e+00, -4.2580e+00, 6.2844e+00],
+                          [9.6110e+00, -1.2199e+01, -2.3843e+00]]))
