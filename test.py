@@ -19,12 +19,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from colour import *
+import numpy as np
+from matplotlib import pyplot as plt
+import colour
 
-xyz = build_d_XYZ_31()
-gMA = build_g_MacAdam()
-p = gMA.points.get(spaceCIELAB)
+bfd = colour.build_g_BFD('P')
 plt.clf()
+p = bfd.points.get_linear(colour.spaceCIELAB)
 plt.plot(p[:,1], p[:,2], '.')
-plot_ellipses(gMA.get_ellipses(spaceCIELAB, plane=gMA.plane_ab, scale=10))
-plt.show()
+colour.plot_ellipses(bfd.get_ellipses(colour.spaceCIELAB, plane=bfd.plane_ab))

@@ -47,7 +47,8 @@ def stress(diff1, diff2):
         Standard residual sum of squares.
     """
     F = (diff1**2).sum() / (diff1 * diff2).sum()
-    stress = 100 *np.sqrt(((diff1 - F * diff2)**2).sum() / ((F * diff2)**2).sum())
+    stress = (100 *np.sqrt(((diff1 - F * diff2)**2).sum() / 
+              ((F * diff2)**2).sum()))
     return stress
 
 def _ellipse_union(th, ell1, ell2):
@@ -76,8 +77,10 @@ def _pant_R_value(ell1, ell2):
     """
     Compute single R value for the two given ellipses.
     """    
-    area_intersection = scipy.integrate.quad(_ellipse_intersection, 0, 2 * np.pi, (ell1, ell2))    
-    area_union = scipy.integrate.quad(_ellipse_union, 0, 2 * np.pi, (ell1, ell2))
+    area_intersection = scipy.integrate.quad(_ellipse_intersection,
+                                             0, 2 * np.pi, (ell1, ell2))    
+    area_union = scipy.integrate.quad(_ellipse_union,
+                                      0, 2 * np.pi, (ell1, ell2))
     return area_intersection[0] / area_union[0]
 
 def _pant_R_values(ells1, ells2, scale=1):

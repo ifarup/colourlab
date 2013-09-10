@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import os
+import re
 import numpy as np
 from space import spaceXYZ, spaceCIELAB, spacexyY
 from matplotlib.patches import Ellipse
@@ -609,6 +610,53 @@ def build_g_Melgosa_xyY():
     m_xyY_metric[:, 2, 1] = m_g23
     m_xyY_metric = 1e4*m_xyY_metric
     return TensorData(spacexyY, build_d_Melgosa(), m_xyY_metric)
+
+def build_g_BFD(dataset='P'):
+    """
+    Return the BFD data set ellipses of the required type.
+    
+    Parameters
+    ----------
+    dataset : string
+        The data set to use, either 'P', 'A', or '2', for perceptual,
+        accept, and both, respectively.
+    
+    Returns
+    -------
+    bfd : TensorData
+        The BDF data set of the required type
+    """
+    # TODO: Continue!!!
+    if dataset == 'P':
+        file_name = 'colour/metric_data/BFD_P.txt'
+    elif dataset == 'A':
+        file_name = 'colour/metric_data/BFD_A.txt'
+    elif dataset == '2':
+        file_name = 'colour/metric_data/BFD (2).txt'
+    f = file(file_name, 'r')
+    rawdata = f.readlines()
+    for line in range(len(rawdata)):
+        rawdata[line] = re.sub(r'\s+', ' ', rawdata[line]).strip()
+        rawdata[line] = rawdata[line].split(' ')
+        for item in range(len(rawdata[line])):
+            rawdata[line][item] = float(rawdata[line][item])
+    rawdata = np.array(rawdata)
+    xyY = rawdata[:,0:3].copy()
+    xyY[:,2] = xyY[:,2] / 100
+    points = Data(spacexyY, xyY)
+    a = rawdata[:,3] / 1e4 # correct?
+    b = a / rawdata[:,4] # corect?
+    theta = rawdata[:,5]*np.pi/180.
+    g11 = (np.cos(theta)/a)**2 + (np.sin(theta)/b)**2
+    g22 = (np.sin(theta)/a)**2 + (np.cos(theta)/b)**2
+    g12 = np.cos(theta)*np.sin(theta)*(1/a**2 - 1/b**2)
+    g = np.zeros((np.shape(rawdata)[0],3,3))
+    g[:, 0, 0] = g11
+    g[:, 1, 1] = g22
+    g[:, 2, 2] = 1e3 # arbitrary!
+    g[:, 0, 1] = g12
+    g[:, 1, 0] = g12
+    return TensorData(spacexyY, points, g)
 
 # TODO:
 #
