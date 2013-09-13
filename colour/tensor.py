@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-tensor: Compute colour metric tensors.
+tensor: Compute colour metric tensors as data.TensorData objects.
 
 Copyright (C) 2013 Ivar Farup
 
@@ -20,22 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from data import TensorData
-from space import spaceCIELAB, spaceCIELUV
+import data
+import space
 
 #==============================================================================
 # Colour metric tensors
 #==============================================================================
 
-def tensor_Euclidean(space, data):
+def euclidean(sp, dat):
     """
     Compute the general Euclidean metric in the given colour space as TensorData.
     
     Parameters
     ----------
-    space : Space
+    sp : Space
         The colour space in which the metric tensor is Euclidean.
-    data : Data
+    dat : Data
         The colour points for which to compute the metric.
         
     Returns
@@ -43,18 +43,18 @@ def tensor_Euclidean(space, data):
     Euclidean : TensorData
         The metric tensors.
     """
-    g = space.empty_matrix(data.linear_XYZ)
+    g = sp.empty_matrix(dat.linear_XYZ)
     for i in range(np.shape(g)[0]):
         g[i] = np.eye(3)
-    return TensorData(space, data, g)
+    return data.TensorData(sp, dat, g)
 
-def tensor_DEab(data):
+def dE_ab(dat):
     """
     Compute the DEab metric as TensorData for the given data points.
 
     Parameters
     ----------
-    data : Data
+    dat : Data
         The colour points for which to compute the metric.
         
     Returns
@@ -62,15 +62,15 @@ def tensor_DEab(data):
     DEab : TensorData
         The metric tensors.
     """
-    return tensor_Euclidean(spaceCIELAB, data)
+    return euclidean(space.cielab, dat)
 
-def tensor_DEuv(data):
+def dE_uv(dat):
     """
     Compute the DEuv metric as TensorData for the given data points.
 
     Parameters
     ----------
-    data : Data
+    dat : Data
         The colour points for which to compute the metric.
         
     Returns
@@ -78,15 +78,15 @@ def tensor_DEuv(data):
     DEuv : TensorData
         The metric tensors.
     """
-    return tensor_Euclidean(spaceCIELUV, data)
+    return euclidean(space.cieluv, dat)
     
-def tensor_Poincare_disk(space, data):
+def poincare_disk(sp, dat):
     """
     Compute the general Poincare Disk metric in the given colour space as TensorData
 
     Parameters
     ----------
-    data : Data
+    dat : Data
         The colour points for which to compute the metric.
         
     Returns
@@ -95,13 +95,13 @@ def tensor_Poincare_disk(space, data):
         The metric tensors.
     """
     
-    d = data.get_linear(space)
-    g = space.empty_matrix(d)
+    d = dat.get_linear(sp)
+    g = sp.empty_matrix(d)
     for i in range(np.shape(g)[0]):
         g[i, 0, 0] = 1
         g[i, 1, 1] = 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
         g[i, 2, 2] = 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
-    return TensorData(space, data, g)
+    return data.TensorData(sp, dat, g)
 
 # TODO:
 #
@@ -116,3 +116,23 @@ def tensor_Poincare_disk(space, data):
 #     tensor_DIN99
 #     +++
 
+#==============================================================================
+# Test module
+#==============================================================================
+
+def test():
+    """
+    Test entire module, and print report.
+    """
+    d = data.build_d_regular(space.cielab,
+                             np.linspace(0, 100, 10),
+                             np.linspace(-100, 100, 21),
+                             np.linspace(-100, 100, 21))
+    ndat = np.shape(d.get_linear(space.cielab))[0]
+    gab = dE_ab(d)
+    guv = dE_uv(d)
+    gD = poincare_disk(space.cielab, d)
+    print "Metric shapes (all should be true):"
+    print np.shape(gab.get(space.xyz)) == (ndat, 3, 3)
+    print np.shape(guv.get(space.xyz)) == (ndat, 3, 3)
+    print np.shape(gD.get(space.xyz)) == (ndat, 3, 3)

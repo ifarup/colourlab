@@ -23,14 +23,4 @@ import numpy as np
 from matplotlib import pyplot as plt
 import colour
 
-disk = colour.TransformPoincareDisk(colour.TransformLinear(colour.spaceUi, 1.5 * np.eye(3)))
-
-bfd = colour.build_g_BFD('P')
-p = bfd.points.get_linear(disk)
-
-plt.clf()
-plt.plot(p[:,1], p[:,2], '.')
-colour.plot_ellipses(bfd.get_ellipses(disk, plane=bfd.plane_ab))
-plt.axis('equal')
-plt.grid()
-plt.show()
+colour.test()

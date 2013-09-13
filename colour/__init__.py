@@ -21,9 +21,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Main file. Just import the other files.
 
-from space import *
-from data import *
-from statistics import *
-from misc import *
-from metric import *
-from tensor import *
+import space
+import data
+import tensor
+import metric
+import statistics
+import misc
+
+# Test package
+
+def test():
+    """
+    Test entire package by calling the test function of all the modules.
+    """
+    print "\nTesting module space:\n"
+    space.test()
+    print "\nTesting module data:\n"
+    data.test()
+    print "\nTesting module tensor:\n"
+    tensor.test()
+    print "\nTesting module metric:\n"
+    metric.test()
+    print "\nTesting module statistics:\n"
+    statistics.test()

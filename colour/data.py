@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import re
 import numpy as np
-from space import spaceXYZ, spaceCIELAB, spacexyY
+import space
 from matplotlib.patches import Ellipse
 
 #==============================================================================
@@ -34,18 +34,18 @@ class Data:
     Class for keeping colour data in various colour spaces and shapes.
     """
 
-    def __init__(self, space, ndata):
+    def __init__(self, sp, ndata):
         """
         Construct new instance and set colour space and data.
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The colour space for the given instanisiation data.
         ndata : ndarray
             The colour data in the given space.
         """
-        self.set(space, ndata)
+        self.set(sp, ndata)
 
     def linearise(self, ndata):
         """
@@ -72,7 +72,7 @@ class Data:
         C_data = sh[len(sh) - 1]
         return np.reshape(ndata, (P_data, C_data))
 
-    def set(self, space, ndata):
+    def set(self, sp, ndata):
         """
         Set colour space and data.
 
@@ -82,23 +82,23 @@ class Data:
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The colour space for the given instanisiation data.
         ndata : ndarray
             The colour data in the given space.        
         """
         ndata = np.array(ndata)
         self.data = dict()
-        self.data[space] = ndata
+        self.data[sp] = ndata
         self.sh = ndata.shape
         linear_data = self.linearise(ndata)
-        if space == spaceXYZ:
+        if sp == space.xyz:
             self.linear_XYZ = linear_data
         else:
-            self.linear_XYZ = space.to_XYZ(linear_data)
-            self.data[spaceXYZ] = np.reshape(self.linear_XYZ, self.sh)
+            self.linear_XYZ = sp.to_XYZ(linear_data)
+            self.data[space.xyz] = np.reshape(self.linear_XYZ, self.sh)
 
-    def get(self, space):
+    def get(self, sp):
         """
         Return colour data in required colour space.
         
@@ -108,7 +108,7 @@ class Data:
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The colour space for the returned data.
         
         Returns
@@ -116,15 +116,15 @@ class Data:
         ndata : ndarray
             The colour data in the given colour space.
         """
-        if self.data.has_key(space):
-            return self.data[space]
+        if self.data.has_key(sp):
+            return self.data[sp]
         else:
-            linear_data = space.from_XYZ(self.linear_XYZ)
+            linear_data = sp.from_XYZ(self.linear_XYZ)
             ndata = np.reshape(linear_data, self.sh)
-            self.data[space] = ndata
+            self.data[sp] = ndata
             return ndata
             
-    def get_linear(self, space):
+    def get_linear(self, sp):
         """
         Return colour data in required colour space in PxC format.
         
@@ -134,7 +134,7 @@ class Data:
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The colour space for the returned data.
         
         Returns
@@ -142,7 +142,7 @@ class Data:
         ndata : ndarray
             The linearised colour data in the given colour space.
         """
-        return self.linearise(self.get(space))
+        return self.linearise(self.get(sp))
 
 class TensorData:
     """
@@ -160,24 +160,24 @@ class TensorData:
     plane_aL = plane_10
     plane_bL = plane_20
 
-    def __init__(self, space, points_data, metrics_ndata):
+    def __init__(self, sp, points_data, metrics_ndata):
         """
         Construct new instance and set colour space and data.
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The colour space for the given tensor data.
         points_data : Data
             The colour points for the given tensor data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
         """
-        self.set(space, points_data, metrics_ndata)
+        self.set(sp, points_data, metrics_ndata)
 
-    def set(self, space, points_data, metrics_ndata):
+    def set(self, sp, points_data, metrics_ndata):
         """
-        Set colour space, points, and metrics data.
+        Set colour sp, points, and metrics data.
 
         The points_data are taken care already of the type Data. A new
         dictionary is constructed, and the metrics_ndata are added in
@@ -186,7 +186,7 @@ class TensorData:
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The colour space for the given tensor data.
         points_data : Data
             The colour points for the given tensor data.
@@ -195,12 +195,12 @@ class TensorData:
         """
         self.points = points_data
         self.metrics = dict()
-        self.metrics[space] = metrics_ndata
-        if space != spaceXYZ:
-            self.metrics[spaceXYZ] = \
-                space.metrics_to_XYZ(points_data, metrics_ndata)
+        self.metrics[sp] = metrics_ndata
+        if sp != space.xyz:
+            self.metrics[space.xyz] = \
+                sp.metrics_to_XYZ(points_data, metrics_ndata)
 
-    def get(self, space):
+    def get(self, sp):
         """
         Return metric data in required colour space.
 
@@ -210,7 +210,7 @@ class TensorData:
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The colour space in which to return the tensor data.
         
         Returns
@@ -218,14 +218,14 @@ class TensorData:
         tensors : ndarray
             Array of tensors in the given colour space.
         """
-        if self.metrics.has_key(space):
-            return self.metrics[space]
+        if self.metrics.has_key(sp):
+            return self.metrics[sp]
         else:
-            self.metrics[space] = \
-                space.metrics_from_XYZ(self.points, self.metrics[spaceXYZ])
-            return self.metrics[space]
+            self.metrics[sp] = \
+                sp.metrics_from_XYZ(self.points, self.metrics[space.xyz])
+            return self.metrics[sp]
     
-    def get_ellipse_parameters(self, space, plane=plane_xy, scale=1):
+    def get_ellipse_parameters(self, sp, plane=plane_xy, scale=1):
         """
         Return ellipse parameters a, b, theta in the required plane of the given space.
 
@@ -234,7 +234,7 @@ class TensorData:
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The space in which to give the ellipse parameters.
         plane : slice
             The principal plan for the ellipsoid cross sections.
@@ -246,8 +246,8 @@ class TensorData:
         a_b_theta : ndarray
             N x 3 array of a, b, theta ellipse parameters.
         """
-        metrics = self.get(space).copy()
-        points = self.points.get_linear(space).copy()
+        metrics = self.get(sp).copy()
+        points = self.points.get_linear(sp).copy()
         a_b_theta = np.zeros(np.shape(points))
         metrics = metrics[:, plane, plane]
         points = points[:, plane]
@@ -267,7 +267,7 @@ class TensorData:
             a_b_theta[i,2] = theta
         return a_b_theta
 
-    def get_ellipses(self, space, plane=plane_xy, scale=1):
+    def get_ellipses(self, sp, plane=plane_xy, scale=1):
         """
         Return Ellipse objects in the required plane of the given space.
 
@@ -276,7 +276,7 @@ class TensorData:
         
         Parameters
         ----------
-        space : Space
+        sp : Space
             The space in which to give the ellipse parameters.
         plane : slice
             The principal plan for the ellipsoid cross sections.
@@ -288,8 +288,8 @@ class TensorData:
         ellipses : list
             List of Ellipse objects.
         """
-        a_b_theta = self.get_ellipse_parameters(space, plane, scale)
-        points = self.points.get_linear(space).copy()
+        a_b_theta = self.get_ellipse_parameters(sp, plane, scale)
+        points = self.points.get_linear(sp).copy()
         points = points[:, plane]
         ells = []
         for i in range(np.shape(a_b_theta)[0]):
@@ -361,8 +361,8 @@ def build_d_XYZ_31():
     xyz_31 : Data
         The XYZ 1931 colour matching functions.
     """
-    xyz = read_csv_file('colour/data/ciexyz31_1.csv')
-    return Data(spaceXYZ, xyz[:,1:])
+    xyz_ = read_csv_file('colour/data/ciexyz31_1.csv')
+    return Data(space.xyz, xyz_[:,1:])
 
 def build_d_XYZ_64():
     """
@@ -373,8 +373,8 @@ def build_d_XYZ_64():
     xyz_64 : Data
         The XYZ 1964 colour matching functions.
     """
-    xyz = read_csv_file('colour/data/ciexyz64_1.csv')
-    return Data(spaceXYZ, xyz[:,1:])
+    xyz_ = read_csv_file('colour/data/ciexyz64_1.csv')
+    return Data(space.xyz, xyz_[:,1:])
 
 def build_d_Melgosa():
     """
@@ -401,9 +401,9 @@ def build_d_Melgosa():
                     31.683, 59.904, 17.357, 58.109, 30.186, 83.481,
                     76.057])
     m_Lab = np.concatenate(([m_L], [m_a], [m_b]), axis=0).T
-    return Data(spaceCIELAB, m_Lab)
+    return Data(space.cielab, m_Lab)
 
-def build_d_regular(space, x_val, y_val, z_val):
+def build_d_regular(sp, x_val, y_val, z_val):
     """
     Build regular data set of colour data in the given colour space.
     
@@ -411,7 +411,7 @@ def build_d_regular(space, x_val, y_val, z_val):
     
     Parameters
     ----------
-    space : Space
+    sp : Space
         The given colour space.
     x_val : ndarray
         Array of x values.
@@ -438,7 +438,7 @@ def build_d_regular(space, x_val, y_val, z_val):
                 ndata[l, 1] = y_val[j]
                 ndata[l, 2] = z_val[k]
                 l = l + 1
-    return Data(space, ndata)
+    return Data(sp, ndata)
     
 # TODO:
 #
@@ -467,7 +467,7 @@ def build_g_MacAdam():
     rawdata = rawdata['unnamed']
     xyY = rawdata[:,0:3].copy()
     xyY[:,2] = 0.4 # arbitrary!
-    points = Data(spacexyY, xyY)
+    points = Data(space.xyY, xyY)
     a = rawdata[:,2]/1e3
     b = rawdata[:,3]/1e3
     theta = rawdata[:,4]*np.pi/180.
@@ -480,7 +480,7 @@ def build_g_MacAdam():
     g[:, 2, 2] = 1e3 # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return TensorData(spacexyY, points, g)
+    return TensorData(space.xyY, points, g)
 
 def build_g_three_observer():
     """
@@ -506,7 +506,7 @@ def build_g_three_observer():
     rawdata = np.array(rawdata)
     xyY = rawdata[:,1:4].copy()
     xyY[:,2] = 0.4 # arbitrary!
-    points = Data(spacexyY, xyY)
+    points = Data(space.xyY, xyY)
     a = rawdata[:,4]/1e3 # correct?
     b = rawdata[:,5]/1e3 # corect?
     theta = rawdata[:,3]*np.pi/180.
@@ -519,7 +519,7 @@ def build_g_three_observer():
     g[:, 2, 2] = 1e3 # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return TensorData(spacexyY, points, g)
+    return TensorData(space.xyY, points, g)
 
 def build_g_Melgosa_Lab():
     """
@@ -566,7 +566,7 @@ def build_g_Melgosa_Lab():
     m_Lab_metric[:, 2, 0] = m_gLb
     m_Lab_metric[:, 1, 2] = m_gab
     m_Lab_metric[:, 2, 1] = m_gab
-    return TensorData(spaceCIELAB, build_d_Melgosa(), m_Lab_metric)
+    return TensorData(space.cielab, build_d_Melgosa(), m_Lab_metric)
     
 def build_g_Melgosa_xyY():
     """
@@ -609,7 +609,7 @@ def build_g_Melgosa_xyY():
     m_xyY_metric[:, 1, 2] = m_g23
     m_xyY_metric[:, 2, 1] = m_g23
     m_xyY_metric = 1e4*m_xyY_metric
-    return TensorData(spacexyY, build_d_Melgosa(), m_xyY_metric)
+    return TensorData(space.xyY, build_d_Melgosa(), m_xyY_metric)
 
 def build_g_BFD(dataset='P'):
     """
@@ -642,7 +642,7 @@ def build_g_BFD(dataset='P'):
     rawdata = np.array(rawdata)
     xyY = rawdata[:,0:3].copy()
     xyY[:,2] = xyY[:,2] / 100
-    points = Data(spacexyY, xyY)
+    points = Data(space.xyY, xyY)
     a = rawdata[:,3] / 1e4 # correct?
     b = a / rawdata[:,4] # corect?
     theta = rawdata[:,5]*np.pi/180.
@@ -655,10 +655,70 @@ def build_g_BFD(dataset='P'):
     g[:, 2, 2] = 1e3 # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return TensorData(spacexyY, points, g)
+    return TensorData(space.xyY, points, g)
 
 # TODO:
 #
 # Metric data sets, as needed (instances of TensorData):
 #     BrownMacAdam
 #     +++
+
+#==============================================================================
+# Test module
+#==============================================================================
+
+def test():
+    """
+    Test entire module, and print report.
+    """
+    col1 = np.array([.5, .5, .5])
+    col2 = np.array([[.5, .5, .5]])
+    col3 = np.array([[1e-10, 1e-10, 1e-10],
+                     [.95, 1., 1.08],
+                     [.5, .5, .5]])
+    col4 = np.array([[[1e-10, 1e-10, 1e-10],
+                      [.95, 1., 1.08],
+                      [.5, .5, .5]],
+                    [[1e-10, 1e-10, 1e-10],
+                      [.95, 1., 1.08],
+                      [.5, .5, .5]]])    
+    d1 = Data(space.xyz, col1)
+    d2 = Data(space.xyz, col2)
+    d3 = Data(space.xyz, col3)
+    d4 = Data(space.xyz, col4)
+    print "Data shapes (all should be True):"
+    print np.shape(d1.get(space.xyz)) == (3,)
+    print np.shape(d1.get_linear(space.xyz)) == (1, 3)
+    print np.shape(d2.get(space.xyz)) == (1, 3)
+    print np.shape(d2.get_linear(space.xyz)) == (1, 3)
+    print np.shape(d3.get(space.xyz)) == (3, 3)
+    print np.shape(d3.get_linear(space.xyz)) == (3, 3)
+    print np.shape(d4.get(space.xyz)) == (2, 3, 3)
+    print np.shape(d4.get_linear(space.xyz)) == (6, 3)
+    lab1 = d1.get(space.cielab)
+    lab2 = d2.get(space.cielab)
+    lab3 = d3.get(space.cielab)
+    lab4 = d4.get(space.cielab)
+    dd1 = Data(space.cielab, lab1)
+    dd2 = Data(space.cielab, lab2)
+    dd3 = Data(space.cielab, lab3)
+    dd4 = Data(space.cielab, lab4)
+    print "\nData conversion (all should be < 1e-11):"
+    print np.max(np.abs(col1 - dd1.get(space.xyz)))
+    print np.max(np.abs(col2 - dd2.get(space.xyz)))
+    print np.max(np.abs(col3 - dd3.get(space.xyz)))
+    print np.max(np.abs(col4 - dd4.get(space.xyz)))
+    print "\nReading data files..."
+    build_d_XYZ_31()
+    build_d_XYZ_64()
+    build_d_Melgosa()
+    build_d_regular(space.xyz, np.linspace(0, 1, 10), 
+                    np.linspace(0, 1, 10), np.linspace(0, 1, 10))
+    print "ok"
+    print "\nTensor data, and reading tensor data files..."
+    build_g_MacAdam()
+    build_g_three_observer()
+    build_g_Melgosa_Lab()
+    build_g_Melgosa_xyY()
+    build_g_BFD()
+    print "ok"

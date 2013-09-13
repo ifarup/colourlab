@@ -20,15 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from data import Data
-from space import spaceCIELAB, spaceCIELUV
-from tensor import tensor_DEab, tensor_DEuv
+import data
+import space
+import tensor
 
 #==============================================================================
 # Colour metric functions
 #==============================================================================
 
-def metric_linear(space, data1, data2, metric_tensor_function):
+def linear(sp, dat1, dat2, metric_tensor_function):
     """
     Compute the linearised colour difference between the two data sets.
     
@@ -38,11 +38,11 @@ def metric_linear(space, data1, data2, metric_tensor_function):
     
     Parameters
     ----------
-    space : Space
+    sp : Space
         The colour space in which to compute the linearised metric.
-    data1 : Data
+    dat1 : Data
         The colour data of the first data set.
-    data2 : Data
+    dat2 : Data
         The colour data of the second data set.
     metric_tensor_function : function
         Function giving the metric tensors at given colour data points.
@@ -52,18 +52,18 @@ def metric_linear(space, data1, data2, metric_tensor_function):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    d1 = data1.get_linear(space)
-    d2 = data2.get_linear(space)
+    d1 = dat1.get_linear(sp)
+    d2 = dat2.get_linear(sp)
     midp = (d1 + d2) * .5
     diff = d1 - d2
-    g = metric_tensor_function(Data(space, midp))
-    g = g.get(space)
+    g = metric_tensor_function(data.Data(sp, midp))
+    g = g.get(sp)
     m = np.zeros(np.shape(diff)[0])
     for i in range(np.shape(m)[0]):
         m[i] = np.sqrt(np.dot(diff[i].T, np.dot(g[i], diff[i])))
     return m
 
-def metric_DEab(data1, data2):
+def dE_ab(dat1, dat2):
     """
     Compute the DEab metric.
     
@@ -71,9 +71,9 @@ def metric_DEab(data1, data2):
 
     Parameters
     ----------
-    data1 : Data
+    dat1 : Data
         The colour data of the first data set.
-    data2 : Data
+    dat2 : Data
         The colour data of the second data set.
     
     Returns
@@ -81,9 +81,9 @@ def metric_DEab(data1, data2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return metric_linear(spaceCIELAB, data1, data2, tensor_DEab)
+    return linear(space.cielab, dat1, dat2, tensor.dE_ab)
 
-def metric_DEuv(data1, data2):
+def dE_uv(dat1, dat2):
     """
     Compute the DEuv metric.
     
@@ -91,9 +91,9 @@ def metric_DEuv(data1, data2):
 
     Parameters
     ----------
-    data1 : Data
+    dat1 : Data
         The colour data of the first data set.
-    data2 : Data
+    dat2 : Data
         The colour data of the second data set.
     
     Returns
@@ -101,4 +101,28 @@ def metric_DEuv(data1, data2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return metric_linear(spaceCIELUV, data1, data2, tensor_DEuv)
+    return linear(space.cieluv, dat1, dat2, tensor.dE_uv)
+
+#==============================================================================
+# Test module
+#==============================================================================
+
+def test():
+    """
+    Test module, print results.
+    """
+    d1 = data.build_d_regular(space.cielab,
+                             np.linspace(0, 100, 10),
+                             np.linspace(-100, 100, 21),
+                             np.linspace(-100, 100, 21))
+    d2 = data.Data(space.cielab,
+                   d1.get(space.cielab) + 1)
+    print "Metric errors (all should be < 1e-11):"
+    print np.max(dE_ab(d1, d2) - np.sqrt(3))
+    d1 = data.build_d_regular(space.cieluv,
+                             np.linspace(0, 100, 10),
+                             np.linspace(-100, 100, 21),
+                             np.linspace(-100, 100, 21))
+    d2 = data.Data(space.cieluv,
+                   d1.get(space.cieluv) + 1)
+    print np.max(dE_uv(d1, d2) - np.sqrt(3))

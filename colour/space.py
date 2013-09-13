@@ -151,7 +151,7 @@ class Space(object):
                                    np.dot(metrics_ndata[i], jacobian[i]))
         return new_metric
 
-class SpaceXYZ(Space):
+class XYZ(Space):
     """
     The XYZ colour space.
 
@@ -234,7 +234,7 @@ class SpaceXYZ(Space):
         ijac[:] = np.eye(3)
         return ijac
 
-class SpaceTransform(Space):
+class Transform(Space):
     """
     Base class for colour space transforms.
     
@@ -380,7 +380,7 @@ class SpaceTransform(Space):
             ijac[i] = np.dot(dXYZdbase[i], dbasedx[i])
         return ijac
 
-class TransformxyY(SpaceTransform):
+class TransformxyY(Transform):
     """
     The XYZ to xyY projective transform.
     """
@@ -503,7 +503,7 @@ class TransformxyY(SpaceTransform):
             jac[i,2,2] = (1 - xyYdata[i,0] - xyYdata[i,1]) / xyYdata[i,1]
         return jac
 
-class TransformCIELAB(SpaceTransform):
+class TransformCIELAB(Transform):
     """
     The XYZ to CIELAB colour space transform.
 
@@ -629,7 +629,7 @@ class TransformCIELAB(SpaceTransform):
         jac[:, 2, 2] = -200 * df[:, 2] / self.white_point[2] # db/dZ
         return jac
 
-class TransformCIELUV(SpaceTransform):
+class TransformCIELUV(Transform):
     """
     The XYZ to CIELUV colour space transform.
 
@@ -746,47 +746,47 @@ class TransformCIELUV(SpaceTransform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyz = data.get_linear(spaceXYZ)
-        luv = data.get_linear(spaceCIELUV)
-        df = self.dfdx(xyz)
-        jac = self.empty_matrix(xyz)
+        xyz_ = data.get_linear(xyz)
+        luv = data.get_linear(cieluv)
+        df = self.dfdx(xyz_)
+        jac = self.empty_matrix(xyz_)
         # dL/dY:
         jac[:, 0, 1] = 116 * df[:, 1] / self.white_point[1]
         # du/dX:
         jac[:, 1, 0] = 13 * luv[:,0] * \
-            (60 * xyz[:,1] + 12 * xyz[:,2]) / \
-            (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) ** 2
+            (60 * xyz_[:,1] + 12 * xyz_[:,2]) / \
+            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
         # du/dY:
         jac[:, 1, 1] = 13 * luv[:,0] * \
-            -60 * xyz[:,0] / \
-            (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) ** 2 + \
+            -60 * xyz_[:,0] / \
+            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2 + \
             13 * jac[:, 0, 1] * (
-                4 * xyz[:,0] / (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) -
+                4 * xyz_[:,0] / (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) -
                 4 * self.white_point[0] / \
                 (self.white_point[0] + 15 * self.white_point[1] + 3 * self.white_point[2]))
         # du/dZ:
         jac[:, 1, 2] = 13 * luv[:,0] * \
-            -12 * xyz[:,0] / \
-            (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) ** 2
+            -12 * xyz_[:,0] / \
+            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
         # dv/dX:
         jac[:, 2, 0] = 13 * luv[:,0] * \
-            -9 * xyz[:,1] / \
-            (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) ** 2
+            -9 * xyz_[:,1] / \
+            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
         # dv/dY:
         jac[:, 2, 1] = 13 * luv[:,0] * \
-            (9 * xyz[:,0] + 27 * xyz[:,2]) / \
-            (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) ** 2 + \
+            (9 * xyz_[:,0] + 27 * xyz_[:,2]) / \
+            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2 + \
             13 * jac[:, 0, 1] * (
-                9 * xyz[:,1] / (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) -
+                9 * xyz_[:,1] / (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) -
                 9 * self.white_point[1] / \
                 (self.white_point[0] + 15 * self.white_point[1] + 3 * self.white_point[2]))
         # dv/dZ:
         jac[:, 2, 2] = 13 * luv[:,0] * \
-            -27 * xyz[:,1] / \
-            (xyz[:,0] + 15 * xyz[:,1] + 3 * xyz[:,2]) ** 2
+            -27 * xyz_[:,1] / \
+            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
         return jac
 
-class TransformLinear(SpaceTransform):
+class TransformLinear(Transform):
     """
     General linear transform, transformed = M * base
     """
@@ -860,7 +860,7 @@ class TransformLinear(SpaceTransform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyzdata = data.get_linear(spaceXYZ)
+        xyzdata = data.get_linear(xyz)
         jac = self.empty_matrix(xyzdata)
         jac[:] = self.M
         return jac
@@ -882,12 +882,12 @@ class TransformLinear(SpaceTransform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyzdata = data.get_linear(spaceXYZ)
+        xyzdata = data.get_linear(xyz)
         jac = self.empty_matrix(xyzdata)
         jac[:] = self.M_inv
         return jac
 
-class TransformGamma(SpaceTransform):
+class TransformGamma(Transform):
     """
     General gamma transform, transformed = base**gamma
     
@@ -967,7 +967,7 @@ class TransformGamma(SpaceTransform):
             jac[i, 2, 2] = self.gamma * np.abs(basedata[i, 2])**(self.gamma - 1)
         return jac
 
-class TransformPolar(SpaceTransform):
+class TransformPolar(Transform):
     """
     Transform form Cartesian to polar coordinates in the two last variables.
     
@@ -1058,7 +1058,7 @@ class TransformPolar(SpaceTransform):
             jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
         return jac
 
-class TransformCartesian(SpaceTransform):
+class TransformCartesian(Transform):
     """
     Transform form polar to Cartesian coordinates in the two last variables.
     
@@ -1149,7 +1149,7 @@ class TransformCartesian(SpaceTransform):
             jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
         return jac
 
-class TransformPoincareDisk(SpaceTransform):
+class TransformPoincareDisk(Transform):
     """
     Transform from Cartesian coordinates to Poincare disk coordinates.
     
@@ -1261,12 +1261,12 @@ class TransformPoincareDisk(SpaceTransform):
 # Colour space instances
 #==============================================================================
 
-spaceXYZ = SpaceXYZ()
-spacexyY = TransformxyY(spaceXYZ)
-spaceCIELAB = TransformCIELAB(spaceXYZ)
-spaceCIELCh = TransformPolar(spaceCIELAB)
-spaceCIELUV = TransformCIELUV(spaceXYZ)
-spaceIPT = TransformLinear(TransformGamma(TransformLinear(spaceXYZ,
+xyz = XYZ()
+xyY = TransformxyY(xyz)
+cielab = TransformCIELAB(xyz)
+cielch= TransformPolar(cielab)
+cieluv = TransformCIELUV(xyz)
+ipt = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[.4002, .7075, -.0807],
                           [-.228, 1.15, .0612],
                           [0, 0, .9184]])),
@@ -1275,7 +1275,7 @@ spaceIPT = TransformLinear(TransformGamma(TransformLinear(spaceXYZ,
                           [4.455, -4.850, .3960],
                           [.8056, .3572, -1.1628]]))
 # First attemt at Euclidean for Poincare transform:
-spaceUi = TransformLinear(TransformGamma(TransformLinear(spaceXYZ,
+ui = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[0.1551646, 0.5430763, -0.0370161],
                           [-0.1551646, 0.4569237, 0.0296946],
                           [0, 0, 0.0073215]])),
@@ -1283,3 +1283,47 @@ spaceUi = TransformLinear(TransformGamma(TransformLinear(spaceXYZ,
                 np.array([[1.1032e+00, 5.0900e-01, 5.0840e-03],
                           [2.2822e+00, -4.2580e+00, 6.2844e+00],
                           [9.6110e+00, -1.2199e+01, -2.3843e+00]]))
+
+# For testing only:
+_test_space_cartesian = TransformCartesian(cieluv)
+_test_space_poincare_disk = TransformPoincareDisk(cielab)
+_test_space_gamma = TransformGamma(xyz, .43)
+
+#==============================================================================
+# Test module
+#==============================================================================
+
+def test():
+    """
+    Test entire module, and print report.
+    """
+    import data
+    col = np.array([[1e-10, 1e-10, 1e-10],
+                    [.95, 1., 1.08],
+                    [.5, .5, .5]])
+    test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt,
+                  _test_space_cartesian, _test_space_poincare_disk,
+                  _test_space_gamma]
+    print "Colour transformations:"
+    for sp in test_spaces:
+        c2 = sp.to_XYZ(sp.from_XYZ(col))
+        err = np.max(np.abs(col - c2))
+        if err > 1e-14:
+            print sp, ": ", err, " !!!"
+        else:
+            print sp, ": OK"
+    print "\nJacobians:"
+    col_data = data.Data(xyz, col)
+    for sp in test_spaces:
+        jac1 = sp.jacobian_XYZ(col_data)
+        jac2 = sp.inv_jacobian_XYZ(col_data)
+        prod = np.zeros(np.shape(jac1))
+        for i in range(np.shape(jac1)[0]):
+            prod[i] = np.dot(jac1[i], jac2[i])
+            prod[i] = np.abs(prod[i] - np.eye(3))
+        err = np.max(prod)
+        if err > 1e-6:
+            print sp, ": ", err, " !!!"
+        else:
+            print sp, ": OK"
+        
