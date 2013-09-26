@@ -23,11 +23,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import colour
 
-d = colour.data.build_d_regular(colour.space.cielab, [50], [-10, 0, 10], [-10, 0, 10])
-lab = d.get_linear(colour.space.cielab)
-g = colour.tensor.dE_00(d)
-plt.plot(lab[:,1], lab[:,2], '.')
-colour.misc.plot_ellipses(g.get_ellipses(colour.space.cielab, g.plane_ab, scale=2))
-plt.axis('equal')
-plt.grid()
-plt.show()
+d1 = colour.data.build_d_regular(colour.space.cielab, [50], [-10, 0, 10], [-10, 0, 10])
+d2 = colour.data.Data(colour.space.cielab, d1.get(colour.space.cielab) + 1 / np.sqrt(3))
+print colour.metric.dE_ab(d1, d2)
+print colour.metric.dE_uv(d1, d2)
+print colour.metric.dE_00(d1, d2)

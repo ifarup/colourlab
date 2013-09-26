@@ -103,6 +103,51 @@ def dE_uv(dat1, dat2):
     """
     return linear(space.cieluv, dat1, dat2, tensor.dE_uv)
 
+def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
+    """
+    Compute the CIEDE00 metric.
+    
+    Parameters
+    ----------
+    dat1 : Data
+        The colour data of the first data set.
+    dat2 : Data
+        The colour data of the second data set.
+    k_L : float
+        Parameter of the CIEDE00 metric
+    k_C : float
+        Parameter of the CIEDE00 metric
+    k_h : float
+        Parameter of the CIEDE00 metric
+
+    Returns
+    -------
+    distance : ndarray
+        Array of the difference or distances between the two data sets.
+    """
+    lch1 = dat1.get_linear(space.ciede00lch)
+    lch2 = dat2.get_linear(space.ciede00lch)
+    avg_lch = .5 * (lch1 + lch2)
+    d_lch = lch1 - lch2
+    
+    h_deg = np.rad2deg(avg_lch[:,2])
+    h_deg[h_deg < 0] = h_deg + 360
+    S_L = 1 + (0.015 * (avg_lch[:,0] - 50)**2) / np.sqrt(20 + (avg_lch[:,0] - 50)**2)
+    S_C = 1 + 0.045 * avg_lch[:,1]
+    T = 1 - 0.17 * np.cos(np.deg2rad(h_deg - 30)) + \
+        .24 * np.cos(2*avg_lch[:,2]) + \
+        .32 * np.cos(np.deg2rad(3 * h_deg + 6)) - \
+        .2 * np.cos(np.deg2rad(4 * h_deg - 63))
+    S_h = 1 + 0.015 * avg_lch[:,1] * T
+    R_C = 2 * np.sqrt(avg_lch[:,1]**7 / (avg_lch[:,1]**7 + 25**7))
+    d_theta = 30 * np.exp(-((h_deg - 275) / 25)**2)
+    R_T = - R_C * np.sin(np.deg2rad(2 * d_theta))
+    dH = 2 * np.sqrt(lch1[:,1] * lch2[:,1]) * np.sin(d_lch[:,2] / 2)
+    return np.sqrt((d_lch[:,0] / (k_L * S_L))**2 + 
+                   (d_lch[:,1] / (k_C * S_C))**2 +
+                   (dH / (k_h * S_h))**2 +
+                   R_T * d_lch[:,1] * dH / (k_C * S_C * k_h * S_h))
+
 #==============================================================================
 # Test module
 #==============================================================================
