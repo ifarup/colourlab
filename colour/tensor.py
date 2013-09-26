@@ -79,7 +79,51 @@ def dE_uv(dat):
         The metric tensors.
     """
     return euclidean(space.cieluv, dat)
+
+def dE_00(dat, k_L=1, k_C=1, k_h=1):
+    """
+    Compute the CIEDE00 metric as Tensordata for the given data points.
     
+    Parameters
+    ----------
+    dat : Data
+        The colour points for which to compute the metric.
+    k_L : float
+        Parameter of the CIEDE00 metric
+    k_C : float
+        Parameter of the CIEDE00 metric
+    k_h : float
+        Parameter of the CIEDE00 metric
+        
+    Returns
+    -------
+    DE00 : TensorData
+        The metric tensors.
+    """
+    lch = dat.get_linear(space.ciede00lch)
+    L = lch[:,0]
+    C = lch[:,1]
+    h = lch[:,2]
+    h_deg = np.rad2deg(h)
+    h_deg[h_deg < 0] = h_deg + 360
+    S_L = 1 + (0.015 * (L - 50)**2) / np.sqrt(20 + (L - 50)**2)
+    S_C = 1 + 0.045 * C
+    T = 1 - 0.17 * np.cos(np.deg2rad(h_deg - 30)) + \
+        .24 * np.cos(2*h) + \
+        .32 * np.cos(np.deg2rad(3 * h_deg + 6)) - \
+        .2 * np.cos(np.deg2rad(4 * h_deg - 63))
+    S_h = 1 + 0.015 * C * T
+    R_C = 2 * np.sqrt(C**7 / (C**7 + 25**7))
+    d_theta = 30 * np.exp(-((h_deg - 275) / 25)**2)
+    R_T = - R_C * np.sin(np.deg2rad(2 * d_theta))
+    g = space.ciede00lch.empty_matrix(lch)
+    g[:,0,0] = (k_L * S_L)**(-2)
+    g[:,1,1] = (k_C * S_C)**(-2)
+    g[:,2,2] = C**2 * (k_h * S_h)**(-2)
+    g[:,1,2] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
+    g[:,2,1] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
+    return data.TensorData(space.ciede00lch, dat, g)
+
 def poincare_disk(sp, dat):
     """
     Compute the general Poincare Disk metric in the given colour space as TensorData
@@ -106,14 +150,14 @@ def poincare_disk(sp, dat):
 # TODO:
 #
 # Functions (returning TensorData):
-#     tensor_DE00(data)
-#     tensor_Stiles(data)
-#     tensor_Helmholz(data)
-#     tensor_Schrodinger(data)
-#     tensor_Vos(data)
-#     tensor_SVF(data)
-#     tensor_CIECAM02
-#     tensor_DIN99
+#     dE_00
+#     stiles
+#     helmholz
+#     schrodinger
+#     vos
+#     SVF
+#     CIECAM02
+#     DIN99xx
 #     +++
 
 #==============================================================================

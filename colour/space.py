@@ -514,7 +514,7 @@ class TransformCIELAB(Transform):
     
     def __init__(self, base, white_point=Space.white_D65):
         """
-        Construct instance by setting base space and magnification factor.
+        Construct instance by setting base space and white point.
         
         Parameters
         ----------
@@ -640,7 +640,7 @@ class TransformCIELUV(Transform):
     
     def __init__(self, base, white_point=Space.white_D65):
         """
-        Construct instance by setting base space and magnification factor.
+        Construct instance by setting base space and white point.
         
         Parameters
         ----------
@@ -786,6 +786,91 @@ class TransformCIELUV(Transform):
             (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
         return jac
 
+class TransformCIEDE00(Transform):
+    """
+    The CIELAB to CIEDE00 L'a'b' colour space transform.
+    """
+
+    def __init__(self, base):
+        """
+        Construct instance by setting base space and white point.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
+        """
+        super(TransformCIEDE00, self).__init__(base)
+
+    def to_base(self, ndata):
+        """
+        Convert from CIEDE00 to CIELAB (base).
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
+        """
+        print 'No inversion og CIEDE00 to CIELAB transform implemented (yet).'
+    
+    def from_base(self, ndata):
+        """
+        Convert from CIELAB (base) to CIEDE00.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+        
+        Returns
+        -------
+        labp : ndarray
+            Colour data in the CIEDE00 L'a'b' colour space.
+        """
+        lab = ndata
+        labp = lab.copy()
+        Cab = np.sqrt(lab[:,1]**2 + lab[:,2]**2)
+        G = .5 * (1 - np.sqrt(Cab**7 / (Cab**7 + 25**7)))
+        labp[:,1] = lab[:,1] * (1 + G)
+        return labp
+    
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian to CIELAB (base), dCIEDE00^i/dCIELAB^j.
+
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
+        """
+        lab = data.get_linear(cielab)
+        lch = data.get_linear(cielch)
+        a = lab[:,1]
+        b = lab[:,2]
+        C = lch[:,1]
+        G = .5 * (1 - np.sqrt(C**7 / (C**7 + 25**7)))
+        jac = self.empty_matrix(lab)
+        jac[:,0,0] = 1 # dLp/dL
+        jac[:,2,2] = 1 # dbp/db
+        jac[:,1,1] = 1 + G - a**2 / C * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.))) # dap/da
+        jac[C == 0, 1, 1] = 1
+        jac[:,1,2] = - a * b / C * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
+        jac[C == 0, 1, 2] = 0
+        return jac
+    
 class TransformLinear(Transform):
     """
     General linear transform, transformed = M * base
@@ -1056,6 +1141,9 @@ class TransformPolar(Transform):
             jac[i,1,2] = -C[i] * np.sin(h[i]) # da/dh
             jac[i,2,1] = np.sin(h[i]) # db/dC
             jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
+            if C[i] == 0:
+                jac[i, 2, 2] = 1
+                jac[i, 1, 1] = 1
         return jac
 
 class TransformCartesian(Transform):
@@ -1266,6 +1354,8 @@ xyY = TransformxyY(xyz)
 cielab = TransformCIELAB(xyz)
 cielch= TransformPolar(cielab)
 cieluv = TransformCIELUV(xyz)
+ciede00lab = TransformCIEDE00(cielab)
+ciede00lch = TransformPolar(ciede00lab)
 ipt = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[.4002, .7075, -.0807],
                           [-.228, 1.15, .0612],
