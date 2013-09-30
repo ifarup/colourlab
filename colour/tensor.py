@@ -80,9 +80,27 @@ def dE_uv(dat):
     """
     return euclidean(space.cieluv, dat)
 
+def dE_E(dat):
+    """
+    Compute the DEE metric as TensorData for the given data points.
+
+    Parameters
+    ----------
+    dat : Data
+        The colour points for which to compute the metric.
+        
+    Returns
+    -------
+    DEE : TensorData
+        The metric tensors.
+    """
+    return euclidean(space.lgj_e, dat)
+
 def dE_00(dat, k_L=1, k_C=1, k_h=1):
     """
-    Compute the CIEDE00 metric as Tensordata for the given data points.
+    Compute the Riemannised CIEDE00 metric as Tensordata for the given data points.
+    
+    Be aware that the tensor is singluar at C = 0.
     
     Parameters
     ----------
@@ -175,8 +193,12 @@ def test():
     ndat = np.shape(d.get_linear(space.cielab))[0]
     gab = dE_ab(d)
     guv = dE_uv(d)
+    g00 = dE_00(d)
+    gE = dE_E(d)
     gD = poincare_disk(space.cielab, d)
     print "Metric shapes (all should be true):"
     print np.shape(gab.get(space.xyz)) == (ndat, 3, 3)
     print np.shape(guv.get(space.xyz)) == (ndat, 3, 3)
     print np.shape(gD.get(space.xyz)) == (ndat, 3, 3)
+    print np.shape(g00.get(space.xyz)) == (ndat, 3, 3)
+    print np.shape(gE.get(space.xyz)) == (ndat, 3, 3)

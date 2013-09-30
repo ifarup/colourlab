@@ -2,6 +2,7 @@ eclipse.preferences.version=1
 encoding//colour/__init__.py=utf-8
 encoding//colour/data.py=utf-8
 encoding//colour/metric.py=utf-8
+encoding//colour/misc.py=utf-8
 encoding//colour/space.py=utf-8
 encoding//colour/tensor.py=utf-8
 encoding/test.py=utf-8

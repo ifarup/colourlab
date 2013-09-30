@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
+import data
 
 #==============================================================================
 # Colour space classes
@@ -816,7 +817,7 @@ class TransformCIEDE00(Transform):
         col : ndarray
             Colour data in the base colour space
         """
-        print 'No inversion og CIEDE00 to CIELAB transform implemented (yet).'
+        print 'No conversion of CIEDE00 Lab to CIELAB implemented (yet).'
     
     def from_base(self, ndata):
         """
@@ -1237,6 +1238,274 @@ class TransformCartesian(Transform):
             jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
         return jac
 
+class TransformLGJOSA(Transform):
+    """
+    Transform from XYZ type coordinates to L_osa G J.
+    """
+    def __init__(self, base):
+        """
+        Construct instance, setting base space.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
+        """
+        super(TransformLGJOSA, self).__init__(base)
+        self.space_ABC = TransformLinear(self.base, np.array([[0.6597, 0.4492, -0.1089],
+                                                              [-0.3053, 1.2126, 0.0927],
+                                                              [-0.0374, 0.4795, 0.5579]]))
+        self.space_xyY = TransformxyY(self.base)
+        
+    def to_base(self, ndata):
+        """
+        Convert from LGJOSA to XYZ (base). Not implemented yet.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
+        """
+        print 'No conversion of LGJOSA to XYZ implemented (yet).'
+        
+    def from_base(self, ndata):
+        """
+        Transform from base to LGJ OSA.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space (XYZ).
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the LGJOSA colour space.
+        """
+        dat = data.Data(self.base, ndata)
+        abc = dat.get_linear(self.space_ABC)
+        A = abc[:,0]
+        B = abc[:,1]
+        C = abc[:,2]
+        xyY = dat.get_linear(self.space_xyY)
+        x = xyY[:,0] 
+        y = xyY[:,1] 
+        Y = xyY[:,2]
+        Y_0 = 100 * Y * (4.4934 * x**2 + 4.3034 * y**2 - 4.2760 * x * y -
+                         1.3744 * x - 2.5643 * y + 1.8103)
+        L_osa = (5.9 * ((Y_0**(1/3.) - (2/3.)) + 
+                        0.0042 * np.sign(Y_0 - 30) * np.abs(Y_0 - 30)**(1/3.)) - 14.4) / np.sqrt(2)   
+        G = -2 * (0.764 * L_osa + 9.2521) * (0.9482 * (np.log(A) - np.log(0.9366 * B)) -
+                                             0.3175 * (np.log(B) - np.log(0.9807 * C)))
+        J = 2 * (0.5735 * L_osa + 7.0892) * (0.1792 * (np.log(A) - np.log(0.9366 * B)) +
+                                             0.9237 * (np.log(B) - np.log(0.9807 * C)))
+        col = np.zeros(np.shape(ndata))
+        col[:,0] = L_osa
+        col[:,1] = G
+        col[:,2] = J
+        return col
+    
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian from XYZ (base), dLGJOSA^i/dXYZ^j.
+        
+        The Jacobian is calculated at the given data points (of the
+        Data class). Like the colour space, a terrible mess...
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
+        """
+        ABC = data.get_linear(self.space_ABC)
+        xyY = data.get_linear(self.space_xyY)
+        x = xyY[:,0]
+        y = xyY[:,1]
+        Y = xyY[:,2]
+        A = ABC[:,0]
+        B = ABC[:,1]
+        C = ABC[:,2]
+        dxyY_dXYZ = self.space_xyY.jacobian_base(data)
+        dx_dX = dxyY_dXYZ[:,0,0]
+        dx_dY = dxyY_dXYZ[:,0,1]
+        dx_dZ = dxyY_dXYZ[:,0,2]
+        dy_dX = dxyY_dXYZ[:,1,0]
+        dy_dY = dxyY_dXYZ[:,1,1]
+        dy_dZ = dxyY_dXYZ[:,1,2]
+        dY_dX = dxyY_dXYZ[:,2,0]
+        dY_dY = dxyY_dXYZ[:,2,1]
+        dY_dZ = dxyY_dXYZ[:,2,2]
+        dABC_dXYZ = self.space_ABC.jacobian_base(data)
+        dA_dX = dABC_dXYZ[:,0,0]
+        dA_dY = dABC_dXYZ[:,0,1]
+        dA_dZ = dABC_dXYZ[:,0,2]
+        dB_dX = dABC_dXYZ[:,1,0]
+        dB_dY = dABC_dXYZ[:,1,1]
+        dB_dZ = dABC_dXYZ[:,1,2]
+        dC_dX = dABC_dXYZ[:,2,0]
+        dC_dY = dABC_dXYZ[:,2,1]
+        dC_dZ = dABC_dXYZ[:,2,2]
+        Y_0 = 100 * Y * (4.4934 * x**2 + 4.3034 * y**2 - 4.2760 * x * y -
+                         1.3744 * x - 2.5643 * y + 1.8103)
+        L = (5.9 * ((Y_0**(1/3.) - (2/3.)) + \
+                    0.0042 * np.sign(Y_0 - 30) * np.abs(Y_0 - 30)**(1/3.)) - 14.4) / np.sqrt(2)   
+        dL_dY0 = 5.9 * (Y_0**(-2./3) + 0.042 * np.sign(Y_0 - 30) * np.abs(Y_0 - 30)**(-2./3) / 3) / np.sqrt(2)
+        dY0_dx = 100 * Y * (4.4934 * 2 * x - 4.2760 * y - 1.3744)
+        dY0_dy = 100 * Y * (4.3034 * 2 * y - 4.2760 * x - 2.5643)
+        dY0_dY = 100 * (4.4934 * x**2 + 4.3034 * y**2 - 4.2760 * x * y -
+                        1.3744 * x - 2.5643 * y + 1.8103)
+        dL_dX = dL_dY0 * (dY0_dx * dx_dX + dY0_dy * dy_dX + dY0_dY * dY_dX)
+        dL_dY = dL_dY0 * (dY0_dx * dx_dY + dY0_dy * dy_dY + dY0_dY * dY_dY)
+        dL_dZ = dL_dY0 * (dY0_dx * dx_dZ + dY0_dy * dy_dZ + dY0_dY * dY_dZ)
+        TG = 0.9482 * (np.log(A) - np.log(0.9366 * B)) - 0.3175 * (np.log(B) - np.log(0.9807 * C))
+        TJ = 0.1792 * (np.log(A) - np.log(0.9366 * B)) + 0.9237 * (np.log(B) - np.log(0.9807 * C))
+        SG = - 2 * (0.764 * L + 9.2521) 
+        SJ =  2 * (0.5735 * L + 7.0892) 
+        dG_dL = - 2 * 0.764 * TG
+        dJ_dL = 2 * 0.57354 * TJ
+        dG_dA = SG * 0.9482 / A
+        dG_dB = SG * (-0.9482 - 0.3175) / B
+        dG_dC = SG * 0.3175 / C
+        dJ_dA = SJ * 0.1792 / A
+        dJ_dB = SJ * (-0.1792 + 0.9837) / B 
+        dJ_dC = SJ * (-0.9837) / C
+        dG_dX = dG_dL * dL_dX + dG_dA * dA_dX + dG_dB * dB_dX + dG_dC * dC_dX
+        dG_dY = dG_dL * dL_dY + dG_dA * dA_dY + dG_dB * dB_dY + dG_dC * dC_dY
+        dG_dZ = dG_dL * dL_dZ + dG_dA * dA_dZ + dG_dB * dB_dZ + dG_dC * dC_dZ
+        dJ_dX = dJ_dL * dL_dX + dJ_dA * dA_dX + dJ_dB * dB_dX + dJ_dC * dC_dX
+        dJ_dY = dJ_dL * dL_dY + dJ_dA * dA_dY + dJ_dB * dB_dY + dJ_dC * dC_dY
+        dJ_dZ = dJ_dL * dL_dZ + dJ_dA * dA_dZ + dJ_dB * dB_dZ + dJ_dC * dC_dZ
+        jac = self.empty_matrix(ABC)
+        jac[:,0,0] = dL_dX
+        jac[:,0,1] = dL_dY
+        jac[:,0,2] = dL_dZ
+        jac[:,1,0] = dG_dX
+        jac[:,1,1] = dG_dY
+        jac[:,1,2] = dG_dZ
+        jac[:,2,0] = dJ_dX
+        jac[:,2,1] = dJ_dY
+        jac[:,2,2] = dJ_dZ
+        return jac
+
+class TransformLGJE(Transform):
+    """
+    Transform from LGJOSA type coordinates to L_E, G_E, J_E.
+    """
+    def __init__(self, base):
+        """
+        Construct instance, setting base space.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
+        """
+        super(TransformLGJE, self).__init__(base)
+        self.aL = 2.890
+        self.bL = 0.015
+        self.ac = 1.256
+        self.bc = 0.050
+
+    def to_base(self, ndata):
+        """
+        Convert from LGJE to LGJOSA (base). Not implemented yet!
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
+        """
+        print 'No conversion of LGJE to LGJOSA implemented (yet).'
+        
+    def from_base(self, ndata):
+        """
+        Transform from LGJOSA (base) to LGJE.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space (LGJOSA).
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the LGJOSA colour space.
+        """
+        L = ndata[:,0]
+        G = ndata[:,1]
+        J = ndata[:,2]
+        C = np.sqrt(G**2 + J**2)
+        L_E = np.log(1 + 10 * L * self.bL / self.aL) / self.bL
+        C_E = np.log(1 + 10 * C * self.bc / self.ac) / self.bc
+        scale = np.zeros(np.shape(C))
+        scale[C == 0] = 1
+        scale[C != 0] = C_E[C != 0] / C[C != 0]
+        G_E = - scale * G
+        J_E = - scale * J
+        col = ndata.copy()
+        col[:,0] = L_E
+        col[:,1] = G_E
+        col[:,2] = J_E
+        return col
+    
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian from LGJOSA (base), dLGJE^i/dLGJOSA^j.
+        
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
+        """
+        lgj = data.get(lgj_osa)
+        L = lgj[:,0]
+        G = lgj[:,1]
+        J = lgj[:,2]
+        C = np.sqrt(G**2 + J**2)
+        lgj_e = data.get(self)
+        C_E = np.sqrt(lgj_e[:,1]**2 + lgj_e[:,2]**2)
+        dLE_dL = 10 / (self.aL + 10 * self.bL * L)
+        dCE_dC = 10 / (self.ac + 10 * self.bc * C)
+        dCEC_dC = (dCE_dC * C - C_E) / C**2
+        dC_dG = G / C
+        dC_dJ = J / C
+        dCEC_dG = dCEC_dC * dC_dG
+        dCEC_dJ = dCEC_dC * dC_dJ
+        dGE_dG = - C_E / C - G * dCEC_dG
+        dGE_dJ = - G * dCEC_dJ
+        dJE_dG = - J * dCEC_dG
+        dJE_dJ = - C_E / C - J * dCEC_dJ
+        jac = self.empty_matrix(lgj)
+        jac[:,0,0] = dLE_dL
+        jac[:,1,1] = dGE_dG
+        jac[:,1,2] = dGE_dJ
+        jac[:,2,1] = dJE_dG
+        jac[:,2,2] = dJE_dJ
+        return jac
+
 class TransformPoincareDisk(Transform):
     """
     Transform from Cartesian coordinates to Poincare disk coordinates.
@@ -1364,6 +1633,8 @@ ipt = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[.4, .4, .2],
                           [4.455, -4.850, .3960],
                           [.8056, .3572, -1.1628]]))
+lgj_osa = TransformLGJOSA(xyz)
+lgj_e = TransformLGJE(lgj_osa)
 # First attemt at Euclidean for Poincare transform:
 ui = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[0.1551646, 0.5430763, -0.0370161],
@@ -1387,7 +1658,6 @@ def test():
     """
     Test entire module, and print report.
     """
-    import data
     col = np.array([[1e-10, 1e-10, 1e-10],
                     [.95, 1., 1.08],
                     [.5, .5, .5]])
@@ -1404,6 +1674,9 @@ def test():
             print sp, ": OK"
     print "\nJacobians:"
     col_data = data.Data(xyz, col)
+    test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
+                  _test_space_cartesian, _test_space_poincare_disk,
+                  _test_space_gamma]
     for sp in test_spaces:
         jac1 = sp.jacobian_XYZ(col_data)
         jac2 = sp.inv_jacobian_XYZ(col_data)

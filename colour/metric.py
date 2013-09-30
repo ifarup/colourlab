@@ -103,6 +103,28 @@ def dE_uv(dat1, dat2):
     """
     return linear(space.cieluv, dat1, dat2, tensor.dE_uv)
 
+def dE_E(dat1, dat2):
+    """
+    Compute the DEE metric.
+    
+    Since the metric is Euclidean, this can be done using the linearised function.
+    Does not work, since the inverses of the colour space transforms are not
+    implemented yet.
+
+    Parameters
+    ----------
+    dat1 : Data
+        The colour data of the first data set.
+    dat2 : Data
+        The colour data of the second data set.
+    
+    Returns
+    -------
+    distance : ndarray
+        Array of the difference or distances between the two data sets.
+    """
+    return linear(space.lgj_e, dat1, dat2, tensor.dE_E)
+
 def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
     """
     Compute the CIEDE00 metric.
@@ -156,18 +178,14 @@ def test():
     """
     Test module, print results.
     """
+    print "Metric range (should be close to [1, 1]):"
     d1 = data.build_d_regular(space.cielab,
-                             np.linspace(0, 100, 10),
-                             np.linspace(-100, 100, 21),
-                             np.linspace(-100, 100, 21))
+                             np.linspace(10, 100, 10),
+                             np.linspace(-80, 80, 11),
+                             np.linspace(-80, 80, 11))
     d2 = data.Data(space.cielab,
-                   d1.get(space.cielab) + 1)
-    print "Metric errors (all should be < 1e-11):"
-    print np.max(dE_ab(d1, d2) - np.sqrt(3))
-    d1 = data.build_d_regular(space.cieluv,
-                             np.linspace(0, 100, 10),
-                             np.linspace(-100, 100, 21),
-                             np.linspace(-100, 100, 21))
-    d2 = data.Data(space.cieluv,
-                   d1.get(space.cieluv) + 1)
-    print np.max(dE_uv(d1, d2) - np.sqrt(3))
+                   d1.get(space.cielab) + 1 / np.sqrt(3))
+    print np.min(dE_ab(d1, d2)), np.max(dE_ab(d1, d2))
+    print np.min(dE_uv(d1, d2)), np.max(dE_uv(d1, d2))
+    print np.min(dE_00(d1, d2)), np.max(dE_00(d1, d2))
+    print np.min(dE_E(d1, d2)), np.max(dE_E(d1, d2))
