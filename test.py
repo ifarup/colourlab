@@ -22,27 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import pylab as pl
 
-d1 = colour.data.build_d_regular(colour.space.cielab, [50], [-10, 0, 10], [10, 0, 10])
-d2 = colour.data.Data(colour.space.cielab, d1.get(colour.space.cielab) + 1 / pl.sqrt(3))
-print colour.metric.dE_E(d1, d2)
-# sc = 5
-# d = colour.data.build_d_regular(colour.space.cielab, [50], pl.arange(-10, 11) * sc, pl.arange(-10,11) * sc)
-# gab = colour.tensor.dE_ab(d)
-# sp = colour.space.lgj_e
-# col = d.get_linear(sp)
-# pl.plot(col[:,1], col[:,2], '.')
-# colour.misc.plot_ellipses(gab.get_ellipses(sp, gab.plane_ab, scale=sc))
-# pl.axis('equal')
-# pl.grid()
-# pl.show()
-
-bfd = colour.data.build_g_BFD()
-locus = colour.data.build_d_XYZ_64().get_linear(colour.space.xyY)
-gE = colour.tensor.dE_E(bfd.points)
-pts = bfd.points.get_linear(colour.space.lgj_e)
-pl.plot(pts[:,1], pts[:,2], '.')
-colour.misc.plot_ellipses(bfd.get_ellipses(colour.space.lgj_e, bfd.plane_ab, scale=2.5))
-# colour.misc.plot_ellipses(gE.get_ellipses(colour.space.lgj_e, gE.plane_ab, scale=2.5), edgecolor=[1,0,0])
+dinx = colour.space.TransformDIN99CompressL(colour.space.cielab, 30., .37)
+cielab = colour.space.cielab
+step = 10
+d = colour.data.build_d_regular(colour.space.cielab, pl.arange(0, 101, step), pl.arange(-100, 101, step), [0])
+g = colour.tensor.dE_ab(d)
+lab = d.get(cielab)
+din = d.get(dinx)
+pl.plot(din[:,1], din[:,0], '.')
+colour.misc.plot_ellipses(g.get_ellipses(dinx, g.plane_aL, scale=step))
 pl.axis('equal')
-pl.grid()
 pl.show()

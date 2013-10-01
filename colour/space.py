@@ -1510,7 +1510,7 @@ class TransformLGJE(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        lgj = data.get(lgj_osa)
+        lgj = data.get(self.base)
         L = lgj[:,0]
         G = lgj[:,1]
         J = lgj[:,2]
@@ -1534,6 +1534,85 @@ class TransformLGJE(Transform):
         jac[:,1,2] = dGE_dJ
         jac[:,2,1] = dJE_dG
         jac[:,2,2] = dJE_dJ
+        return jac
+
+class TransformDIN99CompressL(Transform):
+    """
+    Perform parametric logarithmic compression of lightness as in the DIN99x formulae.
+    """
+    def __init__(self, base, aL, bL):
+        """
+        Construct instance, setting base space.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
+        """
+        super(TransformDIN99CompressL, self).__init__(base)
+        self.aL = aL
+        self.bL = bL
+
+    def from_base(self, ndata):
+        """
+        Transform from Lab (base) to L'ab.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space (Lab).
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the LGJOSA colour space.
+        """
+        Lpab = ndata.copy()
+        Lpab[:,0] = self.aL * np.log(1 + self.bL * ndata[:,0])
+        return Lpab
+    
+    def to_base(self, ndata):
+        """
+        Transform from L'ab to Lab (base).
+        
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in L'ab colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the Lab colour space.
+        """
+        Lab = ndata.copy()
+        Lab[:,0] = (np.exp(ndata[:,0] / self.aL) - 1) / self.bL
+        return Lab 
+
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian from Lab (base), dL'ab^i/dLab^j.
+        
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
+        """
+        lab = data.get(self.base)
+        L = lab[:,0]
+        dLp_dL = self.aL * self.bL / (1 + self.bL * L) 
+        jac = self.empty_matrix(lab)
+        jac[:,0,0] = dLp_dL
+        jac[:,1,1] = 1
+        jac[:,2,2] = 1
         return jac
 
 class TransformPoincareDisk(Transform):
