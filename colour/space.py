@@ -1256,10 +1256,19 @@ class TransformLGJOSA(Transform):
                                                               [-0.3053, 1.2126, 0.0927],
                                                               [-0.0374, 0.4795, 0.5579]]))
         self.space_xyY = TransformxyY(self.base)
+    
+    def err_func(self, xyz, lgj):
+        clgj = self.from_base([xyz])
+        diff = clgj - [lgj]
+        n = np.linalg.norm(diff)
+        return n
         
     def to_base(self, ndata):
         """
-        Convert from LGJOSA to XYZ (base). Not implemented yet.
+        Convert from LGJOSA to XYZ (base).
+        
+        Implemented as numerical inversion of the from_base method, since the functions
+        unfortunately are not analytically invertible.
 
         Parameters
         ----------
@@ -1271,8 +1280,14 @@ class TransformLGJOSA(Transform):
         col : ndarray
             Colour data in the base colour space
         """
-        print 'No conversion of LGJOSA to XYZ implemented (yet).'
-        
+        import scipy.optimize
+        xyz = .5 * np.ones(np.shape(ndata))
+        for i in range(np.shape(xyz)[0]):
+            xyz_guess = xyz[i].copy()
+            lgj = ndata[i].copy()
+            xyz[i] = scipy.optimize.fmin(self.err_func, xyz_guess, (lgj,)) 
+        return xyz
+    
     def from_base(self, ndata):
         """
         Transform from base to LGJ OSA.
@@ -1418,7 +1433,7 @@ class TransformLGJE(Transform):
 
     def to_base(self, ndata):
         """
-        Convert from LGJE to LGJOSA (base). Not implemented yet!
+        Convert from LGJE to LGJOSA (base).
 
         Parameters
         ----------
@@ -1430,7 +1445,22 @@ class TransformLGJE(Transform):
         col : ndarray
             Colour data in the base colour space
         """
-        print 'No conversion of LGJE to LGJOSA implemented (yet).'
+        LE = ndata[:,0]
+        GE = ndata[:,1]
+        JE = ndata[:,2]
+        CE = np.sqrt(GE**2 + JE**2)
+        L = self.aL * (np.exp(self.bL * LE) - 1) / (10 * self.bL)
+        C = self.ac * (np.exp(self.bc * CE) - 1) / (10 * self.bc)
+        scale = np.zeros(np.shape(C))
+        scale[CE == 0] = 1
+        scale[CE != 0] = C[CE != 0] / CE[CE != 0]
+        G = - scale * GE
+        J = - scale * JE
+        col = ndata.copy()
+        col[:,0] = L
+        col[:,1] = G
+        col[:,2] = J
+        return col
         
     def from_base(self, ndata):
         """

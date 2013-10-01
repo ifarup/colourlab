@@ -22,8 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import pylab as pl
 
-colour.metric.test()
-
+d1 = colour.data.build_d_regular(colour.space.cielab, [50], [-10, 0, 10], [10, 0, 10])
+d2 = colour.data.Data(colour.space.cielab, d1.get(colour.space.cielab) + 1 / pl.sqrt(3))
+print colour.metric.dE_E(d1, d2)
 # sc = 5
 # d = colour.data.build_d_regular(colour.space.cielab, [50], pl.arange(-10, 11) * sc, pl.arange(-10,11) * sc)
 # gab = colour.tensor.dE_ab(d)
