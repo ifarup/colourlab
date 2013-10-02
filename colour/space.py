@@ -1830,6 +1830,8 @@ class TransformPoincareDisk(Transform):
 # Colour space instances
 #==============================================================================
 
+# CIE based
+
 xyz = XYZ()
 xyY = TransformxyY(xyz)
 
@@ -1838,6 +1840,8 @@ cielch= TransformPolar(cielab)
 cieluv = TransformCIELUV(xyz)
 ciede00lab = TransformCIEDE00(cielab)
 ciede00lch = TransformPolar(ciede00lab)
+
+# IPT
 
 _ipt_lms = TransformLinear(xyz,
                            np.array([[.4002, .7075, -.0807],
@@ -1849,8 +1853,12 @@ ipt = TransformLinear(_ipt_lmsp,
                                 [4.455, -4.850, .3960],
                                 [.8056, .3572, -1.1628]]))
 
+# OSA-UCS
+
 lgj_osa = TransformLGJOSA(xyz)
 lgj_e = TransformLGJE(lgj_osa)
+
+# DIN99
 
 _din99_lpab = TransformLogCompressL(cielab, 105.51, 0.0158)
 _din99_lef = TransformLinear(_din99_lpab,
@@ -1858,6 +1866,8 @@ _din99_lef = TransformLinear(_din99_lpab,
                                        [0, np.cos(np.deg2rad(16.)), np.sin(np.deg2rad(16.))],
                                        [0, - 0.7 * np.sin(np.deg2rad(16.)), 0.7 * np.cos(np.deg2rad(16.))]]))
 din99 = TransformLogCompressC(_din99_lef, 1 / 0.045, 0.045)
+
+# DIN99b
 
 _din99b_lpab = TransformLogCompressL(cielab, 303.67, 0.0039)
 _din99b_lef = TransformLinear(_din99b_lpab,
@@ -1869,6 +1879,8 @@ din99b = TransformLinear(_din99b_rot,
                          np.array([[1, 0, 0],
                                    [0, np.cos(np.deg2rad(-26.)), np.sin(np.deg2rad(-26.))],
                                    [0, - np.sin(np.deg2rad(-26.)), np.cos(np.deg2rad(-26.))]]))
+
+# DIN99c
 
 _din99c_xyz = TransformLinear(xyz,
                               np.array([[1.1, 0, -0.1],
@@ -1882,6 +1894,8 @@ _din99c_lef = TransformLinear(_din99c_lpab,
                                         [0, 1, 0],
                                         [0, 0, .94]]))
 din99c = TransformLogCompressC(_din99c_lef, 23., 0.066)
+
+# DIN99d
 
 _din99d_xyz = TransformLinear(xyz,
                               np.array([[1.12, 0, -0.12],
