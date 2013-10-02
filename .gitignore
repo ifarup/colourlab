@@ -39,3 +39,4 @@ nosetests.xml
 .project
 .pydevproject
 >>>>>>> 4f9f31c5863d84f3656501e005193ce7a327b80c
+.settings
