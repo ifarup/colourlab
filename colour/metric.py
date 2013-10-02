@@ -63,11 +63,33 @@ def linear(sp, dat1, dat2, metric_tensor_function):
         m[i] = np.sqrt(np.dot(diff[i].T, np.dot(g[i], diff[i])))
     return m
 
+def euclidean(sp, dat1, dat2):
+    """
+    Compute the Euclidean metric between the two data sets in the given space.
+    
+    Parameters
+    ----------
+    sp : Space
+        Colour space
+    dat1 : Data
+        Colour data set 1
+    dat2 : Data
+        Colour data set 2
+    
+    Returns
+    -------
+    distance : ndarray
+        Array of the difference or distances between the two data sets.
+    """
+    d1 = dat1.get_linear(sp)
+    d2 = dat2.get_linear(sp)
+    diff = d1 - d2
+    m = np.sqrt(diff[:,0]**2 + diff[:,1]**2 + diff[:,2]**2)
+    return m
+
 def dE_ab(dat1, dat2):
     """
     Compute the DEab metric.
-    
-    Since the metric is Euclidean, this can be done using the linearised function.
 
     Parameters
     ----------
@@ -81,13 +103,11 @@ def dE_ab(dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return linear(space.cielab, dat1, dat2, tensor.dE_ab)
+    return euclidean(space.cielab, dat1, dat2)
 
 def dE_uv(dat1, dat2):
     """
     Compute the DEuv metric.
-    
-    Since the metric is Euclidean, this can be done using the linearised function.
 
     Parameters
     ----------
@@ -101,16 +121,12 @@ def dE_uv(dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return linear(space.cieluv, dat1, dat2, tensor.dE_uv)
+    return euclidean(space.cieluv, dat1, dat2)
 
 def dE_E(dat1, dat2):
     """
     Compute the DEE metric.
     
-    Since the metric is Euclidean, this can be done using the linearised function.
-    Does not work, since the inverses of the colour space transforms are not
-    implemented yet.
-
     Parameters
     ----------
     dat1 : Data
@@ -123,16 +139,12 @@ def dE_E(dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return linear(space.lgj_e, dat1, dat2, tensor.dE_E)
+    return euclidean(space.lgj_e, dat1, dat2)
 
 def dE_DIN99(dat1, dat2):
     """
     Compute the DIN99 metric.
     
-    Since the metric is Euclidean, this can be done using the linearised function.
-    Does not work, since the inverses of the colour space transforms are not
-    implemented yet.
-
     Parameters
     ----------
     dat1 : Data
@@ -145,16 +157,12 @@ def dE_DIN99(dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return linear(space.din99, dat1, dat2, tensor.dE_DIN99)
+    return euclidean(space.din99, dat1, dat2)
 
 def dE_DIN99b(dat1, dat2):
     """
     Compute the DIN99b metric.
     
-    Since the metric is Euclidean, this can be done using the linearised function.
-    Does not work, since the inverses of the colour space transforms are not
-    implemented yet.
-
     Parameters
     ----------
     dat1 : Data
@@ -167,16 +175,12 @@ def dE_DIN99b(dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return linear(space.din99b, dat1, dat2, tensor.dE_DIN99b)
+    return euclidean(space.din99b, dat1, dat2)
 
 def dE_DIN99c(dat1, dat2):
     """
     Compute the DIN99c metric.
     
-    Since the metric is Euclidean, this can be done using the linearised function.
-    Does not work, since the inverses of the colour space transforms are not
-    implemented yet.
-
     Parameters
     ----------
     dat1 : Data
@@ -189,16 +193,12 @@ def dE_DIN99c(dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return linear(space.din99c, dat1, dat2, tensor.dE_DIN99c)
+    return euclidean(space.din99c, dat1, dat2)
 
 def dE_DIN99d(dat1, dat2):
     """
     Compute the DIN99d metric.
     
-    Since the metric is Euclidean, this can be done using the linearised function.
-    Does not work, since the inverses of the colour space transforms are not
-    implemented yet.
-
     Parameters
     ----------
     dat1 : Data
@@ -211,7 +211,7 @@ def dE_DIN99d(dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    return linear(space.din99d, dat1, dat2, tensor.dE_DIN99d)
+    return euclidean(space.din99d, dat1, dat2)
 
 def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
     """
@@ -268,16 +268,10 @@ def test():
     """
     print "Metric range (should be close to [1, 1]):"
     d1 = data.build_d_regular(space.cielab,
-                             np.linspace(10, 100, 10),
-                             np.linspace(-80, 80, 11),
-                             np.linspace(-80, 80, 11))
+                             np.linspace(20, 80, 10),
+                             np.linspace(-50, 50, 11),
+                             np.linspace(-50, 50, 11))
     d2 = data.Data(space.cielab,
                    d1.get(space.cielab) + 1 / np.sqrt(3))
-    print np.min(dE_ab(d1, d2)), np.max(dE_ab(d1, d2))
-    print np.min(dE_uv(d1, d2)), np.max(dE_uv(d1, d2))
-    print np.min(dE_00(d1, d2)), np.max(dE_00(d1, d2))
-    print np.min(dE_E(d1, d2)), np.max(dE_E(d1, d2))
-    print np.min(dE_DIN99(d1, d2)), np.max(dE_DIN99(d1, d2))
-    print np.min(dE_DIN99b(d1, d2)), np.max(dE_DIN99b(d1, d2))
-    print np.min(dE_DIN99c(d1, d2)), np.max(dE_DIN99c(d1, d2))
-    print np.min(dE_DIN99d(d1, d2)), np.max(dE_DIN99d(d1, d2))
+    for met in [dE_ab, dE_uv, dE_00, dE_DIN99, dE_DIN99b, dE_DIN99c, dE_DIN99d]:
+        print met, np.min(met(d1, d2)), np.max(met(d1, d2))

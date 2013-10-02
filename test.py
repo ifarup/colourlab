@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import pylab as pl
 
+colour.metric.test()
+
 step = 10
 d = colour.data.build_d_regular(colour.space.cielab, [70], pl.arange(-50, 51, step), pl.arange(-50, 51, step))
 g = colour.tensor.dE_DIN99d(d)

@@ -1839,14 +1839,15 @@ cieluv = TransformCIELUV(xyz)
 ciede00lab = TransformCIEDE00(cielab)
 ciede00lch = TransformPolar(ciede00lab)
 
-ipt = TransformLinear(TransformGamma(TransformLinear(xyz,
-                np.array([[.4002, .7075, -.0807],
-                          [-.228, 1.15, .0612],
-                          [0, 0, .9184]])),
-                .43),
-                np.array([[.4, .4, .2],
-                          [4.455, -4.850, .3960],
-                          [.8056, .3572, -1.1628]]))
+_ipt_lms = TransformLinear(xyz,
+                           np.array([[.4002, .7075, -.0807],
+                                     [-.228, 1.15, .0612],
+                                     [0, 0, .9184]]))
+_ipt_lmsp = TransformGamma(_ipt_lms, .43)
+ipt = TransformLinear(_ipt_lmsp,
+                      np.array([[.4, .4, .2],
+                                [4.455, -4.850, .3960],
+                                [.8056, .3572, -1.1628]]))
 
 lgj_osa = TransformLGJOSA(xyz)
 lgj_e = TransformLGJE(lgj_osa)
