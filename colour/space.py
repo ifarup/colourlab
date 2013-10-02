@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
 import data
+import misc
 
 #==============================================================================
 # Colour space classes
@@ -1388,12 +1389,12 @@ class TransformLGJOSA(Transform):
         SJ =  2 * (0.5735 * L + 7.0892) 
         dG_dL = - 2 * 0.764 * TG
         dJ_dL = 2 * 0.57354 * TJ
-        dG_dA = SG * 0.9482 / A
-        dG_dB = SG * (-0.9482 - 0.3175) / B
-        dG_dC = SG * 0.3175 / C
-        dJ_dA = SJ * 0.1792 / A
-        dJ_dB = SJ * (-0.1792 + 0.9837) / B 
-        dJ_dC = SJ * (-0.9837) / C
+        dG_dA = misc.safe_div(SG * 0.9482, A)
+        dG_dB = misc.safe_div(SG * (-0.9482 - 0.3175), B)
+        dG_dC = misc.safe_div(SG * 0.3175, C)
+        dJ_dA = misc.safe_div(SJ * 0.1792, A)
+        dJ_dB = misc.safe_div(SJ * (-0.1792 + 0.9837), B) 
+        dJ_dC = misc.safe_div(SJ * (-0.9837), C)
         dG_dX = dG_dL * dL_dX + dG_dA * dA_dX + dG_dB * dB_dX + dG_dC * dC_dX
         dG_dY = dG_dL * dL_dY + dG_dA * dA_dY + dG_dB * dB_dY + dG_dC * dC_dY
         dG_dZ = dG_dL * dL_dZ + dG_dA * dA_dZ + dG_dB * dB_dZ + dG_dC * dC_dZ
@@ -1451,9 +1452,7 @@ class TransformLGJE(Transform):
         CE = np.sqrt(GE**2 + JE**2)
         L = self.aL * (np.exp(self.bL * LE) - 1) / (10 * self.bL)
         C = self.ac * (np.exp(self.bc * CE) - 1) / (10 * self.bc)
-        scale = np.zeros(np.shape(C))
-        scale[CE == 0] = 1
-        scale[CE != 0] = C[CE != 0] / CE[CE != 0]
+        scale = misc.safe_div(C, CE)
         G = - scale * GE
         J = - scale * JE
         col = ndata.copy()
@@ -1482,9 +1481,7 @@ class TransformLGJE(Transform):
         C = np.sqrt(G**2 + J**2)
         L_E = np.log(1 + 10 * L * self.bL / self.aL) / self.bL
         C_E = np.log(1 + 10 * C * self.bc / self.ac) / self.bc
-        scale = np.zeros(np.shape(C))
-        scale[C == 0] = 1
-        scale[C != 0] = C_E[C != 0] / C[C != 0]
+        scale = misc.safe_div(C_E, C)
         G_E = - scale * G
         J_E = - scale * J
         col = ndata.copy()
@@ -1519,15 +1516,15 @@ class TransformLGJE(Transform):
         C_E = np.sqrt(lgj_e[:,1]**2 + lgj_e[:,2]**2)
         dLE_dL = 10 / (self.aL + 10 * self.bL * L)
         dCE_dC = 10 / (self.ac + 10 * self.bc * C)
-        dCEC_dC = (dCE_dC * C - C_E) / C**2
-        dC_dG = G / C
-        dC_dJ = J / C
+        dCEC_dC = misc.safe_div(dCE_dC * C - C_E, C**2)
+        dC_dG = misc.safe_div(G, C)
+        dC_dJ = misc.safe_div(J, C)
         dCEC_dG = dCEC_dC * dC_dG
         dCEC_dJ = dCEC_dC * dC_dJ
-        dGE_dG = - C_E / C - G * dCEC_dG
+        dGE_dG = - misc.safe_div(C_E, C) - G * dCEC_dG
         dGE_dJ = - G * dCEC_dJ
         dJE_dG = - J * dCEC_dG
-        dJE_dJ = - C_E / C - J * dCEC_dJ
+        dJE_dJ = - misc.safe_div(C_E, C) - J * dCEC_dJ
         jac = self.empty_matrix(lgj)
         jac[:,0,0] = dLE_dL
         jac[:,1,1] = dGE_dG
@@ -1536,9 +1533,9 @@ class TransformLGJE(Transform):
         jac[:,2,2] = dJE_dJ
         return jac
 
-class TransformDIN99CompressL(Transform):
+class TransformLogCompressL(Transform):
     """
-    Perform parametric logarithmic compression of lightness as in the DIN99x formulae.
+    Perform parametric logarithmic compression of lightness (as in the DIN99x formulae).
     """
     def __init__(self, base, aL, bL):
         """
@@ -1549,7 +1546,7 @@ class TransformDIN99CompressL(Transform):
         base : Space
             The base colour space.
         """
-        super(TransformDIN99CompressL, self).__init__(base)
+        super(TransformLogCompressL, self).__init__(base)
         self.aL = aL
         self.bL = bL
 
@@ -1565,7 +1562,7 @@ class TransformDIN99CompressL(Transform):
         Returns
         -------
         col : ndarray
-            Colour data in the LGJOSA colour space.
+            Colour data in the La'b' colour space.
         """
         Lpab = ndata.copy()
         Lpab[:,0] = self.aL * np.log(1 + self.bL * ndata[:,0])
@@ -1613,6 +1610,112 @@ class TransformDIN99CompressL(Transform):
         jac[:,0,0] = dLp_dL
         jac[:,1,1] = 1
         jac[:,2,2] = 1
+        return jac
+
+class TransformLogCompressC(Transform):
+    """
+    Perform parametric logarithmic compression of chroma (as in the DIN99x formulae).
+    """
+    def __init__(self, base, aC, bC):
+        """
+        Construct instance, setting base space.
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
+        """
+        super(TransformLogCompressC, self).__init__(base)
+        self.aC = aC
+        self.bC = bC
+
+    def from_base(self, ndata):
+        """
+        Transform from Lab (base) to La'b'.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space (Lab).
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the La'b' colour space.
+        """
+        Lapbp = ndata.copy()
+        C = np.sqrt(ndata[:,1]**2 + ndata[:,2]**2)
+        Cp = self.aC * np.log(1 + self.bC * C)
+        scale = misc.safe_div(Cp, C)
+        ap = scale * ndata[:,1]
+        bp = scale * ndata[:,2]
+        Lapbp[:,1] = ap
+        Lapbp[:,2] = bp
+        return Lapbp
+    
+    def to_base(self, ndata):
+        """
+        Transform from La'b' to Lab (base).
+        
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in L'ab colour space.
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the Lab colour space.
+        """
+        Lab = ndata.copy()
+        ap = ndata[:,1]
+        bp = ndata[:,2]
+        Cp = np.sqrt(ap**2 + bp**2)
+        C = (np.exp(Cp / self.aC) - 1) / self.bC
+        scale = misc.safe_div(Cp, C)
+        a = scale * ap
+        b = scale * bp
+        Lab[:,1] = a
+        Lab[:,2] = b
+        return Lab
+
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian from Lab (base), dLa'b'^i/dLab^j.
+        
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
+        """
+        lab = data.get(self.base)
+        lapbp = data.get(self)
+        a = lab[:,1]
+        b = lab[:,2]
+        C = np.sqrt(a**2 + b**2)
+        Cp = np.sqrt(lapbp[:,1]**2 + lapbp[:,2]**2)
+        dC_da = misc.safe_div(a, C)
+        dC_db = misc.safe_div(b, C)
+        dCp_dC = self.aC * self.bC / (1 + self.bC * C)
+        dCpC_dC = misc.safe_div(dCp_dC * C - Cp, C**2)
+        dap_da = misc.safe_div(Cp, C) + a * (dCpC_dC * dC_da)
+        dbp_db = misc.safe_div(Cp, C) + b * (dCpC_dC * dC_db)
+        dap_db = a * dCpC_dC * dC_db
+        dbp_da = b * dCpC_dC * dC_da
+        jac = self.empty_matrix(lab)
+        jac[:,0,0] = 1
+        jac[:,1,1] = dap_da
+        jac[:,1,2] = dap_db
+        jac[:,2,1] = dbp_da
+        jac[:,2,2] = dbp_db
         return jac
 
 class TransformPoincareDisk(Transform):

@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import pylab as pl
 
-dinx = colour.space.TransformDIN99CompressL(colour.space.cielab, 30., .37)
+dinx = colour.space.TransformLogCompressL(colour.space.cielab, 30., .37)
 cielab = colour.space.cielab
 step = 10
-d = colour.data.build_d_regular(colour.space.cielab, pl.arange(0, 101, step), pl.arange(-100, 101, step), [0])
+d = colour.data.build_d_regular(colour.space.cielab, [50], pl.arange(-80, 81, step), pl.arange(-80, 81, step))
 g = colour.tensor.dE_ab(d)
 lab = d.get(cielab)
-din = d.get(dinx)
-pl.plot(din[:,1], din[:,0], '.')
-colour.misc.plot_ellipses(g.get_ellipses(dinx, g.plane_aL, scale=step))
+din = d.get(colour.space.lgj_e)
+pl.plot(din[:,1], din[:,2], '.')
+colour.misc.plot_ellipses(g.get_ellipses(colour.space.lgj_e, g.plane_ab, scale=step))
 pl.axis('equal')
 pl.show()
