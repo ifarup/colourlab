@@ -867,9 +867,9 @@ class TransformCIEDE00(Transform):
         jac = self.empty_matrix(lab)
         jac[:,0,0] = 1 # dLp/dL
         jac[:,2,2] = 1 # dbp/db
-        jac[:,1,1] = 1 + G - a**2 / C * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.))) # dap/da
+        jac[:,1,1] = 1 + G - misc.safe_div(a**2, C) * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.))) # dap/da
         jac[C == 0, 1, 1] = 1
-        jac[:,1,2] = - a * b / C * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
+        jac[:,1,2] = - a * misc.safe_div(b, C) * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
         jac[C == 0, 1, 2] = 0
         return jac
     
@@ -1832,11 +1832,13 @@ class TransformPoincareDisk(Transform):
 
 xyz = XYZ()
 xyY = TransformxyY(xyz)
+
 cielab = TransformCIELAB(xyz)
 cielch= TransformPolar(cielab)
 cieluv = TransformCIELUV(xyz)
 ciede00lab = TransformCIEDE00(cielab)
 ciede00lch = TransformPolar(ciede00lab)
+
 ipt = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[.4002, .7075, -.0807],
                           [-.228, 1.15, .0612],
@@ -1845,9 +1847,60 @@ ipt = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[.4, .4, .2],
                           [4.455, -4.850, .3960],
                           [.8056, .3572, -1.1628]]))
+
 lgj_osa = TransformLGJOSA(xyz)
 lgj_e = TransformLGJE(lgj_osa)
+
+_din99_lpab = TransformLogCompressL(cielab, 105.51, 0.0158)
+_din99_lef = TransformLinear(_din99_lpab,
+                             np.array([[1, 0, 0],
+                                       [0, np.cos(np.deg2rad(16.)), np.sin(np.deg2rad(16.))],
+                                       [0, - 0.7 * np.sin(np.deg2rad(16.)), 0.7 * np.cos(np.deg2rad(16.))]]))
+din99 = TransformLogCompressC(_din99_lef, 1 / 0.045, 0.045)
+
+_din99b_lpab = TransformLogCompressL(cielab, 303.67, 0.0039)
+_din99b_lef = TransformLinear(_din99b_lpab,
+                             np.array([[1, 0, 0],
+                                       [0, np.cos(np.deg2rad(26.)), np.sin(np.deg2rad(26.))],
+                                       [0, - 0.83 * np.sin(np.deg2rad(26.)), 0.83 * np.cos(np.deg2rad(26.))]]))
+_din99b_rot = TransformLogCompressC(_din99b_lef, 23.0, 0.075)
+din99b = TransformLinear(_din99b_rot,
+                         np.array([[1, 0, 0],
+                                   [0, np.cos(np.deg2rad(-26.)), np.sin(np.deg2rad(-26.))],
+                                   [0, - np.sin(np.deg2rad(-26.)), np.cos(np.deg2rad(-26.))]]))
+
+_din99c_xyz = TransformLinear(xyz,
+                              np.array([[1.1, 0, -0.1],
+                                        [0, 1, 0],
+                                        [0, 0, 1]]))
+_din99c_white = np.dot(_din99c_xyz.M, _din99c_xyz.white_D65)
+_din99c_lab = TransformCIELAB(_din99c_xyz, _din99c_white)
+_din99c_lpab = TransformLogCompressL(_din99c_lab, 317.65, 0.0037)
+_din99c_lef = TransformLinear(_din99c_lpab,
+                              np.array([[1, 0, 0],
+                                        [0, 1, 0],
+                                        [0, 0, .94]]))
+din99c = TransformLogCompressC(_din99c_lef, 23., 0.066)
+
+_din99d_xyz = TransformLinear(xyz,
+                              np.array([[1.12, 0, -0.12],
+                                        [0, 1, 0],
+                                        [0, 0, 1]]))
+_din99d_white = np.dot(_din99d_xyz.M, _din99d_xyz.white_D65)
+_din99d_lab = TransformCIELAB(_din99d_xyz, _din99d_white)
+_din99d_lpab = TransformLogCompressL(_din99c_lab, 325.22, 0.0036)
+_din99d_lef = TransformLinear(_din99d_lpab,
+                         np.array([[1, 0, 0],
+                                   [0, np.cos(np.deg2rad(50.)), np.sin(np.deg2rad(50.))],
+                                   [0, - 1.14 * np.sin(np.deg2rad(50.)), 1.14 * np.cos(np.deg2rad(50.))]]))
+_din99d_rot = TransformLogCompressC(_din99d_lef, 23., 0.066)
+din99d = TransformLinear(_din99d_rot,
+                         np.array([[1, 0, 0],
+                                   [0, np.cos(np.deg2rad(-50.)), np.sin(np.deg2rad(-50.))],
+                                   [0, - np.sin(np.deg2rad(-50.)), np.cos(np.deg2rad(-50.))]]))
+
 # First attemt at Euclidean for Poincare transform:
+
 ui = TransformLinear(TransformGamma(TransformLinear(xyz,
                 np.array([[0.1551646, 0.5430763, -0.0370161],
                           [-0.1551646, 0.4569237, 0.0296946],
@@ -1858,6 +1911,7 @@ ui = TransformLinear(TransformGamma(TransformLinear(xyz,
                           [9.6110e+00, -1.2199e+01, -2.3843e+00]]))
 
 # For testing only:
+
 _test_space_cartesian = TransformCartesian(cieluv)
 _test_space_poincare_disk = TransformPoincareDisk(cielab)
 _test_space_gamma = TransformGamma(xyz, .43)
@@ -1874,6 +1928,7 @@ def test():
                     [.95, 1., 1.08],
                     [.5, .5, .5]])
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt,
+                   din99, din99b, din99c, din99d,
                   _test_space_cartesian, _test_space_poincare_disk,
                   _test_space_gamma]
     print "Colour transformations:"
@@ -1887,6 +1942,7 @@ def test():
     print "\nJacobians:"
     col_data = data.Data(xyz, col)
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
+                   din99, din99b, din99c, din99d,
                   _test_space_cartesian, _test_space_poincare_disk,
                   _test_space_gamma]
     for sp in test_spaces:
