@@ -1931,6 +1931,14 @@ _srgb_linear = TransformLinear(xyz,
                                          [0.0556434, -0.2040259,  1.0572252]]))
 srgb = TransformSRGB(_srgb_linear)
 
+# Adobe RGB
+
+_rgb_adobe_linear = TransformLinear(xyz,
+                                    np.array([[2.0413690, -0.5649464, -0.3446944],
+                                              [-0.9692660, 1.8760108, 0.0415560],
+                                              [0.0134474, -0.1183897, 1.0154096]]))
+rgb_adobe = TransformGamma(_rgb_adobe_linear, 1 / 2.2)
+
 # IPT
 
 _ipt_lms = TransformLinear(xyz,
@@ -2004,19 +2012,16 @@ din99d = TransformLinear(_din99d_rot,
                                    [0, np.cos(np.deg2rad(-50.)), np.sin(np.deg2rad(-50.))],
                                    [0, - np.sin(np.deg2rad(-50.)), np.cos(np.deg2rad(-50.))]]))
 
-# First attemt at Euclidean for Poincare transform:
-
-ui = TransformLinear(TransformGamma(TransformLinear(xyz,
-                np.array([[0.1551646, 0.5430763, -0.0370161],
-                          [-0.1551646, 0.4569237, 0.0296946],
-                          [0, 0, 0.0073215]])),
-                .43),
-                np.array([[1.1032e+00, 5.0900e-01, 5.0840e-03],
-                          [2.2822e+00, -4.2580e+00, 6.2844e+00],
-                          [9.6110e+00, -1.2199e+01, -2.3843e+00]]))
-
 # For testing only:
 
+_test_ui = TransformLinear(TransformGamma(TransformLinear(xyz,
+                                                          np.array([[0.1551646, 0.5430763, -0.0370161],
+                                                                    [-0.1551646, 0.4569237, 0.0296946],
+                                                                    [0, 0, 0.0073215]])),
+                                          .43),
+                           np.array([[1.1032e+00, 5.0900e-01, 5.0840e-03],
+                                     [2.2822e+00, -4.2580e+00, 6.2844e+00],
+                                     [9.6110e+00, -1.2199e+01, -2.3843e+00]]))
 _test_space_cartesian = TransformCartesian(cieluv)
 _test_space_poincare_disk = TransformPoincareDisk(cielab)
 _test_space_gamma = TransformGamma(xyz, .43)
