@@ -22,13 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import pylab as pl
 
-colour.metric.test()
-
-step = 10
-d = colour.data.build_d_regular(colour.space.cielab, [70], pl.arange(-50, 51, step), pl.arange(-50, 51, step))
-g = colour.tensor.dE_DIN99d(d)
-lab = d.get(colour.space.cielab)
-pl.plot(lab[:,1], lab[:,2], '.')
-colour.misc.plot_ellipses(g.get_ellipses(colour.space.cielab, g.plane_ab, scale=1))
+d = colour.data.build_d_regular(colour.space._sRGB_linear, pl.linspace(.001, 1, 6), pl.linspace(.001, 1, 6), [.5])
+g = colour.tensor.euclidean(colour.space._sRGB_linear, d)
+rgb = d.get(colour.space.sRGB)
+pl.plot(rgb[:,0], rgb[:,1] ,'x')
+colour.misc.plot_ellipses(g.get_ellipses(colour.space.sRGB, g.plane_01, .2))
+pl.grid()
 pl.axis('equal')
 pl.show()

@@ -872,7 +872,89 @@ class TransformCIEDE00(Transform):
         jac[:,1,2] = - a * misc.safe_div(b, C) * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
         jac[C == 0, 1, 2] = 0
         return jac
+
+class TransformSRGB(Transform):
+    """
+    Transform linear RGB with sRGB primaries to sRGB.
+    """
     
+    def __init__(self, base):
+        """
+        Construct sRGB space instance, setting the base (linear RGB).
+        
+        Parameters
+        ----------
+        base : Space
+            The base colour space.
+        """
+        super(TransformSRGB, self).__init__(base)
+    
+    def to_base(self, ndata):
+        """
+        Convert from sRGB to linear RGB.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the sRGB colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the linear RGB colour space
+        """
+        rgb = ((ndata + 0.055) / 1.055)**2.4
+        rgb[ndata <= 0.04045] = ndata[ndata <= 0.04045] / 12.92
+        return rgb
+    
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian to linear RGB (base), dsRGB^i/dRGB^j.
+
+        The Jacobian is calculated at the given data points (of the
+        Data class).
+
+        Parameters
+        ----------
+        data : Data
+            Colour data points for the jacobians to be computed.
+        
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
+        """
+        rgb = data.get_linear(self.base)
+        r = rgb[:,0]
+        g = rgb[:,1]
+        b = rgb[:,2]
+        jac = self.empty_matrix(rgb)
+        jac[:,0,0] = 1.055 / 2.4 * r**(1 / 2.4 - 1)
+        jac[r < 0.0031308,0,0] = 12.92 
+        jac[:,1,1] = 1.055 / 2.4 * g**(1 / 2.4 - 1)
+        jac[g < 0.0031308,1,1] = 12.92 
+        jac[:,2,2] = 1.055 / 2.4 * b**(1 / 2.4 - 1)
+        jac[b < 0.0031308,2,2] = 12.92 
+        return jac
+    
+    def from_base(self, ndata):
+        """
+        Convert from linear RGB to sRGB.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the linear colour space
+        
+        Returns
+        -------
+        col : ndarray
+            Colour data in the sRGB colour space
+        """
+        srgb = 1.055 * ndata**(1 / 2.4) - 0.055
+        srgb[ndata <= 0.0031308] = 12.92 * ndata[ndata <= 0.0031308]
+        return srgb
+
 class TransformLinear(Transform):
     """
     General linear transform, transformed = M * base
@@ -1840,6 +1922,14 @@ cielch= TransformPolar(cielab)
 cieluv = TransformCIELUV(xyz)
 ciede00lab = TransformCIEDE00(cielab)
 ciede00lch = TransformPolar(ciede00lab)
+
+# sRGB
+
+_sRGB_linear = TransformLinear(xyz,
+                               np.array([[3.2404542, -1.5371385, -0.4985314],
+                                         [-0.9692660,  1.8760108,  0.0415560],
+                                         [0.0556434, -0.2040259,  1.0572252]]))
+sRGB = TransformSRGB(_sRGB_linear)
 
 # IPT
 
