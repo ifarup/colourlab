@@ -1925,11 +1925,11 @@ ciede00lch = TransformPolar(ciede00lab)
 
 # sRGB
 
-_sRGB_linear = TransformLinear(xyz,
+_srgb_linear = TransformLinear(xyz,
                                np.array([[3.2404542, -1.5371385, -0.4985314],
                                          [-0.9692660,  1.8760108,  0.0415560],
                                          [0.0556434, -0.2040259,  1.0572252]]))
-sRGB = TransformSRGB(_sRGB_linear)
+srgb = TransformSRGB(_srgb_linear)
 
 # IPT
 
