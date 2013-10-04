@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import colour
 import pylab as pl
+import numpy
 
 d = colour.data.build_d_regular(colour.space.srgb, pl.linspace(.001, 1, 6), pl.linspace(.001, 1, 6), [.5])
 g = colour.tensor.euclidean(colour.space.srgb, d)
