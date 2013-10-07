@@ -463,7 +463,7 @@ def build_g_MacAdam():
         The metric tensors corresponding to the MacAdam ellipsoids.
     """
     import scipy.io
-    rawdata = scipy.io.loadmat('colour/metric_data/macdata(xyabtheta).mat')
+    rawdata = scipy.io.loadmat('colour/tensor_data/macdata(xyabtheta).mat')
     rawdata = rawdata['unnamed']
     xyY = rawdata[:,0:3].copy()
     xyY[:,2] = 0.4 # arbitrary!
@@ -497,7 +497,7 @@ def build_g_three_observer():
     threeObserver : TensorData
         The metric tensors corresponding to the three observer ellipsoids.
     """
-    f = file('colour/metric_data/3 observer.txt')
+    f = file('colour/tensor_data/3 observer.txt')
     rawdata = f.readlines()[:-1]
     for line in range(len(rawdata)):
         rawdata[line] = rawdata[line].split('\t')
@@ -627,11 +627,11 @@ def build_g_BFD(dataset='P'):
         The BDF data set of the required type
     """
     if dataset == 'P':
-        file_name = 'colour/metric_data/BFD_P.txt'
+        file_name = 'colour/tensor_data/BFD_P.txt'
     elif dataset == 'A':
-        file_name = 'colour/metric_data/BFD_A.txt'
+        file_name = 'colour/tensor_data/BFD_A.txt'
     elif dataset == '2':
-        file_name = 'colour/metric_data/BFD (2).txt'
+        file_name = 'colour/tensor_data/BFD (2).txt'
     f = file(file_name, 'r')
     rawdata = f.readlines()
     for line in range(len(rawdata)):
@@ -656,6 +656,26 @@ def build_g_BFD(dataset='P'):
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
     return TensorData(space.xyY, points, g)
+
+#==============================================================================
+# Metric datasets
+#==============================================================================
+
+def build_m_rit_dupont():
+    """
+    """
+    dat = read_csv_file('colour/metric_data/Mio_RIT_DuPont_Individual_Color_Difference_Data.csv')
+    lab1 = dat[:,0:3]
+    lab2 = dat[:,3:6]  
+    rit_dupont = dict()
+    rit_dupont['data1'] = Data(space.cielab, lab1)
+    rit_dupont['data2'] = Data(space.cielab, lab2)
+    rit_dupont['dE_ab'] = dat[:,6].copy()
+    rit_dupont['dE_00'] = dat[:,7].copy()
+    rit_dupont['dE_94'] = dat[:,8].copy()
+    rit_dupont['dV'] = dat[:,9].copy()
+    rit_dupont['weight'] = dat[:,10].copy()
+    return rit_dupont
 
 # TODO:
 #
