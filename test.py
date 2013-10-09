@@ -20,6 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import colour
+import matplotlib.pyplot as plt
+import numpy as np
 
 m = colour.data.build_m_rit_dupont()
-print m
+dE_00 = colour.metric.dE_00(m['data1'], m['data2'])
+dE_00_alt = colour.metric.linear(colour.space.cielab, m['data1'], m['data2'], colour.tensor.dE_00)
+print np.max(np.abs(dE_00_alt - dE_00)) 
+plt.plot(dE_00_alt, dE_00, '.')
+plt.show()

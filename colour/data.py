@@ -741,4 +741,6 @@ def test():
     build_g_Melgosa_Lab()
     build_g_Melgosa_xyY()
     build_g_BFD()
+    print "\nMetric data, reading csv files and more..."
+    build_m_rit_dupont()
     print "ok"
