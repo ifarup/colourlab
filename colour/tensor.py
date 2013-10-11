@@ -220,7 +220,6 @@ def poincare_disk(sp, dat):
     Poincare : TensorData
         The metric tensors.
     """
-    
     d = dat.get_linear(sp)
     g = sp.empty_matrix(d)
     for i in range(np.shape(g)[0]):
@@ -232,14 +231,12 @@ def poincare_disk(sp, dat):
 # TODO:
 #
 # Functions (returning TensorData):
-#     dE_00
 #     stiles
 #     helmholz
 #     schrodinger
 #     vos
 #     SVF
 #     CIECAM02
-#     DIN99xx
 #     +++
 
 #==============================================================================

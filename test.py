@@ -23,9 +23,14 @@ import colour
 import matplotlib.pyplot as plt
 import numpy as np
 
-m = colour.data.build_m_rit_dupont()
-dE_00 = colour.metric.dE_00(m['data1'], m['data2'])
-dE_00_alt = colour.metric.linear(colour.space.cielab, m['data1'], m['data2'], colour.tensor.dE_00)
-print np.max(np.abs(dE_00_alt - dE_00)) 
-plt.plot(dE_00_alt, dE_00, '.')
+step = 10
+d = colour.data.build_d_regular(colour.space.cielab, [50], np.arange(-100, 100, step), np.arange(-100, 100, step))
+pd = colour.space.TransformPoincareDisk(colour.space.cielab, 100)
+g = colour.tensor.dE_ab(d)
+sp = pd
+col = d.get(sp)
+plt.plot(col[:,1], col[:,2] ,'.')
+plt.grid()
+plt.axis('equal')
+colour.misc.plot_ellipses(g.get_ellipses(sp, g.plane_ab, step))
 plt.show()

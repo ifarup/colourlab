@@ -1810,16 +1810,19 @@ class TransformPoincareDisk(Transform):
     target spaces, respectively.
     """
 
-    def __init__(self, base):
+    def __init__(self, base, R=1.):
         """
-        Construct instance, setting base space.
+        Construct instance, setting base space and radius of curvature.
         
         Parameters
         ----------
         base : Space
             The base colour space.
+        R : float
+            The radius of curvature.
         """
         super(TransformPoincareDisk, self).__init__(base)
+        self.R = R
         
     def to_base(self, ndata):
         """
@@ -1842,7 +1845,7 @@ class TransformPoincareDisk(Transform):
         r = np.sqrt(x**2 + y**2)
         for i in range(np.shape(Lab)[0]):
             if r[i] > 0:
-                Lab[i,1:] = ndata[i,1:] * (2 * np.arctanh(r[i])) / r[i]
+                Lab[i,1:] = self.R * ndata[i,1:] * (2 * np.arctanh(r[i] / self.R)) / r[i]
         return Lab
         
     def from_base(self, ndata):
@@ -1866,7 +1869,7 @@ class TransformPoincareDisk(Transform):
         C = np.sqrt(a**2 + b**2)
         for i in range(np.shape(Lxy)[0]):
             if C[i] > 0:
-                Lxy[i,1:] = ndata[i,1:] * np.tanh(C[i] / 2) / C[i]
+                Lxy[i,1:] = self.R * ndata[i,1:] * np.tanh(C[i] / (2 * self.R)) / C[i]
         return Lxy
     
     def jacobian_base(self, data):
@@ -1886,15 +1889,16 @@ class TransformPoincareDisk(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
+        # TODO: bugfix!!!
         Lab = data.get_linear(self.base)
         a = Lab[:,1]
         b = Lab[:,2]
         C = np.sqrt(a**2 + b**2)
-        tanhC2 = np.tanh(C / 2.)
-        tanhC2C = tanhC2 / C
+        tanhC2R = np.tanh(C / (2. * self.R))
+        tanhC2C = tanhC2R / (C / self.R)
         dCda = a / C
         dCdb = b / C
-        dtanhdC = ((C / 2 * (1 - np.tanh(C / 2))**2) - np.tanh(C / 2)) / C**2
+        dtanhdC = (C / 2. * (1 - tanhC2R**2) - self.R * tanhC2R) / C**2
         jac = self.empty_matrix(Lab)
         for i in range(np.shape(jac)[0]):
             jac[i, 0, 0] = 1 # dL/dL
