@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-test: Test various features of the colour package (continuosly updated)
+test: Test various features of the colour package (continuously updated)
 
 Copyright (C) 2013 Ivar Farup
 
@@ -24,14 +24,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 step = 20
-d = colour.data.build_d_regular(colour.space.cielab, [50], np.arange(-100, 100 + step, step), np.arange(-100, 100 + step, step))
-pd = colour.space.TransformPoincareDisk(colour.space.cielab, 50)
-gab = colour.tensor.dE_ab(d)
-gp = colour.tensor.poincare_disk(pd, d)
-col = d.get(colour.space.cielab)
-plt.plot(col[:,1], col[:,2] ,'.')
-plt.grid()
+d1 = colour.data.build_d_regular(colour.space.cielab, [50], np.arange(-100, 100 + step, step), [0])
+d2 = colour.data.Data(colour.space.cielab, d1.get(colour.space.cielab) + np.array([0,0,.01]))
+sp = colour.space.TransformPoincareDisk(colour.space.cielab, 10)
+pdiff = colour.metric.poincare_disk(sp, d1, d2)
+lindiff = colour.metric.linear(sp, d1, d2, lambda dat: colour.tensor.poincare_disk(sp, dat))
+plt.plot(pdiff, lindiff)
 plt.axis('equal')
-colour.misc.plot_ellipses(gab.get_ellipses(colour.space.cielab, gab.plane_ab, step))
-colour.misc.plot_ellipses(gp.get_ellipses(colour.space.cielab, gab.plane_ab, step), edgecolor=[1,0,0])
+plt.grid()
 plt.show()

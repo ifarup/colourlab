@@ -86,6 +86,36 @@ def euclidean(sp, dat1, dat2):
     m = np.sqrt(diff[:,0]**2 + diff[:,1]**2 + diff[:,2]**2)
     return m
 
+def poincare_disk(sp, dat1, dat2):
+    """
+    Compute the Poincare Disk metric betwen the two data sets in the given space.
+    
+    Assumes that the space is some form of a Poincare Disk space, such that the
+    radius of curvature is given by sp.R.
+    
+    Parameters
+    ----------
+    sp : Space
+        Colour space (should be of Poincare Disk type)
+    dat1: Data
+        Colour data set 1
+    dat2: Data
+        Colour data set 2
+        
+    Returns
+    -------
+    distance : ndarray
+        Array of the difference or distances between the two data sets.
+    """
+    d1 = dat1.get_linear(sp)
+    d2 = dat2.get_linear(sp)
+    diff = d1 - d2
+    delta = 2 * (diff[:,1]**2 + diff[:,2]**2) / ((1 - (d1[:,1] / sp.R)**2 - (d1[:,2] / sp.R)**2) *
+                                                 (1 - (d2[:,1] / sp.R)**2 - (d2[:,2] / sp.R)**2))
+    duv = np.arccosh(1 + delta)
+    d = np.sqrt(diff[:,0]**2 + duv**2)
+    return d
+
 def dE_ab(dat1, dat2):
     """
     Compute the DEab metric.
