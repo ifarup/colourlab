@@ -1895,10 +1895,10 @@ class TransformPoincareDisk(Transform):
         b = Lab[:,2]
         C = np.sqrt(a**2 + b**2)
         tanhC2R = np.tanh(C / (2. * self.R))
-        tanhC2C = tanhC2R / (C / self.R)
-        dCda = a / C
-        dCdb = b / C
-        dtanhdC = (C / 2. * (1 - tanhC2R**2) - self.R * tanhC2R) / C**2
+        tanhC2C = misc.safe_div(tanhC2R, C / self.R)
+        dCda = misc.safe_div(a, C)
+        dCdb = misc.safe_div(b, C)
+        dtanhdC = misc.safe_div(C / 2. * (1 - tanhC2R**2) - self.R * tanhC2R, C**2)
         jac = self.empty_matrix(Lab)
         for i in range(np.shape(jac)[0]):
             jac[i, 0, 0] = 1 # dL/dL
