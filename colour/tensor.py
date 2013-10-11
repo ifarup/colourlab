@@ -208,7 +208,10 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
 
 def poincare_disk(sp, dat):
     """
-    Compute the general Poincare Disk metric in the given colour space as TensorData
+    Compute the general Poincare Disk metric in the given colour space as TensorData.
+    
+    Assumes that sp is a Poincare Disk of some kind, and thus has a radius of curvature
+    as sp.R.
 
     Parameters
     ----------
@@ -224,8 +227,8 @@ def poincare_disk(sp, dat):
     g = sp.empty_matrix(d)
     for i in range(np.shape(g)[0]):
         g[i, 0, 0] = 1
-        g[i, 1, 1] = 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
-        g[i, 2, 2] = 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
+        g[i, 1, 1] = 4. / (1 - (d[i, 1] / sp.R)**2 - (d[i, 2] / sp.R)**2)**2
+        g[i, 2, 2] = 4. / (1 - (d[i, 1] / sp.R)**2 - (d[i, 2] / sp.R)**2)**2
     return data.TensorData(sp, dat, g)
 
 # TODO:

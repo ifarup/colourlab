@@ -23,14 +23,15 @@ import colour
 import matplotlib.pyplot as plt
 import numpy as np
 
-step = 10
-d = colour.data.build_d_regular(colour.space.cielab, [50], np.arange(-100, 100, step), np.arange(-100, 100, step))
-pd = colour.space.TransformPoincareDisk(colour.space.cielab, 100)
-g = colour.tensor.dE_ab(d)
-sp = pd
-col = d.get(sp)
+step = 20
+d = colour.data.build_d_regular(colour.space.cielab, [50], np.arange(-100, 100 + step, step), np.arange(-100, 100 + step, step))
+pd = colour.space.TransformPoincareDisk(colour.space.cielab, 50)
+gab = colour.tensor.dE_ab(d)
+gp = colour.tensor.poincare_disk(pd, d)
+col = d.get(colour.space.cielab)
 plt.plot(col[:,1], col[:,2] ,'.')
 plt.grid()
 plt.axis('equal')
-colour.misc.plot_ellipses(g.get_ellipses(sp, g.plane_ab, step))
+colour.misc.plot_ellipses(gab.get_ellipses(colour.space.cielab, gab.plane_ab, step))
+colour.misc.plot_ellipses(gp.get_ellipses(colour.space.cielab, gab.plane_ab, step), edgecolor=[1,0,0])
 plt.show()
