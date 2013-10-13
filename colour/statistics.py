@@ -27,12 +27,12 @@ import scipy.optimize
 # Statistics of metrics
 #==============================================================================
 
-def stress(diff1, diff2):
+def stress(diff1, diff2, weights=None):
     """
     Compute the STRESS for the two sets of differences.
     
     The STRESS (standardised residual sum of squares) is returned as a
-    percentage.
+    percentage. If weights are given, WSTRESS is calculated.
     
     Parameters
     ----------
@@ -40,15 +40,20 @@ def stress(diff1, diff2):
         1D array of colour differences.
     diff2 : ndarray
         1D array of colour differences.
+    weights : ndarray
+        1D array of individual weights for the colour differences. If None,
+        the standard STRESS is calculated, if given, WSTRESS is calculated.
     
     Returns
     -------
     stress : float
         Standard residual sum of squares.
     """
+    if weights == None:
+        weights = np.ones(np.shape(diff1))
     F = (diff1**2).sum() / (diff1 * diff2).sum()
-    stress = (100 *np.sqrt(((diff1 - F * diff2)**2).sum() / 
-              ((F * diff2)**2).sum()))
+    stress = np.sqrt((weights * (diff1 - F * diff2)**2).sum() / 
+                     (weights * (F * diff2)**2).sum())
     return stress
 
 def _ellipse_union(th, ell1, ell2):

@@ -23,13 +23,8 @@ import colour
 import matplotlib.pyplot as plt
 import numpy as np
 
-step = 20
-d1 = colour.data.build_d_regular(colour.space.cielab, [50], np.arange(-100, 100 + step, step), [0])
-d2 = colour.data.Data(colour.space.cielab, d1.get(colour.space.cielab) + np.array([0,0,.01]))
-sp = colour.space.TransformPoincareDisk(colour.space.cielab, 10)
-pdiff = colour.metric.poincare_disk(sp, d1, d2)
-lindiff = colour.metric.linear(sp, d1, d2, lambda dat: colour.tensor.poincare_disk(sp, dat))
-plt.plot(pdiff, lindiff)
-plt.axis('equal')
-plt.grid()
-plt.show()
+dEab = np.linspace(0,1)
+dE00 = np.ones(np.shape(dEab))
+weights = dEab.copy()
+print colour.statistics.stress(dEab, dE00)
+print colour.statistics.stress(dEab, dE00, weights)

@@ -674,7 +674,7 @@ def build_m_rit_dupont():
     rit_dupont['dE_00'] = dat[:,7].copy()
     rit_dupont['dE_94'] = dat[:,8].copy()
     rit_dupont['dV'] = dat[:,9].copy()
-    rit_dupont['weight'] = dat[:,10].copy()
+    rit_dupont['weights'] = dat[:,10].copy()
     return rit_dupont
 
 # TODO:
