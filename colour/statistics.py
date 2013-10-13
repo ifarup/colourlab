@@ -27,7 +27,7 @@ import scipy.optimize
 # Statistics of metrics
 #==============================================================================
 
-def stress(diff1, diff2, weights=None):
+def stress(diff1, diff2, weights=None, confidence=.95):
     """
     Compute the STRESS for the two sets of differences.
     
@@ -43,18 +43,24 @@ def stress(diff1, diff2, weights=None):
     weights : ndarray
         1D array of individual weights for the colour differences. If None,
         the standard STRESS is calculated, if given, WSTRESS is calculated.
+    confidence : float
+        The size of the confidence intervale (e.g., .95 for a 95% confidence interval)
     
     Returns
     -------
     stress : float
         Standard residual sum of squares.
+    interval : tuple
+        The confidence interval for STRESS_a / STRESS_b
     """
+    from scipy.stats import f
     if weights == None:
         weights = np.ones(np.shape(diff1))
     F = (diff1**2).sum() / (diff1 * diff2).sum()
     stress = np.sqrt((weights * (diff1 - F * diff2)**2).sum() / 
                      (weights * (F * diff2)**2).sum())
-    return stress
+    N = np.shape(weights)[0]
+    return stress, f.interval(confidence, N - 1, N - 1)
 
 def _ellipse_union(th, ell1, ell2):
     """
