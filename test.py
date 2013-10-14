@@ -22,22 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
-d = colour.data.build_m_rit_dupont()
-
-dE = colour.metric.euclidean(colour.space.ipt, d['data1'], d['data2'])
-s, i = colour.statistics.stress(dE, d['dV'], d['weights'])
-
-sp = []
-r = np.linspace(1000, 10000)
-for i in r:
-    space_p = colour.space.TransformPoincareDisk(colour.space.ipt, i)
-    dEp = colour.metric.poincare_disk(space_p, d['data1'], d['data2'])
-    s_p, interval = colour.statistics.stress(dEp, d['dV'], d['weights'])
-    sp.append(s_p)
-
-print s, interval[0] * s, interval[1] * s
-
-plt.plot(r, sp)
-plt.grid()
-plt.show()
+colour.data.resource_path(os)
