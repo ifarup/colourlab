@@ -355,7 +355,7 @@ def build_d_XYZ_31():
     xyz_31 : Data
         The XYZ 1931 colour matching functions.
     """
-    xyz_ = read_csv_file('data/ciexyz31_1.csv')
+    xyz_ = read_csv_file('colour_data/ciexyz31_1.csv')
     return Data(space.xyz, xyz_[:,1:])
 
 def build_d_XYZ_64():
@@ -367,7 +367,7 @@ def build_d_XYZ_64():
     xyz_64 : Data
         The XYZ 1964 colour matching functions.
     """
-    xyz_ = read_csv_file('data/ciexyz64_1.csv')
+    xyz_ = read_csv_file('colour_data/ciexyz64_1.csv')
     return Data(space.xyz, xyz_[:,1:])
 
 def build_d_Melgosa():
