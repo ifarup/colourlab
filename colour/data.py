@@ -678,6 +678,22 @@ def build_m_rit_dupont():
     rit_dupont['weights'] = dat[:,10].copy()
     return rit_dupont
 
+def build_m_rit_dupont_T50():
+    """
+    Read the reduced RIT-DuPont T50 colour difference data from file.
+    
+    Returns
+    -------
+    rit_dupont : dict
+        Dictionary with two datasets and dV.
+    """
+    dat = read_csv_file('metric_data/Data_RIT-DuPont.csv')
+    rit_dupont = dict()
+    rit_dupont['data1'] = Data(space.cielab, dat[:,0:3].copy())
+    rit_dupont['data2'] = Data(space.cielab, dat[:,3:6].copy())
+    rit_dupont['dV'] = dat[:,6].copy()
+    return rit_dupont
+
 # TODO:
 #
 # Metric data sets, as needed (instances of TensorData):

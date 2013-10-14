@@ -22,6 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 
-colour.data.resource_path(os)
+d = colour.data.build_m_rit_dupont_T50()
+print d
