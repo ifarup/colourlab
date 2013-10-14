@@ -23,6 +23,7 @@ import os
 import re
 import numpy as np
 import space
+import inspect
 from matplotlib.patches import Ellipse
 
 #==============================================================================
@@ -317,7 +318,7 @@ def resource_path(relative):
     absolute : string
         The absolute path name.
     """
-    return os.path.dirname(os.path.abspath(space.__file__)) + '/' + relative
+    return os.path.dirname(os.path.abspath(inspect.getsourcefile(resource_path))) + '/' + relative
 
 def read_csv_file(filename, pad=-np.inf):
     """
