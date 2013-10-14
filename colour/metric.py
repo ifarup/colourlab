@@ -91,7 +91,7 @@ def poincare_disk(sp, dat1, dat2):
     Compute the Poincare Disk metric betwen the two data sets in the given space.
     
     Assumes that the space is some form of a Poincare Disk space, such that the
-    radius of curvature is given by sp.R.
+    radius of curvature is given by sp.R. The first coordinate is treated as Euclidean.
     
     Parameters
     ----------

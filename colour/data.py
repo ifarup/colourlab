@@ -663,6 +663,12 @@ def build_g_BFD(dataset='P'):
 
 def build_m_rit_dupont():
     """
+    Read the full RIT-DuPont individual colour difference data from file.
+    
+    Returns
+    -------
+    rit_dupont : dict
+        Dictionary with two datasets, dV, weights, and various metrics.
     """
     dat = read_csv_file('colour/metric_data/Mio_RIT_DuPont_Individual_Color_Difference_Data.csv')
     lab1 = dat[:,0:3]

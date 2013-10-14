@@ -23,22 +23,21 @@ import colour
 import matplotlib.pyplot as plt
 import numpy as np
 
-d = colour.data.build_m_rit_dupont() 
+d = colour.data.build_m_rit_dupont()
 
-dEab = colour.metric.dE_ab(d['data1'], d['data2'])
-dEuv = colour.metric.dE_uv(d['data1'], d['data2'])
-dE00 = colour.metric.dE_00(d['data1'], d['data2'])
-dE99 = colour.metric.dE_DIN99(d['data1'], d['data2'])
-dE99b = colour.metric.dE_DIN99b(d['data1'], d['data2'])
-dE99c = colour.metric.dE_DIN99c(d['data1'], d['data2'])
-dE99d = colour.metric.dE_DIN99d(d['data1'], d['data2'])
+dE = colour.metric.euclidean(colour.space.ipt, d['data1'], d['data2'])
+s, i = colour.statistics.stress(dE, d['dV'], d['weights'])
 
-s_ab, i = colour.statistics.stress(dEab, d['dV'], d['weights'])
-s_uv, i = colour.statistics.stress(dEuv, d['dV'], d['weights'])
-s_00, i = colour.statistics.stress(dE00, d['dV'], d['weights'])
-s_99, i = colour.statistics.stress(dE99, d['dV'], d['weights'])
-s_99b, i = colour.statistics.stress(dE99b, d['dV'], d['weights'])
-s_99c, i = colour.statistics.stress(dE99c, d['dV'], d['weights'])
-s_99d, i = colour.statistics.stress(dE99d, d['dV'], d['weights'])
+sp = []
+r = np.linspace(1000, 10000)
+for i in r:
+    space_p = colour.space.TransformPoincareDisk(colour.space.ipt, i)
+    dEp = colour.metric.poincare_disk(space_p, d['data1'], d['data2'])
+    s_p, interval = colour.statistics.stress(dEp, d['dV'], d['weights'])
+    sp.append(s_p)
 
-print s_00, s_99d, s_00 / s_99d, i
+print s, interval[0] * s, interval[1] * s
+
+plt.plot(r, sp)
+plt.grid()
+plt.show()
