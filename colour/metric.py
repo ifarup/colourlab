@@ -110,9 +110,9 @@ def poincare_disk(sp, dat1, dat2):
     d1 = dat1.get_linear(sp)
     d2 = dat2.get_linear(sp)
     diff = d1 - d2
-    delta = 2 * (diff[:,1]**2 + diff[:,2]**2) / ((1 - (d1[:,1] / sp.R)**2 - (d1[:,2] / sp.R)**2) *
-                                                 (1 - (d2[:,1] / sp.R)**2 - (d2[:,2] / sp.R)**2))
-    duv = np.arccosh(1 + delta)
+    delta = 2 * (diff[:,1]**2 + diff[:,2]**2) / ((1 - d1[:,1]**2 - d1[:,2]**2) *
+                                                 (1 - d2[:,1]**2 - d2[:,2]**2))
+    duv = sp.R * np.arccosh(1 + delta)
     d = np.sqrt(diff[:,0]**2 + duv**2)
     return d
 

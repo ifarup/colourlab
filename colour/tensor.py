@@ -227,8 +227,8 @@ def poincare_disk(sp, dat):
     g = sp.empty_matrix(d)
     for i in range(np.shape(g)[0]):
         g[i, 0, 0] = 1
-        g[i, 1, 1] = 4. / (1 - (d[i, 1] / sp.R)**2 - (d[i, 2] / sp.R)**2)**2
-        g[i, 2, 2] = 4. / (1 - (d[i, 1] / sp.R)**2 - (d[i, 2] / sp.R)**2)**2
+        g[i, 1, 1] = sp.R**2 * 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
+        g[i, 2, 2] = sp.R**2 * 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
     return data.TensorData(sp, dat, g)
 
 # TODO:

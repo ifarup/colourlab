@@ -1845,7 +1845,7 @@ class TransformPoincareDisk(Transform):
         r = np.sqrt(x**2 + y**2)
         for i in range(np.shape(Lab)[0]):
             if r[i] > 0:
-                Lab[i,1:] = self.R * ndata[i,1:] * (2 * np.arctanh(r[i] / self.R)) / r[i]
+                Lab[i,1:] = ndata[i,1:] * 2 * self.R * np.arctanh(r[i]) / r[i]
         return Lab
         
     def from_base(self, ndata):
@@ -1869,7 +1869,7 @@ class TransformPoincareDisk(Transform):
         C = np.sqrt(a**2 + b**2)
         for i in range(np.shape(Lxy)[0]):
             if C[i] > 0:
-                Lxy[i,1:] = self.R * ndata[i,1:] * np.tanh(C[i] / (2 * self.R)) / C[i]
+                Lxy[i,1:] = ndata[i,1:] * np.tanh(C[i] / (2 * self.R)) / C[i]
         return Lxy
     
     def jacobian_base(self, data):
@@ -1895,10 +1895,10 @@ class TransformPoincareDisk(Transform):
         b = Lab[:,2]
         C = np.sqrt(a**2 + b**2)
         tanhC2R = np.tanh(C / (2. * self.R))
-        tanhC2C = misc.safe_div(tanhC2R, C / self.R)
+        tanhC2C = misc.safe_div(tanhC2R, C)
         dCda = misc.safe_div(a, C)
         dCdb = misc.safe_div(b, C)
-        dtanhdC = misc.safe_div(C / 2. * (1 - tanhC2R**2) - self.R * tanhC2R, C**2)
+        dtanhdC = misc.safe_div(C / (2. * self.R) * (1 - tanhC2R**2) - tanhC2R, C**2)
         jac = self.empty_matrix(Lab)
         for i in range(np.shape(jac)[0]):
             jac[i, 0, 0] = 1 # dL/dL
