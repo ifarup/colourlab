@@ -942,7 +942,7 @@ class TransformSRGB(Transform):
     
     def from_base(self, ndata):
         """
-        Convert from linear RGB to sRGB.
+        Convert from linear RGB to sRGB. Performs gamut clipping where necessary.
 
         Parameters
         ----------
@@ -954,8 +954,11 @@ class TransformSRGB(Transform):
         col : ndarray
             Colour data in the sRGB colour space
         """
-        srgb = 1.055 * ndata**(1 / 2.4) - 0.055
-        srgb[ndata <= 0.0031308] = 12.92 * ndata[ndata <= 0.0031308]
+        nd = ndata.copy()
+        nd[nd < 0] = 0
+        nd[nd > 1] = 1
+        srgb = 1.055 * nd**(1 / 2.4) - 0.055
+        srgb[nd <= 0.0031308] = 12.92 * nd[nd <= 0.0031308]
         return srgb
 
 class TransformLinear(Transform):
