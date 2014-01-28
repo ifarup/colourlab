@@ -891,7 +891,7 @@ class TransformSRGB(Transform):
     
     def to_base(self, ndata):
         """
-        Convert from sRGB to linear RGB.
+        Convert from sRGB to linear RGB. Performs gamut clipping where necessary.
 
         Parameters
         ----------
@@ -903,8 +903,11 @@ class TransformSRGB(Transform):
         col : ndarray
             Colour data in the linear RGB colour space
         """
-        rgb = ((ndata + 0.055) / 1.055)**2.4
-        rgb[ndata <= 0.04045] = ndata[ndata <= 0.04045] / 12.92
+        nd = ndata.copy()
+        nd[nd < 0] = 0
+        nd[nd > 1] = 1
+        rgb = ((nd + 0.055) / 1.055)**2.4
+        rgb[nd <= 0.04045] = nd[nd <= 0.04045] / 12.92
         return rgb
     
     def jacobian_base(self, data):
