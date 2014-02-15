@@ -24,6 +24,32 @@ import data
 import space
 
 #==============================================================================
+# Auxiliary functions
+#==============================================================================
+
+def reshape_diff(diff, sh):
+    """
+    Reshape the computed metric differences to fit with original data.
+    
+    The purpose is for, e.g., the difference of two MxNx3 images to be
+    a MxN scalar image etc.
+    
+    Parameters
+    ----------
+    diff : ndarray
+        The computed differences
+    sh : tuple
+        The shape of the original data (not the diff)
+    """
+    l = len(sh)
+    if l == 1: # one-dimensional colour data (one colour point)
+        return diff[0]
+    elif l == 2: # two-dimensional colour data (list of colours)
+        return diff
+    else: # three or more dimensions (images++)
+        return np.reshape(diff, tuple(np.array(sh)[:-1]))
+
+#==============================================================================
 # Colour metric functions
 #==============================================================================
 
@@ -60,7 +86,7 @@ def linear(sp, dat1, dat2, metric_tensor_function):
     m = np.zeros(np.shape(diff)[0])
     for i in range(np.shape(m)[0]):
         m[i] = np.sqrt(np.dot(diff[i].T, np.dot(g[i], diff[i])))
-    return m
+    return reshape_diff(m, dat1.sh)
 
 def euclidean(sp, dat1, dat2):
     """
@@ -84,7 +110,7 @@ def euclidean(sp, dat1, dat2):
     d2 = dat2.get_linear(sp)
     diff = d1 - d2
     m = np.sqrt(diff[:,0]**2 + diff[:,1]**2 + diff[:,2]**2)
-    return m
+    return reshape_diff(m, dat1.sh)
 
 def poincare_disk(sp, dat1, dat2):
     """
@@ -114,7 +140,7 @@ def poincare_disk(sp, dat1, dat2):
                                                  (1 - d2[:,1]**2 - d2[:,2]**2))
     duv = sp.R * np.arccosh(1 + delta)
     d = np.sqrt(diff[:,0]**2 + duv**2)
-    return d
+    return reshape_diff(d, dat1.sh)
 
 def dE_ab(dat1, dat2):
     """
@@ -282,10 +308,11 @@ def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
     d_theta = 30 * np.exp(-((h_deg - 275) / 25)**2)
     R_T = - R_C * np.sin(np.deg2rad(2 * d_theta))
     dH = 2 * np.sqrt(lch1[:,1] * lch2[:,1]) * np.sin(d_lch[:,2] / 2)
-    return np.sqrt((d_lch[:,0] / (k_L * S_L))**2 + 
-                   (d_lch[:,1] / (k_C * S_C))**2 +
-                   (dH / (k_h * S_h))**2 +
-                   R_T * d_lch[:,1] * dH / (k_C * S_C * k_h * S_h))
+    d = np.sqrt((d_lch[:,0] / (k_L * S_L))**2 + 
+                (d_lch[:,1] / (k_C * S_C))**2 +
+                (dH / (k_h * S_h))**2 +
+                R_T * d_lch[:,1] * dH / (k_C * S_C * k_h * S_h))
+    return reshape_diff(d, dat1.sh)
 
 #==============================================================================
 # Test module

@@ -22,30 +22,35 @@ import colour
 import matplotlib.pyplot as plt
 import numpy as np
 
-pd = colour.space.TransformPoincareDisk(colour.space.cielab, 5)
-d0 = colour.data.Data(colour.space.cielab, np.array([50, 0, 0]))
-d1 = colour.data.Data(colour.space.cielab, np.array([50, 0, 10]))
-d2 = colour.data.Data(colour.space.cielab, np.array([50, 10, 0]))
-print colour.metric.poincare_disk(pd, d0, d1)
-print colour.metric.poincare_disk(pd, d0, d2)
-print colour.metric.poincare_disk(pd, d1, d2)
+col1d = np.array([50, 0, 0])
+col2d = np.array([[50, 0, 0], [25, 10, 10]])
+col3d = np.array([[[50, 0, 0], [25, 10, 10]],
+                  [[50, 0, 0], [25, 10, 10]]])
+col4d = np.array([[[[50, 0, 0], [25, 10, 10]],
+                  [[50, 0, 0], [25, 10, 10]]],
+                  [[[50, 0, 0], [25, 10, 10]],
+                  [[50, 0, 0], [25, 10, 10]]]])
 
-step = 20
-d = colour.data.build_d_regular(colour.space.cielab, [50], np.arange(-100, 100 + step, step), np.arange(-100, 100 + step, step))
-gab = colour.tensor.dE_ab(d)
-gp = colour.tensor.poincare_disk(pd, d)
-col = d.get(colour.space.cielab)
-plt.figure(1)
-plt.plot(col[:,1], col[:,2] ,'.')
-plt.grid()
-plt.axis('equal')
-colour.misc.plot_ellipses(gab.get_ellipses(colour.space.cielab, gab.plane_ab, step))
-colour.misc.plot_ellipses(gp.get_ellipses(colour.space.cielab, gab.plane_ab, step), edgecolor=[1,0,0])
-plt.figure(2)
-col = d.get(pd)
-plt.plot(col[:,1], col[:,2] ,'.')
-plt.axis('equal')
-colour.misc.plot_ellipses(gab.get_ellipses(pd, gab.plane_ab, step))
-colour.misc.plot_ellipses(gp.get_ellipses(pd, gab.plane_ab, step), edgecolor=[1,0,0])
-plt.show()
+col1d_1 = colour.data.Data(colour.space.cielab, col1d)
+col1d_2 = colour.data.Data(colour.space.cielab, col1d + 1)
+col2d_1 = colour.data.Data(colour.space.cielab, col2d)
+col2d_2 = colour.data.Data(colour.space.cielab, col2d + 1)
+col3d_1 = colour.data.Data(colour.space.cielab, col3d)
+col3d_2 = colour.data.Data(colour.space.cielab, col3d + 1)
+col4d_1 = colour.data.Data(colour.space.cielab, col4d)
+col4d_2 = colour.data.Data(colour.space.cielab, col4d + 1)
 
+diff1d = colour.metric.dE_ab(col1d_1, col1d_2)
+diff2d = colour.metric.dE_ab(col2d_1, col2d_2)
+diff3d = colour.metric.dE_ab(col3d_1, col3d_2)
+diff4d = colour.metric.dE_ab(col4d_1, col4d_2)
+
+print diff1d
+print diff2d
+print diff3d
+print diff4d
+
+print np.shape(col1d), np.shape(diff1d)
+print np.shape(col2d), np.shape(diff2d)
+print np.shape(col3d), np.shape(diff3d)
+print np.shape(col4d), np.shape(diff4d)
