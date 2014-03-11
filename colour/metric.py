@@ -324,9 +324,9 @@ def test():
     """
     print "Metric range (should be close to [1, 1]):"
     d1 = data.build_d_regular(space.cielab,
-                             np.linspace(20, 80, 10),
-                             np.linspace(-50, 50, 11),
-                             np.linspace(-50, 50, 11))
+                              np.linspace(20, 80, 10),
+                              np.linspace(-50, 50, 11),
+                              np.linspace(-50, 50, 11))
     d2 = data.Data(space.cielab,
                    d1.get(space.cielab) + 1 / np.sqrt(3))
     for met in [dE_ab, dE_uv, dE_00, dE_DIN99, dE_DIN99b, dE_DIN99c, dE_DIN99d]:

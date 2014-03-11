@@ -398,6 +398,49 @@ def build_d_Melgosa():
     m_Lab = np.concatenate(([m_L], [m_a], [m_b]), axis=0).T
     return Data(space.cielab, m_Lab)
 
+def build_d_Munsell(type='all'):
+    """
+    The Munsell renotation data under illuminant C for the CIE 1931 2 degree observer.
+    
+    Parameters
+    ----------
+    type : string
+        Which data set. Either 'all', 'real', or '1929'. See
+        http://www.cis.rit.edu/research/mcsl2/online/munsell.php
+        for details.
+        
+    Returns
+    -------
+    d_Munsell : Data
+        The Munsell colours.
+    munsell_names : list
+        The standard Munsell value names (H, V, C).
+    munsell_lab : ndarray
+        Numeric version of the Munsell values names in a normalised Lab
+        type coordinate system (not fully implemented yet!).
+    """
+    if type == 'all' or type == 'real' or type == '1929':
+        fname = 'colour_data/' + type + '.dat'
+    else:
+        print 'Non-existing Munsell data set.'
+        return
+    infile = open(resource_path(fname), 'r')
+    data = infile.readlines()
+    data = data[1:]
+    for i in range(len(data)):
+        data[i] = data[i].split()
+    munsell_names = list(data)
+    for i in range(len(munsell_names)):
+        munsell_names[i] = munsell_names[i][0:3]
+    munsell_lab = list(munsell_names)
+    for i in range(len(data)):
+        data[i] = data[i][3:]
+        for j in range(len(data[i])):
+            data[i][j] = float(data[i][j])
+    data = np.array(data)
+    data[:,2] = data[:,2] / 100.
+    return Data(space.xyY, data), munsell_names, munsell_lab
+
 def build_d_regular(sp, x_val, y_val, z_val):
     """
     Build regular data set of colour data in the given colour space.
