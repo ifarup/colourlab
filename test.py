@@ -22,12 +22,13 @@ import colour
 import matplotlib.pyplot as plt
 import numpy as np
 
-m_data, m_names, m_lab = colour.data.d_Munsell()
-mn = m_data.new_white_point(colour.space.ciecat02, colour.space.white_D65, colour.space.white_E)
+m_data, m_names, m_lab = colour.data.d_Munsell('real')
 lab = m_data.get(colour.space.cielab)
-labn = mn.get(colour.space.cielab)
-plt.figure(1)
-plt.plot(lab[:,1], lab[:,0], '.')
-plt.figure(2)
-plt.plot(labn[:,1], labn[:,0], '.')
+plt.plot(np.sqrt(m_lab[:,1]**2 + m_lab[:,2]**2), m_lab[:,0], '.')
+plt.axis('equal')
+plt.grid()
+plt.figure()
+plt.plot(np.sqrt(lab[:,1]**2 + lab[:,2]**2), lab[:,0], '.')
+plt.axis('equal')
+plt.grid()
 plt.show()

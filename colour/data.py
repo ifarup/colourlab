@@ -445,7 +445,7 @@ def d_Munsell(dataset='real'):
         The standard Munsell value names (H, V, C).
     munsell_lab : ndarray
         Numeric version of the Munsell values names in a normalised Lab
-        type coordinate system (not fully implemented yet!).
+        type coordinate system. Follows the layout of McCann J. Elect. Imag. 1999
     """
     if dataset == 'all' or dataset == 'real' or dataset == '1929':
         fname = 'colour_data/' + dataset + '.dat'
@@ -460,13 +460,36 @@ def d_Munsell(dataset='real'):
     munsell_names = list(data)
     for i in range(len(munsell_names)):
         munsell_names[i] = munsell_names[i][0:3]
-    munsell_lab = list(munsell_names)
+    munsell_hlc = list(munsell_names)
     for i in range(len(data)):
         data[i] = data[i][3:]
         for j in range(len(data[i])):
             data[i][j] = float(data[i][j])
     data = np.array(data)
     data[:,2] = data[:,2] / 100.
+    hue_list = ['10RP',
+                '2.5R', '5R', '7.5R', '10R', 
+                '2.5YR', '5YR', '7.5YR', '10YR', 
+                '2.5Y', '5Y', '7.5Y', '10Y', 
+                '2.5GY', '5GY', '7.5GY', '10GY', 
+                '2.5G', '5G', '7.5G', '10G', 
+                '2.5BG', '5BG', '7.5BG', '10BG', 
+                '2.5B', '5B', '7.5B', '10B', 
+                '2.5PB', '5PB', '7.5PB', '10PB', 
+                '2.5P', '5P', '7.5P', '10P', 
+                '2.5RP', '5RP', '7.5RP']
+    hue_lut = dict(zip(hue_list, 2 * np.pi * np.arange(len(hue_list)) / float(len(hue_list))))
+    for i in range(len(munsell_hlc)):
+        munsell_hlc[i][0] = hue_lut[munsell_hlc[i][0]]
+        for j in range(3):
+            munsell_hlc[i][j] = float(munsell_hlc[i][j])
+    munsell_hlc = np.array(munsell_hlc)
+    munsell_hlc[:,1] = munsell_hlc[:,1] / 10.
+    munsell_hlc[:,2] = munsell_hlc[:,2] / 20.
+    munsell_lab = np.zeros(np.shape(munsell_hlc))
+    munsell_lab[:,0] = munsell_hlc[:,1]
+    munsell_lab[:,1] = munsell_hlc[:,2] * np.cos(munsell_hlc[:,0])
+    munsell_lab[:,2] = munsell_hlc[:,2] * np.sin(munsell_hlc[:,0])
     return Data(space.xyY, data), munsell_names, munsell_lab
 
 def d_regular(sp, x_val, y_val, z_val):
