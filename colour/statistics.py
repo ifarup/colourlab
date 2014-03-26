@@ -166,20 +166,20 @@ def test():
     import space
     import metric
     import tensor
-    d1 = data.build_d_regular(space.cielab,
-                             np.linspace(0, 100, 10),
-                             np.linspace(-100, 100, 21),
-                             np.linspace(-100, 100, 21))
+    d1 = data.d_regular(space.cielab,
+                        np.linspace(0, 100, 10),
+                        np.linspace(-100, 100, 21),
+                        np.linspace(-100, 100, 21))
     d2 = data.Data(space.cielab,
                    d1.get(space.cielab) + 1)
     diff = metric.dE_ab(d1, d2)
     print "Various tests (should be True):"
     print stress(diff, diff) == 0
     print stress(diff, diff + 1) < 1e-11
-    d1 = data.build_d_regular(space.cielab,
-                             np.linspace(0, 100, 3),
-                             np.linspace(-100, 100, 3),
-                             np.linspace(-100, 100, 3))
+    d1 = data.d_regular(space.cielab,
+                        np.linspace(0, 100, 3),
+                        np.linspace(-100, 100, 3),
+                        np.linspace(-100, 100, 3))
     d2 = data.Data(space.cielab,
                    d1.get(space.cielab) + 1)
     t1 = tensor.dE_ab(d1)

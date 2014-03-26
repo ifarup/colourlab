@@ -250,10 +250,10 @@ def test():
     """
     Test entire module, and print report.
     """
-    d = data.build_d_regular(space.cielab,
-                             np.linspace(1, 100, 10),
-                             np.linspace(-100, 100, 21),
-                             np.linspace(-100, 100, 21))
+    d = data.d_regular(space.cielab,
+                       np.linspace(1, 100, 10),
+                       np.linspace(-100, 100, 21),
+                       np.linspace(-100, 100, 21))
     ndat = np.shape(d.get_linear(space.cielab))[0]
     gab = dE_ab(d)
     guv = dE_uv(d)

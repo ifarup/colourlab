@@ -347,7 +347,7 @@ def read_csv_file(filename, pad=-np.inf):
                 data[i][j] = float(data[i][j])
     return np.array(data)
 
-def build_d_XYZ_31():
+def d_XYZ_31():
     """
     Read CIE XYZ 1931 functions.
     
@@ -359,7 +359,7 @@ def build_d_XYZ_31():
     xyz_ = read_csv_file('colour_data/ciexyz31_1.csv')
     return Data(space.xyz, xyz_[:,1:])
 
-def build_d_XYZ_64():
+def d_XYZ_64():
     """
     Read CIE XYZ 1964 functions.
 
@@ -371,7 +371,7 @@ def build_d_XYZ_64():
     xyz_ = read_csv_file('colour_data/ciexyz64_1.csv')
     return Data(space.xyz, xyz_[:,1:])
 
-def build_d_Melgosa():
+def d_Melgosa():
     """
     The data points for the Melgosa Ellipsoids (RIT-DuPont).
 
@@ -398,7 +398,7 @@ def build_d_Melgosa():
     m_Lab = np.concatenate(([m_L], [m_a], [m_b]), axis=0).T
     return Data(space.cielab, m_Lab)
 
-def build_d_Munsell(type='all'):
+def d_Munsell(type='all'):
     """
     The Munsell renotation data under illuminant C for the CIE 1931 2 degree observer.
     
@@ -441,7 +441,7 @@ def build_d_Munsell(type='all'):
     data[:,2] = data[:,2] / 100.
     return Data(space.xyY, data), munsell_names, munsell_lab
 
-def build_d_regular(sp, x_val, y_val, z_val):
+def d_regular(sp, x_val, y_val, z_val):
     """
     Build regular data set of colour data in the given colour space.
     
@@ -489,7 +489,7 @@ def build_d_regular(sp, x_val, y_val, z_val):
 # Metric data sets
 #==============================================================================
 
-def build_g_MacAdam():
+def g_MacAdam():
     """
     MacAdam ellipses (defined in xy, extended arbitrarily to xyY).
     
@@ -520,7 +520,7 @@ def build_g_MacAdam():
     g[:, 1, 0] = g12
     return TensorData(space.xyY, points, g)
 
-def build_g_three_observer():
+def g_three_observer():
     """
     Wyszecki and Fielder's three observer data set.
     
@@ -559,7 +559,7 @@ def build_g_three_observer():
     g[:, 1, 0] = g12
     return TensorData(space.xyY, points, g)
 
-def build_g_Melgosa_Lab():
+def g_Melgosa_Lab():
     """
     Melgosa's CIELAB-fitted ellipsoids for the RIT-DuPont data.
 
@@ -604,9 +604,9 @@ def build_g_Melgosa_Lab():
     m_Lab_metric[:, 2, 0] = m_gLb
     m_Lab_metric[:, 1, 2] = m_gab
     m_Lab_metric[:, 2, 1] = m_gab
-    return TensorData(space.cielab, build_d_Melgosa(), m_Lab_metric)
+    return TensorData(space.cielab, d_Melgosa(), m_Lab_metric)
     
-def build_g_Melgosa_xyY():
+def g_Melgosa_xyY():
     """
     Melgosa's xyY-fitted ellipsoids for the RIT-DuPont data.
 
@@ -647,9 +647,9 @@ def build_g_Melgosa_xyY():
     m_xyY_metric[:, 1, 2] = m_g23
     m_xyY_metric[:, 2, 1] = m_g23
     m_xyY_metric = 1e4*m_xyY_metric
-    return TensorData(space.xyY, build_d_Melgosa(), m_xyY_metric)
+    return TensorData(space.xyY, d_Melgosa(), m_xyY_metric)
 
-def build_g_BFD(dataset='P'):
+def g_BFD(dataset='P'):
     """
     Return the BFD data set ellipses of the required type.
     
@@ -699,7 +699,7 @@ def build_g_BFD(dataset='P'):
 # Metric datasets
 #==============================================================================
 
-def build_m_rit_dupont():
+def m_rit_dupont():
     """
     Read the full RIT-DuPont individual colour difference data from file.
     
@@ -721,7 +721,7 @@ def build_m_rit_dupont():
     rit_dupont['weights'] = dat[:,10].copy()
     return rit_dupont
 
-def build_m_rit_dupont_T50():
+def m_rit_dupont_T50():
     """
     Read the reduced RIT-DuPont T50 colour difference data from file.
     
@@ -789,18 +789,18 @@ def test():
     print np.max(np.abs(col3 - dd3.get(space.xyz)))
     print np.max(np.abs(col4 - dd4.get(space.xyz)))
     print "\nReading data files..."
-    build_d_XYZ_31()
-    build_d_XYZ_64()
-    build_d_Melgosa()
-    build_d_regular(space.xyz, np.linspace(0, 1, 10), 
+    d_XYZ_31()
+    d_XYZ_64()
+    d_Melgosa()
+    d_regular(space.xyz, np.linspace(0, 1, 10), 
                     np.linspace(0, 1, 10), np.linspace(0, 1, 10))
     print "ok"
     print "\nTensor data, and reading tensor data files..."
-    build_g_MacAdam()
-    build_g_three_observer()
-    build_g_Melgosa_Lab()
-    build_g_Melgosa_xyY()
-    build_g_BFD()
+    g_MacAdam()
+    g_three_observer()
+    g_Melgosa_Lab()
+    g_Melgosa_xyY()
+    g_BFD()
     print "\nMetric data, reading csv files and more..."
-    build_m_rit_dupont()
+    m_rit_dupont()
     print "ok"
