@@ -144,6 +144,34 @@ class Data:
             The linearised colour data in the given colour space.
         """
         return self.linearise(self.get(sp))
+    
+    def new_white_point(self, sp, from_white, to_white):
+        """
+        Return new data set with new white point.
+        
+        The transformation is done using the von Kries transformation
+        in the given colour space.
+        
+        Parameters
+        ----------
+        sp : Space
+            The colour space for the von Kries transformation.
+        from_white : Data
+            The white point of the current data set.
+        to_white : Data
+            The white point of the new data set.
+            
+        Returns
+        -------
+        data : Data
+            The new colour data with changed white point.
+        """
+        wh_in = from_white.get(sp)
+        wh_out = to_white.get(sp)
+        von_Kries_mat = np.array([[wh_out[0] / wh_in[0], 0, 0],
+                                  [0, wh_out[1] / wh_in[1], 0],
+                                  [0, 0, wh_out[2] / wh_in[2]]])
+        return Data(sp, self.get(space.TransformLinear(sp, von_Kries_mat)))
 
 class TensorData:
     """
@@ -398,13 +426,13 @@ def d_Melgosa():
     m_Lab = np.concatenate(([m_L], [m_a], [m_b]), axis=0).T
     return Data(space.cielab, m_Lab)
 
-def d_Munsell(type='all'):
+def d_Munsell(dataset='real'):
     """
     The Munsell renotation data under illuminant C for the CIE 1931 2 degree observer.
     
     Parameters
     ----------
-    type : string
+    dataset : string
         Which data set. Either 'all', 'real', or '1929'. See
         http://www.cis.rit.edu/research/mcsl2/online/munsell.php
         for details.
@@ -419,8 +447,8 @@ def d_Munsell(type='all'):
         Numeric version of the Munsell values names in a normalised Lab
         type coordinate system (not fully implemented yet!).
     """
-    if type == 'all' or type == 'real' or type == '1929':
-        fname = 'colour_data/' + type + '.dat'
+    if dataset == 'all' or dataset == 'real' or dataset == '1929':
+        fname = 'colour_data/' + dataset + '.dat'
     else:
         print 'Non-existing Munsell data set.'
         return

@@ -21,3 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import matplotlib.pyplot as plt
 import numpy as np
+
+m_data, m_names, m_lab = colour.data.d_Munsell()
+mn = m_data.new_white_point(colour.space.ciecat02, colour.space.white_D65, colour.space.white_E)
+lab = m_data.get(colour.space.cielab)
+labn = mn.get(colour.space.cielab)
+plt.figure(1)
+plt.plot(lab[:,1], lab[:,0], '.')
+plt.figure(2)
+plt.plot(labn[:,1], labn[:,0], '.')
+plt.show()

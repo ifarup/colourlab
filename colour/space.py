@@ -34,7 +34,7 @@ class Space(object):
     """
     Base class for the colour space classes.
     """
-
+    # White points in XYZ
     white_A = np.array([1.0985, 1., 0.35585])
     white_B = np.array([.990720, 1., .852230])
     white_C = np.array([.980740, 1., .82320])
@@ -522,9 +522,14 @@ class TransformCIELAB(Transform):
         ----------
         base : Space
             The base colour space.
+        white_point : ndarray or Data
+            The white point
         """
         super(TransformCIELAB, self).__init__(base)
-        self.white_point = white_point
+        if isinstance(white_point, data.Data):
+            self.white_point = white_point.get(xyz)
+        else:
+            self.white_point = white_point
 
     def f(self, ndata):
         """
@@ -648,9 +653,14 @@ class TransformCIELUV(Transform):
         ----------
         base : Space
             The base colour space.
+        white_point : ndarray or Data
+            The white point
         """
         super(TransformCIELUV, self).__init__(base)
-        self.white_point = white_point
+        if isinstance(white_point, data.Data):
+            self.white_point = white_point.get(xyz)
+        else:
+            self.white_point = white_point
 
     def f(self, ndata):
         """
@@ -795,7 +805,7 @@ class TransformCIEDE00(Transform):
 
     def __init__(self, base):
         """
-        Construct instance by setting base space and white point.
+        Construct instance by setting base space.
         
         Parameters
         ----------
@@ -1932,6 +1942,10 @@ cielch= TransformPolar(cielab)
 cieluv = TransformCIELUV(xyz)
 ciede00lab = TransformCIEDE00(cielab)
 ciede00lch = TransformPolar(ciede00lab)
+ciecat02 = TransformLinear(xyz,
+                           np.array([[.7328, .4296, -.1624],
+                                     [-.7036, 1.675, .0061],
+                                     [.0030, .0136, .9834]]))
 
 # sRGB
 
@@ -2035,6 +2049,21 @@ _test_ui = TransformLinear(TransformGamma(TransformLinear(xyz,
 _test_space_cartesian = TransformCartesian(cieluv)
 _test_space_poincare_disk = TransformPoincareDisk(cielab)
 _test_space_gamma = TransformGamma(xyz, .43)
+
+# White points:
+
+white_A = data.Data(xyz, Space.white_A)
+white_B = data.Data(xyz, Space.white_B)
+white_C = data.Data(xyz, Space.white_C)
+white_D50 = data.Data(xyz, Space.white_D50)
+white_D55 = data.Data(xyz, Space.white_D55)
+white_D65 = data.Data(xyz, Space.white_D65)
+white_D75 = data.Data(xyz, Space.white_D75)
+white_E = data.Data(xyz, Space.white_E)
+white_F2 = data.Data(xyz, Space.white_F2)
+white_F7 = data.Data(xyz, Space.white_F7)
+white_F11 = data.Data(xyz, Space.white_F11)
+
 
 #==============================================================================
 # Test module
