@@ -193,8 +193,9 @@ def _scale_rot_dataset(params, dataset):
     new_set : ndarray
         The scaled and rotated dataset.
     """
-    scale_mat = params[0] * np.eye(3)
-    th = params[1]
+    scale_mat = params[1] * np.eye(3)
+    scale_mat[0,0] = params[0]
+    th = params[2]
     rot_mat = np.array([[1, 0, 0],
                         [0, np.cos(th), -np.sin(th)],
                         [0, np.sin(th),  np.cos(th)]])
@@ -208,7 +209,7 @@ def _cost_function_dataset(params, dataset, ground_truth):
     Parameters
     ----------
     params : ndarray
-        Optimising parameters, scale and angle.
+        Optimising parameters, L-scale, C-scale and angle.
     dataset : ndarray
         The data set to optimise.
     ground_truth : ndarray
@@ -241,14 +242,16 @@ def minimal_dataset_distance(dataset, ground_truth):
         Array of minimal Euclidean distances.
     opt_data : ndarray
         The optimised data set by scaling and rotation.
-    scale : float
+    L-scale : float
+        The optimal scale.
+    C-scale : float
         The optimal scale.
     angle : float
         The optimal angle.
     """
-    params = scipy.optimize.fmin(_cost_function_dataset, np.array([1,0]), (dataset, ground_truth))
+    params = scipy.optimize.fmin(_cost_function_dataset, np.array([1,1,0]), (dataset, ground_truth))
     opt_data = _scale_rot_dataset(params, dataset)
-    return dataset_distance(opt_data, ground_truth), opt_data, params[0], params[1]
+    return dataset_distance(opt_data, ground_truth), opt_data, params[0], params[1], params[2]
 
 #==============================================================================
 # Test module
