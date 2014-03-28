@@ -24,11 +24,10 @@ import numpy as np
 
 m_data, m_names, m_lab = colour.data.d_Munsell('real')
 lab = m_data.get(colour.space.cielab)
-plt.plot(np.sqrt(m_lab[:,1]**2 + m_lab[:,2]**2), m_lab[:,0], '.')
-plt.axis('equal')
-plt.grid()
-plt.figure()
-plt.plot(np.sqrt(lab[:,1]**2 + lab[:,2]**2), lab[:,0], '.')
+diffs, opt_lab, scale, angle = colour.statistics.minimal_dataset_distance(lab, m_lab)
+print scale, angle, angle * 180 / np.pi
+plt.plot(m_lab[:,1], m_lab[:,0], '.')
+plt.plot(opt_lab[:,1], opt_lab[:,0], 'r.')
 plt.axis('equal')
 plt.grid()
 plt.show()

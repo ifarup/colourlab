@@ -106,7 +106,7 @@ def _pant_R_values(ells1, ells2, scale=1):
         r_values[i] = _pant_R_value(ells1[i], ells2[i])
     return r_values
 
-def _cost_function(scale, ells1, ells2):
+def _cost_function_pant(scale, ells1, ells2):
     """
     Cost function for the optimisation of the scale for the R values.
     """
@@ -135,6 +135,11 @@ def pant_R_values(space, tdata1, tdata2, optimise=True, plane=None):
         Whether or not to optimise the scaling of the ellipse set.
     plane : slice
         The principal plan for the ellipsoid cross sections.
+    
+    Returns
+    -------
+    r_values : ndarray
+        Pant R values
     """    
     if plane == None:
         ell1a = tdata1.get_ellipse_parameters(space, tdata1.plane_01)
@@ -149,10 +154,101 @@ def pant_R_values(space, tdata1, tdata2, optimise=True, plane=None):
         ell1 = tdata1.get_ellipse_parameters(space, plane)
         ell2 = tdata2.get_ellipse_parameters(space, plane)
     if optimise:
-        res = scipy.optimize.fmin(_cost_function, 1, (ell1, ell2))
+        res = scipy.optimize.fmin(_cost_function_pant, 1, (ell1, ell2))
         return _pant_R_values(ell1, ell2, res[0]), res[0]
     else:
         return _pant_R_values(ell1, ell2)        
+
+def dataset_distance(data1, data2):
+    """
+    Euclidean distances between data in the two data sets.
+    
+    Parameters
+    ----------
+    data1 : ndarray
+        The first dataset, Nx3.
+    data2 : ndarray
+        The second data set, Nx3.
+    
+    Returns
+    -------
+    diff : ndarray
+        Array of Euclidean distances, N.
+    """
+    return np.sqrt(((data1 - data2)**2).sum(axis=1))
+
+def _scale_rot_dataset(params, dataset):
+    """
+    Scale and rotate dataset for optimisation.
+    
+    Parameters
+    ----------
+    params : ndarray
+        Optimising parameters, scale and angle.
+    dataset : ndarray
+        The data set to optimise.
+
+    Returns
+    -------
+    new_set : ndarray
+        The scaled and rotated dataset.
+    """
+    scale_mat = params[0] * np.eye(3)
+    th = params[1]
+    rot_mat = np.array([[1, 0, 0],
+                        [0, np.cos(th), -np.sin(th)],
+                        [0, np.sin(th),  np.cos(th)]])
+    sys_mat = np.dot(scale_mat, rot_mat)
+    return np.dot(sys_mat, dataset.T).T
+
+def _cost_function_dataset(params, dataset, ground_truth):
+    """
+    Cost function for the optimisation of the scale for the R values.
+    
+    Parameters
+    ----------
+    params : ndarray
+        Optimising parameters, scale and angle.
+    dataset : ndarray
+        The data set to optimise.
+    ground_truth : ndarray
+        The ground truth dataset.
+    
+    Returns
+    -------
+    cost : float
+        The cost for the current values of scale and angle.
+    """
+    return dataset_distance(_scale_rot_dataset(params, dataset), ground_truth).sum()
+
+def minimal_dataset_distance(dataset, ground_truth):
+    """
+    Return the minimal dataset distance between a dataset and a ground truth.
+    
+    The dataset is assumed to be on the Lab form (as an Nx3 ndarray) and is
+    changed by scaling and rotation about the L axis.
+    
+    Parameters
+    ----------
+    dataset : ndarray
+        Nx3 ndarray with the colour data.
+    ground_truth : ndarray
+        Nx3 ndarray with the ground truth colour data.
+    
+    Returns
+    -------
+    diff : ndarray
+        Array of minimal Euclidean distances.
+    opt_data : ndarray
+        The optimised data set by scaling and rotation.
+    scale : float
+        The optimal scale.
+    angle : float
+        The optimal angle.
+    """
+    params = scipy.optimize.fmin(_cost_function_dataset, np.array([1,0]), (dataset, ground_truth))
+    opt_data = _scale_rot_dataset(params, dataset)
+    return dataset_distance(opt_data, ground_truth), opt_data, params[0], params[1]
 
 #==============================================================================
 # Test module
