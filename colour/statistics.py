@@ -44,7 +44,7 @@ def stress(diff1, diff2, weights=None, confidence=.95):
         1D array of individual weights for the colour differences. If None,
         the standard STRESS is calculated, if given, WSTRESS is calculated.
     confidence : float
-        The size of the confidence intervale (e.g., .95 for a 95% confidence interval)
+        The size of the confidence interval (e.g., .95 for a 95% confidence interval)
     
     Returns
     -------
