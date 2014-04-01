@@ -39,6 +39,29 @@ and so on. The colour conversions are computed only once and buffered within the
 
 There are also built-in colour data sets available. They are all represented by Data objects that can be constructed upon need by functions in the colour.data module. These functions have names starting with `d_`. Most of these data sets are mainly of interest for colour metrics researcher, but some of them will have broader interest, such as the various CIE colour matching functions, and the data of the Munsell patches.
 
+Computing Colour Metrics
+------------------------
+
+The most common colour metrics are available as functions in the colour.metrics module. All the metric funtions take two colour Data objects as parameters. The two objects must be of the same dimension. If the colour data in the Data objects are of the dimension Nx...xMx3, the return value of the metric functions are ndarrays of dimension Nx...XM. For example, the &Delta;E<sub>ab</sub> colour difference between the two datasets `dataset1` and `dataset2` is computed as
+
+```python
+diff = colour.metric.dE_ab(dataset1, dataset2)
+```
+
+The following metrics are available:
+
+* dE_ab: The CIE76 standard &Delta;E<sub>ab</sub> &ndash; the Euclidean distance in CIELAB.
+* dE_uv: The Euclidean metric in CIELUV, &Delta;E<sub>uv</sub>.
+* dE_00: The CIEDE2000 non-Euclidean colour metric.
+* dE_E: The Euclidean colour metric &Delta;E<sub>E</sub>.
+* dE_DIN99x: The DIN99x colour metrics (where x is empty, b, c or d).
+
+Additionally, a general Euclidean colour metric in a given colour space can be computed as
+
+```python
+my_diff = colour.metric.euclidean(my_colour_space, dataset1, dataset2)
+```
+
 Constructing Colour Spaces
 --------------------------
 
