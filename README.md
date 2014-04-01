@@ -33,7 +33,21 @@ col_lab  = col_data.get(colour.space.cielab)
 col_xyY  = col_data.get(colour.space.xyY)
 ```
 
-and so on. The colour conversions are computed only once and buffered within the Data object, so no extra overhead (besides the function call) is caused by sequential calls to the get method with the same colour space as the argument.
+and so on. The colour conversions are computed only once and buffered within the Data object, so no extra overhead (besides the function call) is caused by sequential calls to the get method with the same colour space as the argument. Currently, the following colour spaces are available:
+
+* **colour.space.xyz**: The CIE XYZ colour space.
+* **colour.space.xyY**: The CIE xyY colour space.
+* **colour.space.cielab**: The CIELAB colour space with D65 white point.
+* **colour.space.cielch**: Polar coordinates in the CIELAB colour space.
+* **colour.space.cieluv**: The CIELUV colour space with D65 white point.
+* **colour.space.ciecat02**: The colour space of the CIECAT02 colour adaptation transform.
+* **colour.space.ciede00lab**: The underlying colourspace of the CIEDE2000 colour metric.
+* **colour.space.srgb**: The sRGB colour space.
+* **colour.space.rgb_adobe**: The Adobe RGB colour space.
+* **colour.space.ipt**: The IPT colour space.
+* **colour.space.lgj_osa**: The OSA-UCS colour space.
+* **colour.space.lgj_e**: The Euclidised OSA-UCS colour space used in the &Delta;E<sub>E</sub> metric.
+* **colour.space.din99x**: The various DIN99x colour spaces for the corresponding metrics (x is empty, b, c, or d).
 
 There are also built-in colour data sets available. They are all represented by Data objects that can be constructed upon need by functions in the colour.data module. These functions have names starting with `d_`. Most of these data sets are mainly of interest for colour metrics researcher, but some of them will have broader interest, such as the various CIE colour matching functions, and the data of the Munsell patches.
 
