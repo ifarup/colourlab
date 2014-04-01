@@ -17,7 +17,7 @@ The basic functionality of supposedly general interest is found in the three fir
 Representing and Converting Colour Data
 ---------------------------------------
 
-Basic numeric colour data are represented as numpy arrays of dimensions NxMx...Px3. In other words, colour data can be of any dimension, as long as the last dimension is the colour dimension. In particular, single points in the colour space will be ndarrays of shape (3,), lists of colour data will have dimension (N,3), and colour images will have dimension (M,N,3).
+Basic numerical colour data are represented as numpy arrays of dimensions Nx...xMx3. In other words, colour data can be of any dimension, as long as the last dimension is the colour dimension. In particular, single points in the colour space will be ndarrays of shape (3,), lists of colour data will have dimension (N,3), and colour images will have dimension (M,N,3).
 
 Colour data is scaled such that the natural maximum value is unity for most colour spaces, including XYZ having Y=1 for the whichever white point, and the RGB spaces having (1,1,1) as white points. For colour spaces with explicitly defined scaling like CIELAB and CIELAB (where the white point is defined as L*=100), the original scaling is used.
 
@@ -93,3 +93,17 @@ In addition, the following more special colour space transforms are available:
 * TransformLGJE
 
 Adding to this, new colour space transforms can be defined as classes inheriting from the colour.space.Transform base class.
+
+Common white points are available as the following Data objects:
+
+* colour.space.white_A
+* colour.space.white_B
+* colour.space.white_C
+* colour.space.white_D50
+* colour.space.white_D55
+* colour.space.white_D65
+* colour.space.white_D75
+* colour.space.white_E
+* colour.space.white_F2
+* colour.space.white_F7
+* colour.space.white_F11
