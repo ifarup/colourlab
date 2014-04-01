@@ -10,9 +10,7 @@ colour is a Python package for colour metrics and colour space transforms. Many 
 * colour.statistics
 * colour.misc
 
-All the modules are imported when importing the package.
-
-The basic functionality of supposedly general interest is found in the three first modules. Only the really basic functionality is documented here. For more advanced features, please refer to the code, or contact the author.
+All the modules are imported when importing the package. The basic functionality of supposedly general interest is found in the three first modules. Only the really basic functionality is documented here. For more advanced features, please refer to the code, or contact the author.
 
 Representing and Converting Colour Data
 ---------------------------------------
@@ -50,11 +48,11 @@ diff = colour.metric.dE_ab(dataset1, dataset2)
 
 The following metrics are available:
 
-* dE_ab: The CIE76 standard &Delta;E<sub>ab</sub> &ndash; the Euclidean distance in CIELAB.
-* dE_uv: The Euclidean metric in CIELUV, &Delta;E<sub>uv</sub>.
-* dE_00: The CIEDE2000 non-Euclidean colour metric.
-* dE_E: The Euclidean colour metric &Delta;E<sub>E</sub>.
-* dE_DIN99x: The DIN99x colour metrics (where x is empty, b, c or d).
+* **colour.metric.dE_ab**: The CIE76 standard &Delta;E<sub>ab</sub> &ndash; the Euclidean distance in CIELAB.
+* **colour.metric.dE_uv**: The Euclidean metric in CIELUV, &Delta;E<sub>uv</sub>.
+* **colour.metric.dE_00**: The CIEDE2000 non-Euclidean colour metric.
+* **colour.metric.dE_E**: The Euclidean colour metric &Delta;E<sub>E</sub>.
+* **colour.metric.dE_DIN99x**: The DIN99x colour metrics (where x is empty, b, c or d).
 
 Additionally, a general Euclidean colour metric in a given colour space can be computed as
 
@@ -74,23 +72,23 @@ my_rgb = colour.space.TransformGamma(my_rgb_linear, my_gamma)
 
 Any existing colour space can be used as the base for the transformation. Currently, the following common colour space transformations have been defined:
 
-* TransformLinear: A linear transformation defined by a 3x3 matrix (represented as a ndarray of shape (3,3)).
-* TransformGamma: A gamma correction applied individually to all channels. If the channel values are negative (should not be the case for RGB type spaces, but occurs, e.g., in IPT), the gamma transform is applied to the absolute value of the channel, and the sign is added in the end.
-* TransformPolar: Transform the two last colour coordinates from cartesian to polar. This can be used, e.g., to transform from CIELAB to CIELCH. Keep in mind, though, that this transformation is singular at the origin of the chromatic plane, and that this can confuse some colour metrics. The angle is represented in radians.
-* TransformCartesian: The oposite of the above.
-* TransformxyY: The projective transform from, e.g., XYZ to xyY, with that order of the coordinates.
-* TransformCIELAB: The non-linear transformation from XYZ to CIELAB, including the linear part for small XYZ values. The white point is a parameter, so this transformation can be used also to create CIELAB D50, etc. The base space does not have to be XYZ, so this transform can also be used to create, e.g., the DIN99 colour spaces.
-* TransformCIELUV: The non-linear transformation from XYZ to CIELUV, including the linear part for small XYZ values.The white point is a parameter, so this transformation can be used also to create CIELUV D50, etc.
-* TransformSRGB: The non-linear gamma-like correction from linear RGB with sRGB primaries to the non-linear sRGB colour space.
+* **colour.space.TransformLinear**: A linear transformation defined by a 3x3 matrix (represented as a ndarray of shape (3,3)).
+* **colour.space.TransformGamma**: A gamma correction applied individually to all channels. If the channel values are negative (should not be the case for RGB type spaces, but occurs, e.g., in IPT), the gamma transform is applied to the absolute value of the channel, and the sign is added in the end.
+* **colour.space.TransformPolar**: Transform the two last colour coordinates from cartesian to polar. This can be used, e.g., to transform from CIELAB to CIELCH. Keep in mind, though, that this transformation is singular at the origin of the chromatic plane, and that this can confuse some colour metrics. The angle is represented in radians.
+* **colour.space.TransformCartesian**: The oposite of the above.
+* **colour.space.TransformxyY**: The projective transform from, e.g., XYZ to xyY, with that order of the coordinates.
+* **colour.space.TransformCIELAB**: The non-linear transformation from XYZ to CIELAB, including the linear part for small XYZ values. The white point is a parameter, so this transformation can be used also to create CIELAB D50, etc. The base space does not have to be XYZ, so this transform can also be used to create, e.g., the DIN99 colour spaces.
+* **colour.space.TransformCIELUV**: The non-linear transformation from XYZ to CIELUV, including the linear part for small XYZ values.The white point is a parameter, so this transformation can be used also to create CIELUV D50, etc.
+* **colour.space.TransformSRGB**: The non-linear gamma-like correction from linear RGB with sRGB primaries to the non-linear sRGB colour space.
 
 In addition, the following more special colour space transforms are available:
 
-* TransformLogCompressL
-* TransformLogCompressC
-* TransformPoincareDisk
-* TransformCIEDE00
-* TransformLGJOSA
-* TransformLGJE
+* colour.space.TransformLogCompressL
+* colour.space.TransformLogCompressC
+* colour.space.TransformPoincareDisk
+* colour.space.TransformCIEDE00
+* colour.space.TransformLGJOSA
+* colour.space.TransformLGJE
 
 Adding to this, new colour space transforms can be defined as classes inheriting from the colour.space.Transform base class.
 
