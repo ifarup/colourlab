@@ -10,7 +10,7 @@ colour is a Python package for colour metrics and colour space transforms. Many 
 * colour.statistics
 * colour.misc
 
-All the modules are imported when importing the package. The basic functionality of supposedly general interest is found in the three first modules. Only the really basic functionality is documented here. For more advanced features, please refer to the code, or contact the author.
+All the modules are imported when importing the package. The basic functionality of supposedly general interest is found in the three first modules. Only the really basic functionality is documented here. For more advanced features, please refer to the code (which is documented with standard pydoc docstrings), or contact the author.
 
 Representing and Converting Colour Data
 ---------------------------------------
