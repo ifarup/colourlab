@@ -187,7 +187,7 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
     C = lch[:,1]
     h = lch[:,2]
     h_deg = np.rad2deg(h)
-    h_deg[h_deg < 0] = h_deg + 360
+    h_deg[h_deg < 0] = h_deg[h_deg < 0] + 360
     S_L = 1 + (0.015 * (L - 50)**2) / np.sqrt(20 + (L - 50)**2)
     S_C = 1 + 0.045 * C
     T = 1 - 0.17 * np.cos(np.deg2rad(h_deg - 30)) + \

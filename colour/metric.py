@@ -296,7 +296,7 @@ def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
     d_lch = lch1 - lch2
     
     h_deg = np.rad2deg(avg_lch[:,2])
-    h_deg[h_deg < 0] = h_deg + 360
+    h_deg[h_deg < 0] = h_deg[h_deg < 0] + 360
     S_L = 1 + (0.015 * (avg_lch[:,0] - 50)**2) / np.sqrt(20 + (avg_lch[:,0] - 50)**2)
     S_C = 1 + 0.045 * avg_lch[:,1]
     T = 1 - 0.17 * np.cos(np.deg2rad(h_deg - 30)) + \
