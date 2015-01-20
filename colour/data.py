@@ -375,6 +375,20 @@ def read_csv_file(filename, pad=-np.inf):
                 data[i][j] = float(data[i][j])
     return np.array(data)
 
+# White points:
+
+white_A = Data(space.xyz, space.Space.white_A)
+white_B = Data(space.xyz, space.Space.white_B)
+white_C = Data(space.xyz, space.Space.white_C)
+white_D50 = Data(space.xyz, space.Space.white_D50)
+white_D55 = Data(space.xyz, space.Space.white_D55)
+white_D65 = Data(space.xyz, space.Space.white_D65)
+white_D75 = Data(space.xyz, space.Space.white_D75)
+white_E = Data(space.xyz, space.Space.white_E)
+white_F2 = Data(space.xyz, space.Space.white_F2)
+white_F7 = Data(space.xyz, space.Space.white_F7)
+white_F11 = Data(space.xyz, space.Space.white_F11)
+
 def d_XYZ_31():
     """
     Read CIE XYZ 1931 functions.

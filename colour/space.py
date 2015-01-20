@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-import data
 import misc
 
 #==============================================================================
@@ -526,7 +525,7 @@ class TransformCIELAB(Transform):
             The white point
         """
         super(TransformCIELAB, self).__init__(base)
-        if isinstance(white_point, data.Data):
+        if not isinstance(white_point, np.ndarray):
             self.white_point = white_point.get(xyz)
         else:
             self.white_point = white_point
@@ -657,7 +656,7 @@ class TransformCIELUV(Transform):
             The white point
         """
         super(TransformCIELUV, self).__init__(base)
-        if isinstance(white_point, data.Data):
+        if not isinstance(white_point, np.ndarray):
             self.white_point = white_point.get(xyz)
         else:
             self.white_point = white_point
@@ -1401,12 +1400,11 @@ class TransformLGJOSA(Transform):
         col : ndarray
             Colour data in the LGJOSA colour space.
         """
-        dat = data.Data(self.base, ndata)
-        abc = dat.get_linear(self.space_ABC)
+        abc = self.space_ABC.from_base(ndata)
         A = abc[:,0]
         B = abc[:,1]
         C = abc[:,2]
-        xyY = dat.get_linear(self.space_xyY)
+        xyY = self.space_xyY.from_base(ndata)
         x = xyY[:,0] 
         y = xyY[:,1] 
         Y = xyY[:,2]
@@ -2050,20 +2048,6 @@ _test_space_cartesian = TransformCartesian(cieluv)
 _test_space_poincare_disk = TransformPoincareDisk(cielab)
 _test_space_gamma = TransformGamma(xyz, .43)
 
-# White points:
-
-white_A = data.Data(xyz, Space.white_A)
-white_B = data.Data(xyz, Space.white_B)
-white_C = data.Data(xyz, Space.white_C)
-white_D50 = data.Data(xyz, Space.white_D50)
-white_D55 = data.Data(xyz, Space.white_D55)
-white_D65 = data.Data(xyz, Space.white_D65)
-white_D75 = data.Data(xyz, Space.white_D75)
-white_E = data.Data(xyz, Space.white_E)
-white_F2 = data.Data(xyz, Space.white_F2)
-white_F7 = data.Data(xyz, Space.white_F7)
-white_F11 = data.Data(xyz, Space.white_F11)
-
 
 #==============================================================================
 # Test module
@@ -2089,6 +2073,7 @@ def test():
         else:
             print sp, ": OK"
     print "\nJacobians:"
+    import data
     col_data = data.Data(xyz, col)
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
                    din99, din99b, din99c, din99d,
