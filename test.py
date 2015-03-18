@@ -21,3 +21,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import colour
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+
+# Points defined in the sRGB colour space:
+rgbpoints = np.array([[.25, .25, .25],
+                      [.9, .25, .25],
+                      [.25, .9, .25],
+                      [.25, .25, .9],
+                      [.9, .9, .25],
+                      [.9, .25, .9],
+                      [.25, .9, .9],
+                      [1, 1, 1]])
+
+# Colour data object (any colour space):
+points = colour.data.Data(colour.space.srgb, rgbpoints)
+
+# Compute the gamut of the points in XYZ:
+gamut = colour.data.Gamut(colour.space.xyz, points)
+
+# Plot the gamut in CIELAB
+fig = plt.figure()
+ax = fig.gca(projection = '3d')
+labpoints = points.get_linear(colour.space.cielab)
+ax.plot_trisurf(labpoints[:,1], labpoints[:,2], labpoints[:,0],
+                triangles=gamut.simplices)
+plt.show()

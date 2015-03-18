@@ -25,6 +25,7 @@ import numpy as np
 import space
 import inspect
 from matplotlib.patches import Ellipse
+from scipy.spatial import ConvexHull
 
 #==============================================================================
 # Colour data
@@ -327,6 +328,29 @@ class TensorData:
                                 height=2 * a_b_theta[i, 1],
                                 angle=a_b_theta[i, 2] * 180 / np.pi))
         return ells
+
+class Gamut:
+    """
+    Class for representing colour gamuts computed in various colour spaces.
+    """
+    def __init__(self, sp, points):
+        """
+        Construct new gamut instance and compute the gamut.
+
+        Parameters
+        ----------
+        sp : Space
+            The colour space for computing the gamut.
+        points : Data
+            The colour points for the gamut.
+        """
+        self.space = sp
+        self.data = points
+        hull = ConvexHull(points.get_linear(sp))
+        self.vertices = hull.vertices
+        self.simplices = hull.simplices
+        self.neighbors = hull.neighbors
+        self.equations = hull.equations
 
 #==============================================================================
 # Colour data sets
