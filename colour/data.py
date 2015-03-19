@@ -350,7 +350,6 @@ class Gamut:
         self.vertices = hull.vertices
         self.simplices = hull.simplices
         self.neighbors = hull.neighbors
-        self.equations = hull.equations
 
 #==============================================================================
 # Colour data sets
