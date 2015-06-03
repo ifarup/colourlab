@@ -22,15 +22,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 #==============================================================================
 # Auxiliary functions
 #==============================================================================
+
 
 def plot_ellipses(ellipses, axis=None, alpha=1,
                   facecolor=[.5, .5, .5], edgecolor=[0, 0, 0], fill=False):
     """
     Plot the list of ellipses on the given axis.
-    
+
     Parameters
     ----------
     ellipses : list
@@ -46,7 +48,7 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
     fill : bool
         Fill the ellipses or not.
     """
-    if axis == None:
+    if axis is None:
         axis = plt.gca()
     for e in ellipses:
         axis.add_artist(e)
@@ -56,17 +58,18 @@ def plot_ellipses(ellipses, axis=None, alpha=1,
         e.set_edgecolor(edgecolor)
         e.set_fill(fill)
 
+
 def safe_div(a, b, fill=1.):
     """
     Divide the two arrays, filling with fill value where denominator is zero.
-    
+
     Parameters
     ----------
     a : ndarray
         The nominator
     b : ndarray
         The denominator
-        
+
     Returns
     -------
     res : ndarray
