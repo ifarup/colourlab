@@ -23,17 +23,19 @@ import numpy as np
 import data
 import space
 
+
 #==============================================================================
 # Auxiliary functions
 #==============================================================================
 
+
 def reshape_diff(diff, sh):
     """
     Reshape the computed metric differences to fit with original data.
-    
+
     The purpose is for, e.g., the difference of two MxNx3 images to be
     a MxN scalar image etc.
-    
+
     Parameters
     ----------
     diff : ndarray
@@ -42,25 +44,27 @@ def reshape_diff(diff, sh):
         The shape of the original data (not the diff)
     """
     l = len(sh)
-    if l == 1: # one-dimensional colour data (one colour point)
+    if l == 1:        # one-dimensional colour data (one colour point)
         return diff[0]
-    elif l == 2: # two-dimensional colour data (list of colours)
+    elif l == 2:       # two-dimensional colour data (list of colours)
         return diff
-    else: # three or more dimensions (images++)
+    else:                       # three or more dimensions (images++)
         return np.reshape(diff, tuple(np.array(sh)[:-1]))
+
 
 #==============================================================================
 # Colour metric functions
 #==============================================================================
 
+
 def linear(sp, dat1, dat2, metric_tensor_function):
     """
     Compute the linearised colour difference between the two data sets.
-    
+
     The function metric_tensor_function is used to compute the metric tensor
     at the midpoint between the two data sets in the given colour space. Then
     the colour metric is computed as dC^T * g * dC.
-    
+
     Parameters
     ----------
     sp : Space
@@ -71,7 +75,7 @@ def linear(sp, dat1, dat2, metric_tensor_function):
         The colour data of the second data set.
     metric_tensor_function : function
         Function giving the metric tensors at given colour data points.
-    
+
     Returns
     -------
     distance : ndarray
@@ -88,10 +92,11 @@ def linear(sp, dat1, dat2, metric_tensor_function):
         m[i] = np.sqrt(np.dot(diff[i].T, np.dot(g[i], diff[i])))
     return reshape_diff(m, dat1.sh)
 
+
 def euclidean(sp, dat1, dat2):
     """
     Compute the Euclidean metric between the two data sets in the given space.
-    
+
     Parameters
     ----------
     sp : Space
@@ -100,7 +105,7 @@ def euclidean(sp, dat1, dat2):
         Colour data set 1
     dat2 : Data
         Colour data set 2
-    
+
     Returns
     -------
     distance : ndarray
@@ -109,16 +114,18 @@ def euclidean(sp, dat1, dat2):
     d1 = dat1.get_linear(sp)
     d2 = dat2.get_linear(sp)
     diff = d1 - d2
-    m = np.sqrt(diff[:,0]**2 + diff[:,1]**2 + diff[:,2]**2)
+    m = np.sqrt(diff[:, 0]**2 + diff[:, 1]**2 + diff[:, 2]**2)
     return reshape_diff(m, dat1.sh)
+
 
 def poincare_disk(sp, dat1, dat2):
     """
-    Compute the Poincare Disk metric betwen the two data sets in the given space.
-    
-    Assumes that the space is some form of a Poincare Disk space, such that the
-    radius of curvature is given by sp.R. The first coordinate is treated as Euclidean.
-    
+    Compute the Poincare Disk metric betwen the two data sets.
+
+    Compted in the given space. Assumes that the space is some form of
+    a Poincare Disk space, such that the radius of curvature is given
+    by sp.R. The first coordinate is treated as Euclidean.
+
     Parameters
     ----------
     sp : Space
@@ -127,7 +134,7 @@ def poincare_disk(sp, dat1, dat2):
         Colour data set 1
     dat2: Data
         Colour data set 2
-        
+
     Returns
     -------
     distance : ndarray
@@ -136,11 +143,13 @@ def poincare_disk(sp, dat1, dat2):
     d1 = dat1.get_linear(sp)
     d2 = dat2.get_linear(sp)
     diff = d1 - d2
-    delta = 2 * (diff[:,1]**2 + diff[:,2]**2) / ((1 - d1[:,1]**2 - d1[:,2]**2) *
-                                                 (1 - d2[:,1]**2 - d2[:,2]**2))
+    delta = 2 * ((diff[:, 1]**2 + diff[:, 2]**2) /
+                 ((1 - d1[:, 1]**2 - d1[:, 2]**2) *
+                  (1 - d2[:, 1]**2 - d2[:, 2]**2)))
     duv = sp.R * np.arccosh(1 + delta)
-    d = np.sqrt(diff[:,0]**2 + duv**2)
+    d = np.sqrt(diff[:, 0]**2 + duv**2)
     return reshape_diff(d, dat1.sh)
+
 
 def dE_ab(dat1, dat2):
     """
@@ -152,13 +161,14 @@ def dE_ab(dat1, dat2):
         The colour data of the first data set.
     dat2 : Data
         The colour data of the second data set.
-    
+
     Returns
     -------
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
     return euclidean(space.cielab, dat1, dat2)
+
 
 def dE_uv(dat1, dat2):
     """
@@ -170,7 +180,7 @@ def dE_uv(dat1, dat2):
         The colour data of the first data set.
     dat2 : Data
         The colour data of the second data set.
-    
+
     Returns
     -------
     distance : ndarray
@@ -178,17 +188,18 @@ def dE_uv(dat1, dat2):
     """
     return euclidean(space.cieluv, dat1, dat2)
 
+
 def dE_E(dat1, dat2):
     """
     Compute the DEE metric.
-    
+
     Parameters
     ----------
     dat1 : Data
         The colour data of the first data set.
     dat2 : Data
         The colour data of the second data set.
-    
+
     Returns
     -------
     distance : ndarray
@@ -196,17 +207,18 @@ def dE_E(dat1, dat2):
     """
     return euclidean(space.lgj_e, dat1, dat2)
 
+
 def dE_DIN99(dat1, dat2):
     """
     Compute the DIN99 metric.
-    
+
     Parameters
     ----------
     dat1 : Data
         The colour data of the first data set.
     dat2 : Data
         The colour data of the second data set.
-    
+
     Returns
     -------
     distance : ndarray
@@ -214,17 +226,18 @@ def dE_DIN99(dat1, dat2):
     """
     return euclidean(space.din99, dat1, dat2)
 
+
 def dE_DIN99b(dat1, dat2):
     """
     Compute the DIN99b metric.
-    
+
     Parameters
     ----------
     dat1 : Data
         The colour data of the first data set.
     dat2 : Data
         The colour data of the second data set.
-    
+
     Returns
     -------
     distance : ndarray
@@ -232,17 +245,18 @@ def dE_DIN99b(dat1, dat2):
     """
     return euclidean(space.din99b, dat1, dat2)
 
+
 def dE_DIN99c(dat1, dat2):
     """
     Compute the DIN99c metric.
-    
+
     Parameters
     ----------
     dat1 : Data
         The colour data of the first data set.
     dat2 : Data
         The colour data of the second data set.
-    
+
     Returns
     -------
     distance : ndarray
@@ -250,17 +264,18 @@ def dE_DIN99c(dat1, dat2):
     """
     return euclidean(space.din99c, dat1, dat2)
 
+
 def dE_DIN99d(dat1, dat2):
     """
     Compute the DIN99d metric.
-    
+
     Parameters
     ----------
     dat1 : Data
         The colour data of the first data set.
     dat2 : Data
         The colour data of the second data set.
-    
+
     Returns
     -------
     distance : ndarray
@@ -268,10 +283,11 @@ def dE_DIN99d(dat1, dat2):
     """
     return euclidean(space.din99d, dat1, dat2)
 
+
 def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
     """
     Compute the CIEDE00 metric.
-    
+
     Parameters
     ----------
     dat1 : Data
@@ -294,29 +310,32 @@ def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
     lch2 = dat2.get_linear(space.ciede00lch)
     avg_lch = .5 * (lch1 + lch2)
     d_lch = lch1 - lch2
-    
-    h_deg = np.rad2deg(avg_lch[:,2])
+
+    h_deg = np.rad2deg(avg_lch[:, 2])
     h_deg[h_deg < 0] = h_deg[h_deg < 0] + 360
-    S_L = 1 + (0.015 * (avg_lch[:,0] - 50)**2) / np.sqrt(20 + (avg_lch[:,0] - 50)**2)
-    S_C = 1 + 0.045 * avg_lch[:,1]
+    S_L = 1 + ((0.015 * (avg_lch[:, 0] - 50)**2) /
+               np.sqrt(20 + (avg_lch[:, 0] - 50)**2))
+    S_C = 1 + 0.045 * avg_lch[:, 1]
     T = 1 - 0.17 * np.cos(np.deg2rad(h_deg - 30)) + \
-        .24 * np.cos(2*avg_lch[:,2]) + \
+        .24 * np.cos(2*avg_lch[:, 2]) + \
         .32 * np.cos(np.deg2rad(3 * h_deg + 6)) - \
         .2 * np.cos(np.deg2rad(4 * h_deg - 63))
-    S_h = 1 + 0.015 * avg_lch[:,1] * T
-    R_C = 2 * np.sqrt(avg_lch[:,1]**7 / (avg_lch[:,1]**7 + 25**7))
+    S_h = 1 + 0.015 * avg_lch[:, 1] * T
+    R_C = 2 * np.sqrt(avg_lch[:, 1]**7 / (avg_lch[:, 1]**7 + 25**7))
     d_theta = 30 * np.exp(-((h_deg - 275) / 25)**2)
     R_T = - R_C * np.sin(np.deg2rad(2 * d_theta))
-    dH = 2 * np.sqrt(lch1[:,1] * lch2[:,1]) * np.sin(d_lch[:,2] / 2)
-    d = np.sqrt((d_lch[:,0] / (k_L * S_L))**2 + 
-                (d_lch[:,1] / (k_C * S_C))**2 +
+    dH = 2 * np.sqrt(lch1[:, 1] * lch2[:, 1]) * np.sin(d_lch[:, 2] / 2)
+    d = np.sqrt((d_lch[:, 0] / (k_L * S_L))**2 +
+                (d_lch[:, 1] / (k_C * S_C))**2 +
                 (dH / (k_h * S_h))**2 +
-                R_T * d_lch[:,1] * dH / (k_C * S_C * k_h * S_h))
+                R_T * d_lch[:, 1] * dH / (k_C * S_C * k_h * S_h))
     return reshape_diff(d, dat1.sh)
+
 
 #==============================================================================
 # Test module
 #==============================================================================
+
 
 def test():
     """
@@ -329,5 +348,6 @@ def test():
                         np.linspace(-50, 50, 11))
     d2 = data.Data(space.cielab,
                    d1.get(space.cielab) + 1 / np.sqrt(3))
-    for met in [dE_ab, dE_uv, dE_00, dE_DIN99, dE_DIN99b, dE_DIN99c, dE_DIN99d]:
+    for met in [dE_ab, dE_uv, dE_00, dE_DIN99,
+                dE_DIN99b, dE_DIN99c, dE_DIN99d]:
         print met, np.min(met(d1, d2)), np.max(met(d1, d2))
