@@ -22,12 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 import misc
 
+
 #==============================================================================
 # Colour space classes
 #
 # Throughout the code, the name ndata is used for numerical data (numpy
 # arrays), and data is used for objects of the type Data.
 #==============================================================================
+
 
 class Space(object):
     """
@@ -49,12 +51,12 @@ class Space(object):
     def empty_matrix(self, ndata):
         """
         Return list of emtpy (zero) matrixes suitable for jacobians etc.
-        
+
         Parameters
         ----------
         ndata : ndarray
             List of colour data.
-            
+
         Returns
         -------
         empty_matrix : ndarray
@@ -68,12 +70,12 @@ class Space(object):
 
         The Jacobian is calculated at the given data points (of the
         Data class) by inverting the inverse Jacobian.
-        
+
         Parameters
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -95,7 +97,7 @@ class Space(object):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -105,18 +107,18 @@ class Space(object):
         for i in range(np.shape(ijac)[0]):
             ijac[i] = np.linalg.inv(ijac[i])
         return ijac
-    
+
     def metrics_to_XYZ(self, points_data, metrics_ndata):
         """
         Convert metric data to the XYZ colour space.
-        
+
         Parameters
         ----------
         points_data : Data
             The colour data points.
         metrics_ndata : ndarray
             Array of colour metric tensors in current colour space.
-        
+
         Returns
         -------
         xyz_metrics : ndarray
@@ -128,18 +130,18 @@ class Space(object):
             new_metric[i] = np.dot(jacobian[i].T,
                                    np.dot(metrics_ndata[i], jacobian[i]))
         return new_metric
-    
+
     def metrics_from_XYZ(self, points_data, metrics_ndata):
         """
         Convert metric data from the XYZ colour space.
-        
+
         Parameters
         ----------
         points_data : Data
             The colour data points.
         metrics_ndata : ndarray
             Array of colour metric tensors in XYZ.
-        
+
         Returns
         -------
         xyz_metrics : ndarray
@@ -151,6 +153,7 @@ class Space(object):
             new_metric[i] = np.dot(jacobian[i].T,
                                    np.dot(metrics_ndata[i], jacobian[i]))
         return new_metric
+
 
 class XYZ(Space):
     """
@@ -164,35 +167,35 @@ class XYZ(Space):
     def to_XYZ(self, ndata):
         """
         Convert from current colour space to XYZ.
-        
+
         Parameters
         ----------
         ndata : ndarray
             Colour data in the current colour space.
-        
+
         Returns
         -------
         xyz : ndarray
             Colour data in the XYZ colour space.
         """
         return ndata.copy()      # identity transform
-    
+
     def from_XYZ(self, ndata):
         """
         Convert from XYZ to current colour space.
-        
+
         Parameters
         ----------
         ndata : ndarray
             Colour data in the XYZ colour space.
-        
+
         Returns
         -------
         xyz : ndarray
             Colour data in the current colour space.
         """
         return ndata.copy()      # identity transform
-        
+
     def jacobian_XYZ(self, data):
         """
         Return the Jacobian to XYZ, dx^i/dXYZ^j.
@@ -204,7 +207,7 @@ class XYZ(Space):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -220,40 +223,41 @@ class XYZ(Space):
 
         The inverse Jacobian is calculated at the given data points
         (of the Data class).
-        
+
         Parameters
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
-            The list of Jacobians from XYZ.   
+            The list of Jacobians from XYZ.
         """
         ijac = self.empty_matrix(data.linear_XYZ)
         ijac[:] = np.eye(3)
         return ijac
 
+
 class Transform(Space):
     """
     Base class for colour space transforms.
-    
+
     Real transforms (children) must implement to_base, from_base and either
     jacobian_base or inv_jacobian_base.
     """
-    
+
     def __init__(self, base):
         """
         Construct instance and set base space for transformation.
-        
+
         Parameters
         ----------
         base : Space
             The base for the colour space transform.
         """
         self.base = base
-        
+
     def to_XYZ(self, ndata):
         """
         Transform data to XYZ by using the transformation to the base.
@@ -262,14 +266,14 @@ class Transform(Space):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         xyz : ndarray
             Colour data in the XYZ colour space
         """
         return self.base.to_XYZ(self.to_base(ndata))
-        
+
     def from_XYZ(self, ndata):
         """
         Transform data from XYZ using the transformation to the base.
@@ -278,7 +282,7 @@ class Transform(Space):
         ----------
         ndata : ndarray
             Colour data in the XYZ colour space.
-        
+
         Returns
         -------
         xyz : ndarray
@@ -297,7 +301,7 @@ class Transform(Space):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -314,22 +318,22 @@ class Transform(Space):
 
         The inverse Jacobian is calculated at the given data points
         (of the Data class) by inverting the Jacobian.
-         
+
         Parameters
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
-            The list of Jacobians from the base colour space.   
+            The list of Jacobians from the base colour space.
        """
         ijac = self.jacobian_base(data)
         for i in range(np.shape(ijac)[0]):
             ijac[i] = np.linalg.inv(ijac[i])
         return ijac
-        
+
     def jacobian_XYZ(self, data):
         """
         Return the Jacobian to XYZ, dx^i/dXYZ^j.
@@ -342,7 +346,7 @@ class Transform(Space):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -361,18 +365,18 @@ class Transform(Space):
         Return the inverse Jacobian to XYZ, dXYZ^i/dx^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class) using the inverse jacobian to the base and the 
+        Data class) using the inverse jacobian to the base and the
         inverse Jacobian of the base space.
 
         Parameters
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
-            The list of Jacobians from XYZ.   
+            The list of Jacobians from XYZ.
         """
         dXYZdbase = self.base.inv_jacobian_XYZ(data)
         dbasedx = self.inv_jacobian_base(data)
@@ -380,6 +384,7 @@ class Transform(Space):
         for i in range(np.shape(ijac)[0]):
             ijac[i] = np.dot(dXYZdbase[i], dbasedx[i])
         return ijac
+
 
 class TransformxyY(Transform):
     """
@@ -389,14 +394,14 @@ class TransformxyY(Transform):
     def __init__(self, base):
         """
         Construct instance.
-        
+
         Parameters
         ----------
         base : Space
             Base colour space.
         """
         super(TransformxyY, self).__init__(base)
-    
+
     def to_base(self, ndata):
         """
         Convert from xyY to XYZ.
@@ -405,18 +410,18 @@ class TransformxyY(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the base colour space
         """
         xyz = np.zeros(np.shape(ndata))
-        xyz[:,0] = ndata[:,0]*ndata[:,2]/ndata[:,1]
-        xyz[:,1] = ndata[:,2]
-        xyz[:,2] = (1 - ndata[:,0] - ndata[:,1]) * ndata[:,2] / ndata[:,1]
+        xyz[:, 0] = ndata[:, 0]*ndata[:, 2]/ndata[:, 1]
+        xyz[:, 1] = ndata[:, 2]
+        xyz[:, 2] = (1 - ndata[:, 0] - ndata[:, 1]) * ndata[:, 2] / ndata[:, 1]
         return xyz
-    
+
     def from_base(self, ndata):
         """
         Convert from XYZ to xyY.
@@ -425,7 +430,7 @@ class TransformxyY(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
@@ -434,11 +439,11 @@ class TransformxyY(Transform):
         xyz = ndata
         xyY = np.zeros(np.shape(xyz))
         xyz_sum = np.sum(xyz, axis=1)
-        xyY[:,0] = xyz[:,0] / xyz_sum # x
-        xyY[:,1] = xyz[:,1] / xyz_sum # y
-        xyY[:,2] = xyz[:,1]           # Y
+        xyY[:, 0] = xyz[:, 0] / xyz_sum  # x
+        xyY[:, 1] = xyz[:, 1] / xyz_sum  # y
+        xyY[:, 2] = xyz[:, 1]            # Y
         return xyY
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian to XYZ, dxyY^i/dXYZ^j.
@@ -450,7 +455,7 @@ class TransformxyY(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -459,21 +464,21 @@ class TransformxyY(Transform):
         xyzdata = data.get_linear(self.base)
         jac = self.empty_matrix(xyzdata)
         for i in range(np.shape(jac)[0]):
-            jac[i,0,0] = (xyzdata[i,1] + xyzdata[i,2]) / \
-                (xyzdata[i,0] + xyzdata[i,1] + xyzdata[i,2]) ** 2
-            jac[i,0,1] = -xyzdata[i,0] / \
-                (xyzdata[i,0] + xyzdata[i,1] + xyzdata[i,2]) ** 2
-            jac[i,0,2] = -xyzdata[i,0] / \
-                (xyzdata[i,0] + xyzdata[i,1] + xyzdata[i,2]) ** 2           
-            jac[i,1,0] = -xyzdata[i,1] / \
-                (xyzdata[i,0] + xyzdata[i,1] + xyzdata[i,2]) ** 2           
-            jac[i,1,1] = (xyzdata[i,0] + xyzdata[i,2]) / \
-                (xyzdata[i,0] + xyzdata[i,1] + xyzdata[i,2]) ** 2           
-            jac[i,1,2] = -xyzdata[i,1] / \
-                (xyzdata[i,0] + xyzdata[i,1] + xyzdata[i,2]) ** 2           
-            jac[i,2,1] = 1
+            jac[i, 0, 0] = (xyzdata[i, 1] + xyzdata[i, 2]) / \
+                (xyzdata[i, 0] + xyzdata[i, 1] + xyzdata[i, 2]) ** 2
+            jac[i, 0, 1] = -xyzdata[i, 0] / \
+                (xyzdata[i, 0] + xyzdata[i, 1] + xyzdata[i, 2]) ** 2
+            jac[i, 0, 2] = -xyzdata[i, 0] / \
+                (xyzdata[i, 0] + xyzdata[i, 1] + xyzdata[i, 2]) ** 2
+            jac[i, 1, 0] = -xyzdata[i, 1] / \
+                (xyzdata[i, 0] + xyzdata[i, 1] + xyzdata[i, 2]) ** 2
+            jac[i, 1, 1] = (xyzdata[i, 0] + xyzdata[i, 2]) / \
+                (xyzdata[i, 0] + xyzdata[i, 1] + xyzdata[i, 2]) ** 2
+            jac[i, 1, 2] = -xyzdata[i, 1] / \
+                (xyzdata[i, 0] + xyzdata[i, 1] + xyzdata[i, 2]) ** 2
+            jac[i, 2, 1] = 1
         return jac
-    
+
     def inv_jacobian_base(self, data):
         """
         Return the Jacobian from XYZ, dXYZ^i/dxyY^j.
@@ -485,7 +490,7 @@ class TransformxyY(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -494,15 +499,16 @@ class TransformxyY(Transform):
         xyYdata = data.get_linear(self)
         jac = self.empty_matrix(xyYdata)
         for i in range(np.shape(jac)[0]):
-            jac[i,0,0] = xyYdata[i,2] / xyYdata[i,1]
-            jac[i,0,1] = - xyYdata[i,0] * xyYdata[i,2] / xyYdata[i,1] ** 2
-            jac[i,0,2] = xyYdata[i,0] / xyYdata[i,1]
-            jac[i,1,2] = 1
-            jac[i,2,0] = - xyYdata[i,2] / xyYdata[i,1]
-            jac[i,2,1] = xyYdata[i,2] * (xyYdata[i,0] - 1) / \
-                xyYdata[i,1] ** 2
-            jac[i,2,2] = (1 - xyYdata[i,0] - xyYdata[i,1]) / xyYdata[i,1]
+            jac[i, 0, 0] = xyYdata[i, 2] / xyYdata[i, 1]
+            jac[i, 0, 1] = - xyYdata[i, 0] * xyYdata[i, 2] / xyYdata[i, 1] ** 2
+            jac[i, 0, 2] = xyYdata[i, 0] / xyYdata[i, 1]
+            jac[i, 1, 2] = 1
+            jac[i, 2, 0] = - xyYdata[i, 2] / xyYdata[i, 1]
+            jac[i, 2, 1] = xyYdata[i, 2] * (xyYdata[i, 0] - 1) / \
+                xyYdata[i, 1] ** 2
+            jac[i, 2, 2] = (1 - xyYdata[i, 0] - xyYdata[i, 1]) / xyYdata[i, 1]
         return jac
+
 
 class TransformCIELAB(Transform):
     """
@@ -512,11 +518,11 @@ class TransformCIELAB(Transform):
     """
     kappa = 24389. / 27.        # standard: 903.3
     epsilon = 216. / 24389.     # standard: 0.008856
-    
+
     def __init__(self, base, white_point=Space.white_D65):
         """
         Construct instance by setting base space and white point.
-        
+
         Parameters
         ----------
         base : Space
@@ -537,7 +543,7 @@ class TransformCIELAB(Transform):
         fx = (self.kappa * ndata + 16.) / 116.
         fx[ndata > self.epsilon] = ndata[ndata > self.epsilon] ** (1. / 3)
         return fx
-    
+
     def dfdx(self, ndata):
         """
         Auxiliary function for the Jacobian.
@@ -546,9 +552,9 @@ class TransformCIELAB(Transform):
         """
         df = self.kappa / 116. * np.ones(np.shape(ndata))
         df[ndata > self.epsilon] = \
-            (ndata[ndata > self.epsilon] ** (-2. /3)) / 3
+            (ndata[ndata > self.epsilon] ** (-2. / 3)) / 3
         return df
-    
+
     def to_base(self, ndata):
         """
         Convert from CIELAB to XYZ (base).
@@ -557,7 +563,7 @@ class TransformCIELAB(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
@@ -569,19 +575,19 @@ class TransformCIELAB(Transform):
         fz = fy - ndata[:, 2] / 200.
         xr = fx ** 3
         xr[xr <= self.epsilon] = ((116 * fx[xr <= self.epsilon] - 16) /
-                                 self.kappa)
+                                  self.kappa)
         yr = fy ** 3
         yr[ndata[:, 0] <= self.kappa * self.epsilon] = \
             ndata[ndata[:, 0] <= self.kappa * self.epsilon, 0] / self.kappa
         zr = fz ** 3
         zr[zr <= self.epsilon] = ((116 * fz[zr <= self.epsilon] - 16) /
-                                 self.kappa)
+                                  self.kappa)
         xyz = np.zeros(np.shape(ndata))
-        xyz[:,0] = xr * self.white_point[0]
-        xyz[:,1] = yr * self.white_point[1]
-        xyz[:,2] = zr * self.white_point[2]
+        xyz[:, 0] = xr * self.white_point[0]
+        xyz[:, 1] = yr * self.white_point[1]
+        xyz[:, 2] = zr * self.white_point[2]
         return xyz
-    
+
     def from_base(self, ndata):
         """
         Convert from XYZ (base) to CIELAB.
@@ -590,7 +596,7 @@ class TransformCIELAB(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
@@ -604,7 +610,7 @@ class TransformCIELAB(Transform):
         lab[:, 1] = 500. * (fx - fy)
         lab[:, 2] = 200. * (fy - fz)
         return lab
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian to XYZ (base), dCIELAB^i/dXYZ^j.
@@ -616,7 +622,7 @@ class TransformCIELAB(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -628,12 +634,13 @@ class TransformCIELAB(Transform):
             dr[:, i] = dr[:, i] / self.white_point[i]
         df = self.dfdx(dr)
         jac = self.empty_matrix(d)
-        jac[:, 0, 1] = 116 * df[:, 1] / self.white_point[1]  # dL/dY
-        jac[:, 1, 0] = 500 * df[:, 0] / self.white_point[0]  # da/dX
-        jac[:, 1, 1] = -500 * df[:, 1] / self.white_point[1] # da/dY
-        jac[:, 2, 1] = 200 * df[:, 1] / self.white_point[1]  # db/dY
-        jac[:, 2, 2] = -200 * df[:, 2] / self.white_point[2] # db/dZ
+        jac[:, 0, 1] = 116 * df[:, 1] / self.white_point[1]   # dL/dY
+        jac[:, 1, 0] = 500 * df[:, 0] / self.white_point[0]   # da/dX
+        jac[:, 1, 1] = -500 * df[:, 1] / self.white_point[1]  # da/dY
+        jac[:, 2, 1] = 200 * df[:, 1] / self.white_point[1]   # db/dY
+        jac[:, 2, 2] = -200 * df[:, 2] / self.white_point[2]  # db/dZ
         return jac
+
 
 class TransformCIELUV(Transform):
     """
@@ -643,11 +650,11 @@ class TransformCIELUV(Transform):
     """
     kappa = 24389. / 27.        # standard: 903.3
     epsilon = 216. / 24389.     # standard: 0.008856
-    
+
     def __init__(self, base, white_point=Space.white_D65):
         """
         Construct instance by setting base space and white point.
-        
+
         Parameters
         ----------
         base : Space
@@ -668,7 +675,7 @@ class TransformCIELUV(Transform):
         fx = (self.kappa * ndata + 16.) / 116.
         fx[ndata > self.epsilon] = ndata[ndata > self.epsilon] ** (1. / 3)
         return fx
-    
+
     def dfdx(self, ndata):
         """
         Auxiliary function for the Jacobian.
@@ -677,9 +684,9 @@ class TransformCIELUV(Transform):
         """
         df = self.kappa / 116. * np.ones(np.shape(ndata))
         df[ndata > self.epsilon] = \
-            (ndata[ndata > self.epsilon] ** (-2. /3)) / 3
+            (ndata[ndata > self.epsilon] ** (-2. / 3)) / 3
         return df
-    
+
     def to_base(self, ndata):
         """
         Convert from CIELUV to XYZ (base).
@@ -688,7 +695,7 @@ class TransformCIELUV(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
@@ -699,21 +706,25 @@ class TransformCIELUV(Transform):
         y = fy ** 3
         y[luv[:, 0] <= self.kappa * self.epsilon] = \
             luv[luv[:, 0] <= self.kappa * self.epsilon, 0] / self.kappa
-        upr = 4 * self.white_point[0] / (self.white_point[0] + 15*self.white_point[1] + 3*self.white_point[2])
-        vpr = 9 * self.white_point[1] / (self.white_point[0] + 15*self.white_point[1] + 3*self.white_point[2])
-        a = (52*luv[:,0] / (luv[:,1] + 13*luv[:,0]*upr) - 1) / 3
+        upr = 4 * self.white_point[0] / (self.white_point[0] +
+                                         15*self.white_point[1] +
+                                         3*self.white_point[2])
+        vpr = 9 * self.white_point[1] / (self.white_point[0] +
+                                         15*self.white_point[1] +
+                                         3*self.white_point[2])
+        a = (52*luv[:, 0] / (luv[:, 1] + 13*luv[:, 0]*upr) - 1) / 3
         b = -5 * y
         c = -1/3.
-        d = y * (39*luv[:,0] / (luv[:,2] + 13*luv[:,0]*vpr) - 5)
+        d = y * (39*luv[:, 0] / (luv[:, 2] + 13*luv[:, 0]*vpr) - 5)
         x = (d - b) / (a - c)
         z = x * a + b
         # Combine into matrix
         xyz = np.zeros(np.shape(luv))
-        xyz[:,0] = x
-        xyz[:,1] = y
-        xyz[:,2] = z
+        xyz[:, 0] = x
+        xyz[:, 1] = y
+        xyz[:, 2] = z
         return xyz
-    
+
     def from_base(self, ndata):
         """
         Convert from XYZ (base) to CIELUV.
@@ -722,7 +733,7 @@ class TransformCIELUV(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
@@ -731,15 +742,19 @@ class TransformCIELUV(Transform):
         d = ndata
         luv = np.zeros(np.shape(d))
         fy = self.f(d[:, 1] / self.white_point[1])
-        up = 4 * d[:,0] / (d[:,0] + 15*d[:,1] + 3*d[:,2])
-        upr = 4 * self.white_point[0] / (self.white_point[0] + 15*self.white_point[1] + 3*self.white_point[2])
-        vp = 9 * d[:,1] / (d[:,0] + 15*d[:,1] + 3*d[:,2])
-        vpr = 9 * self.white_point[1] / (self.white_point[0] + 15*self.white_point[1] + 3*self.white_point[2])
+        up = 4 * d[:, 0] / (d[:, 0] + 15*d[:, 1] + 3*d[:, 2])
+        upr = 4 * self.white_point[0] / (self.white_point[0] +
+                                         15*self.white_point[1] +
+                                         3*self.white_point[2])
+        vp = 9 * d[:, 1] / (d[:, 0] + 15*d[:, 1] + 3*d[:, 2])
+        vpr = 9 * self.white_point[1] / (self.white_point[0] +
+                                         15*self.white_point[1] +
+                                         3*self.white_point[2])
         luv[:, 0] = 116. * fy - 16.
         luv[:, 1] = 13 * luv[:, 0] * (up - upr)
         luv[:, 2] = 13 * luv[:, 0] * (vp - vpr)
         return luv
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian to XYZ (base), dCIELUV^i/dXYZ^j.
@@ -751,7 +766,7 @@ class TransformCIELUV(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -764,38 +779,42 @@ class TransformCIELUV(Transform):
         # dL/dY:
         jac[:, 0, 1] = 116 * df[:, 1] / self.white_point[1]
         # du/dX:
-        jac[:, 1, 0] = 13 * luv[:,0] * \
-            (60 * xyz_[:,1] + 12 * xyz_[:,2]) / \
-            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
+        jac[:, 1, 0] = 13 * luv[:, 0] * \
+            (60 * xyz_[:, 1] + 12 * xyz_[:, 2]) / \
+            (xyz_[:, 0] + 15 * xyz_[:, 1] + 3 * xyz_[:, 2]) ** 2
         # du/dY:
-        jac[:, 1, 1] = 13 * luv[:,0] * \
-            -60 * xyz_[:,0] / \
-            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2 + \
+        jac[:, 1, 1] = 13 * luv[:, 0] * \
+            -60 * xyz_[:, 0] / \
+            (xyz_[:, 0] + 15 * xyz_[:, 1] + 3 * xyz_[:, 2]) ** 2 + \
             13 * jac[:, 0, 1] * (
-                4 * xyz_[:,0] / (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) -
-                4 * self.white_point[0] / \
-                (self.white_point[0] + 15 * self.white_point[1] + 3 * self.white_point[2]))
+                4 * xyz_[:, 0] / (xyz_[:, 0] + 15 * xyz_[:, 1] +
+                                  3 * xyz_[:, 2]) -
+                4 * self.white_point[0] /
+                (self.white_point[0] + 15 * self.white_point[1] +
+                 3 * self.white_point[2]))
         # du/dZ:
-        jac[:, 1, 2] = 13 * luv[:,0] * \
-            -12 * xyz_[:,0] / \
-            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
+        jac[:, 1, 2] = 13 * luv[:, 0] * \
+            -12 * xyz_[:, 0] / \
+            (xyz_[:, 0] + 15 * xyz_[:, 1] + 3 * xyz_[:, 2]) ** 2
         # dv/dX:
-        jac[:, 2, 0] = 13 * luv[:,0] * \
-            -9 * xyz_[:,1] / \
-            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
+        jac[:, 2, 0] = 13 * luv[:, 0] * \
+            -9 * xyz_[:, 1] / \
+            (xyz_[:, 0] + 15 * xyz_[:, 1] + 3 * xyz_[:, 2]) ** 2
         # dv/dY:
-        jac[:, 2, 1] = 13 * luv[:,0] * \
-            (9 * xyz_[:,0] + 27 * xyz_[:,2]) / \
-            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2 + \
+        jac[:, 2, 1] = 13 * luv[:, 0] * \
+            (9 * xyz_[:, 0] + 27 * xyz_[:, 2]) / \
+            (xyz_[:, 0] + 15 * xyz_[:, 1] + 3 * xyz_[:, 2]) ** 2 + \
             13 * jac[:, 0, 1] * (
-                9 * xyz_[:,1] / (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) -
-                9 * self.white_point[1] / \
-                (self.white_point[0] + 15 * self.white_point[1] + 3 * self.white_point[2]))
+                9 * xyz_[:, 1] / (xyz_[:, 0] + 15 * xyz_[:, 1] +
+                                  3 * xyz_[:, 2]) - 9 * self.white_point[1] /
+                (self.white_point[0] + 15 * self.white_point[1] +
+                 3 * self.white_point[2]))
         # dv/dZ:
-        jac[:, 2, 2] = 13 * luv[:,0] * \
-            -27 * xyz_[:,1] / \
-            (xyz_[:,0] + 15 * xyz_[:,1] + 3 * xyz_[:,2]) ** 2
+        jac[:, 2, 2] = 13 * luv[:, 0] * \
+            -27 * xyz_[:, 1] / \
+            (xyz_[:, 0] + 15 * xyz_[:, 1] + 3 * xyz_[:, 2]) ** 2
         return jac
+
 
 class TransformCIEDE00(Transform):
     """
@@ -805,7 +824,7 @@ class TransformCIEDE00(Transform):
     def __init__(self, base):
         """
         Construct instance by setting base space.
-        
+
         Parameters
         ----------
         base : Space
@@ -821,14 +840,14 @@ class TransformCIEDE00(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the base colour space
         """
         print 'No conversion of CIEDE00 Lab to CIELAB implemented (yet).'
-    
+
     def from_base(self, ndata):
         """
         Convert from CIELAB (base) to CIEDE00.
@@ -837,7 +856,7 @@ class TransformCIEDE00(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         labp : ndarray
@@ -845,11 +864,11 @@ class TransformCIEDE00(Transform):
         """
         lab = ndata
         labp = lab.copy()
-        Cab = np.sqrt(lab[:,1]**2 + lab[:,2]**2)
+        Cab = np.sqrt(lab[:, 1]**2 + lab[:, 2]**2)
         G = .5 * (1 - np.sqrt(Cab**7 / (Cab**7 + 25**7)))
-        labp[:,1] = lab[:,1] * (1 + G)
+        labp[:, 1] = lab[:, 1] * (1 + G)
         return labp
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian to CIELAB (base), dCIEDE00^i/dCIELAB^j.
@@ -861,7 +880,7 @@ class TransformCIEDE00(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -869,44 +888,48 @@ class TransformCIEDE00(Transform):
         """
         lab = data.get_linear(cielab)
         lch = data.get_linear(cielch)
-        a = lab[:,1]
-        b = lab[:,2]
-        C = lch[:,1]
+        a = lab[:, 1]
+        b = lab[:, 2]
+        C = lch[:, 1]
         G = .5 * (1 - np.sqrt(C**7 / (C**7 + 25**7)))
         jac = self.empty_matrix(lab)
-        jac[:,0,0] = 1 # dLp/dL
-        jac[:,2,2] = 1 # dbp/db
-        jac[:,1,1] = 1 + G - misc.safe_div(a**2, C) * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.))) # dap/da
+        jac[:, 0, 0] = 1        # dLp/dL
+        jac[:, 2, 2] = 1        # dbp/db
+        jac[:, 1, 1] = 1 + G - misc.safe_div(a**2, C) * \
+            (7 * 25**7 * C**(5/2.) /
+             (4 * (C**7 + 25**7)**(3/2.)))  # dap/da
         jac[C == 0, 1, 1] = 1
-        jac[:,1,2] = - a * misc.safe_div(b, C) * (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
+        jac[:, 1, 2] = - a * misc.safe_div(b, C) * \
+            (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
         jac[C == 0, 1, 2] = 0
         return jac
+
 
 class TransformSRGB(Transform):
     """
     Transform linear RGB with sRGB primaries to sRGB.
     """
-    
+
     def __init__(self, base):
         """
         Construct sRGB space instance, setting the base (linear RGB).
-        
+
         Parameters
         ----------
         base : Space
             The base colour space.
         """
         super(TransformSRGB, self).__init__(base)
-    
+
     def to_base(self, ndata):
         """
-        Convert from sRGB to linear RGB. Performs gamut clipping where necessary.
+        Convert from sRGB to linear RGB. Performs gamut clipping if necessary.
 
         Parameters
         ----------
         ndata : ndarray
             Colour data in the sRGB colour space
-        
+
         Returns
         -------
         col : ndarray
@@ -918,7 +941,7 @@ class TransformSRGB(Transform):
         rgb = ((nd + 0.055) / 1.055)**2.4
         rgb[nd <= 0.04045] = nd[nd <= 0.04045] / 12.92
         return rgb
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian to linear RGB (base), dsRGB^i/dRGB^j.
@@ -930,34 +953,34 @@ class TransformSRGB(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
         rgb = data.get_linear(self.base)
-        r = rgb[:,0]
-        g = rgb[:,1]
-        b = rgb[:,2]
+        r = rgb[:, 0]
+        g = rgb[:, 1]
+        b = rgb[:, 2]
         jac = self.empty_matrix(rgb)
-        jac[:,0,0] = 1.055 / 2.4 * r**(1 / 2.4 - 1)
-        jac[r < 0.0031308,0,0] = 12.92 
-        jac[:,1,1] = 1.055 / 2.4 * g**(1 / 2.4 - 1)
-        jac[g < 0.0031308,1,1] = 12.92 
-        jac[:,2,2] = 1.055 / 2.4 * b**(1 / 2.4 - 1)
-        jac[b < 0.0031308,2,2] = 12.92 
+        jac[:, 0, 0] = 1.055 / 2.4 * r**(1 / 2.4 - 1)
+        jac[r < 0.0031308, 0, 0] = 12.92
+        jac[:, 1, 1] = 1.055 / 2.4 * g**(1 / 2.4 - 1)
+        jac[g < 0.0031308, 1, 1] = 12.92
+        jac[:, 2, 2] = 1.055 / 2.4 * b**(1 / 2.4 - 1)
+        jac[b < 0.0031308, 2, 2] = 12.92
         return jac
-    
+
     def from_base(self, ndata):
         """
-        Convert from linear RGB to sRGB. Performs gamut clipping where necessary.
+        Convert from linear RGB to sRGB. Performs gamut clipping if necessary.
 
         Parameters
         ----------
         ndata : ndarray
             Colour data in the linear colour space
-        
+
         Returns
         -------
         col : ndarray
@@ -970,6 +993,7 @@ class TransformSRGB(Transform):
         srgb[nd <= 0.0031308] = 12.92 * nd[nd <= 0.0031308]
         return srgb
 
+
 class TransformLinear(Transform):
     """
     General linear transform, transformed = M * base
@@ -978,7 +1002,7 @@ class TransformLinear(Transform):
     def __init__(self, base, M=np.eye(3)):
         """
         Construct instance, setting the matrix of the linear transfrom.
-        
+
         Parameters
         ----------
         base : Space
@@ -987,7 +1011,7 @@ class TransformLinear(Transform):
         super(TransformLinear, self).__init__(base)
         self.M = M.copy()
         self.M_inv = np.linalg.inv(M)
-    
+
     def to_base(self, ndata):
         """
         Convert from linear to the base.
@@ -996,7 +1020,7 @@ class TransformLinear(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
@@ -1006,7 +1030,7 @@ class TransformLinear(Transform):
         for i in range(np.shape(ndata)[0]):
             xyz[i] = np.dot(self.M_inv, ndata[i])
         return xyz
-    
+
     def from_base(self, ndata):
         """
         Convert from the base to linear.
@@ -1015,7 +1039,7 @@ class TransformLinear(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
@@ -1026,7 +1050,7 @@ class TransformLinear(Transform):
         for i in range(np.shape(xyz)[0]):
             lins[i] = np.dot(self.M, xyz[i])
         return lins
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian to XYZ (base), dlinear^i/dXYZ^j.
@@ -1038,7 +1062,7 @@ class TransformLinear(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -1048,7 +1072,7 @@ class TransformLinear(Transform):
         jac = self.empty_matrix(xyzdata)
         jac[:] = self.M
         return jac
-    
+
     def inv_jacobian_base(self, data):
         """
         Return the Jacobian from XYZ (base), dXYZ^i/dlinear^j.
@@ -1060,7 +1084,7 @@ class TransformLinear(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -1071,10 +1095,11 @@ class TransformLinear(Transform):
         jac[:] = self.M_inv
         return jac
 
+
 class TransformGamma(Transform):
     """
     General gamma transform, transformed = base**gamma
-    
+
     Uses absolute value and sign for negative base values:
     transformed = sign(base) * abs(base)**gamma
     """
@@ -1093,7 +1118,7 @@ class TransformGamma(Transform):
         super(TransformGamma, self).__init__(base)
         self.gamma = float(gamma)
         self.gamma_inv = 1. / gamma
-    
+
     def to_base(self, ndata):
         """
         Convert from gamma corrected to XYZ (base).
@@ -1102,7 +1127,7 @@ class TransformGamma(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
@@ -1118,14 +1143,14 @@ class TransformGamma(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the current colour space.
         """
         return np.sign(ndata) * np.abs(ndata)**self.gamma
-        
+
     def jacobian_base(self, data):
         """
         Return the Jacobian to XYZ (base), dgamma^i/dXYZ^j.
@@ -1137,7 +1162,7 @@ class TransformGamma(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -1146,29 +1171,33 @@ class TransformGamma(Transform):
         basedata = data.get_linear(self.base)
         jac = self.empty_matrix(basedata)
         for i in range(np.shape(basedata)[0]):
-            jac[i, 0, 0] = self.gamma * np.abs(basedata[i, 0])**(self.gamma - 1)
-            jac[i, 1, 1] = self.gamma * np.abs(basedata[i, 1])**(self.gamma - 1)
-            jac[i, 2, 2] = self.gamma * np.abs(basedata[i, 2])**(self.gamma - 1)
+            jac[i, 0, 0] = self.gamma * \
+                np.abs(basedata[i, 0])**(self.gamma - 1)
+            jac[i, 1, 1] = self.gamma * \
+                np.abs(basedata[i, 1])**(self.gamma - 1)
+            jac[i, 2, 2] = self.gamma * \
+                np.abs(basedata[i, 2])**(self.gamma - 1)
         return jac
+
 
 class TransformPolar(Transform):
     """
     Transform form Cartesian to polar coordinates in the two last variables.
-    
+
     For example CIELAB to CIELCH.
     """
-    
+
     def __init__(self, base):
         """
         Construct instance, setting base space.
-        
+
         Parameters
         ----------
         base : Space
             The base colour space.
         """
         super(TransformPolar, self).__init__(base)
-    
+
     def to_base(self, ndata):
         """
         Convert from polar to Cartesian.
@@ -1177,20 +1206,20 @@ class TransformPolar(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the base colour space
         """
         Lab = np.zeros(np.shape(ndata))
-        Lab[:,0] = ndata[:,0]
-        C = ndata[:,1]
-        h = ndata[:,2]
-        Lab[:,1] = C * np.cos(h)
-        Lab[:,2] = C * np.sin(h)
+        Lab[:, 0] = ndata[:, 0]
+        C = ndata[:, 1]
+        h = ndata[:, 2]
+        Lab[:, 1] = C * np.cos(h)
+        Lab[:, 2] = C * np.sin(h)
         return Lab
-    
+
     def from_base(self, ndata):
         """
         Convert from Cartesian (base) to polar.
@@ -1199,24 +1228,24 @@ class TransformPolar(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the current colour space.
         """
         LCh = np.zeros(np.shape(ndata))
-        LCh[:,0] = ndata[:,0]
-        x = ndata[:,1]
-        y = ndata[:,2]
-        LCh[:,1] = np.sqrt(x**2 + y**2)
-        LCh[:,2] = np.arctan2(y, x)
+        LCh[:, 0] = ndata[:, 0]
+        x = ndata[:, 1]
+        y = ndata[:, 2]
+        LCh[:, 1] = np.sqrt(x**2 + y**2)
+        LCh[:, 2] = np.arctan2(y, x)
         return LCh
-        
+
     def inv_jacobian_base(self, data):
         """
         Return the Jacobian from CIELAB (base), dCIELAB^i/dCIELCH^j.
-        
+
         The Jacobian is calculated at the given data points (of the
         Data class).
 
@@ -1224,45 +1253,46 @@ class TransformPolar(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
         LCh = data.get_linear(self)
-        C = LCh[:,1]
-        h = LCh[:,2]
+        C = LCh[:, 1]
+        h = LCh[:, 2]
         jac = self.empty_matrix(LCh)
         for i in range(np.shape(jac)[0]):
-            jac[i,0,0] = 1 # dL/dL
-            jac[i,1,1] = np.cos(h[i]) # da/dC
-            jac[i,1,2] = -C[i] * np.sin(h[i]) # da/dh
-            jac[i,2,1] = np.sin(h[i]) # db/dC
-            jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
+            jac[i, 0, 0] = 1                     # dL/dL
+            jac[i, 1, 1] = np.cos(h[i])          # da/dC
+            jac[i, 1, 2] = -C[i] * np.sin(h[i])  # da/dh
+            jac[i, 2, 1] = np.sin(h[i])          # db/dC
+            jac[i, 2, 2] = C[i] * np.cos(h[i])   # db/dh
             if C[i] == 0:
                 jac[i, 2, 2] = 1
                 jac[i, 1, 1] = 1
         return jac
 
+
 class TransformCartesian(Transform):
     """
     Transform form polar to Cartesian coordinates in the two last variables.
-    
+
     For example CIELCH to CIELAB.
     """
-    
+
     def __init__(self, base):
         """
         Construct instance, setting base space.
-        
+
         Parameters
         ----------
         base : Space
             The base colour space.
         """
         super(TransformCartesian, self).__init__(base)
-    
+
     def from_base(self, ndata):
         """
         Convert from polar to Cartesian.
@@ -1271,20 +1301,20 @@ class TransformCartesian(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the current colour space.
         """
         Lab = np.zeros(np.shape(ndata))
-        Lab[:,0] = ndata[:,0]
-        C = ndata[:,1]
-        h = ndata[:,2]
-        Lab[:,1] = C * np.cos(h)
-        Lab[:,2] = C * np.sin(h)
+        Lab[:, 0] = ndata[:, 0]
+        C = ndata[:, 1]
+        h = ndata[:, 2]
+        Lab[:, 1] = C * np.cos(h)
+        Lab[:, 2] = C * np.sin(h)
         return Lab
-    
+
     def to_base(self, ndata):
         """
         Convert from Cartesian (base) to polar.
@@ -1293,24 +1323,24 @@ class TransformCartesian(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the base colour space
         """
         LCh = np.zeros(np.shape(ndata))
-        LCh[:,0] = ndata[:,0]
-        x = ndata[:,1]
-        y = ndata[:,2]
-        LCh[:,1] = np.sqrt(x**2 + y**2)
-        LCh[:,2] = np.arctan2(y, x)
+        LCh[:, 0] = ndata[:, 0]
+        x = ndata[:, 1]
+        y = ndata[:, 2]
+        LCh[:, 1] = np.sqrt(x**2 + y**2)
+        LCh[:, 2] = np.arctan2(y, x)
         return LCh
-        
+
     def jacobian_base(self, data):
         """
         Return the Jacobian from CIELCh (base), dCIELAB^i/dCIELCH^j.
-        
+
         The Jacobian is calculated at the given data points (of the
         Data class).
 
@@ -1318,23 +1348,24 @@ class TransformCartesian(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
         LCh = data.get_linear(self.base)
-        C = LCh[:,1]
-        h = LCh[:,2]
+        C = LCh[:, 1]
+        h = LCh[:, 2]
         jac = self.empty_matrix(LCh)
         for i in range(np.shape(jac)[0]):
-            jac[i,0,0] = 1 # dL/dL
-            jac[i,1,1] = np.cos(h[i]) # da/dC
-            jac[i,1,2] = -C[i] * np.sin(h[i]) # da/dh
-            jac[i,2,1] = np.sin(h[i]) # db/dC
-            jac[i,2,2] = C[i] * np.cos(h[i]) # db/dh
+            jac[i, 0, 0] = 1                     # dL/dL
+            jac[i, 1, 1] = np.cos(h[i])          # da/dC
+            jac[i, 1, 2] = -C[i] * np.sin(h[i])  # da/dh
+            jac[i, 2, 1] = np.sin(h[i])          # db/dC
+            jac[i, 2, 2] = C[i] * np.cos(h[i])   # db/dh
         return jac
+
 
 class TransformLGJOSA(Transform):
     """
@@ -1343,36 +1374,38 @@ class TransformLGJOSA(Transform):
     def __init__(self, base):
         """
         Construct instance, setting base space.
-        
+
         Parameters
         ----------
         base : Space
             The base colour space.
         """
         super(TransformLGJOSA, self).__init__(base)
-        self.space_ABC = TransformLinear(self.base, np.array([[0.6597, 0.4492, -0.1089],
-                                                              [-0.3053, 1.2126, 0.0927],
-                                                              [-0.0374, 0.4795, 0.5579]]))
+        self.space_ABC = TransformLinear(self.base,
+                                         np.array([[0.6597, 0.4492, -0.1089],
+                                                   [-0.3053, 1.2126, 0.0927],
+                                                   [-0.0374, 0.4795, 0.5579]]))
         self.space_xyY = TransformxyY(self.base)
-    
+
     def err_func(self, xyz, lgj):
         clgj = self.from_base([xyz])
         diff = clgj - [lgj]
         n = np.linalg.norm(diff)
         return n
-        
+
     def to_base(self, ndata):
         """
         Convert from LGJOSA to XYZ (base).
-        
-        Implemented as numerical inversion of the from_base method, since the functions
-        unfortunately are not analytically invertible.
+
+        Implemented as numerical inversion of the from_base method,
+        since the functions unfortunately are not analytically
+        invertible.
 
         Parameters
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
@@ -1383,9 +1416,9 @@ class TransformLGJOSA(Transform):
         for i in range(np.shape(xyz)[0]):
             xyz_guess = xyz[i].copy()
             lgj = ndata[i].copy()
-            xyz[i] = scipy.optimize.fmin(self.err_func, xyz_guess, (lgj,)) 
+            xyz[i] = scipy.optimize.fmin(self.err_func, xyz_guess, (lgj, ))
         return xyz
-    
+
     def from_base(self, ndata):
         """
         Transform from base to LGJ OSA.
@@ -1394,38 +1427,41 @@ class TransformLGJOSA(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space (XYZ).
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the LGJOSA colour space.
         """
         abc = self.space_ABC.from_base(ndata)
-        A = abc[:,0]
-        B = abc[:,1]
-        C = abc[:,2]
+        A = abc[:, 0]
+        B = abc[:, 1]
+        C = abc[:, 2]
         xyY = self.space_xyY.from_base(ndata)
-        x = xyY[:,0] 
-        y = xyY[:,1] 
-        Y = xyY[:,2]
+        x = xyY[:, 0]
+        y = xyY[:, 1]
+        Y = xyY[:, 2]
         Y_0 = 100 * Y * (4.4934 * x**2 + 4.3034 * y**2 - 4.2760 * x * y -
                          1.3744 * x - 2.5643 * y + 1.8103)
-        L_osa = (5.9 * ((Y_0**(1/3.) - (2/3.)) + 
-                        0.0042 * np.sign(Y_0 - 30) * np.abs(Y_0 - 30)**(1/3.)) - 14.4) / np.sqrt(2)   
-        G = -2 * (0.764 * L_osa + 9.2521) * (0.9482 * (np.log(A) - np.log(0.9366 * B)) -
-                                             0.3175 * (np.log(B) - np.log(0.9807 * C)))
-        J = 2 * (0.5735 * L_osa + 7.0892) * (0.1792 * (np.log(A) - np.log(0.9366 * B)) +
-                                             0.9237 * (np.log(B) - np.log(0.9807 * C)))
+        L_osa = (5.9 * ((Y_0**(1/3.) - (2/3.)) +
+                        0.0042 * np.sign(Y_0 - 30) *
+                        np.abs(Y_0 - 30)**(1/3.)) - 14.4) / np.sqrt(2)
+        G = -2 * (0.764 * L_osa + 9.2521) * (
+            0.9482 * (np.log(A) - np.log(0.9366 * B)) -
+            0.3175 * (np.log(B) - np.log(0.9807 * C)))
+        J = 2 * (0.5735 * L_osa + 7.0892) * (
+            0.1792 * (np.log(A) - np.log(0.9366 * B)) +
+            0.9237 * (np.log(B) - np.log(0.9807 * C)))
         col = np.zeros(np.shape(ndata))
-        col[:,0] = L_osa
-        col[:,1] = G
-        col[:,2] = J
+        col[:, 0] = L_osa
+        col[:, 1] = G
+        col[:, 2] = J
         return col
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian from XYZ (base), dLGJOSA^i/dXYZ^j.
-        
+
         The Jacobian is calculated at the given data points (of the
         Data class). Like the colour space, a terrible mess...
 
@@ -1433,7 +1469,7 @@ class TransformLGJOSA(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -1441,37 +1477,39 @@ class TransformLGJOSA(Transform):
         """
         ABC = data.get_linear(self.space_ABC)
         xyY = data.get_linear(self.space_xyY)
-        x = xyY[:,0]
-        y = xyY[:,1]
-        Y = xyY[:,2]
-        A = ABC[:,0]
-        B = ABC[:,1]
-        C = ABC[:,2]
+        x = xyY[:, 0]
+        y = xyY[:, 1]
+        Y = xyY[:, 2]
+        A = ABC[:, 0]
+        B = ABC[:, 1]
+        C = ABC[:, 2]
         dxyY_dXYZ = self.space_xyY.jacobian_base(data)
-        dx_dX = dxyY_dXYZ[:,0,0]
-        dx_dY = dxyY_dXYZ[:,0,1]
-        dx_dZ = dxyY_dXYZ[:,0,2]
-        dy_dX = dxyY_dXYZ[:,1,0]
-        dy_dY = dxyY_dXYZ[:,1,1]
-        dy_dZ = dxyY_dXYZ[:,1,2]
-        dY_dX = dxyY_dXYZ[:,2,0]
-        dY_dY = dxyY_dXYZ[:,2,1]
-        dY_dZ = dxyY_dXYZ[:,2,2]
+        dx_dX = dxyY_dXYZ[:, 0, 0]
+        dx_dY = dxyY_dXYZ[:, 0, 1]
+        dx_dZ = dxyY_dXYZ[:, 0, 2]
+        dy_dX = dxyY_dXYZ[:, 1, 0]
+        dy_dY = dxyY_dXYZ[:, 1, 1]
+        dy_dZ = dxyY_dXYZ[:, 1, 2]
+        dY_dX = dxyY_dXYZ[:, 2, 0]
+        dY_dY = dxyY_dXYZ[:, 2, 1]
+        dY_dZ = dxyY_dXYZ[:, 2, 2]
         dABC_dXYZ = self.space_ABC.jacobian_base(data)
-        dA_dX = dABC_dXYZ[:,0,0]
-        dA_dY = dABC_dXYZ[:,0,1]
-        dA_dZ = dABC_dXYZ[:,0,2]
-        dB_dX = dABC_dXYZ[:,1,0]
-        dB_dY = dABC_dXYZ[:,1,1]
-        dB_dZ = dABC_dXYZ[:,1,2]
-        dC_dX = dABC_dXYZ[:,2,0]
-        dC_dY = dABC_dXYZ[:,2,1]
-        dC_dZ = dABC_dXYZ[:,2,2]
+        dA_dX = dABC_dXYZ[:, 0, 0]
+        dA_dY = dABC_dXYZ[:, 0, 1]
+        dA_dZ = dABC_dXYZ[:, 0, 2]
+        dB_dX = dABC_dXYZ[:, 1, 0]
+        dB_dY = dABC_dXYZ[:, 1, 1]
+        dB_dZ = dABC_dXYZ[:, 1, 2]
+        dC_dX = dABC_dXYZ[:, 2, 0]
+        dC_dY = dABC_dXYZ[:, 2, 1]
+        dC_dZ = dABC_dXYZ[:, 2, 2]
         Y_0 = 100 * Y * (4.4934 * x**2 + 4.3034 * y**2 - 4.2760 * x * y -
                          1.3744 * x - 2.5643 * y + 1.8103)
-        L = (5.9 * ((Y_0**(1/3.) - (2/3.)) + \
-                    0.0042 * np.sign(Y_0 - 30) * np.abs(Y_0 - 30)**(1/3.)) - 14.4) / np.sqrt(2)   
-        dL_dY0 = 5.9 * (Y_0**(-2./3) + 0.042 * np.sign(Y_0 - 30) * np.abs(Y_0 - 30)**(-2./3) / 3) / np.sqrt(2)
+        L = (5.9 * ((Y_0**(1/3.) - (2/3.)) +
+                    0.0042 * np.sign(Y_0 - 30) *
+                    np.abs(Y_0 - 30)**(1/3.)) - 14.4) / np.sqrt(2)
+        dL_dY0 = 5.9 * (Y_0**(-2./3) + 0.042 * np.sign(Y_0 - 30) *
+                        np.abs(Y_0 - 30)**(-2./3) / 3) / np.sqrt(2)
         dY0_dx = 100 * Y * (4.4934 * 2 * x - 4.2760 * y - 1.3744)
         dY0_dy = 100 * Y * (4.3034 * 2 * y - 4.2760 * x - 2.5643)
         dY0_dY = 100 * (4.4934 * x**2 + 4.3034 * y**2 - 4.2760 * x * y -
@@ -1479,17 +1517,19 @@ class TransformLGJOSA(Transform):
         dL_dX = dL_dY0 * (dY0_dx * dx_dX + dY0_dy * dy_dX + dY0_dY * dY_dX)
         dL_dY = dL_dY0 * (dY0_dx * dx_dY + dY0_dy * dy_dY + dY0_dY * dY_dY)
         dL_dZ = dL_dY0 * (dY0_dx * dx_dZ + dY0_dy * dy_dZ + dY0_dY * dY_dZ)
-        TG = 0.9482 * (np.log(A) - np.log(0.9366 * B)) - 0.3175 * (np.log(B) - np.log(0.9807 * C))
-        TJ = 0.1792 * (np.log(A) - np.log(0.9366 * B)) + 0.9237 * (np.log(B) - np.log(0.9807 * C))
-        SG = - 2 * (0.764 * L + 9.2521) 
-        SJ =  2 * (0.5735 * L + 7.0892) 
+        TG = 0.9482 * (np.log(A) - np.log(0.9366 * B)) - \
+            0.3175 * (np.log(B) - np.log(0.9807 * C))
+        TJ = 0.1792 * (np.log(A) - np.log(0.9366 * B)) + \
+            0.9237 * (np.log(B) - np.log(0.9807 * C))
+        SG = - 2 * (0.764 * L + 9.2521)
+        SJ = 2 * (0.5735 * L + 7.0892)
         dG_dL = - 2 * 0.764 * TG
         dJ_dL = 2 * 0.57354 * TJ
         dG_dA = misc.safe_div(SG * 0.9482, A)
         dG_dB = misc.safe_div(SG * (-0.9482 - 0.3175), B)
         dG_dC = misc.safe_div(SG * 0.3175, C)
         dJ_dA = misc.safe_div(SJ * 0.1792, A)
-        dJ_dB = misc.safe_div(SJ * (-0.1792 + 0.9837), B) 
+        dJ_dB = misc.safe_div(SJ * (-0.1792 + 0.9837), B)
         dJ_dC = misc.safe_div(SJ * (-0.9837), C)
         dG_dX = dG_dL * dL_dX + dG_dA * dA_dX + dG_dB * dB_dX + dG_dC * dC_dX
         dG_dY = dG_dL * dL_dY + dG_dA * dA_dY + dG_dB * dB_dY + dG_dC * dC_dY
@@ -1498,16 +1538,17 @@ class TransformLGJOSA(Transform):
         dJ_dY = dJ_dL * dL_dY + dJ_dA * dA_dY + dJ_dB * dB_dY + dJ_dC * dC_dY
         dJ_dZ = dJ_dL * dL_dZ + dJ_dA * dA_dZ + dJ_dB * dB_dZ + dJ_dC * dC_dZ
         jac = self.empty_matrix(ABC)
-        jac[:,0,0] = dL_dX
-        jac[:,0,1] = dL_dY
-        jac[:,0,2] = dL_dZ
-        jac[:,1,0] = dG_dX
-        jac[:,1,1] = dG_dY
-        jac[:,1,2] = dG_dZ
-        jac[:,2,0] = dJ_dX
-        jac[:,2,1] = dJ_dY
-        jac[:,2,2] = dJ_dZ
+        jac[:, 0, 0] = dL_dX
+        jac[:, 0, 1] = dL_dY
+        jac[:, 0, 2] = dL_dZ
+        jac[:, 1, 0] = dG_dX
+        jac[:, 1, 1] = dG_dY
+        jac[:, 1, 2] = dG_dZ
+        jac[:, 2, 0] = dJ_dX
+        jac[:, 2, 1] = dJ_dY
+        jac[:, 2, 2] = dJ_dZ
         return jac
+
 
 class TransformLGJE(Transform):
     """
@@ -1516,7 +1557,7 @@ class TransformLGJE(Transform):
     def __init__(self, base):
         """
         Construct instance, setting base space.
-        
+
         Parameters
         ----------
         base : Space
@@ -1536,15 +1577,15 @@ class TransformLGJE(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the base colour space
         """
-        LE = ndata[:,0]
-        GE = ndata[:,1]
-        JE = ndata[:,2]
+        LE = ndata[:, 0]
+        GE = ndata[:, 1]
+        JE = ndata[:, 2]
         CE = np.sqrt(GE**2 + JE**2)
         L = self.aL * (np.exp(self.bL * LE) - 1) / (10 * self.bL)
         C = self.ac * (np.exp(self.bc * CE) - 1) / (10 * self.bc)
@@ -1552,11 +1593,11 @@ class TransformLGJE(Transform):
         G = - scale * GE
         J = - scale * JE
         col = ndata.copy()
-        col[:,0] = L
-        col[:,1] = G
-        col[:,2] = J
+        col[:, 0] = L
+        col[:, 1] = G
+        col[:, 2] = J
         return col
-        
+
     def from_base(self, ndata):
         """
         Transform from LGJOSA (base) to LGJE.
@@ -1565,15 +1606,15 @@ class TransformLGJE(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space (LGJOSA).
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the LGJOSA colour space.
         """
-        L = ndata[:,0]
-        G = ndata[:,1]
-        J = ndata[:,2]
+        L = ndata[:, 0]
+        G = ndata[:, 1]
+        J = ndata[:, 2]
         C = np.sqrt(G**2 + J**2)
         L_E = np.log(1 + 10 * L * self.bL / self.aL) / self.bL
         C_E = np.log(1 + 10 * C * self.bc / self.ac) / self.bc
@@ -1581,15 +1622,15 @@ class TransformLGJE(Transform):
         G_E = - scale * G
         J_E = - scale * J
         col = ndata.copy()
-        col[:,0] = L_E
-        col[:,1] = G_E
-        col[:,2] = J_E
+        col[:, 0] = L_E
+        col[:, 1] = G_E
+        col[:, 2] = J_E
         return col
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian from LGJOSA (base), dLGJE^i/dLGJOSA^j.
-        
+
         The Jacobian is calculated at the given data points (of the
         Data class).
 
@@ -1597,19 +1638,19 @@ class TransformLGJE(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
         lgj = data.get(self.base)
-        L = lgj[:,0]
-        G = lgj[:,1]
-        J = lgj[:,2]
+        L = lgj[:, 0]
+        G = lgj[:, 1]
+        J = lgj[:, 2]
         C = np.sqrt(G**2 + J**2)
         lgj_e = data.get(self)
-        C_E = np.sqrt(lgj_e[:,1]**2 + lgj_e[:,2]**2)
+        C_E = np.sqrt(lgj_e[:, 1]**2 + lgj_e[:, 2]**2)
         dLE_dL = 10 / (self.aL + 10 * self.bL * L)
         dCE_dC = 10 / (self.ac + 10 * self.bc * C)
         dCEC_dC = misc.safe_div(dCE_dC * C - C_E, C**2)
@@ -1622,21 +1663,24 @@ class TransformLGJE(Transform):
         dJE_dG = - J * dCEC_dG
         dJE_dJ = - misc.safe_div(C_E, C) - J * dCEC_dJ
         jac = self.empty_matrix(lgj)
-        jac[:,0,0] = dLE_dL
-        jac[:,1,1] = dGE_dG
-        jac[:,1,2] = dGE_dJ
-        jac[:,2,1] = dJE_dG
-        jac[:,2,2] = dJE_dJ
+        jac[:, 0, 0] = dLE_dL
+        jac[:, 1, 1] = dGE_dG
+        jac[:, 1, 2] = dGE_dJ
+        jac[:, 2, 1] = dJE_dG
+        jac[:, 2, 2] = dJE_dJ
         return jac
+
 
 class TransformLogCompressL(Transform):
     """
-    Perform parametric logarithmic compression of lightness (as in the DIN99x formulae).
+    Perform parametric logarithmic compression of lightness.
+
+    As in the DIN99x formulae.
     """
     def __init__(self, base, aL, bL):
         """
         Construct instance, setting base space.
-        
+
         Parameters
         ----------
         base : Space
@@ -1654,38 +1698,38 @@ class TransformLogCompressL(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space (Lab).
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the La'b' colour space.
         """
         Lpab = ndata.copy()
-        Lpab[:,0] = self.aL * np.log(1 + self.bL * ndata[:,0])
+        Lpab[:, 0] = self.aL * np.log(1 + self.bL * ndata[:, 0])
         return Lpab
-    
+
     def to_base(self, ndata):
         """
         Transform from L'ab to Lab (base).
-        
+
         Parameters
         ----------
         ndata : ndarray
             Colour data in L'ab colour space.
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the Lab colour space.
         """
         Lab = ndata.copy()
-        Lab[:,0] = (np.exp(ndata[:,0] / self.aL) - 1) / self.bL
-        return Lab 
+        Lab[:, 0] = (np.exp(ndata[:, 0] / self.aL) - 1) / self.bL
+        return Lab
 
     def jacobian_base(self, data):
         """
         Return the Jacobian from Lab (base), dL'ab^i/dLab^j.
-        
+
         The Jacobian is calculated at the given data points (of the
         Data class).
 
@@ -1693,29 +1737,32 @@ class TransformLogCompressL(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
         lab = data.get(self.base)
-        L = lab[:,0]
-        dLp_dL = self.aL * self.bL / (1 + self.bL * L) 
+        L = lab[:, 0]
+        dLp_dL = self.aL * self.bL / (1 + self.bL * L)
         jac = self.empty_matrix(lab)
-        jac[:,0,0] = dLp_dL
-        jac[:,1,1] = 1
-        jac[:,2,2] = 1
+        jac[:, 0, 0] = dLp_dL
+        jac[:, 1, 1] = 1
+        jac[:, 2, 2] = 1
         return jac
+
 
 class TransformLogCompressC(Transform):
     """
-    Perform parametric logarithmic compression of chroma (as in the DIN99x formulae).
+    Perform parametric logarithmic compression of chroma.
+
+    As in the DIN99x formulae.
     """
     def __init__(self, base, aC, bC):
         """
         Construct instance, setting base space.
-        
+
         Parameters
         ----------
         base : Space
@@ -1733,52 +1780,52 @@ class TransformLogCompressC(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space (Lab).
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the La'b' colour space.
         """
         Lapbp = ndata.copy()
-        C = np.sqrt(ndata[:,1]**2 + ndata[:,2]**2)
+        C = np.sqrt(ndata[:, 1]**2 + ndata[:, 2]**2)
         Cp = self.aC * np.log(1 + self.bC * C)
         scale = misc.safe_div(Cp, C)
-        ap = scale * ndata[:,1]
-        bp = scale * ndata[:,2]
-        Lapbp[:,1] = ap
-        Lapbp[:,2] = bp
+        ap = scale * ndata[:, 1]
+        bp = scale * ndata[:, 2]
+        Lapbp[:, 1] = ap
+        Lapbp[:, 2] = bp
         return Lapbp
-    
+
     def to_base(self, ndata):
         """
         Transform from La'b' to Lab (base).
-        
+
         Parameters
         ----------
         ndata : ndarray
             Colour data in L'ab colour space.
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the Lab colour space.
         """
         Lab = ndata.copy()
-        ap = ndata[:,1]
-        bp = ndata[:,2]
+        ap = ndata[:, 1]
+        bp = ndata[:, 2]
         Cp = np.sqrt(ap**2 + bp**2)
         C = (np.exp(Cp / self.aC) - 1) / self.bC
         scale = misc.safe_div(Cp, C)
         a = scale * ap
         b = scale * bp
-        Lab[:,1] = a
-        Lab[:,2] = b
+        Lab[:, 1] = a
+        Lab[:, 2] = b
         return Lab
 
     def jacobian_base(self, data):
         """
         Return the Jacobian from Lab (base), dLa'b'^i/dLab^j.
-        
+
         The Jacobian is calculated at the given data points (of the
         Data class).
 
@@ -1786,7 +1833,7 @@ class TransformLogCompressC(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -1794,10 +1841,10 @@ class TransformLogCompressC(Transform):
         """
         lab = data.get(self.base)
         lapbp = data.get(self)
-        a = lab[:,1]
-        b = lab[:,2]
+        a = lab[:, 1]
+        b = lab[:, 2]
         C = np.sqrt(a**2 + b**2)
-        Cp = np.sqrt(lapbp[:,1]**2 + lapbp[:,2]**2)
+        Cp = np.sqrt(lapbp[:, 1]**2 + lapbp[:, 2]**2)
         dC_da = misc.safe_div(a, C)
         dC_db = misc.safe_div(b, C)
         dCp_dC = self.aC * self.bC / (1 + self.bC * C)
@@ -1807,17 +1854,18 @@ class TransformLogCompressC(Transform):
         dap_db = a * dCpC_dC * dC_db
         dbp_da = b * dCpC_dC * dC_da
         jac = self.empty_matrix(lab)
-        jac[:,0,0] = 1
-        jac[:,1,1] = dap_da
-        jac[:,1,2] = dap_db
-        jac[:,2,1] = dbp_da
-        jac[:,2,2] = dbp_db
+        jac[:, 0, 0] = 1
+        jac[:, 1, 1] = dap_da
+        jac[:, 1, 2] = dap_db
+        jac[:, 2, 1] = dbp_da
+        jac[:, 2, 2] = dbp_db
         return jac
+
 
 class TransformPoincareDisk(Transform):
     """
     Transform from Cartesian coordinates to Poincare disk coordinates.
-    
+
     The coordinate transform only changes the radius (chroma, typically),
     and does so in a way that preserves the radial distance with respect to
     the Euclidean metric and the Poincare disk metric in the source and
@@ -1827,7 +1875,7 @@ class TransformPoincareDisk(Transform):
     def __init__(self, base, R=1.):
         """
         Construct instance, setting base space and radius of curvature.
-        
+
         Parameters
         ----------
         base : Space
@@ -1837,7 +1885,7 @@ class TransformPoincareDisk(Transform):
         """
         super(TransformPoincareDisk, self).__init__(base)
         self.R = R
-        
+
     def to_base(self, ndata):
         """
         Transform from Poincare disk to base.
@@ -1846,22 +1894,23 @@ class TransformPoincareDisk(Transform):
         ----------
         ndata : ndarray
             Colour data in the current colour space
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the base colour space
         """
         Lab = ndata.copy()
-        Lab[:,1:] = 0
-        x = ndata[:,1]
-        y = ndata[:,2]
+        Lab[:, 1:] = 0
+        x = ndata[:, 1]
+        y = ndata[:, 2]
         r = np.sqrt(x**2 + y**2)
         for i in range(np.shape(Lab)[0]):
             if r[i] > 0:
-                Lab[i,1:] = ndata[i,1:] * 2 * self.R * np.arctanh(r[i]) / r[i]
+                Lab[i, 1:] = ndata[i, 1:] * 2 * \
+                    self.R * np.arctanh(r[i]) / r[i]
         return Lab
-        
+
     def from_base(self, ndata):
         """
         Transform from base to Poincare disk
@@ -1870,26 +1919,26 @@ class TransformPoincareDisk(Transform):
         ----------
         ndata : ndarray
             Colour data in the base colour space.
-        
+
         Returns
         -------
         col : ndarray
             Colour data in the current colour space.
         """
         Lxy = ndata.copy()
-        Lxy[:,1:] = 0
-        a = ndata[:,1]
-        b = ndata[:,2]
+        Lxy[:, 1:] = 0
+        a = ndata[:, 1]
+        b = ndata[:, 2]
         C = np.sqrt(a**2 + b**2)
         for i in range(np.shape(Lxy)[0]):
             if C[i] > 0:
-                Lxy[i,1:] = ndata[i,1:] * np.tanh(C[i] / (2 * self.R)) / C[i]
+                Lxy[i, 1:] = ndata[i, 1:] * np.tanh(C[i] / (2 * self.R)) / C[i]
         return Lxy
-    
+
     def jacobian_base(self, data):
         """
         Return the Jacobian from CIELAB (base), dLxy^i/dCIELAB^j.
-        
+
         The Jacobian is calculated at the given data points (of the
         Data class).
 
@@ -1897,7 +1946,7 @@ class TransformPoincareDisk(Transform):
         ----------
         data : Data
             Colour data points for the jacobians to be computed.
-        
+
         Returns
         -------
         jacobian : ndarray
@@ -1905,25 +1954,28 @@ class TransformPoincareDisk(Transform):
         """
         # TODO: bugfix!!!
         Lab = data.get_linear(self.base)
-        a = Lab[:,1]
-        b = Lab[:,2]
+        a = Lab[:, 1]
+        b = Lab[:, 2]
         C = np.sqrt(a**2 + b**2)
         tanhC2R = np.tanh(C / (2. * self.R))
         tanhC2C = misc.safe_div(tanhC2R, C)
         dCda = misc.safe_div(a, C)
         dCdb = misc.safe_div(b, C)
-        dtanhdC = misc.safe_div(C / (2. * self.R) * (1 - tanhC2R**2) - tanhC2R, C**2)
+        dtanhdC = misc.safe_div(C / (2. * self.R) *
+                                (1 - tanhC2R**2) - tanhC2R, C**2)
         jac = self.empty_matrix(Lab)
         for i in range(np.shape(jac)[0]):
-            jac[i, 0, 0] = 1 # dL/dL
+            jac[i, 0, 0] = 1        # dL/dL
             if C[i] == 0:
-                jac[i, 1, 1] = .5 # dx/da
-                jac[i, 2, 2] = .5 # dy/db
+                jac[i, 1, 1] = .5   # dx/da
+                jac[i, 2, 2] = .5   # dy/db
             else:
-                jac[i, 1, 1] = tanhC2C[i] + a[i] * dtanhdC[i] * dCda[i] # dx/da
-                jac[i, 1, 2] = a[i] * dtanhdC[i] * dCdb[i] # dx/db
-                jac[i, 2, 1] = b[i] * dtanhdC[i] * dCda[i] # dy/da
-                jac[i, 2, 2] = tanhC2C[i] + b[i] * dtanhdC[i] * dCdb[i] # dy/db
+                jac[i, 1, 1] = tanhC2C[i] + \
+                    a[i] * dtanhdC[i] * dCda[i]  # dx/da
+                jac[i, 1, 2] = a[i] * dtanhdC[i] * dCdb[i]  # dx/db
+                jac[i, 2, 1] = b[i] * dtanhdC[i] * dCda[i]  # dy/da
+                jac[i, 2, 2] = tanhC2C[i] + \
+                    b[i] * dtanhdC[i] * dCdb[i]  # dy/db
         return jac
 
 #==============================================================================
@@ -1936,7 +1988,7 @@ xyz = XYZ()
 xyY = TransformxyY(xyz)
 
 cielab = TransformCIELAB(xyz)
-cielch= TransformPolar(cielab)
+cielch = TransformPolar(cielab)
 cieluv = TransformCIELUV(xyz)
 ciede00lab = TransformCIEDE00(cielab)
 ciede00lch = TransformPolar(ciede00lab)
@@ -1947,31 +1999,35 @@ ciecat02 = TransformLinear(xyz,
 
 # sRGB
 
-_srgb_linear = TransformLinear(xyz,
-                               np.array([[3.2404542, -1.5371385, -0.4985314],
-                                         [-0.9692660,  1.8760108,  0.0415560],
-                                         [0.0556434, -0.2040259,  1.0572252]]))
+_srgb_linear = TransformLinear(
+    xyz,
+    np.array([[3.2404542, -1.5371385, -0.4985314],
+              [-0.9692660,  1.8760108,  0.0415560],
+              [0.0556434, -0.2040259,  1.0572252]]))
 srgb = TransformSRGB(_srgb_linear)
 
 # Adobe RGB
 
-_rgb_adobe_linear = TransformLinear(xyz,
-                                    np.array([[2.0413690, -0.5649464, -0.3446944],
-                                              [-0.9692660, 1.8760108, 0.0415560],
-                                              [0.0134474, -0.1183897, 1.0154096]]))
+_rgb_adobe_linear = TransformLinear(
+    xyz,
+    np.array([[2.0413690, -0.5649464, -0.3446944],
+              [-0.9692660, 1.8760108, 0.0415560],
+              [0.0134474, -0.1183897, 1.0154096]]))
 rgb_adobe = TransformGamma(_rgb_adobe_linear, 1 / 2.2)
 
 # IPT
 
-_ipt_lms = TransformLinear(xyz,
-                           np.array([[.4002, .7075, -.0807],
-                                     [-.228, 1.15, .0612],
-                                     [0, 0, .9184]]))
+_ipt_lms = TransformLinear(
+    xyz,
+    np.array([[.4002, .7075, -.0807],
+              [-.228, 1.15, .0612],
+              [0, 0, .9184]]))
 _ipt_lmsp = TransformGamma(_ipt_lms, .43)
-ipt = TransformLinear(_ipt_lmsp,
-                      np.array([[.4, .4, .2],
-                                [4.455, -4.850, .3960],
-                                [.8056, .3572, -1.1628]]))
+ipt = TransformLinear(
+    _ipt_lmsp,
+    np.array([[.4, .4, .2],
+              [4.455, -4.850, .3960],
+              [.8056, .3572, -1.1628]]))
 
 # OSA-UCS
 
@@ -1981,24 +2037,30 @@ lgj_e = TransformLGJE(lgj_osa)
 # DIN99
 
 _din99_lpab = TransformLogCompressL(cielab, 105.51, 0.0158)
-_din99_lef = TransformLinear(_din99_lpab,
-                             np.array([[1, 0, 0],
-                                       [0, np.cos(np.deg2rad(16.)), np.sin(np.deg2rad(16.))],
-                                       [0, - 0.7 * np.sin(np.deg2rad(16.)), 0.7 * np.cos(np.deg2rad(16.))]]))
+_din99_lef = TransformLinear(
+    _din99_lpab,
+    np.array([[1, 0, 0],
+              [0, np.cos(np.deg2rad(16.)),
+               np.sin(np.deg2rad(16.))],
+              [0, - 0.7 * np.sin(np.deg2rad(16.)),
+               0.7 * np.cos(np.deg2rad(16.))]]))
 din99 = TransformLogCompressC(_din99_lef, 1 / 0.045, 0.045)
 
 # DIN99b
 
 _din99b_lpab = TransformLogCompressL(cielab, 303.67, 0.0039)
-_din99b_lef = TransformLinear(_din99b_lpab,
-                             np.array([[1, 0, 0],
-                                       [0, np.cos(np.deg2rad(26.)), np.sin(np.deg2rad(26.))],
-                                       [0, - 0.83 * np.sin(np.deg2rad(26.)), 0.83 * np.cos(np.deg2rad(26.))]]))
+_din99b_lef = TransformLinear(
+    _din99b_lpab,
+    np.array([[1, 0, 0],
+              [0, np.cos(np.deg2rad(26.)), np.sin(np.deg2rad(26.))],
+              [0, - 0.83 * np.sin(np.deg2rad(26.)),
+               0.83 * np.cos(np.deg2rad(26.))]]))
 _din99b_rot = TransformLogCompressC(_din99b_lef, 23.0, 0.075)
-din99b = TransformLinear(_din99b_rot,
-                         np.array([[1, 0, 0],
-                                   [0, np.cos(np.deg2rad(-26.)), np.sin(np.deg2rad(-26.))],
-                                   [0, - np.sin(np.deg2rad(-26.)), np.cos(np.deg2rad(-26.))]]))
+din99b = TransformLinear(
+    _din99b_rot,
+    np.array([[1, 0, 0],
+              [0, np.cos(np.deg2rad(-26.)), np.sin(np.deg2rad(-26.))],
+              [0, - np.sin(np.deg2rad(-26.)), np.cos(np.deg2rad(-26.))]]))
 
 # DIN99c
 
@@ -2024,26 +2086,31 @@ _din99d_xyz = TransformLinear(xyz,
 _din99d_white = np.dot(_din99d_xyz.M, _din99d_xyz.white_D65)
 _din99d_lab = TransformCIELAB(_din99d_xyz, _din99d_white)
 _din99d_lpab = TransformLogCompressL(_din99c_lab, 325.22, 0.0036)
-_din99d_lef = TransformLinear(_din99d_lpab,
-                         np.array([[1, 0, 0],
-                                   [0, np.cos(np.deg2rad(50.)), np.sin(np.deg2rad(50.))],
-                                   [0, - 1.14 * np.sin(np.deg2rad(50.)), 1.14 * np.cos(np.deg2rad(50.))]]))
+_din99d_lef = TransformLinear(
+    _din99d_lpab,
+    np.array([[1, 0, 0],
+              [0, np.cos(np.deg2rad(50.)), np.sin(np.deg2rad(50.))],
+              [0, - 1.14 * np.sin(np.deg2rad(50.)),
+               1.14 * np.cos(np.deg2rad(50.))]]))
 _din99d_rot = TransformLogCompressC(_din99d_lef, 23., 0.066)
-din99d = TransformLinear(_din99d_rot,
-                         np.array([[1, 0, 0],
-                                   [0, np.cos(np.deg2rad(-50.)), np.sin(np.deg2rad(-50.))],
-                                   [0, - np.sin(np.deg2rad(-50.)), np.cos(np.deg2rad(-50.))]]))
+din99d = TransformLinear(
+    _din99d_rot,
+    np.array([[1, 0, 0],
+              [0, np.cos(np.deg2rad(-50.)), np.sin(np.deg2rad(-50.))],
+              [0, - np.sin(np.deg2rad(-50.)), np.cos(np.deg2rad(-50.))]]))
 
 # For testing only:
 
-_test_ui = TransformLinear(TransformGamma(TransformLinear(xyz,
-                                                          np.array([[0.1551646, 0.5430763, -0.0370161],
-                                                                    [-0.1551646, 0.4569237, 0.0296946],
-                                                                    [0, 0, 0.0073215]])),
-                                          .43),
-                           np.array([[1.1032e+00, 5.0900e-01, 5.0840e-03],
-                                     [2.2822e+00, -4.2580e+00, 6.2844e+00],
-                                     [9.6110e+00, -1.2199e+01, -2.3843e+00]]))
+_test_ui = TransformLinear(
+    TransformGamma(
+        TransformLinear(
+            xyz,
+            np.array([[0.1551646, 0.5430763, -0.0370161],
+                      [-0.1551646, 0.4569237, 0.0296946],
+                      [0, 0, 0.0073215]])), .43),
+    np.array([[1.1032e+00, 5.0900e-01, 5.0840e-03],
+              [2.2822e+00, -4.2580e+00, 6.2844e+00],
+              [9.6110e+00, -1.2199e+01, -2.3843e+00]]))
 _test_space_cartesian = TransformCartesian(cieluv)
 _test_space_poincare_disk = TransformPoincareDisk(cielab)
 _test_space_gamma = TransformGamma(xyz, .43)
@@ -2062,8 +2129,8 @@ def test():
                     [.5, .5, .5]])
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt,
                    din99, din99b, din99c, din99d,
-                  _test_space_cartesian, _test_space_poincare_disk,
-                  _test_space_gamma]
+                   _test_space_cartesian, _test_space_poincare_disk,
+                   _test_space_gamma]
     print "Colour transformations:"
     for sp in test_spaces:
         c2 = sp.to_XYZ(sp.from_XYZ(col))
@@ -2077,8 +2144,8 @@ def test():
     col_data = data.Data(xyz, col)
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
                    din99, din99b, din99c, din99d,
-                  _test_space_cartesian, _test_space_poincare_disk,
-                  _test_space_gamma]
+                   _test_space_cartesian, _test_space_poincare_disk,
+                   _test_space_gamma]
     for sp in test_spaces:
         jac1 = sp.jacobian_XYZ(col_data)
         jac2 = sp.inv_jacobian_XYZ(col_data)
@@ -2091,4 +2158,3 @@ def test():
             print sp, ": ", err, " !!!"
         else:
             print sp, ": OK"
-        
