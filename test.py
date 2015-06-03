@@ -41,8 +41,8 @@ gamut = colour.data.Gamut(colour.space.xyz, points)
 
 # Plot the gamut in CIELAB
 fig = plt.figure()
-ax = fig.gca(projection = '3d')
+ax = fig.gca(projection='3d')
 labpoints = points.get_linear(colour.space.cielab)
-ax.plot_trisurf(labpoints[:,1], labpoints[:,2], labpoints[:,0],
+ax.plot_trisurf(labpoints[:, 1], labpoints[:, 2], labpoints[:, 0],
                 triangles=gamut.simplices)
 plt.show()
