@@ -23,21 +23,25 @@ import numpy as np
 import data
 import space
 
+
 #==============================================================================
 # Colour metric tensors
 #==============================================================================
 
+
 def euclidean(sp, dat):
     """
-    Compute the general Euclidean metric in the given colour space as TensorData.
-    
+    Compute the general Euclidean metric in the given colour space.
+
+    Returns TensorData.
+
     Parameters
     ----------
     sp : Space
         The colour space in which the metric tensor is Euclidean.
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     Euclidean : TensorData
@@ -48,6 +52,7 @@ def euclidean(sp, dat):
         g[i] = np.eye(3)
     return data.TensorData(sp, dat, g)
 
+
 def dE_ab(dat):
     """
     Compute the DEab metric as TensorData for the given data points.
@@ -56,13 +61,14 @@ def dE_ab(dat):
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     DEab : TensorData
         The metric tensors.
     """
     return euclidean(space.cielab, dat)
+
 
 def dE_uv(dat):
     """
@@ -72,13 +78,14 @@ def dE_uv(dat):
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     DEuv : TensorData
         The metric tensors.
     """
     return euclidean(space.cieluv, dat)
+
 
 def dE_E(dat):
     """
@@ -88,13 +95,14 @@ def dE_E(dat):
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     DEE : TensorData
         The metric tensors.
     """
     return euclidean(space.lgj_e, dat)
+
 
 def dE_DIN99(dat):
     """
@@ -104,13 +112,14 @@ def dE_DIN99(dat):
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     DIN99 : TensorData
         The metric tensors.
     """
     return euclidean(space.din99, dat)
+
 
 def dE_DIN99b(dat):
     """
@@ -120,13 +129,14 @@ def dE_DIN99b(dat):
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     DIN99b : TensorData
         The metric tensors.
     """
     return euclidean(space.din99b, dat)
+
 
 def dE_DIN99c(dat):
     """
@@ -136,13 +146,14 @@ def dE_DIN99c(dat):
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     DIN99c : TensorData
         The metric tensors.
     """
     return euclidean(space.din99c, dat)
+
 
 def dE_DIN99d(dat):
     """
@@ -152,7 +163,7 @@ def dE_DIN99d(dat):
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     DIN99d : TensorData
@@ -160,12 +171,13 @@ def dE_DIN99d(dat):
     """
     return euclidean(space.din99d, dat)
 
+
 def dE_00(dat, k_L=1, k_C=1, k_h=1):
     """
-    Compute the Riemannised CIEDE00 metric as Tensordata for the given data points.
-    
-    Be aware that the tensor is singluar at C = 0.
-    
+    Compute the Riemannised CIEDE00 metric for the given data points.
+
+    Returns TensorData. Be aware that the tensor is singluar at C = 0.
+
     Parameters
     ----------
     dat : Data
@@ -176,16 +188,16 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
         Parameter of the CIEDE00 metric
     k_h : float
         Parameter of the CIEDE00 metric
-        
+
     Returns
     -------
     DE00 : TensorData
         The metric tensors.
     """
     lch = dat.get_linear(space.ciede00lch)
-    L = lch[:,0]
-    C = lch[:,1]
-    h = lch[:,2]
+    L = lch[:, 0]
+    C = lch[:, 1]
+    h = lch[:, 2]
     h_deg = np.rad2deg(h)
     h_deg[h_deg < 0] = h_deg[h_deg < 0] + 360
     S_L = 1 + (0.015 * (L - 50)**2) / np.sqrt(20 + (L - 50)**2)
@@ -199,25 +211,26 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
     d_theta = 30 * np.exp(-((h_deg - 275) / 25)**2)
     R_T = - R_C * np.sin(np.deg2rad(2 * d_theta))
     g = space.ciede00lch.empty_matrix(lch)
-    g[:,0,0] = (k_L * S_L)**(-2)
-    g[:,1,1] = (k_C * S_C)**(-2)
-    g[:,2,2] = C**2 * (k_h * S_h)**(-2)
-    g[:,1,2] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
-    g[:,2,1] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
+    g[:, 0, 0] = (k_L * S_L)**(-2)
+    g[:, 1, 1] = (k_C * S_C)**(-2)
+    g[:, 2, 2] = C**2 * (k_h * S_h)**(-2)
+    g[:, 1, 2] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
+    g[:, 2, 1] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
     return data.TensorData(space.ciede00lch, dat, g)
+
 
 def poincare_disk(sp, dat):
     """
-    Compute the general Poincare Disk metric in the given colour space as TensorData.
-    
-    Assumes that sp is a Poincare Disk of some kind, and thus has a radius of curvature
-    as sp.R.
+    Compute the general Poincare Disk metric in the given colour space.
+
+    Returns TensorData. Assumes that sp is a Poincare Disk of some
+    kind, and thus has a radius of curvature as sp.R.
 
     Parameters
     ----------
     dat : Data
         The colour points for which to compute the metric.
-        
+
     Returns
     -------
     Poincare : TensorData
@@ -242,9 +255,11 @@ def poincare_disk(sp, dat):
 #     CIECAM02
 #     +++
 
+
 #==============================================================================
 # Test module
 #==============================================================================
+
 
 def test():
     """
