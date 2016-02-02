@@ -1,7 +1,12 @@
 colour
 ======
 
-colour is a Python package for colour metrics and colour space transforms. Many common colour spaces and colour metrics are available, and more are continuously added. The package consists of six modules:
+colour is a Python package for colour metrics and colour space transforms. Many common colour spaces and colour metrics are available, and more are continuously added. A description of the design of the computational framework is available as Farup I. (2016) A computational framework for colour metrics and colour space transforms. _PeerJ PrePrints_ 4:e1700v1 https://doi.org/10.7287/peerj.preprints.1700v1
+
+Modules
+-------
+
+The package consists of six modules:
 
 * colour.data
 * colour.space
