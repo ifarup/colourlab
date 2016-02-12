@@ -14,6 +14,7 @@ The package consists of six modules:
 * colour.tensor
 * colour.statistics
 * colour.misc
+* colour.image
 
 All the modules are imported when importing the package. The basic functionality of supposedly general interest is found in the three first modules. Only the really basic functionality is documented here. For more advanced features, please refer to the code (which is documented with standard pydoc docstrings), or contact the author.
 
