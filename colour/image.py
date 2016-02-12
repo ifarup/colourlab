@@ -118,5 +118,5 @@ def djc1(im):
     """
     sh = np.shape(im)
     n = sh[1]
-    return 0.5 * (im[:, np.r_[np.arange(1, n), n - 1], ...]-
+    return 0.5 * (im[:, np.r_[np.arange(1, n), n - 1], ...] -
                   im[:, np.r_[0, np.arange(0, n - 1)], ...])
