@@ -120,3 +120,18 @@ def djc1(im):
     n = sh[1]
     return 0.5 * (im[:, np.r_[np.arange(1, n), n - 1], ...] -
                   im[:, np.r_[0, np.arange(0, n - 1)], ...])
+
+
+# Laplacian
+
+def laplacian(im):
+    """
+    Standard laplacian of image
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    n = sh[1]
+    return (im[:, np.r_[np.arange(1, n), n - 1], ...] +
+            im[:, np.r_[0, np.arange(0, n - 1)], ...] +
+            im[np.r_[np.arange(1, m), m - 1], ...] +
+            im[np.r_[0, np.arange(0, m-1)], ...] - 4 * im
