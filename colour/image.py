@@ -134,4 +134,4 @@ def laplacian(im):
     return (im[:, np.r_[np.arange(1, n), n - 1], ...] +
             im[:, np.r_[0, np.arange(0, n - 1)], ...] +
             im[np.r_[np.arange(1, m), m - 1], ...] +
-            im[np.r_[0, np.arange(0, m-1)], ...] - 4 * im
+            im[np.r_[0, np.arange(0, m-1)], ...] - 4 * im)

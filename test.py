@@ -22,8 +22,9 @@ import colour
 import matplotlib.pyplot as plt
 import numpy as np
 
-import colour.image as fdm
-
-im = np.eye(3)
-print(im)
-print(fdm.djc1(im))
+bfd = colour.data.g_BFD()
+bfd_points = bfd.points.get(colour.space.xyY)
+plt.plot(bfd_points[:, 0], bfd_points[:, 1], '.')
+colour.misc.plot_ellipses(bfd.get_ellipses(colour.space.xyY, bfd.plane_xy, 1.5))
+plt.axis('equal')
+plt.show()

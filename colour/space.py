@@ -895,12 +895,17 @@ class TransformCIEDE00(Transform):
         jac = self.empty_matrix(lab)
         jac[:, 0, 0] = 1        # dLp/dL
         jac[:, 2, 2] = 1        # dbp/db
+        # jac[:, 1, 1] = 1 + G - misc.safe_div(a**2, C) * \
+        #     (7 * 25**7 * C**(5/2.) /
+        #      (4 * (C**7 + 25**7)**(3/2.)))  # dap/da
         jac[:, 1, 1] = 1 + G - misc.safe_div(a**2, C) * \
             (7 * 25**7 * C**(5/2.) /
-             (4 * (C**7 + 25**7)**(3/2.)))  # dap/da
+             (8 * (C**7 + 25**7)**(3/2.)))  # dap/da
         jac[C == 0, 1, 1] = 1
+        # jac[:, 1, 2] = - a * misc.safe_div(b, C) * \
+        #     (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
         jac[:, 1, 2] = - a * misc.safe_div(b, C) * \
-            (7 * 25**7 * C**(5/2.) / (4 * (C**7 + 25**7)**(3/2.)))
+            (7 * 25**7 * C**(5/2.) / (8 * (C**7 + 25**7)**(3/2.)))
         jac[C == 0, 1, 2] = 0
         return jac
 
