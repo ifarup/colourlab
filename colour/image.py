@@ -3,7 +3,7 @@
 """
 image: Colour image, part of the colour package
 
-Copyright (C) 2013 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
 
-#==============================================================================
-# Functions for FDM on images
-#==============================================================================
 
+# =============================================================================
+# Functions for FDM on images
+# =============================================================================
 
 # Shifted images
 

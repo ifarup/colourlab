@@ -3,7 +3,7 @@
 """
 colour: Colour spaces, colour metrics and colour data
 
-Copyright (C) 2011-2013 Ivar Farup
+Copyright (C) 2011-2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,11 +32,11 @@ def test():
     """
     print('\nTesting module space:\n')
     space.test()
-    print('\nTesting module data:\n)
+    print('\nTesting module data:\n')
     data.test()
     print('\nTesting module tensor:\n')
     tensor.test()
-    print('\nTesting module metric:\n)
+    print('\nTesting module metric:\n')
     metric.test()
-    print('\nTesting module statistics:\n"')
+    print('\nTesting module statistics:\n')
     statistics.test()

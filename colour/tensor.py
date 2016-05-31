@@ -3,7 +3,7 @@
 """
 tensor: Compute colour metric tensors as data.TensorData objects.
 
-Copyright (C) 2013 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import numpy as np
 from . import data, space
 
 
-#==============================================================================
+# =============================================================================
 # Colour metric tensors
-#==============================================================================
+# =============================================================================
 
 
 def euclidean(sp, dat):
@@ -255,9 +255,9 @@ def poincare_disk(sp, dat):
 #     +++
 
 
-#==============================================================================
+# =============================================================================
 # Test module
-#==============================================================================
+# =============================================================================
 
 
 def test():

@@ -3,7 +3,7 @@
 """
 space: Colour spaces, part of the colour package
 
-Copyright (C) 2013 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,12 +23,12 @@ import numpy as np
 from . import misc
 
 
-#==============================================================================
+# =============================================================================
 # Colour space classes
 #
 # Throughout the code, the name ndata is used for numerical data (numpy
 # arrays), and data is used for objects of the type Data.
-#==============================================================================
+# =============================================================================
 
 
 class Space(object):
@@ -1983,9 +1983,9 @@ class TransformPoincareDisk(Transform):
                     b[i] * dtanhdC[i] * dCdb[i]  # dy/db
         return jac
 
-#==============================================================================
+# =============================================================================
 # Colour space instances
-#==============================================================================
+# =============================================================================
 
 # CIE based
 
@@ -2121,9 +2121,9 @@ _test_space_poincare_disk = TransformPoincareDisk(cielab)
 _test_space_gamma = TransformGamma(xyz, .43)
 
 
-#==============================================================================
+# =============================================================================
 # Test module
-#==============================================================================
+# =============================================================================
 
 def test():
     """
@@ -2145,7 +2145,7 @@ def test():
         else:
             print(sp, ': OK')
     print('\nJacobians:')
-    import data
+    from . import data
     col_data = data.Data(xyz, col)
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
                    din99, din99b, din99c, din99d,

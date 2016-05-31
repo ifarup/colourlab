@@ -3,7 +3,7 @@
 """
 data: Colour data, part of the colour package
 
-Copyright (C) 2013 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ from scipy.spatial import ConvexHull
 from . import space
 
 
-#==============================================================================
+# =============================================================================
 # Colour data
-#==============================================================================
+# =============================================================================
 
 
 class Data:
@@ -74,7 +74,7 @@ class Data:
         sh_array = np.array(sh)
         P_data = np.prod(sh_array[:len(sh) - 1])
         C_data = sh[len(sh) - 1]
-        return np.reshape(ndata, (P_data, C_data))
+        return np.reshape(ndata, [P_data, C_data])
 
     def set(self, sp, ndata):
         """
@@ -171,10 +171,10 @@ class Data:
         """
         wh_in = from_white.get(sp)
         wh_out = to_white.get(sp)
-        von_Kries_mat = np.array([[wh_out[0] / wh_in[0], 0, 0],
+        von_kries_mat = np.array([[wh_out[0] / wh_in[0], 0, 0],
                                   [0, wh_out[1] / wh_in[1], 0],
                                   [0, 0, wh_out[2] / wh_in[2]]])
-        return Data(sp, self.get(space.TransformLinear(sp, von_Kries_mat)))
+        return Data(sp, self.get(space.TransformLinear(sp, von_kries_mat)))
 
 
 class TensorData:
@@ -357,9 +357,9 @@ class Gamut:
         self.neighbors = hull.neighbors
 
 
-#==============================================================================
+# =============================================================================
 # Colour data sets
-#==============================================================================
+# =============================================================================
 
 
 def resource_path(relative):
@@ -591,9 +591,9 @@ def d_regular(sp, x_val, y_val, z_val):
 #     patches_Colour Checker ++
 
 
-#==============================================================================
+# =============================================================================
 # Metric data sets
-#==============================================================================
+# =============================================================================
 
 
 def g_MacAdam():
@@ -644,7 +644,7 @@ def g_three_observer():
     threeObserver : TensorData
         The metric tensors corresponding to the three observer ellipsoids.
     """
-    f = file(resource_path('tensor_data/3 observer.txt'))
+    f = open(resource_path('tensor_data/3 observer.txt'))
     rawdata = f.readlines()[:-1]
     for line in range(len(rawdata)):
         rawdata[line] = rawdata[line].split('\t')
@@ -808,9 +808,9 @@ def g_BFD(dataset='P'):
     return TensorData(space.xyY, points, g)
 
 
-#==============================================================================
+# =============================================================================
 # Metric datasets
-#==============================================================================
+# =============================================================================
 
 
 def m_rit_dupont():
@@ -860,9 +860,9 @@ def m_rit_dupont_T50():
 #     +++
 
 
-#==============================================================================
+# =============================================================================
 # Test module
-#==============================================================================
+# =============================================================================
 
 
 def test():
@@ -901,7 +901,7 @@ def test():
     dd2 = Data(space.cielab, lab2)
     dd3 = Data(space.cielab, lab3)
     dd4 = Data(space.cielab, lab4)
-    print(''\nData conversion (all should be < 1e-11):')
+    print('\nData conversion (all should be < 1e-11):')
     print(np.max(np.abs(col1 - dd1.get(space.xyz))))
     print(np.max(np.abs(col2 - dd2.get(space.xyz))))
     print(np.max(np.abs(col3 - dd3.get(space.xyz))))

@@ -3,7 +3,7 @@
 """
 misc: Various auxilliary functions, part of the colour package
 
-Copyright (C) 2013 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-#==============================================================================
+# =============================================================================
 # Auxiliary functions
-#==============================================================================
+# =============================================================================
 
 
 def plot_ellipses(ellipses, axis=None, alpha=1,
@@ -69,6 +69,8 @@ def safe_div(a, b, fill=1.):
         The nominator
     b : ndarray
         The denominator
+    fill : float
+        The number to fill where the denominator is zeros
 
     Returns
     -------

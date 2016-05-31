@@ -3,7 +3,7 @@
 """
 test: Test various features of the colour package (continuously updated)
 
-Copyright (C) 2014 Ivar Farup
+Copyright (C) 2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,9 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import colour
 import matplotlib.pyplot as plt
-import numpy as np
 
-bfd = colour.data.g_BFD()
+bfd = colour.data.g_three_observer()
 bfd_points = bfd.points.get(colour.space.xyY)
 plt.plot(bfd_points[:, 0], bfd_points[:, 1], '.')
 colour.misc.plot_ellipses(bfd.get_ellipses(colour.space.xyY, bfd.plane_xy, 1.5))

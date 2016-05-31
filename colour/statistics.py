@@ -3,7 +3,7 @@
 """
 statistics: Colour metric statistics, part of the colour package
 
-Copyright (C) 2013 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@ import scipy.integrate
 import scipy.optimize
 
 
-#==============================================================================
+# =============================================================================
 # Statistics of metrics
-#==============================================================================
+# =============================================================================
 
 
 def stress(diff1, diff2, weights=None, confidence=.95):
@@ -270,19 +270,17 @@ def minimal_dataset_distance(dataset, ground_truth):
         opt_data, params[0], params[1], params[2]
 
 
-#==============================================================================
+# =============================================================================
 # Test module
-#==============================================================================
+# =============================================================================
 
 
 def test():
     """
     Test entire module, and print report.
     """
-    import data
-    import space
-    import metric
-    import tensor
+    from . import data, space, metric, tensor
+
     d1 = data.d_regular(space.cielab,
                         np.linspace(0, 100, 10),
                         np.linspace(-100, 100, 21),
