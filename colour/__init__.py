@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 colour: Colour spaces, colour metrics and colour data
@@ -21,12 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Main file. Just import the other files.
 
-import space
-import data
-import tensor
-import metric
-import statistics
-import misc
+from . import space
+from . import data
+from . import tensor
+from . import metric
+from . import statistics
+from . import misc
+from . import image
 
 
 # Test package

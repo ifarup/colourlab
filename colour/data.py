@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 data: Colour data, part of the colour package
@@ -22,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import re
 import numpy as np
-import space
 import inspect
 from matplotlib.patches import Ellipse
 from scipy.spatial import ConvexHull
+from . import space
 
 
 #==============================================================================
@@ -502,7 +502,7 @@ def d_Munsell(dataset='real'):
     if dataset == 'all' or dataset == 'real' or dataset == '1929':
         fname = 'colour_data/' + dataset + '.dat'
     else:
-        print 'Non-existing Munsell data set.'
+        print('Non-existing Munsell data set.')
         return
     infile = open(resource_path(fname), 'r')
     data = infile.readlines()
@@ -782,7 +782,7 @@ def g_BFD(dataset='P'):
         file_name = resource_path('tensor_data/BFD_A.txt')
     elif dataset == '2':
         file_name = resource_path('tensor_data/BFD (2).txt')
-    f = file(file_name, 'r')
+    f = open(file_name, 'r')
     rawdata = f.readlines()
     for line in range(len(rawdata)):
         rawdata[line] = re.sub(r'\s+', ' ', rawdata[line]).strip()
@@ -884,15 +884,15 @@ def test():
     d2 = Data(space.xyz, col2)
     d3 = Data(space.xyz, col3)
     d4 = Data(space.xyz, col4)
-    print "Data shapes (all should be True):"
-    print np.shape(d1.get(space.xyz)) == (3, )
-    print np.shape(d1.get_linear(space.xyz)) == (1, 3)
-    print np.shape(d2.get(space.xyz)) == (1, 3)
-    print np.shape(d2.get_linear(space.xyz)) == (1, 3)
-    print np.shape(d3.get(space.xyz)) == (3, 3)
-    print np.shape(d3.get_linear(space.xyz)) == (3, 3)
-    print np.shape(d4.get(space.xyz)) == (2, 3, 3)
-    print np.shape(d4.get_linear(space.xyz)) == (6, 3)
+    print("Data shapes (all should be True):")
+    print(np.shape(d1.get(space.xyz)) == (3, ))
+    print(np.shape(d1.get_linear(space.xyz)) == (1, 3))
+    print(np.shape(d2.get(space.xyz)) == (1, 3))
+    print(np.shape(d2.get_linear(space.xyz)) == (1, 3))
+    print(np.shape(d3.get(space.xyz)) == (3, 3))
+    print(np.shape(d3.get_linear(space.xyz)) == (3, 3))
+    print(np.shape(d4.get(space.xyz)) == (2, 3, 3))
+    print(np.shape(d4.get_linear(space.xyz)) == (6, 3))
     lab1 = d1.get(space.cielab)
     lab2 = d2.get(space.cielab)
     lab3 = d3.get(space.cielab)
@@ -901,24 +901,24 @@ def test():
     dd2 = Data(space.cielab, lab2)
     dd3 = Data(space.cielab, lab3)
     dd4 = Data(space.cielab, lab4)
-    print "\nData conversion (all should be < 1e-11):"
-    print np.max(np.abs(col1 - dd1.get(space.xyz)))
-    print np.max(np.abs(col2 - dd2.get(space.xyz)))
-    print np.max(np.abs(col3 - dd3.get(space.xyz)))
-    print np.max(np.abs(col4 - dd4.get(space.xyz)))
-    print "\nReading data files..."
+    print("\nData conversion (all should be < 1e-11):")
+    print(np.max(np.abs(col1 - dd1.get(space.xyz))))
+    print(np.max(np.abs(col2 - dd2.get(space.xyz))))
+    print(np.max(np.abs(col3 - dd3.get(space.xyz))))
+    print(np.max(np.abs(col4 - dd4.get(space.xyz))))
+    print("\nReading data files...")
     d_XYZ_31()
     d_XYZ_64()
     d_Melgosa()
     d_regular(space.xyz, np.linspace(0, 1, 10),
               np.linspace(0, 1, 10), np.linspace(0, 1, 10))
-    print "ok"
-    print "\nTensor data, and reading tensor data files..."
+    print("ok")
+    print("\nTensor data, and reading tensor data files...")
     g_MacAdam()
     g_three_observer()
     g_Melgosa_Lab()
     g_Melgosa_xyY()
     g_BFD()
-    print "\nMetric data, reading csv files and more..."
+    print("\nMetric data, reading csv files and more...")
     m_rit_dupont()
-    print "ok"
+    print("ok")

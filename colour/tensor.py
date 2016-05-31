@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 tensor: Compute colour metric tensors as data.TensorData objects.
@@ -20,8 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-import data
-import space
+from . import data, space
 
 
 #==============================================================================
@@ -279,13 +278,13 @@ def test():
     gDIN99b = dE_DIN99b(d)
     gDIN99c = dE_DIN99c(d)
     gDIN99d = dE_DIN99d(d)
-    print "Metric shapes (all should be true):"
-    print np.shape(gab.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(guv.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(gD.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(g00.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(gE.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(gDIN99.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(gDIN99b.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(gDIN99c.get(space.xyz)) == (ndat, 3, 3)
-    print np.shape(gDIN99d.get(space.xyz)) == (ndat, 3, 3)
+    print("Metric shapes (all should be true):")
+    print(np.shape(gab.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(guv.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(gD.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(g00.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(gE.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(gDIN99.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(gDIN99b.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(gDIN99c.get(space.xyz)) == (ndat, 3, 3))
+    print(np.shape(gDIN99d.get(space.xyz)) == (ndat, 3, 3))

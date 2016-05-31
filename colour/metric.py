@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 metric: Colour metric functions. Part of the colour package.
@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-import data
-import space
+from . import data
+from . import space
 
 
 #==============================================================================
@@ -341,7 +341,7 @@ def test():
     """
     Test module, print results.
     """
-    print "Metric range (should be close to [1, 1]):"
+    print("Metric range (should be close to [1, 1]):")
     d1 = data.d_regular(space.cielab,
                         np.linspace(20, 80, 10),
                         np.linspace(-50, 50, 11),
@@ -350,4 +350,4 @@ def test():
                    d1.get(space.cielab) + 1 / np.sqrt(3))
     for met in [dE_ab, dE_uv, dE_00, dE_DIN99,
                 dE_DIN99b, dE_DIN99c, dE_DIN99d]:
-        print met, np.min(met(d1, d2)), np.max(met(d1, d2))
+        print(met, np.min(met(d1, d2)), np.max(met(d1, d2)))

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 statistics: Colour metric statistics, part of the colour package
@@ -290,9 +290,9 @@ def test():
     d2 = data.Data(space.cielab,
                    d1.get(space.cielab) + 1)
     diff = metric.dE_ab(d1, d2)
-    print "Various tests (should be True):"
-    print stress(diff, diff) == 0
-    print stress(diff, diff + 1) < 1e-11
+    print("Various tests (should be True):")
+    print(stress(diff, diff) == 0)
+    print(stress(diff, diff + 1) < 1e-11)
     d1 = data.d_regular(space.cielab,
                         np.linspace(0, 100, 3),
                         np.linspace(-100, 100, 3),
@@ -303,6 +303,6 @@ def test():
     t2 = data.TensorData(space.cielab,
                          t1.points,
                          t1.get(space.cielab) * 2)
-    print "\nOptimising Pant R values (takes some time)..."
+    print("\nOptimising Pant R values (takes some time)...")
     R, scale = pant_R_values(space.cielab, t1, t2)
-    print np.max(np.abs(1 - R)) < 1e-4
+    print(np.max(np.abs(1 - R)) < 1e-4)

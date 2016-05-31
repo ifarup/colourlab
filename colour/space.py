@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 space: Colour spaces, part of the colour package
@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-import misc
+from . import misc
 
 
 #==============================================================================
@@ -846,7 +846,7 @@ class TransformCIEDE00(Transform):
         col : ndarray
             Colour data in the base colour space
         """
-        print 'No conversion of CIEDE00 Lab to CIELAB implemented (yet).'
+        print('No conversion of CIEDE00 Lab to CIELAB implemented (yet).')
 
     def from_base(self, ndata):
         """
@@ -2136,15 +2136,15 @@ def test():
                    din99, din99b, din99c, din99d,
                    _test_space_cartesian, _test_space_poincare_disk,
                    _test_space_gamma]
-    print "Colour transformations:"
+    print('Colour transformations:')
     for sp in test_spaces:
         c2 = sp.to_XYZ(sp.from_XYZ(col))
         err = np.max(np.abs(col - c2))
         if err > 1e-14:
-            print sp, ": ", err, " !!!"
+            print(sp, ': ', err, ' !!!')
         else:
-            print sp, ": OK"
-    print "\nJacobians:"
+            print(sp, ": OK")
+    print("\nJacobians:")
     import data
     col_data = data.Data(xyz, col)
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
@@ -2160,6 +2160,6 @@ def test():
             prod[i] = np.abs(prod[i] - np.eye(3))
         err = np.max(prod)
         if err > 1e-6:
-            print sp, ": ", err, " !!!"
+            print(sp, ": ", err, " !!!")
         else:
-            print sp, ": OK"
+            print(sp, ": OK")
