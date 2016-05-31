@@ -2143,8 +2143,8 @@ def test():
         if err > 1e-14:
             print(sp, ': ', err, ' !!!')
         else:
-            print(sp, ": OK")
-    print("\nJacobians:")
+            print(sp, ': OK')
+    print('\nJacobians:')
     import data
     col_data = data.Data(xyz, col)
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
@@ -2160,6 +2160,6 @@ def test():
             prod[i] = np.abs(prod[i] - np.eye(3))
         err = np.max(prod)
         if err > 1e-6:
-            print(sp, ": ", err, " !!!")
+            print(sp, ': ', err, ' !!!')
         else:
-            print(sp, ": OK")
+            print(sp, ': OK')

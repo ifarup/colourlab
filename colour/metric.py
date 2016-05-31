@@ -20,8 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from . import data
-from . import space
+from . import data, space
 
 
 #==============================================================================

@@ -278,7 +278,7 @@ def test():
     gDIN99b = dE_DIN99b(d)
     gDIN99c = dE_DIN99c(d)
     gDIN99d = dE_DIN99d(d)
-    print("Metric shapes (all should be true):")
+    print('Metric shapes (all should be true):')
     print(np.shape(gab.get(space.xyz)) == (ndat, 3, 3))
     print(np.shape(guv.get(space.xyz)) == (ndat, 3, 3))
     print(np.shape(gD.get(space.xyz)) == (ndat, 3, 3))
