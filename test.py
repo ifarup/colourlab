@@ -18,12 +18,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-import colour
-import matplotlib.pyplot as plt
 
-bfd = colour.data.g_three_observer()
-bfd_points = bfd.points.get(colour.space.xyY)
-plt.plot(bfd_points[:, 0], bfd_points[:, 1], '.')
-colour.misc.plot_ellipses(bfd.get_ellipses(colour.space.xyY, bfd.plane_xy, 1.5))
-plt.axis('equal')
-plt.show()
+import numpy as np
+import colour
+
+dat1 = colour.data.d_regular(colour.space.cielab,
+                             np.linspace(40, 70, 3),
+                             np.linspace(-30, 30, 3),
+                             np.linspace(-30, 30, 3))
+
+dat2 = colour.data.d_regular(colour.space.cielab,
+                             np.linspace(40, 70, 3),
+                             np.linspace(-30, 30, 3) + 1,
+                             np.linspace(-30, 30, 3))
+
+tensor = colour.tensor.dE_00(dat1)
+
+sp = colour.space.xyY
+diff = dat2.get(sp) - dat1.get(sp)
+t = tensor.get(sp)
+for i in range(27):
+    print(np.dot(np.dot(diff[i, :], t[i, ...]), diff[i, ...]))
+print(colour.misc.norm_sq(diff, t))

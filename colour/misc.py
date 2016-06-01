@@ -27,7 +27,6 @@ import numpy as np
 # Auxiliary functions
 # =============================================================================
 
-
 def plot_ellipses(ellipses, axis=None, alpha=1,
                   facecolor=[.5, .5, .5], edgecolor=[0, 0, 0], fill=False):
     """
@@ -81,3 +80,71 @@ def safe_div(a, b, fill=1.):
     res[b != 0] = a[b != 0] / b[b != 0]
     res[b == 0] = fill
     return res
+
+
+def inner(data1, data2, tensor):
+    """
+    Compute the inner products of two datasets with a given metric tensor.
+
+    The data sets and the tensor data set must have corresponding dimensions.
+
+    Parameters
+    ----------
+    data1: ndarray
+        The first dataset of the inner product
+    data2: ndarray
+        The second data set of the inner product
+    tensor: ndarray
+        The metric tensor for the inner product
+
+    Returns
+    -------
+    inner_product: ndarray
+        Array with numerical values for the inner product
+    """
+    dot1 = np.zeros(np.shape(data1))
+    for i in range(3):
+        dot1[:, i] = np.sum(data1 * tensor[..., i], -1)
+    return np.sum(dot1 * data2, -1)
+
+
+def norm_sq(data, tensor):
+    """
+    Compute the squared norm of a colour data set with a given metric tensor.
+
+    The data set and the tensor data set must have corresponding dimensions.
+
+    Parameters
+    ----------
+    data: ndarray
+        The data set of which to compute the squared norm
+    tensor: ndarray
+        The metric tensor for the norm.
+
+    Returns
+    -------
+    norms: ndarray
+        Array with numerical (scalar) values of the squared norm.
+    """
+    return inner(data, data, tensor)
+
+
+def norm(data, tensor):
+    """
+    Compute the norm of a colour data set with a given metric tensor.
+
+    The data set and the tensor data set must have corresponding dimensions.
+
+    Parameters
+    ----------
+    data: ndarray
+        The data set of which to compute the norm
+    tensor: ndarray
+        The metric tensor for the norm.
+
+    Returns
+    -------
+    norms: ndarray
+        Array with numerical (scalar) values of the norm.
+    """
+    return np.sqrt(norm_sq(data, tensor))

@@ -361,7 +361,6 @@ class Gamut:
 # Colour data sets
 # =============================================================================
 
-
 def resource_path(relative):
     """
     Extend relative path to full path (mainly for PyInstaller integration).
