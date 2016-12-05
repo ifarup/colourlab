@@ -39,7 +39,7 @@ class Space(object):
     white_A = np.array([1.0985, 1., 0.35585])
     white_B = np.array([.990720, 1., .852230])
     white_C = np.array([.980740, 1., .82320])
-    white_D50 = np.array([.964220, 1., .82510])
+    white_D50 = np.array([.964220, 1., .825210])
     white_D55 = np.array([.956820, 1., .921490])
     white_D65 = np.array([.950470, 1., 1.088830])
     white_D75 = np.array([.949720, 1., 1.226380])
