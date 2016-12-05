@@ -273,7 +273,7 @@ def test():
     guv = dE_uv(d)
     g00 = dE_00(d)
     gE = dE_E(d)
-    gD = poincare_disk(space.cielab, d)
+    gD = poincare_disk(space.TransformPoincareDisk(space.cielab, R=100), d)
     gDIN99 = dE_DIN99(d)
     gDIN99b = dE_DIN99b(d)
     gDIN99c = dE_DIN99c(d)
