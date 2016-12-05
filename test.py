@@ -35,8 +35,8 @@ dat2 = colour.data.d_regular(colour.space.cielab,
 tensor = colour.tensor.dE_00(dat1)
 
 sp = colour.space.xyY
+
 diff = dat2.get(sp) - dat1.get(sp)
 t = tensor.get(sp)
-for i in range(27):
-    print(np.dot(np.dot(diff[i, :], t[i, ...]), diff[i, ...]))
 print(colour.misc.norm_sq(diff, t))
+print(colour.misc.inner(diff, diff, t))

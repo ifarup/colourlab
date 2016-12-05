@@ -102,10 +102,7 @@ def inner(data1, data2, tensor):
     inner_product: ndarray
         Array with numerical values for the inner product
     """
-    dot1 = np.zeros(np.shape(data1))
-    for i in range(3):
-        dot1[:, i] = np.sum(data1 * tensor[..., i], -1)
-    return np.sum(dot1 * data2, -1)
+    return np.einsum('...ij,...i,...j', tensor, data1, data2)
 
 
 def norm_sq(data, tensor):
