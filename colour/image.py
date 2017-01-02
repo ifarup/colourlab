@@ -66,7 +66,7 @@ def jm1(im):
 
 # Finite differences
 
-def dip1(im):
+def dip(im):
     """
     Finite difference positive i
     """
@@ -75,7 +75,7 @@ def dip1(im):
     return im[np.r_[np.arange(1, m), m - 1], ...] - im
 
 
-def dim1(im):
+def dim(im):
     """
     Finite difference negative i
     """
@@ -84,7 +84,7 @@ def dim1(im):
     return im - im[np.r_[0, np.arange(0, m-1)], ...]
 
 
-def dic1(im):
+def dic(im):
     """
     Finite difference centered i
     """
@@ -94,7 +94,7 @@ def dic1(im):
                   im[np.r_[0, np.arange(0, m-1)], ...])
 
 
-def djp1(im):
+def djp(im):
     """
     Finite difference positive j
     """
@@ -103,7 +103,7 @@ def djp1(im):
     return im[:, np.r_[np.arange(1, n), n - 1], ...] - im
 
 
-def djm1(im):
+def djm(im):
     """
     Finite difference negative j
     """
@@ -112,7 +112,7 @@ def djm1(im):
     return im - im[:, np.r_[0, np.arange(0, n - 1)], ...]
 
 
-def djc1(im):
+def djc(im):
     """
     Finite difference centered j
     """
