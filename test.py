@@ -21,22 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
 import colour
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D, art3d
 
-dat1 = colour.data.d_regular(colour.space.cielab,
-                             np.linspace(40, 70, 3),
-                             np.linspace(-30, 30, 3),
-                             np.linspace(-30, 30, 3))
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
 
-dat2 = colour.data.d_regular(colour.space.cielab,
-                             np.linspace(40, 70, 3),
-                             np.linspace(-30, 30, 3) + 1,
-                             np.linspace(-30, 30, 3))
+dat = colour.data.d_regular(colour.space.srgb,
+                            np.linspace(0, 1, 5),
+                            np.linspace(0, 1, 5),
+                            np.linspace(0, 1, 5))
 
-tensor = colour.tensor.dE_00(dat1)
-
-sp = colour.space.xyY
-
-diff = dat2.get(sp) - dat1.get(sp)
-t = tensor.get(sp)
-print(colour.misc.norm_sq(diff, t))
-print(colour.misc.inner(diff, diff, t))
+gamut = colour.data.Gamut(colour.space.cielab, dat)
+for i in range(gamut.hull.simplices.shape[0]):
+    tri = art3d.Poly3DCollection([gamut.hull.points[gamut.hull.simplices[i]]])
+    ax.add_collection(tri)
+ax.set_xlim([0, 100])
+ax.set_ylim([-100, 100])
+ax.set_zlim([-100, 100])
+plt.show()

@@ -351,10 +351,7 @@ class Gamut:
         """
         self.space = sp
         self.data = points
-        hull = ConvexHull(points.get_linear(sp))
-        self.vertices = hull.vertices
-        self.simplices = hull.simplices
-        self.neighbors = hull.neighbors
+        self.hull = ConvexHull(points.get_linear(sp))
 
 
 # =============================================================================
