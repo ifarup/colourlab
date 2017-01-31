@@ -6,7 +6,7 @@ colour is a Python package for colour metrics and colour space transforms. Many 
 Modules
 -------
 
-The package consists of seven modules:
+The package consists of eight modules:
 
 * colour.data
 * colour.space
@@ -15,6 +15,7 @@ The package consists of seven modules:
 * colour.statistics
 * colour.misc
 * colour.image
+* colour.gamut
 
 All the modules are imported when importing the package. The basic functionality of supposedly general interest is found in the three first modules. Only the really basic functionality is documented here. For more advanced features, please refer to the code (which is documented with standard pydoc docstrings), or contact the author.
 
