@@ -69,3 +69,6 @@ class Gamut:
                                                                         # the desired colour space
 
 # Add test function, see one of the other modules.
+def test():
+    print("ok")
+

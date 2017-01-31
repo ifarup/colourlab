@@ -40,4 +40,6 @@ def test():
     metric.test()
     print('\nTesting module statistics:\n')
     statistics.test()
+    print('\nTesting module gamut:\n')
+    gamut.test()
     # Add test for the .gamut module here.
