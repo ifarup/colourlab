@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-colour: Colour spaces, colour metrics and colour data
+gamut: Colour metric functions. Part of the colour package.
 
-Copyright (C) 2011-2016 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup, Lars Niebuhr,
+Sahand Lahefdoozian, Nawar Behenam, Jakob Voigt
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,25 +20,4 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# Main file. Just import the other files.
-
-from . import space, data, tensor, metric, statistics, misc, image, gamut
-
-
-# Test package
-
-def test():
-    """
-    Test entire package by calling the test function of all the modules.
-    """
-    print('\nTesting module space:\n')
-    space.test()
-    print('\nTesting module data:\n')
-    data.test()
-    print('\nTesting module tensor:\n')
-    tensor.test()
-    print('\nTesting module metric:\n')
-    metric.test()
-    print('\nTesting module statistics:\n')
-    statistics.test()
-    # Add test for the .gamut module here.
+# Add test function, see one of the other modules.
