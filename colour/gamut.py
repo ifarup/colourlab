@@ -52,3 +52,6 @@ class Gamut:
 
 
 # Add test function, see one of the other modules.
+def test():
+    print("ok")
+
