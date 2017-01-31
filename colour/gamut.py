@@ -24,7 +24,8 @@ import os
 import re
 import numpy as np
 import inspect
-from scipy.spatial import ConvexHull
+
+from scipy import spatial
 
 
 class Gamut:
@@ -44,15 +45,10 @@ class Gamut:
         """
         self.space = sp
         self.data = points
-        hull = ConvexHull(points.get_linear(sp))
+        hull = spatial.ConvexHull(points.get_linear(sp))
         self.vertices = hull.vertices
         self.simplices = hull.simplices
         self.neighbors = hull.neighbors
-
-
-
-
-
 
 
 # Add test function, see one of the other modules.
