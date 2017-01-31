@@ -20,4 +20,32 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+class Gamut:
+    """
+    Class for representing colour gamuts computed in various colour spaces.
+    """
+    def __init__(self, sp, points):
+        """
+        Construct new gamut instance and compute the gamut.
+
+        Parameters
+        ----------
+        sp : Space
+            The colour space for computing the gamut.
+        points : Data
+            The colour points for the gamut.
+        """
+        self.space = sp
+        self.data = points
+        hull = ConvexHull(points.get_linear(sp))
+        self.vertices = hull.vertices
+        self.simplices = hull.simplices
+        self.neighbors = hull.neighbors
+
+
+
+
+
+
+
 # Add test function, see one of the other modules.
