@@ -1,5 +1,8 @@
 from ExFunction import retur, my_contains, my_first
 import unittest
+"""Imports the functions from the exfuntion.py file and uses it to run unittest on them and test
+each funtions invidualiy.
+"""
 
 
 class TestFunction(unittest.TestCase):

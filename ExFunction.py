@@ -1,5 +1,4 @@
-"""
-
+"""Functions for use with the testex.py file for testing out unittest and getting to know it better.
 """
 test = "true"
 
