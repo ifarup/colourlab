@@ -334,29 +334,6 @@ class TensorData:
         return ells
 
 
-class Gamut:
-    """
-    Class for representing colour gamuts computed in various colour spaces.
-    """
-    def __init__(self, sp, points):
-        """
-        Construct new gamut instance and compute the gamut.
-
-        Parameters
-        ----------
-        sp : Space
-            The colour space for computing the gamut.
-        points : Data
-            The colour points for the gamut.
-        """
-        self.space = sp
-        self.data = points
-        hull = ConvexHull(points.get_linear(sp))
-        self.vertices = hull.vertices
-        self.simplices = hull.simplices
-        self.neighbors = hull.neighbors
-
-
 # =============================================================================
 # Colour data sets
 # =============================================================================
