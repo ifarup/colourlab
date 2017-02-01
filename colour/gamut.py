@@ -45,11 +45,28 @@ class Gamut:
         """
         self.space = sp
         self.data = points
-        hull = spatial.ConvexHull(points.get_linear(sp))
-        self.vertices = hull.vertices
-        self.simplices = hull.simplices
-        self.neighbors = hull.neighbors
 
+        self.hull = spatial.ConvexHull(points.get_linear(sp))
+        self.vertices = self.hull.vertices
+        self.simplices = self.hull.simplices
+        self.neighbors = self.hull.neighbors
+
+
+        #
+    def initialize_hull(self, sp, points):
+        """
+
+                Parameters
+                ----------
+                sp : Space
+                    The colour space for computing the gamut.
+                points : Data
+                    The colour points for the gamut.
+                """
+
+        self.space = sp
+        self.hull = spatial.ConvexHull(points.get_linear(points, sp))   # Creating the convex hull in
+                                                                        # the desired colour space
 
 # Add test function, see one of the other modules.
 def test():
