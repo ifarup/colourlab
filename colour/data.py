@@ -24,7 +24,6 @@ import re
 import numpy as np
 import inspect
 from matplotlib.patches import Ellipse
-from scipy.spatial import ConvexHull
 from . import space
 
 
@@ -846,6 +845,7 @@ def test():
     Test entire module, and print report.
     """
     col1 = np.array([.5, .5, .5])
+
     col2 = np.array([[.5, .5, .5]])
     col3 = np.array([[1e-10, 1e-10, 1e-10],
                      [.95, 1., 1.08],

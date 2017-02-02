@@ -24,6 +24,7 @@ import os
 import re
 import numpy as np
 import inspect
+import colour
 
 from scipy import spatial
 
@@ -43,18 +44,16 @@ class Gamut:
         points : Data
             The colour points for the gamut.
         """
-        self.space = sp
-        self.data = points
+        self.data = points # orginlt format eller endre til sp fargerom?
+        self.space = None
+        self.hull = None
+        self.vertices = None
+        self.simplices = None
+        self.neighbors = None
+        self.initialize_convex_hull(sp, points)   # Initializes all of the above, using a sub-initialization method
 
-        self.hull = spatial.ConvexHull(points.get_linear(sp))
-        self.vertices = self.hull.vertices
-        self.simplices = self.hull.simplices
-        self.neighbors = self.hull.neighbors
-
-
-        #
-    def initialize_hull(self, sp, points):
-        """
+    def initialize_convex_hull(self, sp, points):
+        """ Initializes the gamuts convex hull in the desired colour space
 
                 Parameters
                 ----------
@@ -65,10 +64,24 @@ class Gamut:
                 """
 
         self.space = sp
-        self.hull = spatial.ConvexHull(points.get_linear(points, sp))   # Creating the convex hull in
-                                                                        # the desired colour space
+        self.hull = spatial.ConvexHull(points.get_linear(sp))   # Creating the convex hull in
+                                                                # the desired colour space
+        self.vertices = self.hull.vertices
+        self.simplices = self.hull.simplices
+        self.neighbors = self.hull.neighbors
+
 
 # Add test function, see one of the other modules.
 def test():
-    print("ok")
+    # Test for convex hull
+    data = np.array([[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0], [5, 5, 5], [4, 6, 2],  # Test data
+                     [10, 10, 10], [1, 2, 3], [10, 0, 10], [0, 0, 10], [0, 10, 10]])
 
+    points = colour.data.Data(colour.space.srgb, data)   # Generating the Data object
+    vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])
+    g = Gamut(colour.space.srgb, points)
+    print("\tTesting vertices should be true: ")
+    if g.vertices.all() == vertices.all():
+        print("\tTrue")
+    else:
+        print("\tFalse")
