@@ -327,6 +327,7 @@ class TensorData:
         ells = []
         for i in range(np.shape(a_b_theta)[0]):
             ells.append(Ellipse(points[i],
+
                                 width=2 * a_b_theta[i, 0],
                                 height=2 * a_b_theta[i, 1],
                                 angle=a_b_theta[i, 2] * 180 / np.pi))

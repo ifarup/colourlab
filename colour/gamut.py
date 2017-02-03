@@ -25,7 +25,6 @@ import re
 import numpy as np
 import inspect
 import colour
-
 from scipy import spatial
 
 
@@ -44,7 +43,7 @@ class Gamut:
         points : Data
             The colour points for the gamut.
         """
-        self.data = points # orginlt format eller endre til sp fargerom?
+        self.data = points      # The data points are stored in the original format.
         self.space = None
         self.hull = None
         self.vertices = None
@@ -64,11 +63,79 @@ class Gamut:
                 """
 
         self.space = sp
-        self.hull = spatial.ConvexHull(points.get_linear(sp))   # Creating the convex hull in
-                                                                # the desired colour space
+        self.hull = spatial.ConvexHull(points.get_linear(sp))   # Creating the convex hull in the desired colour space
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
+
+    def is_inside(self, sp, points):
+        """ For the given data points checks if points are inn the convex hull
+            NB: this method cannot be used for modified convex hull.
+
+            Parameters
+            ----------
+            sp : Space
+                The colour space for computing the gamut.
+            points : Data
+                The colour points for the gamut.
+        """
+
+        # Calculate a new convexhull given only the vertecis for further use to increase efficiency
+        # hull = spatial.ConvexHull(g.vertices()).
+
+        if points.ndim() == 1:
+            single_point_inside(self, points)
+        indices = np.ones(points.ndim()) * -1
+        points = points.get(sp)
+        bool_array = np.array(points.shape())  # ??
+        np.squeeze(bool_array)
+
+
+def find_coordinate(nda, indices, hull):
+    """ For the given data points checks if points are inn the convex hull
+        NB: this method cannot be used for modified convex hull.
+
+            Parameters
+            ----------
+            nda : ndarray
+                  An n-dimensional array containing the remaining dimensions to iterate.
+            indices : array
+                    The dimensional path to the coordinate.
+                    Needs to be as long as the (amount of dimensions)-1 in nda and filled with -1's
+            hull: ConvexHull
+                A ConvexHull generated from the gamuts vertices.
+    """
+
+    if np.ndim(nda) != 1:
+
+        # calculate the dimension number witch we are currently in
+        curr_dim = 0;
+        for i in indices:
+            if indices[i] != -1:  # If a dimmension is previosly iterated the cell will have been changed to a
+                curr_dim += 1       # non-negative number.
+
+        for e in nda:              # Iterate over the length of the current dimension
+            indices[curr_dim] = e
+            find_coordinate(nda[e], indices, hull)
+    else:
+        single_point_inside(hull, nda)  # nda is now reduced to one single point.
+
+
+def single_point_inside(hull, point):
+    """ Checks if a single coordinate in 3d is inside the given hull.
+
+            Parameters
+            ----------
+            hull : array
+                Convex hull
+            point: coordinate
+                A single coordinate to be tested if it is inside the hull.
+    """
+
+    new_hull = spatial.ConvexHull(np.concatenate((hull.points, [point])))
+    if np.array_equal(new_hull.vertices, hull.vertices):
+        return True
+    return False
 
 
 # Add test function, see one of the other modules.
