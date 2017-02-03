@@ -33,4 +33,3 @@ def test():
     print('\nTesting module gamut:\n')
     gamut.test()
 
-test()
