@@ -57,16 +57,27 @@ class Gamut:
 
             Parameter
             ---------
-            point_list : vertices points
-                The colour vertices points.
 
         :return: point_list
         """
 
-        point_list = []
+        point_list = []     # Array list with vertices points.
         for i in range(self.hull.vertices):
             point_list.append(self.hull.points[i])
         return point_list
+
+
+    def get_surface(self, sp):
+        """
+
+            Parameters
+            ----------
+            :param sp: Space
+                The colour space for computing the gamut.
+            :return:
+        """
+
+        # TODO: Convert from get_vertices to matplotlib.
 
 
     def initialize_convex_hull(self, sp, points):
