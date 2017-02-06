@@ -24,9 +24,10 @@ import os
 import re
 import numpy as np
 import inspect
-import colour
+from colour import space, data
 from scipy import spatial
-
+import unittest.test
+from ExFunction import retur, my_contains, my_first
 
 class Gamut:
     """
@@ -73,8 +74,7 @@ class Gamut:
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
 
-
-    def is_inside(self, sp, points):
+    def is_inside(self, sp, c_data):
         """ For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
@@ -82,22 +82,23 @@ class Gamut:
             ----------
             sp : Space
                 The colour space for computing the gamut.
-            points : ndarray
-                The colour points for the gamut.
+            c_data : Data
+                Data object with the colour points for the gamut.
         """
 
         # Calculate a new convexhull given only the vertecis for further use to increase efficiency
         # hull = spatial.ConvexHull(g.vertices()).
 
-        if points.ndim() == 1:
-            self.single_point_inside(self, points)
-        else:
-            indices = np.ones(points.ndim() -1) * -1
-            points = points.get(sp)
-            bool_array = np.array(points.shape())  # ??
-            np.squeeze(bool_array)
-            self.find_coordinate(points, indices)
+        # Convert to nd_data
 
+        if c_data.ndim() == 1:     # problem
+            self.single_point_inside(self, c_data)
+        else:
+            indices = np.ones(c_data.ndim() - 1) * -1
+            c_data = c_data.get(sp)
+            bool_array = np.array(c_data.shape())  # ??
+            np.squeeze(bool_array)
+            self.find_coordinate(c_data, indices)
 
     def find_coordinate(self, nda, indices):
         """ For the given data points checks if points are inn the convex hull
@@ -150,27 +151,24 @@ class Gamut:
             return True
         return False
 
+def gamut_test():
+        n_data = np.array([[0, 0, 0],  # 0 vertecis
+                           [10, 0, 0],  # 1 vertecis
+                           [10, 10, 0],  # 2 vertecis
+                           [0, 10, 0],  # 3 vertecis
+                           [5, 5, 5],  # 4 non vertecis
+                           [4, 6, 2],  # 5 non vertecis
+                           [10, 10, 10],  # 6 vertecis
+                           [1, 2, 3],  # 7 non vertecis
+                           [10, 0, 10],  # 8 vertecis
+                           [0, 0, 10],  # 9 vertecis
+                           [0, 10, 10]])  # 10 vertecis
+        c_data = data.Data(space.srgb, n_data)
+        g = Gamut(space.srgb, c_data)
 
-# Add test function, see one of the other modules.
-def test():
-    # Test for convex hull
-    data = np.array([[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0], [5, 5, 5], [4, 6, 2],  # Test data
-                     [10, 10, 10], [1, 2, 3], [10, 0, 10], [0, 0, 10], [0, 10, 10]])
-
-
-    points = colour.data.Data(colour.space.srgb, data)   # Generating the Data object
-    vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])
-    g = Gamut(colour.space.srgb, points)
-    print("\tTesting vertices should be true: ")
-    if g.vertices.all() == vertices.all():
-        print("\tTrue")
-    else:
-        print("\tFalse")
-''''
-if __name__ == "__main__":
-    a = np.array([[[0],[0],[0]],[[2],[2],[3]],[[1],[2],[3]],[[1],[2],[3]],[[1],[2],[3]]])
-    points = colour.data.Data(colour.space.xyz, a)
-    g = Gamut(colour.space.xyz, points)
-    print("HE")
-    g.is_inside(colour.space.xyz, a)
-'''
+        points = np.array([[1, 1, 1],  # inside
+                           [2, 2, 3],  # inside
+                           [20, 2, 3],  # outside
+                           [1, 2, 30]])  # outside
+        c_points = data.Data(space.srgb, points)
+        g.is_inside(space.srgb, c_points)

@@ -27,9 +27,7 @@ from colour import space, data, tensor, metric, statistics, misc, image, gamut
 # Test package
 
 def test():
-    """
-    Tests only gamut module, because other module test are out of date.
-    """
-    print('\nTesting module gamut:\n')
-    gamut.test()
+    print("All test functions should be written as unittest making this file deprecated")
+    gamut.gamut_test()
 
+test()
