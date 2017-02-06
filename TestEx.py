@@ -61,5 +61,9 @@ class TestFunction(unittest.TestCase):
         c_points = data.Data(space.srgb, points)
         g.is_inside(space.srgb, c_points)
 
+
+    #def test_get_vertices(self):
+
+
 if __name__ == '__main__':
     unittest.main(exit=False)
