@@ -28,6 +28,6 @@ from colour import space, data, tensor, metric, statistics, misc, image, gamut
 
 def test():
     print("All test functions should be written as unittest making this file deprecated")
-    gamut.gamut_test()
+    #gamut.gamut_test()
 
 test()
