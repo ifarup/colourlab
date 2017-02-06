@@ -51,6 +51,24 @@ class Gamut:
         self.neighbors = None
         self.initialize_convex_hull(sp, points)   # Initializes all of the above, using a sub-initialization method
 
+
+    def get_vertices(self):
+        """ Get all convex hull vertices points and save it in a array list.
+
+            Parameter
+            ---------
+            point_list : vertices points
+                The colour vertices points.
+
+        :return: point_list
+        """
+
+        point_list = []
+        for i in range(self.hull.vertices):
+            point_list.append(self.hull.points[i])
+        return point_list
+
+
     def initialize_convex_hull(self, sp, points):
         """ Initializes the gamuts convex hull in the desired colour space
 
