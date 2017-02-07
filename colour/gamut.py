@@ -20,22 +20,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os
-import re
 import numpy as np
-import inspect
 from colour import space, data
 from scipy import spatial
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+
 
 class Gamut:
-    """
-    Class for representing colour gamuts computed in various colour spaces.
+    """Class for representing colour gamuts computed in various colour spaces.
     """
     def __init__(self, sp, points):
-        """
-        Construct new gamut instance and compute the gamut.
+        """Construct new gamut instance and compute the gamut.
 
         Parameters
         ----------
@@ -52,9 +47,8 @@ class Gamut:
         self.neighbors = None
         self.initialize_convex_hull(sp, points)   # Initializes all of the above, using a sub-initialization method
 
-
     def initialize_convex_hull(self, sp, points):
-        """ Initializes the gamuts convex hull in the desired colour space
+        """Initializes the gamuts convex hull in the desired colour space
 
                 Parameters
                 ----------
@@ -76,7 +70,7 @@ class Gamut:
         self.neighbors = self.hull.neighbors
 
     def is_inside(self, sp, c_data):
-        """ For the given data points checks if points are inn the convex hull
+        """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
             Parameters
@@ -90,12 +84,12 @@ class Gamut:
         # Calculate a new convexhull given only the vertecis for further use to increase efficiency
         # hull = spatial.ConvexHull(g.vertices()).
 
-        nd_data = c_data.get(sp) # Convert to ndarray
+        nd_data = c_data.get(sp)    # Convert to ndarray
 
-        #print("The ndarray send to is_inside:")
-        #print(nd_data)
-        #print("..And it's shape:")
-        #print(np.shape(nd_data))
+        # print("The ndarray send to is_inside:")
+        # print(nd_data)
+        # print("..And it's shape:")
+        # print(np.shape(nd_data))
 
         if nd_data.ndim == 1:
             self.single_point_inside(self, c_data)
@@ -107,7 +101,7 @@ class Gamut:
             self.find_coordinate(c_data, indices)
 
     def find_coordinate(self, nda, indices):
-        """ For the given data points checks if points are inn the convex hull
+        """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
                 Parameters
@@ -144,9 +138,8 @@ class Gamut:
             #print(indices)
             #print(nda)
 
-
     def single_point_inside(hull, point):
-        """ Checks if a single coordinate in 3d is inside the given hull.
+        """Checks if a single coordinate in 3d is inside the given hull.
 
                 Parameters
                 ----------
@@ -162,7 +155,7 @@ class Gamut:
         return False
 
     def get_vertices(self):
-        """ Get all convex hull vertices points and save it in a array list.
+        """Get all convex hull vertices points and save it in a array list.
 
             Parameter
             ---------
@@ -186,15 +179,13 @@ class Gamut:
             :return:
         """
         points = self.get_vertices()
-        X = points[:, 0]
-
-        Y = points[:, 1]
-
-        Z = points[:, 2]
+        x = points[:, 0]
+        y = points[:, 1]
+        z = points[:, 2]
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(X, Y, Z)
+        ax.plot_surface(x, y, z)
         plt.show()
 
 
