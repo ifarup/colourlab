@@ -29,6 +29,7 @@ from scipy import spatial
 import unittest.test
 from ExFunction import retur, my_contains, my_first
 
+
 class Gamut:
     """
     Class for representing colour gamuts computed in various colour spaces.
@@ -51,7 +52,6 @@ class Gamut:
         self.simplices = None
         self.neighbors = None
         self.initialize_convex_hull(sp, points)   # Initializes all of the above, using a sub-initialization method
-
 
     def get_vertices(self):
         """ Get all convex hull vertices points and save it in a array list.
@@ -81,7 +81,6 @@ class Gamut:
         """
 
         # TODO: Convert from get_vertices to matplotlib.
-
 
     def initialize_convex_hull(self, sp, points):
         """ Initializes the gamuts convex hull in the desired colour space
@@ -117,26 +116,22 @@ class Gamut:
                 Data object with the colour points for the gamut.
         """
 
-        # Calculate a new convexhull given only the vertecis for further use to increase efficiency
-        # hull = spatial.ConvexHull(g.vertices()).
-
         nd_data = c_data.get(sp) # Convert to ndarray
-
         #print("The ndarray send to is_inside:")
         #print(nd_data)
         #print("..And it's shape:")
         #print(np.shape(nd_data))
 
-        if nd_data.ndim == 1:
+        if nd_data.ndim == 1:   # Handle the special case of a only one point beeing evaluated.
             self.single_point_inside(self, c_data)
         else:
-            indices = np.ones(nd_data.ndim - 1) * -1  # Important that indencis is initialized with negative numbers.
+            indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indencis is initialized with negative numb.
             c_data = c_data.get(sp)
-            bool_array = np.array(nd_data.shape)
-            np.squeeze(bool_array)
-            self.find_coordinate(c_data, indices)
+            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool array with the same shape as the
+                                                                 # nd_data (minus the last dimension)
+            self.traverse_ndarray(c_data, indices, bool_array)
 
-    def find_coordinate(self, nda, indices):
+    def traverse_ndarray(self, nda, indices, bool_array):
         """ For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
@@ -147,23 +142,22 @@ class Gamut:
                 indices : array
                         The dimensional path to the coordinate.
                         Needs to be as long as the (amount of dimensions)-1 in nda and filled with -1's
+                bool_array : ndarray
+                        Array containing true/fals in last dimention.
+                        Shape is the same as nda(minus the last dim)
                 hull: ConvexHull
                     A ConvexHull generated from the gamuts vertices.
         """
         if np.ndim(nda) != 1:  # Not yet reached a leaf node
             curr_dim = 0
-            # calculate the dimension number witch we are currently in
-
-            for index in np.nditer(indices):
-                if index != -1:  # If a dimension is previously iterated the cell will have been changed to a
-                    curr_dim += 1       # non-negative number.
+            for index in np.nditer(indices):              # calculate the dimension number witch we are currently in
+                if index != -1:  # If a dimension is previously iterated the cell will have been changed to a ...
+                    curr_dim += 1       # ... non-negative number.
 
             numb_of_iterations = 0
             for nda_minus_one in nda:              # Iterate over the length of the current dimension
-                indices[curr_dim] = numb_of_iterations
-                #print("Indencis before next call:")
-                #print(indices)
-                self.find_coordinate(nda_minus_one, indices)
+                indices[curr_dim] = numb_of_iterations # Update the path in indices before next recusrive call
+                self.traverse_ndarray(nda_minus_one, indices, bool_array)
                 numb_of_iterations += 1
             indices[curr_dim] = -1  # should reset the indences array when the call dies
 
@@ -171,8 +165,14 @@ class Gamut:
             # self.single_point_inside(nda)  # nda is now reduced to a one dimensional list containing three numbers.
                                             # (a data point to be checked)
             print("Leaf node found:")
+            bool_array[(tuple(indices))] = True # Kanskje, kanksje ikke
+            print(bool_array)
+            print("----------------")
+
             #print(indices)
             #print(nda)
+
+
 
 
 
