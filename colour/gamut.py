@@ -26,8 +26,8 @@ import numpy as np
 import inspect
 from colour import space, data
 from scipy import spatial
-import unittest.test
-from ExFunction import retur, my_contains, my_first
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class Gamut:
@@ -172,10 +172,6 @@ class Gamut:
             #print(indices)
             #print(nda)
 
-
-
-
-
     def single_point_inside(hull, point):
         """ Checks if a single coordinate in 3d is inside the given hull.
 
@@ -191,3 +187,62 @@ class Gamut:
         if np.array_equal(new_hull.vertices, hull.vertices):
             return True
         return False
+
+    def get_vertices(self):
+        """ Get all convex hull vertices points and save it in a array list.
+
+            Parameter
+            ---------
+
+        :return: point_list
+        """
+
+        point_list = []  # Array list with vertices points.
+        for i in self.hull.vertices:
+            point_list.append(self.hull.points[i])
+        point_array = np.array(point_list)
+        return point_array
+
+    def get_surface(self, sp):
+        """
+
+            Parameters
+            ----------
+            :param sp: Space
+                The colour space for computing the gamut.
+            :return:
+        """
+        points = self.get_vertices()
+        X = points[:, 0]
+
+        Y = points[:, 1]
+
+        Z = points[:, 2]
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(X, Y, Z)
+        plt.show()
+
+
+def gamut_test():
+        n_data = np.array([[0, 0, 0],  # 0 vertecis
+                           [10, 0, 0],  # 1 vertecis
+                           [10, 10, 0],  # 2 vertecis
+                           [0, 10, 0],  # 3 vertecis
+                           [5, 5, 5],  # 4 non vertecis
+                           [4, 6, 2],  # 5 non vertecis
+                           [10, 10, 10],  # 6 vertecis
+                           [1, 2, 3],  # 7 non vertecis
+                           [10, 0, 10],  # 8 vertecis
+                           [0, 0, 10],  # 9 vertecis
+                           [0, 10, 10]])  # 10 vertecis
+        c_data = data.Data(space.srgb, n_data)
+        g = Gamut(space.srgb, c_data)
+
+        points = np.array([[1, 1, 1],  # inside
+                           [2, 2, 3],  # inside
+                           [20, 2, 3],  # outside
+                           [1, 2, 30]])  # outside
+        c_points = data.Data(space.srgb, points)
+        g.is_inside(space.srgb, c_points)
