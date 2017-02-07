@@ -60,14 +60,28 @@ class Gamut:
             ---------
             point_list : vertices points
 
+
                 The colour vertices points.
             return: point_list
         """
 
-        point_list = []
+        point_list = []     # Array list with vertices points.
         for i in range(self.hull.vertices):
             point_list.append(self.hull.points[i])
         return point_list
+
+    def get_surface(self, sp):
+        """
+
+            Parameters
+            ----------
+            :param sp: Space
+                The colour space for computing the gamut.
+            :return:
+        """
+
+        # TODO: Convert from get_vertices to matplotlib.
+
 
     def initialize_convex_hull(self, sp, points):
         """ Initializes the gamuts convex hull in the desired colour space
@@ -154,9 +168,9 @@ class Gamut:
             indices[curr_dim] = -1  # should reset the indences array when the call dies
 
         else: # We have reached a leaf node
-           # self.single_point_inside(nda)  # nda is now reduced to a one dimensional list containing three numbers.
+            # self.single_point_inside(nda)  # nda is now reduced to a one dimensional list containing three numbers.
                                             # (a data point to be checked)
-            #print("Leaf node:")
+            print("Leaf node found:")
             #print(indices)
             #print(nda)
 
@@ -177,25 +191,3 @@ class Gamut:
         if np.array_equal(new_hull.vertices, hull.vertices):
             return True
         return False
-
-def gamut_test():
-        n_data = np.array([[0, 0, 0],  # 0 vertecis
-                           [10, 0, 0],  # 1 vertecis
-                           [10, 10, 0],  # 2 vertecis
-                           [0, 10, 0],  # 3 vertecis
-                           [5, 5, 5],  # 4 non vertecis
-                           [4, 6, 2],  # 5 non vertecis
-                           [10, 10, 10],  # 6 vertecis
-                           [1, 2, 3],  # 7 non vertecis
-                           [10, 0, 10],  # 8 vertecis
-                           [0, 0, 10],  # 9 vertecis
-                           [0, 10, 10]])  # 10 vertecis
-        c_data = data.Data(space.srgb, n_data)
-        g = Gamut(space.srgb, c_data)
-
-        points = np.array([[1, 1, 1],  # inside
-                           [2, 2, 3],  # inside
-                           [20, 2, 3],  # outside
-                           [1, 2, 30]])  # outside
-        c_points = data.Data(space.srgb, points)
-        g.is_inside(space.srgb, c_points)

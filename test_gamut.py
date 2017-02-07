@@ -55,5 +55,17 @@ class TestGamut(unittest.TestCase):
         c_points = data.Data(space.srgb, points)
         g.is_inside(space.srgb, c_points)
 
+
+    def test_get_vertices(self):    # Test for gamut.Gamut.get_vertices
+        n_data = np.array([[0, 0, 0],  # 0 vertecis
+                           [10, 0, 0],  # 1 vertecis
+                           [10, 10, 0],  # 2 vertecis
+                           [0, 10, 0],  # 3 vertecis
+                           [10, 10, 10],  # 6 vertecis
+                           [10, 0, 10],  # 8 vertecis
+                           [0, 0, 10],  # 9 vertecis
+                           [0, 10, 10]])  # 10 vertecis
+        self.assertEquals(gamut.Gamut.get_verticies, n_data)    # Compares returend array with the known vertices array.
+
 if __name__ == '__main__':
     unittest.main(exit=False)
