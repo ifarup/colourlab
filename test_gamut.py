@@ -42,10 +42,16 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
 
+        '''
         points = np.array([[1, 1, 1],  # inside
                            [2, 2, 3],  # inside
                            [20, 2, 3],  # outside
                            [1, 2, 30]])  # outside
+
+        '''
+
+        points = np.ones((2, 2, 2, 3))
+
         c_points = data.Data(space.srgb, points)
         g.is_inside(space.srgb, c_points)
 
