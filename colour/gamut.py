@@ -24,7 +24,7 @@ import numpy as np
 from colour import space, data
 from scipy import spatial
 import matplotlib.pyplot as plt
-
+from colour import space,data
 
 
 class Gamut:
@@ -158,7 +158,7 @@ class Gamut:
             return True
         return False
 
-    def get_vertices(self):
+    def get_vertices(self, nd_data):
         """Get all convex hull vertices points and save it in a array list.
 
             Parameter
@@ -169,7 +169,7 @@ class Gamut:
 
         point_list = []  # Array list with vertices points.
         for i in self.hull.vertices:
-            point_list.append(self.hull.points[i])
+            point_list.append(nd_data[i])
         point_array = np.array(point_list)
         return point_array
 
@@ -182,12 +182,14 @@ class Gamut:
                 The colour space for computing the gamut.
             :return:
         """
-        points = self.get_vertices()
+        nd_data = self.data.get(sp)
+
+        points = self.get_vertices(nd_data)
         x = points[:, 0]
         y = points[:, 1]
         z = points[:, 2]
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(x, y, z)
+        ax.plot_trisurf(x, y, z, cmap=plt.cm.jet)
         plt.show()

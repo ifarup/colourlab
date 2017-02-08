@@ -1,4 +1,6 @@
 import unittest, numpy as np
+
+import colour
 from colour import data, gamut, space
 
 
@@ -57,8 +59,15 @@ class TestGamut(unittest.TestCase):
                            [10, 0, 10],  # 8 vertecis
                            [0, 0, 10],  # 9 vertecis
                            [0, 10, 10]])  # 10 vertecis
-        vertices = g.get_vertices()
+        vertices = g.get_vertices(n_data)
         self.assertTrue(np.array_equiv(n1_data,vertices))    # Compares returend array with the known vertices array.
+
+    def test_get_surface(self):
+        # Test for gamut.Gamut.get_surface
+        c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
+        g = gamut.Gamut(space.srgb, c_data)
+        sp = colour.space.xyz
+        g.get_surface(sp)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
