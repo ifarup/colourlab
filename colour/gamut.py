@@ -21,15 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from colour import space, data
 from scipy import spatial
 import matplotlib.pyplot as plt
-from colour import space,data
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
+
     def __init__(self, sp, points):
         """Construct new gamut instance and compute the gamut.
 
@@ -102,7 +102,7 @@ class Gamut:
             self.traverse_ndarray(c_data, indices, bool_array)
 
     def traverse_ndarray(self, nda, indices, bool_array):
-        """ For the given data points checks if points are inn the convex hull
+        """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
                 Parameters
@@ -120,22 +120,23 @@ class Gamut:
         """
         if np.ndim(nda) != 1:  # Not yet reached a leaf node
             curr_dim = 0
-            for index in np.nditer(indices):              # calculate the dimension number witch we are currently in
-                if index != -1:  # If a dimension is previously iterated the cell will have been changed to a ...
-                    curr_dim += 1       # ... non-negative number.
+            for index in np.nditer(indices):    # calculate the dimension number witch we are currently in
+                if index != -1:     # If a dimension is previously iterated the cell will have been changed to a
+                                    # non-negative number.
+                    curr_dim += 1
 
             numb_of_iterations = 0
             for nda_minus_one in nda:              # Iterate over the length of the current dimension
-                indices[curr_dim] = numb_of_iterations # Update the path in indices before next recusrive call
+                indices[curr_dim] = numb_of_iterations  # Update the path in indices before next recusrive call
                 self.traverse_ndarray(nda_minus_one, indices, bool_array)
                 numb_of_iterations += 1
             indices[curr_dim] = -1  # should reset the indences array when the call dies
 
-        else: # We have reached a leaf node
-            # self.single_point_inside(nda)  # nda is now reduced to a one dimensional list containing three numbers.
-                                            # (a data point to be checked)
+        else:   # We have reached a leaf node
+                # self.single_point_inside(nda) # nda is now reduced to a one dimensional list containing three numbers.
+                                                # (a data point to be checked)
             print("Leaf node found:")
-            bool_array[(tuple(indices))] = True # Kanskje, kanksje ikke
+            bool_array[(tuple(indices))] = True
             print(bool_array)
             print("----------------")
 
@@ -174,7 +175,7 @@ class Gamut:
         return point_array
 
     def get_surface(self, sp):
-        """
+        """Get representation of the gamut
 
             Parameters
             ----------
@@ -182,14 +183,14 @@ class Gamut:
                 The colour space for computing the gamut.
             :return:
         """
-        nd_data = self.data.get(sp)
-
+        nd_data = self.data.get_linear(sp)
         points = self.get_vertices(nd_data)
         x = points[:, 0]
         y = points[:, 1]
         z = points[:, 2]
 
+        print(points)
         fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        ax = Axes3D(fig)
         ax.plot_trisurf(x, y, z, cmap=plt.cm.jet)
         plt.show()

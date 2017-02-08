@@ -4,7 +4,7 @@ import colour
 from colour import data, gamut, space
 
 
-"""Unittests for alle funkstions in the gamut module. """
+"""Unittests for all functions in the gamut module. """
 # Global variable.
 n_data = np.array([[0, 0, 0],  # 0 vertecis
                           [10, 0, 0],  # 1 vertecis
@@ -66,7 +66,7 @@ class TestGamut(unittest.TestCase):
         # Test for gamut.Gamut.get_surface
         c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        sp = colour.space.xyz
+        sp = colour.space.srgb
         g.get_surface(sp)
 
 if __name__ == '__main__':
