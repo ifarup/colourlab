@@ -49,6 +49,9 @@ class Data:
         ndata : ndarray
             The colour data in the given space.
         """
+        self.data = None
+        self.sh = None
+        self.linear_XYZ = None
         self.set(sp, ndata)
 
     def linearise(self, ndata):
@@ -228,10 +231,10 @@ class VectorData:
 
     def set(self, sp, points_data, vectors_ndata):
         """
-        Set colour sp, points, and metrics data.
+        Set colour sp, points, and vectorss data.
 
         The points_data are taken care already of the type Data. A new
-        dictionary is constructed, and the metrics_ndata are added in
+        dictionary is constructed, and the vectors_ndata are added in
         the provided colour space, as well as in the XYZ colour space
         (using the SpaceXYZ class).
 
@@ -241,8 +244,8 @@ class VectorData:
             The colour space for the given tensor data.
         points_data : Data
             The colour points for the given tensor data.
-        metrics_ndata : ndarray
-            The tensor data in the given colour space at the given points.
+        vectors_ndata : ndarray
+            The vector data in the given colour space at the given points.
         """
 
         self.points = points_data
@@ -256,6 +259,52 @@ class VectorData:
         else:
             self.linear_XYZ = sp.vectors_to_XYZ(self.points, linear_data)
             self.vectors[space.xyz] = np.reshape(self.linear_XYZ, self.sh)
+
+    def get(self, sp):
+        """
+        Return colour vector data in required colour space.
+
+        If the data do not currently exist in the required colour
+        space, the necessary colour conversion will take place, and
+        the results stored in the object or future use.
+
+        Parameters
+        ----------
+        sp : Space
+            The colour space for the returned data.
+
+        Returns
+        -------
+        ndata : ndarray
+            The colour vector data in the given colour space.
+        """
+        if sp in self.vectors:
+            return self.vectors[sp]
+        else:
+            linear_data = sp.vectors_from_XYZ(self.points, self.linear_XYZ)
+            ndata = np.reshape(linear_data, self.sh)
+            self.vectors[sp] = ndata
+            return ndata
+
+    def get_linear(self, sp):
+        """
+        Return colour vector data in required colour space in PxC format.
+
+        If the data do not currently exist in the required colour
+        space, the necessary colour conversion will take place, and
+        the results stored in the object or future use.
+
+        Parameters
+        ----------
+        sp : Space
+            The colour space for the returned data.
+
+        Returns
+        -------
+        ndata : ndarray
+            The linearised colour vector data in the given colour space.
+        """
+        return self.linearise(self.get(sp))
 
 
 class TensorData:
@@ -287,6 +336,8 @@ class TensorData:
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
         """
+        self.points = None
+        self.metrics = None
         self.set(sp, points_data, metrics_ndata)
 
     def set(self, sp, points_data, metrics_ndata):
