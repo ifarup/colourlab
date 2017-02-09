@@ -108,6 +108,50 @@ class Space(object):
             ijac[i] = np.linalg.inv(ijac[i])
         return ijac
 
+    def vectors_to_XYZ(self, points_data, vectors_ndata):
+        """
+        Convert metric data to the XYZ colour space.
+
+        Parameters
+        ----------
+        points_data : Data
+            The colour data points.
+        vectors_ndata : ndarray
+            Array of colour metric tensors in current colour space.
+
+        Returns
+        -------
+        xyz_vectors : ndarray
+            Array of colour vectors in XYZ.
+        """
+        jacobian = self.inv_jacobian_XYZ(points_data)
+        new_vectors = np.zeros(np.shape(vectors_ndata))
+        for i in range(np.shape(jacobian)[0]):
+            new_vectors[i] = np.dot(jacobian[i], vectors_ndata[i])
+        return new_vectors
+
+    def vectors_from_XYZ(self, points_data, vectors_ndata):
+        """
+        Convert metric data from the XYZ colour space.
+
+        Parameters
+        ----------
+        points_data : Data
+            The colour data points.
+        vectors_ndata : ndarray
+            Array of colour metric tensors in XYZ.
+
+        Returns
+        -------
+        vectors : ndarray
+            Array of colour vectors in the current colour space.
+        """
+        jacobian = self.jacobian_XYZ(points_data)
+        new_vectors = np.zeros(np.shape(vectors_ndata))
+        for i in range(np.shape(jacobian)[0]):
+            new_vectors[i] = np.dot(jacobian[i], vectors_ndata[i])
+        return new_vectors
+
     def metrics_to_XYZ(self, points_data, metrics_ndata):
         """
         Convert metric data to the XYZ colour space.
@@ -144,7 +188,7 @@ class Space(object):
 
         Returns
         -------
-        xyz_metrics : ndarray
+        metrics : ndarray
             Array of colour metric tensors in the current colour space.
         """
         jacobian = self.inv_jacobian_XYZ(points_data)

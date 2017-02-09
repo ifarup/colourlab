@@ -27,6 +27,13 @@ from mpl_toolkits.mplot3d import Axes3D, art3d
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
+dat1 = colour.data.Data(colour.space.cielab, [50, 0, 0])
+dat2 = colour.data.Data(colour.space.cielab, [51, 1, 1])
+vec = colour.data.VectorData(colour.space.cielab, dat1, [1, 1, 1])
+
+print(vec.vectors[colour.space.xyz])
+print(dat2.get(colour.space.xyz) - dat1.get(colour.space.xyz))
+
 dat = colour.data.d_regular(colour.space.srgb,
                             np.linspace(0, 1, 5),
                             np.linspace(0, 1, 5),

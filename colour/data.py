@@ -177,6 +177,87 @@ class Data:
         return Data(sp, self.get(space.TransformLinear(sp, von_kries_mat)))
 
 
+class VectorData:
+    """
+    Class for keeping contravariant vector data in various colour spaces.
+    """
+
+    def __init__(self, sp, points_data, vectors_ndata):
+        """
+        Construct new instance and set colour space and data.
+
+        Parameters
+        ----------
+        sp: Space
+           The colour space for the given vector data
+        points_data : Data
+            The colour points for the given vector data.
+        metrics_ndata : ndarray
+            The tensor data in the given colour space at the given points.
+        """
+        self.points = None
+        self.vectors = None
+        self.sh = None
+        self.linear_XYZ = None
+        self.set(sp, points_data, vectors_ndata)
+
+    def linearise(self, ndata):
+        """
+        Shape the data so that is becomes an PxC matrix or C vector.
+
+        The data should be of the shape M x ... x N x C, where C is the
+        number of colour channels. Returns the shaped data as a P x C
+        matrix where P = M x ... x N, as well as the shape of the input
+        data. Get back to original shape by reshape(data, shape).
+
+        Parameters
+        ----------
+        ndata : ndarray
+            M x ... x N x C array of colour data
+
+        Returns
+        -------
+        ndata : ndarray
+            P x C array of colour data, P = M * ... * N
+        """
+        sh = np.shape(ndata)
+        sh_array = np.array(sh)
+        P_data = np.prod(sh_array[:len(sh) - 1])
+        C_data = sh[len(sh) - 1]
+        return np.reshape(ndata, [P_data, C_data])
+
+    def set(self, sp, points_data, vectors_ndata):
+        """
+        Set colour sp, points, and metrics data.
+
+        The points_data are taken care already of the type Data. A new
+        dictionary is constructed, and the metrics_ndata are added in
+        the provided colour space, as well as in the XYZ colour space
+        (using the SpaceXYZ class).
+
+        Parameters
+        ----------
+        sp : Space
+            The colour space for the given tensor data.
+        points_data : Data
+            The colour points for the given tensor data.
+        metrics_ndata : ndarray
+            The tensor data in the given colour space at the given points.
+        """
+
+        self.points = points_data
+        self.vectors = dict()
+        vectors_ndata = np.array(vectors_ndata)
+        self.vectors[sp] = vectors_ndata
+        self.sh = vectors_ndata.shape
+        linear_data = self.linearise(vectors_ndata)
+        if sp == space.xyz:
+            self.linear_XYZ = linear_data
+        else:
+            self.linear_XYZ = sp.vectors_to_XYZ(self.points, linear_data)
+            self.vectors[space.xyz] = np.reshape(self.linear_XYZ, self.sh)
+
+
 class TensorData:
     """
     Class for keeping colour metric data in various colour spaces.
