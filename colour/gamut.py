@@ -211,20 +211,20 @@ class Gamut:
 
         return True
 
-    def in_tetrahedra(self, tetrahedra, q):
-        """Checks if the point 'q' is inside the tetrahedra
+    def in_tetrahedron(self, tetrahedron, q):
+        """Checks if the point 'q' is inside the tetrahedron
 
                      Parameters
                      ----------
-                     :param tetrahedra: ndarray
-                        The four points of a tetrahedra
+                     :param tetrahedron: ndarray
+                        The four points of a tetrahedron
                      :param q: ndarray
-                        The point to be tested for inclusion in the tetrahedra.
+                        The point to be tested for inclusion in the tetrahedron.
 
                      :return: Bool
-                        True if q is inside the tetrahedra.
+                        True if q is inside the tetrahedron.
                  """
-        hull = spatial.Delaunay(tetrahedra)  # Generate a convex hull repesentaion of points
+        hull = spatial.Delaunay(tetrahedron)  # Generate a convex hull repesentaion of points
         return hull.find_simplex(q) >= 0  # and check if 'q' is inside.
 
     def in_line(self, line, q):

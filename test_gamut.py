@@ -1,11 +1,10 @@
-import unittest, numpy as np
-
-import colour
+import unittest
+import numpy as np
 from colour import data, gamut, space
 
 
 """Unittests for all functions in the gamut module. """
-# Global variable.
+# Global variables.
 n_data = np.array([[0, 0, 0],         # 0 vertecis
                     [10, 0, 0],       # 1 vertecis
                     [10, 10, 0],      # 2 vertecis
@@ -18,13 +17,14 @@ n_data = np.array([[0, 0, 0],         # 0 vertecis
                     [0, 0, 10],       # 9 vertecis
                     [0, 10, 10]])     # 10 vertecis
 
-line = np.array([[0, 0, 0], [3, 3, 3]])
-point_on_line = np.array([1,1,1])
-point_not_on_line = np.array([2,2,2])
+line = np.array([[0, 0, 0], [3, 3, 3]])                 # Line used in testing.
+point_on_line = np.array([1, 1, 1])                     # Point inside the line to be tested.
+point_not_on_line = np.array([2, 2, 2])                 # Point outside the line to be tested.
 
-tetrahedra = np.array([[0, 0, 0], [0, 10, 0], [10, 0, 0], [0, 0, 10]])
-point_on_tetrahedra = np.array([2, 3, 4])               # Inside tetrahedra
-point_not_on_tetrahedra = np.array([20, 1, 2])          # Outside tetrahedra
+tetrahedron = np.array([[0, 0, 0], [0, 10, 0], [10, 0, 0], [0, 0, 10]]) # Tetrahedron used in testing.
+point_on_tetrahedron = np.array([2, 3, 4])               # Point inside the tetrahedron to be tested.
+point_not_on_tetrahedron = np.array([20, 1, 2])          # Point outside the tetrahedron to be tested.
+
 
 class TestGamut(unittest.TestCase):
 
@@ -72,18 +72,17 @@ class TestGamut(unittest.TestCase):
         # Test for gamut.Gamut.get_surface
         c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        sp = colour.space.srgb
+        sp = space.srgb
         g.get_surface(sp)
 
-    def test_in_line_triangle_tetrahedra(self):
+    def test_in_line_triangle_tetrahedron(self):
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertTrue(True, g.in_tetrahedra(tetrahedra, point_on_tetrahedra))
-        self.assertFalse(False, g.in_tetrahedra(tetrahedra, point_not_on_tetrahedra))
+        self.assertTrue(True, g.in_tetrahedron(tetrahedron, point_on_tetrahedron))
+        self.assertFalse(False, g.in_tetrahedron(tetrahedron, point_not_on_tetrahedron))
 
         self.assertFalse(False, g.in_line(line, point_not_on_line))
-
 
 if __name__ == '__main__':
     unittest.main(exit=False)
