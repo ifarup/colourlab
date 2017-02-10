@@ -4,17 +4,17 @@ from colour import data, gamut, space
 
 """Unittests for alle funkstions in the gamut module. """
 # Global variable.
-n_data = np.array([[0, 0, 0],  # 0 vertecis
-                          [10, 0, 0],  # 1 vertecis
-                          [10, 10, 0],  # 2 vertecis
-                          [0, 10, 0],  # 3 vertecis
-                          [5, 5, 5],  # 4 non vertecis
-                          [4, 6, 2],  # 5 non vertecis
-                          [10, 10, 10],  # 6 vertecis
-                          [1, 2, 3],  # 7 non vertecis
-                          [10, 0, 10],  # 8 vertecis
-                          [0, 0, 10],  # 9 vertecis
-                          [0, 10, 10]])  # 10 vertecis
+n_data = np.array([[0, 0, 0],         # 0 vertecis
+                    [10, 0, 0],       # 1 vertecis
+                    [10, 10, 0],      # 2 vertecis
+                    [0, 10, 0],       # 3 vertecis
+                    [5, 5, 5],        # 4 non vertecis
+                    [4, 6, 2],        # 5 non vertecis
+                    [10, 10, 10],     # 6 vertecis
+                    [1, 2, 3],        # 7 non vertecis
+                    [10, 0, 10],      # 8 vertecis
+                    [0, 0, 10],       # 9 vertecis
+                    [0, 10, 10]])     # 10 vertecis
 
 
 class TestGamut(unittest.TestCase):
@@ -33,11 +33,10 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
 
         '''
-        points = np.array([[1, 1, 1],  # inside
-                           [2, 2, 3],  # inside
+        points = np.array([[1, 1, 1],   # inside
+                           [2, 2, 3],   # inside
                            [20, 2, 3],  # outside
-                           [1, 2, 30]])  # outside
-
+                           [1, 2, 30]]) # outside
         '''
 
         points = np.ones((2, 2, 2, 3))

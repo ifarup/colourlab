@@ -191,3 +191,22 @@ class Gamut:
         ax = fig.add_subplot(111, projection='3d')
         ax.plot_surface(x, y, z)
         plt.show()
+
+    def feito_torres (self):
+        """
+
+            Parameters
+            ----------
+            :param sp: Space
+                The colour space for computing the gamut.
+            :return:
+    """
+
+        # 1 sign funk
+                # sign, logdet = np.linalg.slogdet(a)
+        # 2 punkt på linje
+# 
+        # 3 punkt på flate
+        # 4 punkt i polyhedron
+
+        return True
