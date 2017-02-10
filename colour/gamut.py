@@ -152,6 +152,8 @@ class Gamut:
                     Convex hull
                 point: coordinate
                     A single coordinate to be tested if it is inside the hull.
+                return:
+
         """
 
         new_hull = spatial.ConvexHull(np.concatenate((hull.points, [point])))
@@ -205,11 +207,51 @@ class Gamut:
             :return:
     """
 
-        # 1 sign funk
-                # sign, logdet = np.linalg.slogdet(a)
-        # 2 punkt på linje
-# 
-        # 3 punkt på flate
-        # 4 punkt i polyhedron
+
 
         return True
+
+    def in_tetrahedra(self, tetrahedra, q):
+        """Checks if the point 'q' is inside the tetrahedra
+
+                     Parameters
+                     ----------
+                     :param tetrahedra: ndarray
+                        The four points of a tetrahedra
+                     :param q: ndarray
+                        The point to be tested for inclusion in the tetrahedra.
+
+                     :return: Bool
+                        True if q is inside the tetrahedra.
+                 """
+        hull = spatial.Delaunay(tetrahedra)  # Generate a convex hull repesentaion of points
+        return hull.find_simplex(q) >= 0  # and check if 'q' is inside.
+
+    def in_line(self, line, q):
+        '''Checks if q is on the line.
+            NB the first point in line must be the origin.
+
+        :param line:
+        :param q:
+        :return:
+        '''
+
+        # Checks if the cross product is 0.
+        a = np.array([[1, 1, 1], line[1], q, ])
+        if np.linalg.det(a) != 0:
+            return False
+
+
+
+        '''
+        c_product =
+        if abs(crossproduct) > epsilon: return False  # (or != 0 if using integers)
+
+        dotproduct = (c.x - a.x) * (b.x - a.x) + (c.y - a.y) * (b.y - a.y)
+        if dotproduct < 0: return False
+
+        squaredlengthba = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)
+        if dotproduct > squaredlengthba: return False
+
+        return True
+        '''

@@ -18,6 +18,13 @@ n_data = np.array([[0, 0, 0],         # 0 vertecis
                     [0, 0, 10],       # 9 vertecis
                     [0, 10, 10]])     # 10 vertecis
 
+line = np.array([[0, 0, 0], [3, 3, 3]])
+point_on_line = np.array([1,1,1])
+point_not_on_line = np.array([2,2,2])
+
+tetrahedra = np.array([[0, 0, 0], [0, 10, 0], [10, 0, 0], [0, 0, 10]])
+point_on_tetrahedra = np.array([2, 3, 4])               # Inside tetrahedra
+point_not_on_tetrahedra = np.array([20, 1, 2])          # Outside tetrahedra
 
 class TestGamut(unittest.TestCase):
 
@@ -67,6 +74,16 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
         sp = colour.space.srgb
         g.get_surface(sp)
+
+    def test_in_line_triangle_tetrahedra(self):
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        self.assertTrue(True, g.in_tetrahedra(tetrahedra, point_on_tetrahedra))
+        self.assertFalse(False, g.in_tetrahedra(tetrahedra, point_not_on_tetrahedra))
+
+        self.assertFalse(False, g.in_line(line, point_not_on_line))
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
