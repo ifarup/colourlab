@@ -25,7 +25,7 @@ import numpy as np
 import inspect
 from matplotlib.patches import Ellipse
 from scipy.spatial import ConvexHull
-from . import space
+from . import space, image
 
 
 # =============================================================================
@@ -179,6 +179,28 @@ class Data:
                                   [0, 0, wh_out[2] / wh_in[2]]])
         return Data(sp, self.get(space.TransformLinear(sp, von_kries_mat)))
 
+    def dip(self, sp):
+        return VectorData(sp, self, image.dip(self.get(sp)))
+
+
+    def dim(self, sp):
+        return VectorData(sp, self, image.dim(self.get(sp)))
+
+
+    def dic(self, sp):
+        return VectorData(sp, self, image.dic(self.get(sp)))
+
+    def djp(self, sp):
+        return VectorData(sp, self, image.djp(self.get(sp)))
+
+
+    def djm(self, sp):
+        return VectorData(sp, self, image.djm(self.get(sp)))
+
+
+    def djc(self, sp):
+        return VectorData(sp, self, image.djc(self.get(sp)))
+
 
 class VectorData:
     """
@@ -205,6 +227,7 @@ class VectorData:
         self.set(sp, points_data, vectors_ndata)
 
     def linearise(self, ndata):
+        # type: (object) -> object
         """
         Shape the data so that is becomes an PxC matrix or C vector.
 

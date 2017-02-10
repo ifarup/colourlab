@@ -24,15 +24,16 @@ import colour
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d
 
+im = colour.data.Data(colour.space.srgb, .25 * np.array([[0, 1, 2], [1, 2, 3], [2, 3, 4]]))
+print(im.dip(colour.space.cielab).get(colour.space.cielab))
+print(im.dim(colour.space.cielab).get(colour.space.cielab))
+print(im.dic(colour.space.cielab).get(colour.space.cielab))
+print(im.djp(colour.space.cielab).get(colour.space.cielab))
+print(im.djm(colour.space.cielab).get(colour.space.cielab))
+print(im.djc(colour.space.cielab).get(colour.space.cielab))
+
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-
-dat1 = colour.data.Data(colour.space.cielab, [50, 0, 0])
-dat2 = colour.data.Data(colour.space.cielab, [51, 1, 1])
-vec = colour.data.VectorData(colour.space.cielab, dat1, [1, 1, 1])
-
-print(vec.get(colour.space.ipt))
-print(dat2.get(colour.space.ipt) - dat1.get(colour.space.ipt))
 
 dat = colour.data.d_regular(colour.space.srgb,
                             np.linspace(0, 1, 5),
