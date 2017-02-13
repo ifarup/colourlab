@@ -57,14 +57,14 @@ class TestGamut(unittest.TestCase):
         # Test for gamut.Gamut.get_vertices
         c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        n1_data = np.array([[0, 0, 0],  # 0 vertecis
-                           [10, 0, 0],  # 1 vertecis
-                           [10, 10, 0],  # 2 vertecis
-                           [0, 10, 0],  # 3 vertecis
-                           [10, 10, 10],  # 6 vertecis
-                           [10, 0, 10],  # 8 vertecis
-                           [0, 0, 10],  # 9 vertecis
-                           [0, 10, 10]])  # 10 vertecis
+        n1_data = np.array([[0, 0, 0],      # 0 vertecis
+                           [10, 0, 0],      # 1 vertecis
+                           [10, 10, 0],     # 2 vertecis
+                           [0, 10, 0],      # 3 vertecis
+                           [10, 10, 10],    # 6 vertecis
+                           [10, 0, 10],     # 8 vertecis
+                           [0, 0, 10],      # 9 vertecis
+                           [0, 10, 10]])    # 10 vertecis
         vertices = g.get_vertices(n_data)
         self.assertTrue(np.array_equiv(n1_data,vertices))    # Compares returend array with the known vertices array.
 
