@@ -2,9 +2,10 @@ import unittest, numpy as np
 
 import colour
 from colour import data, gamut, space
+import matplotlib.pyplot as plt
 
 
-"""Unittests for all functions in the gamut module. """
+"""Unittests for all function in the gamut module. """
 # Global variable.
 n_data = np.array([[0, 0, 0],  # 0 vertecis
                           [10, 0, 0],  # 1 vertecis
@@ -62,12 +63,15 @@ class TestGamut(unittest.TestCase):
         vertices = g.get_vertices(n_data)
         self.assertTrue(np.array_equiv(n1_data,vertices))    # Compares returend array with the known vertices array.
 
-    def test_get_surface(self):
-        # Test for gamut.Gamut.get_surface
-        c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
-        g = gamut.Gamut(space.srgb, c_data)
-        sp = colour.space.srgb
-        g.get_surface(sp)
+    def test_plot_surface(self):
+        # Test for gamut.Gamut.plot_surface
+        fig = plt.figure()                          # Creates a figure
+        ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
+
+        c_data = data.Data(space.srgb, n_data)      # Generating the colour Data object
+        g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
+        sp = colour.space.xyz                       # specifices the colorspace
+        g.plot_surface(ax, sp)                      # Calls the plot function
 
 if __name__ == '__main__':
     unittest.main(exit=False)
