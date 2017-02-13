@@ -227,19 +227,55 @@ class Gamut:
         hull = spatial.Delaunay(tetrahedron)  # Generate a convex hull repesentaion of points
         return hull.find_simplex(q) >= 0  # and check if 'q' is inside.
 
+    '''
+            # If neccesary move the line so that a is the origin.
+            if line[0] != np.array([0,0,0]):
+                a = np.array([0,0,0])
+                b = line[1] - line[0]
+            else:
+                a = line[0]
+                b = line[1]
+    '''
     def in_line(self, line, q):
-        '''Checks if q is on the line.
-            NB the first point in line must be the origin.
+        '''Checks if 'q' is on the line from 'a' to 'b'.
 
         :param line:
         :param q:
-        :return:
+        :return: Bool
+            True is q in in the line segment for a to b.
         '''
 
+        a = line[0]
+        b = line[1]
+
         # Checks if the cross product is 0.
-        a = np.array([[1, 1, 1], line[1], q, ])
-        if np.linalg.det(a) != 0:
+        matrix = np.array([[1, 1, 1], b, q, ]) # b is the vector of the line from a to be, since a is the origin
+                                                # q is the vector to the point to be tested.
+                                                # Compute the cross-product by adding a row of ones and
+                                                # calculating the determinant.
+        if np.linalg.det(matrix) != 0:   # If the cross product is non-zero the point is not in the line.
+            print("Cross product not null, point not in line.")
             return False
+
+        # Check if q dot b is negative.
+        dot_qb = np.dot(q, b)
+        if  dot_qb < 0:
+            print("Dot product is negative, they have opposite direction, point not in line")
+            return False
+
+        # Finally check that q-vector is shorter b-vecotr
+        dot_qq = np.dot(q,q)
+        if dot_qq > dot_qb:
+            print("q-vector longer than b-vector")
+            return False
+
+        return True
+
+
+
+
+
+
 
 
 
