@@ -187,16 +187,9 @@ class Gamut:
         fig = plt.figure()
         ax = Axes3D(fig)
         ax.plot_trisurf(x, y, z, cmap=plt.cm.jet)
-        plt.show()
-<<<<<<< HEAD
-        
-    def feito_torres (self):
-        """
-=======
 
     def feito_torres (self, P):
         """ Tests if a point P is inside a polyhedron.
->>>>>>> 6cc1946bee868a9471372d8d0146ce4db5457b0c
 
             Parameters
             ----------
