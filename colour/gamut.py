@@ -271,23 +271,35 @@ class Gamut:
 
         return True
 
-    def in_trinagle(self, triangle, q):
-        ''' Takes three points of a triangle in 3d, and determines if the point q is within that triangle.
+    def in_trinagle(self, triangle, w):
+        """ Takes three points of a triangle in 3d, and determines if the point q is within that triangle.
         :param triangle: ndarray
             An ndarray 3x3, with points a, b and c beeing triangle[0]..[2]
-        :param q: ndarray
+        :param w: ndarray
             An ndarray 1x3, the point to be tested for inclusion in the triangle.
         :return: Bool
             True if q is within the triangle abc.
-        '''
+        """
 
-        # Make 'a' the local orgigo for the points. Making a,b,c and q vectors from origo.
+        # Make 'a' the local origo for the points. Making a,u,v and w vectors from origo.
         a = np.array([0])
-        b = np.array([1]) - a
-        c = np.array([2]) - a
-        q -= a
-        a = np.array([0,0,0])
+        u = np.array([1]) - a
+        v = np.array([2]) - a
+        w -= a
+        a = np.array([0, 0, 0])
 
-        if np.dot(np.cross(b,c),q) == 0:  # If q-vector is not coplanar to b anc c-vector, it is not in the triangle.
+        ucv = np.cross(u, v)        # Calculating the vector of the cross product u x v
+        if np.dot(ucv, w) == 0:  # If w-vector is not coplanar to u and v-vector, it is not in the triangle.
             return False
+
+        vcw = np.cross(v, w)        # Calculating the vector of the cross product v x w
+        vcu = np.cross(v, u)        # Calculating the vector of the cross product v x u
+        if np.dot(vcw, vcu) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+            return False
+
+        ucw = np.cross(u, w)        # Calculating the vector of the cross product u x w
+        if np.dot(ucw, ucv) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+            return False
+
+
 
