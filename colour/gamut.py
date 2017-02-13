@@ -196,7 +196,7 @@ class Gamut:
         ax = Axes3D(fig)
         ax.plot_trisurf(x, y, z, cmap=plt.cm.jet)
         plt.show()
-
+        
     def feito_torres (self):
         """
 
@@ -211,21 +211,21 @@ class Gamut:
 
         return True
 
-    def in_tetrahedron(self, tetrahedron, q):
-        """Checks if the point 'q' is inside(incuding the surface) the tetrahedron
+    def in_tetrahedron(self, tetrahedron, p):
+        """Checks if the point P, pointed to by vector p, is inside(incuding the surface) the tetrahedron
 
                      Parameters
                      ----------
                      :param tetrahedron: ndarray
                         The four points of a tetrahedron
-                     :param q: ndarray
+                     :param p: ndarray
                         The point to be tested for inclusion in the tetrahedron.
 
                      :return: Bool
                         True if q is inside or on the surface of the tetrahedron.
                  """
         hull = spatial.Delaunay(tetrahedron)  # Generate a convex hull repesentaion of points
-        return hull.find_simplex(q) >= 0  # and check if 'q' is inside.
+        return hull.find_simplex(p) >= 0  # and check if 'q' is inside.
 
     '''
             # If neccesary move the line so that a is the origin.
