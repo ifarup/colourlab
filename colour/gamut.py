@@ -59,12 +59,7 @@ class Gamut:
                     The colour points for the gamut.
                 """
 
-       # print(points.get_linear(sp))
         self.space = sp
-
-                # TODO: Change back to point.get_linear(sp)
-       # self.hull = spatial.ConvexHull(points.get(colour.space.xyz))   # Creating the convex hull in the desired colour space
-
         self.hull = spatial.ConvexHull(points.get_linear(sp))
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
@@ -140,15 +135,12 @@ class Gamut:
             print(bool_array)
             print("----------------")
 
-            #print(indices)
-            #print(nda)
-
-    def single_point_inside(hull, point):
+    def single_point_inside(self, hull, point):
         """Checks if a single coordinate in 3d is inside the given hull.
 
                 Parameters
                 ----------
-                :param hull : array
+                :param hull : ndarray
                     Convex hull
                 :param point: coordinate
                     A single coordinate to be tested if it is inside the hull.
@@ -196,20 +188,30 @@ class Gamut:
         ax = Axes3D(fig)
         ax.plot_trisurf(x, y, z, cmap=plt.cm.jet)
         plt.show()
+<<<<<<< HEAD
         
     def feito_torres (self):
         """
+=======
+
+    def feito_torres (self, P):
+        """ Tests if a point P is inside a polyhedron.
+>>>>>>> 6cc1946bee868a9471372d8d0146ce4db5457b0c
 
             Parameters
             ----------
-            :param sp: Space
-                The colour space for computing the gamut.
-            :return:
-    """
+            :param P: ndarray
+                Point to be tested for inclusion.
+            :return: bool
+                True if P is included in the polyhedron.
+        """
 
+        inclusion = np.array()
+        v_pluss = np.array()
+        v_minus = np.array()
 
+        for el in self.simplices:
 
-        return True
 
     def in_tetrahedron(self, tetrahedron, p):
         """Checks if the point P, pointed to by vector p, is inside(incuding the surface) the tetrahedron
@@ -259,7 +261,7 @@ class Gamut:
         if  dot_b_p < 0:
             return False
 
-        # Finally check that q-vector is shorter b-vecotr
+        # Finally check that q-vector is shorter b-vector
         dot_qq = np.dot(p, p)
         if dot_qq > dot_b_p:
             print("q-vector longer than b-vector")
@@ -285,7 +287,6 @@ class Gamut:
         v = triangle[2] - triangle[0]  # 'v' is the vector from A to C
         w -= triangle[0]               # 'w' is now the vector from A to the point being tested for inclusion
 
-
         u_X_v = np.cross(u, v)        # Calculating the vector of the cross product u x v
         if np.dot(u_X_v, w) != 0:  # If w-vector is not coplanar to u and v-vector, it is not in the triangle.
             print("not coplanar")
@@ -304,11 +305,11 @@ class Gamut:
             return False
 
         denom = np.linalg.norm(u_X_v)
-        r = (v_X_w /denom)
+        r = v_X_w /denom
         t = np.linalg.norm(u_X_w)
 
         print("got to the end")
-        return (r + t <= 1)
+        return r + t <= 1
 
 
 
