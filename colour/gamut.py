@@ -271,23 +271,23 @@ class Gamut:
 
         return True
 
-
-
-
-
-
-
-
-
+    def in_trinagle(self, triangle, q):
+        ''' Takes three points of a triangle in 3d, and determines if the point q is within that triangle.
+        :param triangle: ndarray
+            An ndarray 3x3, with points a, b and c beeing triangle[0]..[2]
+        :param q: ndarray
+            An ndarray 1x3, the point to be tested for inclusion in the triangle.
+        :return: Bool
+            True if q is within the triangle abc.
         '''
-        c_product =
-        if abs(crossproduct) > epsilon: return False  # (or != 0 if using integers)
 
-        dotproduct = (c.x - a.x) * (b.x - a.x) + (c.y - a.y) * (b.y - a.y)
-        if dotproduct < 0: return False
+        # Make 'a' the local orgigo for the points. Making a,b,c and q vectors from origo.
+        a = np.array([0])
+        b = np.array([1]) - a
+        c = np.array([2]) - a
+        q -= a
+        a = np.array([0,0,0])
 
-        squaredlengthba = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)
-        if dotproduct > squaredlengthba: return False
+        if np.dot(np.cross(b,c),q) == 0:  # If q-vector is not coplanar to b anc c-vector, it is not in the triangle.
+            return False
 
-        return True
-        '''
