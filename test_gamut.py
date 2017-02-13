@@ -74,7 +74,7 @@ class TestGamut(unittest.TestCase):
                            [0, 0, 10],      # 9 vertecis
                            [0, 10, 10]])    # 10 vertecis
         vertices = g.get_vertices(n_data)
-        self.assertTrue(np.array_equiv(n1_data,vertices))    # Compares returend array with the known vertices array.
+        self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares returend array with the known vertices array.
 
     def test_get_surface(self):
         # Test for gamut.Gamut.get_surface
