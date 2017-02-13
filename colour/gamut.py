@@ -107,15 +107,15 @@ class Gamut:
 
                 Parameters
                 ----------
-                nda : ndarray
+                :param nda : ndarray
                       An n-dimensional array containing the remaining dimensions to iterate.
-                indices : array
+                :param indices : array
                         The dimensional path to the coordinate.
                         Needs to be as long as the (amount of dimensions)-1 in nda and filled with -1's
-                bool_array : ndarray
+                :param bool_array : ndarray
                         Array containing true/fals in last dimention.
                         Shape is the same as nda(minus the last dim)
-                hull: ConvexHull
+                :param hull: ConvexHull
                     A ConvexHull generated from the gamuts vertices.
         """
         if np.ndim(nda) != 1:  # Not yet reached a leaf node
@@ -148,11 +148,11 @@ class Gamut:
 
                 Parameters
                 ----------
-                hull : array
+                :param hull : array
                     Convex hull
-                point: coordinate
+                :param point: coordinate
                     A single coordinate to be tested if it is inside the hull.
-                return:
+                :return
 
         """
 
@@ -237,13 +237,13 @@ class Gamut:
                 b = line[1]
     '''
     def in_line(self, line, q):
-        '''Checks if 'q' is on the line from 'a' to 'b'.
+        """ Checks if 'q' is on the line from 'a' to 'b'.
 
         :param line:
         :param q:
         :return: Bool
             True is q in in the line segment for a to b.
-        '''
+        """
 
         a = line[0]
         b = line[1]

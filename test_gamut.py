@@ -81,13 +81,13 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertTrue(True, g.in_tetrahedron(tetrahedron, point_on_tetrahedron))
-        self.assertFalse(False, g.in_tetrahedron(tetrahedron, point_not_on_tetrahedron))
+        self.assertTrue(True, g.in_tetrahedron(tetrahedron, point_on_tetrahedron))        # Point is on the tetrahedron
+        self.assertFalse(False, g.in_tetrahedron(tetrahedron, point_not_on_tetrahedron))  # Point is NOT on tetrahedron
 
-        self.assertFalse(False, g.in_line(line, point_not_paralell_to_line))
-        self.assertFalse(False, g.in_line(line, point_opposite_direction_than_line))
-        self.assertFalse(False, g.in_line(line, point_further_away_than_line))
-        self.assertTrue(True, g.in_line(line, point_on_line))
+        self.assertFalse(False, g.in_line(line, point_not_paralell_to_line))             # Point in NOT parallel to line
+        self.assertFalse(False, g.in_line(line, point_opposite_direction_than_line))     # Point opposite dir then line
+        self.assertFalse(False, g.in_line(line, point_further_away_than_line))           # Point is is further then line
+        self.assertTrue(True, g.in_line(line, point_on_line))                            # Point is on line
 
 
 if __name__ == '__main__':
