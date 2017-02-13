@@ -212,7 +212,7 @@ class Gamut:
         return True
 
     def in_tetrahedron(self, tetrahedron, q):
-        """Checks if the point 'q' is inside the tetrahedron
+        """Checks if the point 'q' is inside(incuding the surface) the tetrahedron
 
                      Parameters
                      ----------
@@ -222,7 +222,7 @@ class Gamut:
                         The point to be tested for inclusion in the tetrahedron.
 
                      :return: Bool
-                        True if q is inside the tetrahedron.
+                        True if q is inside or on the surface of the tetrahedron.
                  """
         hull = spatial.Delaunay(tetrahedron)  # Generate a convex hull repesentaion of points
         return hull.find_simplex(q) >= 0  # and check if 'q' is inside.
@@ -236,70 +236,81 @@ class Gamut:
                 a = line[0]
                 b = line[1]
     '''
-    def in_line(self, line, q):
-        """ Checks if 'q' is on the line from 'a' to 'b'.
+    def in_line(self, line, p):
+        """ Checks if a point P is on the line from  A to B
 
-        :param line:
-        :param q:
+        :param line: ndarray
+            line segment from point A to point B
+        :param p: ndarray
+            Vector from A to P
         :return: Bool
-            True is q in in the line segment for a to b.
+            True is P in in the line segment from A to P.
         """
 
-        a = line[0]
-        b = line[1]
+        b = line[1] - line[0]  # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
 
-        # Checks if the cross product is 0.
-        matrix = np.array([[1, 1, 1], b, q, ]) # b is the vector of the line from a to be, since a is the origin
-                                                # q is the vector to the point to be tested.
-                                                # Compute the cross-product by adding a row of ones and
-                                                # calculating the determinant.
-        if np.linalg.det(matrix) != 0:   # If the cross product is non-zero the point is not in the line.
-            print("Cross product not null, point not in line.")
+        # Check if the cross b x p is 0, if not the vectors are not collinear.
+        matrix = np.array([[1, 1, 1], b, p, ])
+        if np.linalg.det(matrix) != 0:
             return False
 
-        # Check if q dot b is negative.
-        dot_qb = np.dot(q, b)
-        if  dot_qb < 0:
-            print("Dot product is negative, they have opposite direction, point not in line")
+        # Check if b and p have opposite directions
+        dot_b_p = np.dot(p, b)
+        if  dot_b_p < 0:
             return False
 
         # Finally check that q-vector is shorter b-vecotr
-        dot_qq = np.dot(q,q)
-        if dot_qq > dot_qb:
+        dot_qq = np.dot(p, p)
+        if dot_qq > dot_b_p:
             print("q-vector longer than b-vector")
             return False
 
         return True
 
     def in_trinagle(self, triangle, w):
-        """ Takes three points of a triangle in 3d, and determines if the point q is within that triangle.
+        """ Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
+            This function utilizes the baycentric technique explained here
+            https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
+
         :param triangle: ndarray
-            An ndarray 3x3, with points a, b and c beeing triangle[0]..[2]
+            An ndarray with shape: (3,3), with points A, C and C beeing triangle[0]..[2]
         :param w: ndarray
-            An ndarray 1x3, the point to be tested for inclusion in the triangle.
+            An ndarray with shape: (3,), the point to be tested for inclusion in the triangle.
         :return: Bool
-            True if q is within the triangle abc.
+            True if 'w' is within the triangle ABC.
         """
 
-        # Make 'a' the local origo for the points. Making a,u,v and w vectors from origo.
-        a = np.array([0])
-        u = np.array([1]) - a
-        v = np.array([2]) - a
-        w -= a
-        a = np.array([0, 0, 0])
+        # Make 'A' the local origo for the points.
+        u = triangle[1] - triangle[0]  # 'u' is the vector from A to B
+        v = triangle[2] - triangle[0]  # 'v' is the vector from A to C
+        w -= triangle[0]               # 'w' is now the vector from A to the point being tested for inclusion
 
-        ucv = np.cross(u, v)        # Calculating the vector of the cross product u x v
-        if np.dot(ucv, w) == 0:  # If w-vector is not coplanar to u and v-vector, it is not in the triangle.
+
+        u_X_v = np.cross(u, v)        # Calculating the vector of the cross product u x v
+        if np.dot(u_X_v, w) != 0:  # If w-vector is not coplanar to u and v-vector, it is not in the triangle.
+            print("not coplanar")
             return False
 
-        vcw = np.cross(v, w)        # Calculating the vector of the cross product v x w
-        vcu = np.cross(v, u)        # Calculating the vector of the cross product v x u
-        if np.dot(vcw, vcu) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+        v_X_w = np.cross(v, w)        # Calculating the vector of the cross product v x w
+        v_X_u = np.cross(v, u)        # Calculating the vector of the cross product v x u
+        if np.dot(v_X_w, v_X_u) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+            print("v_X_w anc v_X_u has opposite directions")
             return False
 
-        ucw = np.cross(u, w)        # Calculating the vector of the cross product u x w
-        if np.dot(ucw, ucv) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+        u_X_w = np.cross(u, w)        # Calculating the vector of the cross product u x w
+
+        if np.dot(u_X_w, u_X_v) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+            print("ucw and u_X_v ")
             return False
+
+        denom = np.linalg.norm(u_X_v)
+        r = (v_X_w /denom)
+        t = np.linalg.norm(u_X_w)
+
+        print("got to the end")
+        return (r + t <= 1)
+
+
 
 
 
