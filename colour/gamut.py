@@ -23,13 +23,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 from scipy import spatial
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D, art3d
 
 
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-
     def __init__(self, sp, points):
         """Construct new gamut instance and compute the gamut.
 
@@ -92,8 +91,8 @@ class Gamut:
         else:
             indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indencis is initialized with negative numb.
             c_data = c_data.get(sp)
-            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool array with the same shape as the
-                                                                 # nd_data (minus the last dimension)
+            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)     # Create a bool array with the same shape as the
+                                                                    # nd_data(minus the last dimension)
             self.traverse_ndarray(c_data, indices, bool_array)
 
     def traverse_ndarray(self, nda, indices, bool_array):
@@ -115,9 +114,9 @@ class Gamut:
         """
         if np.ndim(nda) != 1:  # Not yet reached a leaf node
             curr_dim = 0
-            for index in np.nditer(indices):    # calculate the dimension number witch we are currently in
-                if index != -1:     # If a dimension is previously iterated the cell will have been changed to a
-                                    # non-negative number.
+            for index in np.nditer(indices):              # calculate the dimension number witch we are currently in
+                if index != -1:         # If a dimension is previously iterated the cell will have been changed to a
+                                        # non-negative number.
                     curr_dim += 1
 
             numb_of_iterations = 0
@@ -128,12 +127,15 @@ class Gamut:
             indices[curr_dim] = -1  # should reset the indences array when the call dies
 
         else:   # We have reached a leaf node
-                # self.single_point_inside(nda) # nda is now reduced to a one dimensional list containing three numbers.
-                                                # (a data point to be checked)
+            # self.single_point_inside(nda)  # nda is now reduced to a one dimensional list containing three numbers.
+                                            # (a data point to be checked)
             print("Leaf node found:")
             bool_array[(tuple(indices))] = True
             print(bool_array)
             print("----------------")
+
+            # print(indices)
+            # print(nda)
 
     def single_point_inside(self, hull, point):
         """Checks if a single coordinate in 3d is inside the given hull.
@@ -168,25 +170,51 @@ class Gamut:
         point_array = np.array(point_list)
         return point_array
 
-    def get_surface(self, sp):
-        """Get representation of the gamut
+    """def get_surface(self, sp):
+
 
             Parameters
             ----------
             :param sp: Space
                 The colour space for computing the gamut.
             :return:
-        """
+
         nd_data = self.data.get_linear(sp)
+
         points = self.get_vertices(nd_data)
         x = points[:, 0]
         y = points[:, 1]
         z = points[:, 2]
 
-        print(points)
         fig = plt.figure()
-        ax = Axes3D(fig)
+        ax = fig.add_subplot(111, projection='3d')
         ax.plot_trisurf(x, y, z, cmap=plt.cm.jet)
+        plt.show()"""
+
+    def plot_surface(self, ax, sp):
+        """Plot all the vertices points on the recived axel
+
+            Parameters
+            ----------
+            :param ax: Axel
+                The axel to draw the points on
+            :param sp: Space
+                The colour space for computing the gamut.
+        """
+        nd_data = self.data.get_linear(sp)              # Creates a new ndarray with points
+        points = self.get_vertices(nd_data)             # ndarray with all the vertices
+        x = points[:, 0]
+        y = points[:, 1]
+        z = points[:, 2]
+
+        for i in range(self.hull.simplices.shape[0]):   # Itirates and draws all the vertices points
+            tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
+            ax.add_collection(tri)                      # Adds created points to the ax
+
+        ax.set_xlim([0, 20])                            # Set the limits for the plot manually
+        ax.set_ylim([-20, 20])
+        ax.set_zlim([-20, 20])
+        plt.show()
 
     def feito_torres (self, P):
         """ Tests if a point P is inside a polyhedron.
@@ -263,6 +291,7 @@ class Gamut:
                 a = line[0]
                 b = line[1]
     '''
+
     def in_line(self, line, p):
         """ Checks if a point P is on the line from  A to B
 
@@ -335,9 +364,3 @@ class Gamut:
 
         print("got to the end")
         return r + t <= 1
-
-
-
-
-
-
