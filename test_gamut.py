@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from colour import data, gamut, space
-
+import matplotlib.pyplot as plt
 
 """Unittests for all functions in the gamut module. """
 # Global variables.
@@ -76,17 +76,28 @@ class TestGamut(unittest.TestCase):
         vertices = g.get_vertices(n_data)
         self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares returend array with the known vertices array.
 
+    def test_plot_surface(self):
+        # Test for gamut.Gamut.plot_surface
+        fig = plt.figure()                          # Creates a figure
+        ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
+
+        c_data = data.Data(space.srgb, n_data)      # Generating the colour Data object
+        g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
+        sp = space.xyz                              # specifices the colorspace
+        g.plot_surface(ax, sp)                      # Calls the plot function
+
+        """
     def test_get_surface(self):
         # Test for gamut.Gamut.get_surface
         c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        sp = space.srgb
+        sp = colour.space.srgb
         g.get_surface(sp)
+        """
 
     def test_in_line(self):
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
-
 
         self.assertFalse(False, g.in_line(line, point_not_paralell_to_line))             # Point in NOT parallel to line
         self.assertFalse(False, g.in_line(line, point_opposite_direction_than_line))     # Point opposite dir then line
@@ -98,7 +109,7 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetrahedron_point_inside))  # Point is on the tetrahedron
-        self.assertFalse(False, g.in_tetrahedron(tetrahedron, tetrahedron_point_not_inside))  # Point is NOT on tetrahedron
+        self.assertFalse(False, g.in_tetrahedron(tetrahedron, tetrahedron_point_not_inside))    # Point is NOT on tetrahedron
         self.assertTrue(True,g.in_tetrahedron(tetrahedron, tetrahedron_point_on_surface))
 
     def test_in_triangle(self):
@@ -107,6 +118,12 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(False, g.in_trinagle(triangle, triangle_point_not_coplanar))
         self.assertFalse(False, g.in_trinagle(triangle, triangle_point_coplanar_but_outside))
         self.assertTrue(True, g.in_trinagle(triangle, triangle_point_inside))
+
+    def test_feito_torres(self):
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        g.feito_torres(P=1)
 
 
 if __name__ == '__main__':
