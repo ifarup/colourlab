@@ -46,9 +46,9 @@ point_opposite_direction_than_line = np.array([-1, -1, -1])
 point_further_away_than_line = np.array([4, 4, 4])
 
 tetrahedron = np.array([[0, 0, 0], [0, 10, 0], [10, 0, 0], [0, 0, 10]])     # Tetrahedron used in testing.
-tetrahedron_point_inside = np.array([2, 3, 4])          # Point inside the tetrahedron to be tested.
-tetrahedron_point_not_inside = np.array([20, 1, 2])     # Point outside the tetrahedron to be tested.
-tetrahedron_point_on_surface = np.array([0, 5, 0])
+tetra_p_inside = np.array([2, 3, 4])               # Point inside the tetrahedron to be tested.
+tetra_p_not_inside = np.array([20, 1, 2])          # Point outside the tetrahedron to be tested.
+tetra_p_on_surface = np.array([0, 5, 0])
 
 triangle = np.array([[0, 0, 0], [4, 0, 0], [0, 0, 4]])
 triangle_point_inside = np.array([2, 0, 2])
@@ -121,9 +121,9 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetrahedron_point_inside))  # Point is on the tetrahedron
-        self.assertFalse(False, g.in_tetrahedron(tetrahedron, tetrahedron_point_not_inside))    # Point is NOT on tetrahedron
-        self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetrahedron_point_on_surface))
+        self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
+        self.assertFalse(False, g.in_tetrahedron(tetrahedron, tetra_p_not_inside))  # Point is NOT on tetrahedron
+        self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetra_p_on_surface))
 
     def test_in_triangle(self):
         c_data = data.Data(space.srgb, n_data)
