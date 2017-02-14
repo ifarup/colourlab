@@ -33,12 +33,10 @@ class Gamut:
     def __init__(self, sp, points):
         """Construct new gamut instance and compute the gamut.
 
-        Parameters
-        ----------
-        sp : Space
-            The colour space for computing the gamut.
-        points : Data
-            The colour points for the gamut.
+            :param sp : Space
+                The colour space for computing the gamut.
+            :param points : Data
+                The colour points for the gamut.
         """
         self.data = points      # The data points are stored in the original format.
         self.space = None
@@ -51,13 +49,11 @@ class Gamut:
     def initialize_convex_hull(self, sp, points):
         """Initializes the gamuts convex hull in the desired colour space
 
-                Parameters
-                ----------
-                sp : Space
-                    The colour space for computing the gamut.
-                points : Data
-                    The colour points for the gamut.
-                """
+            :param sp : Space
+                The colour space for computing the gamut.
+            :param points : Data
+                The colour points for the gamut.
+        """
 
         self.space = sp
         self.hull = spatial.ConvexHull(points.get_linear(sp))
@@ -69,11 +65,9 @@ class Gamut:
         """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
-            Parameters
-            ----------
-            sp : Space
+            :param sp : Space
                 The colour space for computing the gamut.
-            c_data : Data
+            :param c_data : Data
                 Data object with the colour points for the gamut.
         """
 
@@ -100,8 +94,6 @@ class Gamut:
         """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
-                Parameters
-                ----------
                 :param nda : ndarray
                       An n-dimensional array containing the remaining dimensions to iterate.
                 :param indices : array
@@ -138,13 +130,11 @@ class Gamut:
     def single_point_inside(self, hull, point):
         """Checks if a single coordinate in 3d is inside the given hull.
 
-                Parameters
-                ----------
-                :param hull : ndarray
-                    Convex hull
-                :param point: coordinate
-                    A single coordinate to be tested if it is inside the hull.
-                :return
+            :param hull : ndarray
+                Convex hull
+            :param point: coordinate
+                A single coordinate to be tested if it is inside the hull.
+            :return
 
         """
 
@@ -156,10 +146,9 @@ class Gamut:
     def get_vertices(self, nd_data):
         """Get all convex hull vertices points and save it in a array list.
 
-            Parameter
-            ---------
-
-        :return: point_list
+            :param nd_data : ndarray
+                Datapoints
+            :return: point_list
         """
 
         point_list = []  # Array list with vertices points.
@@ -205,6 +194,7 @@ class Gamut:
         v_minus = np.array()
 
         for el in self.simplices:
+            print("a")
 
 
     def in_tetrahedron(self, tetrahedron, q):
