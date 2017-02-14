@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
 gamut: Colour metric functions. Part of the colour package.
 
 Copyright (C) 2013-2016 Ivar Farup, Lars Niebuhr,
-Sahand Lahefdoozian, Nawar Behenam, Jakob Voigt
+Sahand Lahafdoozian, Nawar Behenam, Jakob Voigt
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
