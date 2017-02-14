@@ -200,9 +200,9 @@ class Gamut:
             tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
-        ax.set_xlim([0, 20])                            # Set the limits for the plot manually
-        ax.set_ylim([-20, 20])
-        ax.set_zlim([-20, 20])
+        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
+        ax.set_ylim([-10, 10])
+        ax.set_zlim([-10, 10])
         plt.show()
 
     def feito_torres (self, P):

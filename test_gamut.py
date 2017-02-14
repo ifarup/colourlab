@@ -26,9 +26,9 @@ point_further_away_than_line = np.array([4,4,4])
 tetrahedron = np.array([[0, 0, 0], [0, 10, 0], [10, 0, 0], [0, 0, 10]]) # Tetrahedron used in testing.
 tetrahedron_point_inside = np.array([2, 3, 4])               # Point inside the tetrahedron to be tested.
 tetrahedron_point_not_inside = np.array([20, 1, 2])          # Point outside the tetrahedron to be tested.
-tetrahedron_point_on_surface = np.array([0,5,0])
+tetrahedron_point_on_surface = np.array([0, 5, 0])
 
-triangle = np.array([[0, 0, 0],[4, 0, 0],[0, 0, 4]])
+triangle = np.array([[0, 0, 0], [4, 0, 0], [0, 0, 4]])
 triangle_point_inside = np.array([2, 0, 2])
 triangle_point_not_coplanar = np.array([2, 2, 2])
 triangle_point_coplanar_but_outside = np.array([5, 0, 3])
@@ -44,20 +44,10 @@ class TestGamut(unittest.TestCase):
 
         self.assertEqual(vertices.tolist(), g.vertices.tolist())    # Checking that the vertecis match
 
-    def test_is_inside(self):
-        # Test for gamut.Gamut.is_inside
+    def test_is_inside(self):   # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
-
-        '''
-        points = np.array([[1, 1, 1],   # inside
-                           [2, 2, 3],   # inside
-                           [20, 2, 3],  # outside
-                           [1, 2, 30]]) # outside
-        '''
-
         points = np.ones((2, 2, 2, 3))
-
         c_points = data.Data(space.srgb, points)
         g.is_inside(space.srgb, c_points)
 
@@ -74,26 +64,16 @@ class TestGamut(unittest.TestCase):
                            [0, 0, 10],      # 9 vertecis
                            [0, 10, 10]])    # 10 vertecis
         vertices = g.get_vertices(n_data)
-        self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares returend array with the known vertices array.
+        self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares return array with the known vertices array.
 
-    def test_plot_surface(self):
-        # Test for gamut.Gamut.plot_surface
+    def test_plot_surface(self):         # Test for gamut.Gamut.plot_surface
         fig = plt.figure()                          # Creates a figure
         ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
         c_data = data.Data(space.srgb, n_data)      # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
-        sp = space.xyz                              # specifices the colorspace
+        sp = g.space                                # specifies the color space
         g.plot_surface(ax, sp)                      # Calls the plot function
-
-        """
-    def test_get_surface(self):
-        # Test for gamut.Gamut.get_surface
-        c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
-        g = gamut.Gamut(space.srgb, c_data)
-        sp = colour.space.srgb
-        g.get_surface(sp)
-        """
 
     def test_in_line(self):
         c_data = data.Data(space.srgb, n_data)
@@ -110,7 +90,7 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetrahedron_point_inside))  # Point is on the tetrahedron
         self.assertFalse(False, g.in_tetrahedron(tetrahedron, tetrahedron_point_not_inside))    # Point is NOT on tetrahedron
-        self.assertTrue(True,g.in_tetrahedron(tetrahedron, tetrahedron_point_on_surface))
+        self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetrahedron_point_on_surface))
 
     def test_in_triangle(self):
         c_data = data.Data(space.srgb, n_data)
