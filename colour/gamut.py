@@ -323,36 +323,36 @@ class Gamut:
 
         return True
 
-    def in_trinagle(self, triangle, w):
+    def in_trinagle(self, triangle, p):
         """ Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
             This function utilizes the baycentric technique explained here
             https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
 
         :param triangle: ndarray
             An ndarray with shape: (3,3), with points A, C and C beeing triangle[0]..[2]
-        :param w: ndarray
+        :param p: ndarray
             An ndarray with shape: (3,), the point to be tested for inclusion in the triangle.
         :return: Bool
             True if 'w' is within the triangle ABC.
         """
 
         # Make 'A' the local origo for the points.
-        u = triangle[1] - triangle[0]  # 'u' is the vector from A to B
-        v = triangle[2] - triangle[0]  # 'v' is the vector from A to C
-        w -= triangle[0]               # 'w' is now the vector from A to the point being tested for inclusion
+        b = triangle[1] - triangle[0]  # 'b' is the vector from A to B
+        c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
+        p -= triangle[0]               # 'p' is now the vector from A to the point being tested for inclusion
 
-        u_X_v = np.cross(u, v)        # Calculating the vector of the cross product u x v
-        if np.dot(u_X_v, w) != 0:  # If w-vector is not coplanar to u and v-vector, it is not in the triangle.
+        u_X_v = np.cross(b, c)        # Calculating the vector of the cross product b x c
+        if np.dot(u_X_v, p) != 0:  # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
             print("not coplanar")
             return False
 
-        v_X_w = np.cross(v, w)        # Calculating the vector of the cross product v x w
-        v_X_u = np.cross(v, u)        # Calculating the vector of the cross product v x u
+        v_X_w = np.cross(c, p)        # Calculating the vector of the cross product c x p
+        v_X_u = np.cross(c, b)        # Calculating the vector of the cross product c x b
         if np.dot(v_X_w, v_X_u) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
             print("v_X_w anc v_X_u has opposite directions")
             return False
 
-        u_X_w = np.cross(u, w)        # Calculating the vector of the cross product u x w
+        u_X_w = np.cross(b, p)        # Calculating the vector of the cross product b x p
 
         if np.dot(u_X_w, u_X_v) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
             print("ucw and u_X_v ")
