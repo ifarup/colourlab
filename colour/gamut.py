@@ -146,17 +146,19 @@ class Gamut:
         return False
 
     def get_vertices(self, nd_data):
-        """Get all convex hull vertices points and save it in a array list.
+        """Get all hull vertices and save them in a array list.
 
             :param nd_data : ndarray
-                Datapoints
+                The a copy of gamut.points pre-converted to a desierd colour space.
             :return: point_list
         """
 
         point_list = []                     # Array list with vertices points.
+
         for i in self.hull.vertices:        # For loop that goes through all the vertices
             point_list.append(nd_data[i])   #  and for each goes to the points and adds the coordinents to
-        point_array = np.array(point_list)  #  the list.
+        point_array = np.array(point_list)  #  the list
+
         return point_array                  # Returns ndarray.
 
     """def get_surface(self, sp):
@@ -335,21 +337,21 @@ class Gamut:
             print("not coplanar")
             return False
 
-        v_X_w = np.cross(c, p)        # Calculating the vector of the cross product c x p
-        v_X_u = np.cross(c, b)        # Calculating the vector of the cross product c x b
-        if np.dot(v_X_w, v_X_u) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
-            print("v_X_w anc v_X_u has opposite directions")
+        c_X_p = np.cross(c, p)        # Calculating the vector of the cross product c x p
+        c_X_b = np.cross(c, b)        # Calculating the vector of the cross product c x b
+
+        if np.dot(c_X_p, c_X_b) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
+            print("c_X_p anc c_X_b has opposite directions")
             return False
 
-        u_X_w = np.cross(b, p)        # Calculating the vector of the cross product b x p
+        c_X_p = np.cross(b, p)  # Calculating the vector of the cross product b x p
 
-        if np.dot(u_X_w, b_X_c) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
-            print("ucw and b_X_c ")
+        if np.dot(c_X_p, b_X_c) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
+            print("c_X_p and  ")
             return False
-
         denom = np.linalg.norm(b_X_c)
-        r = v_X_w /denom
-        t = np.linalg.norm(u_X_w)
+        r = c_X_p /denom
+        t = np.linalg.norm(c_X_p)
 
         print("got to the end")
         return r + t <= 1
