@@ -108,6 +108,12 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(False, g.in_trinagle(triangle, triangle_point_coplanar_but_outside))
         self.assertTrue(True, g.in_trinagle(triangle, triangle_point_inside))
 
+    def test_feito_torres(self):
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        g.feito_torres(P=1)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)

@@ -199,11 +199,43 @@ class Gamut:
                 True if P is included in the polyhedron.
         """
 
-        inclusion = np.array()
-        v_pluss = np.array()
-        v_minus = np.array()
+        inclusion = []
+        v_pluss = []
+        v_minus = []
 
         for el in self.simplices:
+            facet = self.get_coordinates(el)   #  Get the coordinates for the current facet
+
+            if self.in_trinagle(facet, P):  # Check if P is on the current facet.
+                return True
+
+            o_v1 = np.array([0,0,0], facet[0])  # vector from origo to the first vertex in the facet
+
+
+            if ( self.in_line(o_v1, P) ) & ((  & ... )  | ( ... & ... ))
+
+
+    def sign(self, ):
+        
+
+
+    def get_coordinates(self, indices):
+        """Return the coordinates of points correlating to the  the indices provided.
+
+        :param indices: ndarray
+            shape(N,), list of indices
+        :return: ndarray
+            shape(N, 3)
+
+        """
+        coordinates = np.array(indices.shape[0], 3)
+
+        counter = 0
+        for index in indices:
+            coordinates[counter] = self.points(index)
+            counter += 1
+
+        return coordinates
 
 
     def in_tetrahedron(self, tetrahedron, p):
@@ -303,6 +335,7 @@ class Gamut:
 
         print("got to the end")
         return r + t <= 1
+
 
 
 
