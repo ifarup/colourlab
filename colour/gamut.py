@@ -196,7 +196,28 @@ class Gamut:
 
             # if( self.in_line(o_v1, P) ) & ((  & ... )  | ( ... & ... ))
 
-    def sign(self):
+    def sign(self, tetrahedron):
+        """ Calculates the orientation of the tetrahedron.
+
+        :param tetrahedron: ndarray
+            shape(4,3) The four coordinates of the tetredron whos signed volume is to be calculated
+        :return: int
+             1 if tetrahedron is POSITIVE orientated(signed volume > 0)
+             0 if volume is 0
+            -1 if tetrahedron is NEGATIVE orientated(signed volume < 0)
+        """
+
+        D = tetrahedron[0]  # Origo or a points Q
+        A = tetrahedron[1]
+        B = tetrahedron[2]
+        C = tetrahedron[3]
+
+        matrix = np.array([[A[0], A[1], A[2], 1],   # Creating the matrix for calculating a determinant, representing
+                           [B[0], B[1], B[2], 1],   # the signed volume of the tetrahedron.
+                           [C[0], C[1], C[2], 1],
+                           [D[0], D[1], D[2], 1]])
+
+
         return True
 
     def get_coordinates(self, indices):

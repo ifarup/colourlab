@@ -134,5 +134,5 @@ class TestGamut(unittest.TestCase):
         g.feito_torres(P=1)
     """
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     unittest.main(exit=False)
