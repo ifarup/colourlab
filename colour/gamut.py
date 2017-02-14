@@ -58,12 +58,7 @@ class Gamut:
                     The colour points for the gamut.
                 """
 
-       # print(points.get_linear(sp))
         self.space = sp
-
-                # TODO: Change back to point.get_linear(sp)
-       # self.hull = spatial.ConvexHull(points.get(colour.space.xyz))   # Creating the convex hull in the desired colour space
-
         self.hull = spatial.ConvexHull(points.get_linear(sp))
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
@@ -106,15 +101,15 @@ class Gamut:
 
                 Parameters
                 ----------
-                nda : ndarray
+                :param nda : ndarray
                       An n-dimensional array containing the remaining dimensions to iterate.
-                indices : array
+                :param indices : array
                         The dimensional path to the coordinate.
                         Needs to be as long as the (amount of dimensions)-1 in nda and filled with -1's
-                bool_array : ndarray
+                :param bool_array : ndarray
                         Array containing true/fals in last dimention.
                         Shape is the same as nda(minus the last dim)
-                hull: ConvexHull
+                :param hull: ConvexHull
                     A ConvexHull generated from the gamuts vertices.
         """
         if np.ndim(nda) != 1:  # Not yet reached a leaf node
@@ -142,15 +137,17 @@ class Gamut:
             # print(indices)
             # print(nda)
 
-    def single_point_inside(hull, point):
+    def single_point_inside(self, hull, point):
         """Checks if a single coordinate in 3d is inside the given hull.
 
                 Parameters
                 ----------
-                hull : array
+                :param hull : ndarray
                     Convex hull
-                point: coordinate
+                :param point: coordinate
                     A single coordinate to be tested if it is inside the hull.
+                :return
+
         """
 
         new_hull = spatial.ConvexHull(np.concatenate((hull.points, [point])))
@@ -218,3 +215,120 @@ class Gamut:
         ax.set_ylim([-20, 20])
         ax.set_zlim([-20, 20])
         plt.show()
+
+    def feito_torres (self, P):
+        """ Tests if a point P is inside a polyhedron.
+
+            Parameters
+            ----------
+            :param P: ndarray
+                Point to be tested for inclusion.
+            :return: bool
+                True if P is included in the polyhedron.
+        """
+
+        inclusion = np.array()
+        v_pluss = np.array()
+        v_minus = np.array()
+
+        for el in self.simplices:
+            print("a")
+
+    def in_tetrahedron(self, tetrahedron, p):
+        """Checks if the point P, pointed to by vector p, is inside(incuding the surface) the tetrahedron
+
+                     Parameters
+                     ----------
+                     :param tetrahedron: ndarray
+                        The four points of a tetrahedron
+                     :param p: ndarray
+                        The point to be tested for inclusion in the tetrahedron.
+
+                     :return: Bool
+                        True if q is inside or on the surface of the tetrahedron.
+                 """
+        hull = spatial.Delaunay(tetrahedron)  # Generate a convex hull repesentaion of points
+        return hull.find_simplex(p) >= 0  # and check if 'q' is inside.
+
+    '''
+            # If neccesary move the line so that a is the origin.
+            if line[0] != np.array([0,0,0]):
+                a = np.array([0,0,0])
+                b = line[1] - line[0]
+            else:
+                a = line[0]
+                b = line[1]
+    '''
+
+    def in_line(self, line, p):
+        """ Checks if a point P is on the line from  A to B
+
+        :param line: ndarray
+            line segment from point A to point B
+        :param p: ndarray
+            Vector from A to P
+        :return: Bool
+            True is P in in the line segment from A to P.
+        """
+
+        b = line[1] - line[0]  # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
+
+        # Check if the cross b x p is 0, if not the vectors are not collinear.
+        matrix = np.array([[1, 1, 1], b, p, ])
+        if np.linalg.det(matrix) != 0:
+            return False
+
+        # Check if b and p have opposite directions
+        dot_b_p = np.dot(p, b)
+        if  dot_b_p < 0:
+            return False
+
+        # Finally check that q-vector is shorter b-vector
+        dot_qq = np.dot(p, p)
+        if dot_qq > dot_b_p:
+            print("q-vector longer than b-vector")
+            return False
+
+        return True
+
+    def in_trinagle(self, triangle, w):
+        """ Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
+            This function utilizes the baycentric technique explained here
+            https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
+
+        :param triangle: ndarray
+            An ndarray with shape: (3,3), with points A, C and C beeing triangle[0]..[2]
+        :param w: ndarray
+            An ndarray with shape: (3,), the point to be tested for inclusion in the triangle.
+        :return: Bool
+            True if 'w' is within the triangle ABC.
+        """
+
+        # Make 'A' the local origo for the points.
+        u = triangle[1] - triangle[0]  # 'u' is the vector from A to B
+        v = triangle[2] - triangle[0]  # 'v' is the vector from A to C
+        w -= triangle[0]               # 'w' is now the vector from A to the point being tested for inclusion
+
+        u_X_v = np.cross(u, v)        # Calculating the vector of the cross product u x v
+        if np.dot(u_X_v, w) != 0:  # If w-vector is not coplanar to u and v-vector, it is not in the triangle.
+            print("not coplanar")
+            return False
+
+        v_X_w = np.cross(v, w)        # Calculating the vector of the cross product v x w
+        v_X_u = np.cross(v, u)        # Calculating the vector of the cross product v x u
+        if np.dot(v_X_w, v_X_u) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+            print("v_X_w anc v_X_u has opposite directions")
+            return False
+
+        u_X_w = np.cross(u, w)        # Calculating the vector of the cross product u x w
+
+        if np.dot(u_X_w, u_X_v) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+            print("ucw and u_X_v ")
+            return False
+
+        denom = np.linalg.norm(u_X_v)
+        r = v_X_w /denom
+        t = np.linalg.norm(u_X_w)
+
+        print("got to the end")
+        return r + t <= 1
