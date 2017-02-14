@@ -25,6 +25,7 @@ import numpy as np
 from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d
+import scipy as sci
 
 
 class Gamut:
@@ -196,10 +197,10 @@ class Gamut:
 
             # if( self.in_line(o_v1, P) ) & ((  & ... )  | ( ... & ... ))
 
-    def sign(self, tetrahedron):
+    def sign(self, t):
         """ Calculates the orientation of the tetrahedron.
 
-        :param tetrahedron: ndarray
+        :param t: ndarray
             shape(4,3) The four coordinates of the tetredron whos signed volume is to be calculated
         :return: int
              1 if tetrahedron is POSITIVE orientated(signed volume > 0)
@@ -207,18 +208,28 @@ class Gamut:
             -1 if tetrahedron is NEGATIVE orientated(signed volume < 0)
         """
 
-        D = tetrahedron[0]  # Origo or a points Q
-        A = tetrahedron[1]
-        B = tetrahedron[2]
-        C = tetrahedron[3]
+        D = t[0]  # Origo or a points Q
+        A = t[1]
+        B = t[2]
+        C = t[3]
 
-        matrix = np.array([[A[0], A[1], A[2], 1],   # Creating the matrix for calculating a determinant, representing
-                           [B[0], B[1], B[2], 1],   # the signed volume of the tetrahedron.
-                           [C[0], C[1], C[2], 1],
-                           [D[0], D[1], D[2], 1]])
+        # print(t)
+        # matrix = np.array([[1, 1, 1, 1],   # Creating the matrix for calculating a determinant, representing
+        #                    [0, 10, 0, 2],   # the signed volume of the t.
+        #                    [0, 2, 0, 0],
+        #                    [0, 0, 2, 0]])
 
+        # matrix = np.array([[      1,       1,       1,       1],  # Creating the matrix for calculating a determinant, representing
+        #                    [t[0, 0], t[1, 0], t[2, 0], t[3, 0]],  # the signed volume of the t.
+        #                    [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
+        #                    [t[0, 2], t[1, 2], t[2, 2], t[3, 2]]])
 
-        return True
+        matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+
+        # print(matrix)
+        # print(np.shape(matrix))
+        print(sci.linalg.det(matrix))
+        return int(np.sign(sci.linalg.det(matrix)))  # Calculates the signed volume and returns its sign.
 
     def get_coordinates(self, indices):
         """Return the coordinates of points correlating to the  the indices provided.

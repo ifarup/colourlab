@@ -56,6 +56,10 @@ triangle_point_not_coplanar = np.array([2, 2, 2])
 triangle_point_coplanar_but_outside = np.array([5, 0, 3])
 
 
+
+
+
+
 class TestGamut(unittest.TestCase):
 
     def test_gamut_initialize(self):
@@ -126,6 +130,13 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(False, g.in_trinagle(triangle, triangle_point_coplanar_but_outside))
         self.assertTrue(True, g.in_trinagle(triangle, triangle_point_inside))
 
+    def test_sign(self):
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
+        print(g.sign(tetrahedron))
+
+
+
     """
     def test_feito_torres(self):
         c_data = data.Data(space.srgb, n_data)
@@ -134,5 +145,5 @@ class TestGamut(unittest.TestCase):
         g.feito_torres(P=1)
     """
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     unittest.main(exit=False)
