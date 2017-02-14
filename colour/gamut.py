@@ -330,8 +330,8 @@ class Gamut:
         c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
         p -= triangle[0]               # 'p' is now the vector from A to the point being tested for inclusion
 
-        u_X_v = np.cross(b, c)        # Calculating the vector of the cross product b x c
-        if np.dot(u_X_v, p) != 0:  # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
+        b_X_c = np.cross(b, c)        # Calculating the vector of the cross product b x c
+        if np.dot(b_X_c, p) != 0:  # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
             print("not coplanar")
             return False
 
@@ -343,11 +343,11 @@ class Gamut:
 
         u_X_w = np.cross(b, p)        # Calculating the vector of the cross product b x p
 
-        if np.dot(u_X_w, u_X_v) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
-            print("ucw and u_X_v ")
+        if np.dot(u_X_w, b_X_c) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+            print("ucw and b_X_c ")
             return False
 
-        denom = np.linalg.norm(u_X_v)
+        denom = np.linalg.norm(b_X_c)
         r = v_X_w /denom
         t = np.linalg.norm(u_X_w)
 
