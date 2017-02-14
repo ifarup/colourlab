@@ -153,11 +153,11 @@ class Gamut:
             :return: point_list
         """
 
-        point_list = []  # Array list with vertices points.
-        for i in self.hull.vertices:
-            point_list.append(nd_data[i])
-        point_array = np.array(point_list)
-        return point_array
+        point_list = []                     # Array list with vertices points.
+        for i in self.hull.vertices:        # For loop that goes through all the vertices
+            point_list.append(nd_data[i])   #  and for each goes to the points and adds the coordinents to
+        point_array = np.array(point_list)  #  the list.
+        return point_array                  # Returns ndarray.
 
     """def get_surface(self, sp):
 
