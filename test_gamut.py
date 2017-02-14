@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
 test_gamut: Unittests for all functions in the gamut module.
 
