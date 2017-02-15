@@ -183,7 +183,7 @@ class Gamut:
             True if P is included in the polyhedron.
         """
         inclusion = []
-        v_pluss = []
+        v_plus = []
         v_minus = []
 
         for el in self.simplices:
@@ -192,9 +192,17 @@ class Gamut:
                 return True
 
             o_v1 = np.array([0, 0, 0], facet[0])    # vector from origo to the first vertex in the facet.
-            o_face = np.array([[0, 0, 0], facet[0],facet[1],facet[2]])  # original tetrahedra from face to origo.
+            o_face = np.array([[0, 0, 0], facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
 
-            if( self.in_line(o_v1, P) ) & ((self.sign(o_face) > 0 & (np.in1d(facet[0], v_pluss)) )  | ( ... & ... ))
+            if(self.in_line(o_v1, P)) and \
+                    ((self.sign(o_face) > 0 and not (np.in1d(facet[0], v_plus))) or
+                        (self.sign(o_face) < 0 and not (np.in1d(facet[0], v_minus)))):
+                print("heftig 'if' worked")
+                inclusion += self.sign(o_face[0])   # oppdatere sign til å funke for en vektor?!
+                if self.sign(o_face) < 0:           # add Point to pos. oriented facets or neg. oriented facets
+                    v_minus += P
+                else:
+                    v_plus += P
 
     def sign(self, t):
         """ Calculates the orientation of the tetrahedron.
