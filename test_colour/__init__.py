@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-colour: Colour spaces, colour metrics and colour data
+test_colour: Colour spaces, colour metrics and colour data tests
 
-Copyright (C) 2011-2016 Ivar Farup
+Copyright (C) 2013-2016 Ivar Farup, Lars Niebuhr,
+Sahand Lahafdoozian, Nawar Behenam, Jakob Voigt
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
