@@ -50,6 +50,9 @@ tetra_p_inside = np.array([2, 3, 4])               # Point inside the tetrahedro
 tetra_p_not_inside = np.array([20, 1, 2])          # Point outside the tetrahedron to be tested.
 tetra_p_on_surface = np.array([0, 5, 0])
 
+tetrahedron_two = np.array([[-2, 0, 0], [0, -2, 0], [0, 0, 0], [0, 0, 2]])     # Tetrahedron used in testing.
+
+
 triangle = np.array([[0, 0, 0], [4, 0, 0], [0, 0, 4]])
 triangle_point_inside = np.array([2, 0, 2])
 triangle_point_not_coplanar = np.array([2, 2, 2])
@@ -133,7 +136,7 @@ class TestGamut(unittest.TestCase):
     def test_sign(self):
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
-        print(g.sign(tetrahedron))
+        print(g.sign(tetrahedron_two))
 
 
 

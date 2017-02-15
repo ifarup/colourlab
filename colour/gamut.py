@@ -188,14 +188,13 @@ class Gamut:
 
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
-
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
                 return True
 
-            o_v1 = np.array([0, 0, 0], facet[0])    # vector from origo to the first vertex in the facet
+            o_v1 = np.array([0, 0, 0], facet[0])    # vector from origo to the first vertex in the facet.
+            o_face = np.array([[0, 0, 0], facet[0],facet[1],facet[2]])  # original tetrahedra from face to origo.
 
-
-            # if( self.in_line(o_v1, P) ) & ((  & ... )  | ( ... & ... ))
+            if( self.in_line(o_v1, P) ) & ((self.sign(o_face) > 0 & (np.in1d(facet[0], v_pluss)) )  | ( ... & ... ))
 
     def sign(self, t):
         """ Calculates the orientation of the tetrahedron.
@@ -208,27 +207,13 @@ class Gamut:
             -1 if tetrahedron is NEGATIVE orientated(signed volume < 0)
         """
 
-        D = t[0]  # Origo or a points Q
-        A = t[1]
-        B = t[2]
-        C = t[3]
-
-        # print(t)
-        # matrix = np.array([[1, 1, 1, 1],   # Creating the matrix for calculating a determinant, representing
-        #                    [0, 10, 0, 2],   # the signed volume of the t.
-        #                    [0, 2, 0, 0],
-        #                    [0, 0, 2, 0]])
-
-        # matrix = np.array([[      1,       1,       1,       1],  # Creating the matrix for calculating a determinant, representing
-        #                    [t[0, 0], t[1, 0], t[2, 0], t[3, 0]],  # the signed volume of the t.
-        #                    [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
-        #                    [t[0, 2], t[1, 2], t[2, 2], t[3, 2]]])
-
-        matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-
-        # print(matrix)
-        # print(np.shape(matrix))
+        matrix = np.array([  # Creating the matrix for calculating a determinant, representing
+                           [t[0, 0], t[1, 0], t[2, 0], t[3, 0]],  # the signed volume of the t.
+                           [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
+                           [t[0, 2], t[1, 2], t[2, 2], t[3, 2]],
+                           [1, 1, 1, 1]])
         print(sci.linalg.det(matrix))
+        print(matrix)
         return int(np.sign(sci.linalg.det(matrix)))  # Calculates the signed volume and returns its sign.
 
     def get_coordinates(self, indices):
