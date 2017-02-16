@@ -185,14 +185,16 @@ class Gamut:
         v_plus = []  # a list of vertecis whos original edge contains P, and it's face is POSITIVE oriented
         v_minus = []  # a list of vertecis whos original edge contains P, and it's face is NEGATIVE oriented
 
+        origin = np.array([0., 0., 0.])
+
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
                 print("If 1: P was in triangle")
                 return True
 
-            o_v1 = np.array([[0., 0., 0.], facet[0]])    # vector from origo to the first vertex in the facet.
-            o_face = np.array([[0, 0, 0], facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
+            o_v1 = np.array([origin, facet[0]])    # vector from origo to the first vertex in the facet.
+            o_face = np.array([origin, facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
             sign_face = self.sign(o_face)   # Sign of the current original tetrahedron
 
             if(self.in_line(o_v1, P)) and \
@@ -225,15 +227,36 @@ class Gamut:
                     v_plus.append(el[-1])
                     print("Legg til v+:", v_plus)
 
-            count = 1
-            for el in facet[1:-1]:
-                if self.in_trinagle(np.ndarray([[0, 0, 0,], [facet[0]], [facet[count]]])) or \
-                    self.in_trinagle(np.ndarray([[0, 0, 0, ], [facet[count]], [facet[count+1]]])) or \
-                        self.in_trinagle(np.ndarray([[0, 0, 0, ], [facet[count+1]], [facet[0]]])):
-                    inclusion += 0.5*self.sign()
+            j = 1
+            for vertex in facet[1:-1]:
 
+                # print("xxxxxxxxxxxx")
+                # tetra = np.array([[0., 0., 0.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])
+                # print(tetra)
+                # print(".......................")
+                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])
+                # print(tetra)
+                sign_tetra = self.sign(tetra)
+                # print("xxxxxxxxxxxx")
 
+                if self.in_trinagle(np.array([origin, [facet[0]], [facet[j]]]), P) or \
+                    self.in_trinagle(np.array([origin, [facet[j]], [facet[j+1]]]), P) or \
+                        self.in_trinagle(np.array([origin, [facet[j+1]], [facet[0]]]), P):
+                    inclusion += 0.5*sign_tetra
 
+                elif self.in_line(np.array([origin, facet[j]]), P) and \
+                        ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
+                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
+
+                    inclusion += sign_tetra
+                    if sign_tetra < 0:
+                        v_minus.append(vertex[j])
+                    else:
+                        v_plus.append(vertex[j])
+                elif self.in_tetrahedron(tetra, P):
+                    inclusion += sign_tetra
+
+                j += 1
 
     def sign(self, t):
         """ Calculates the orientation of the tetrahedron.
@@ -283,6 +306,10 @@ class Gamut:
         :return: Bool
             True if q is inside or on the surface of the tetrahedron.
         """
+        if self.four_p_coplanar(tetrahedron):  # The points are coplanar and the "Delaunay soloution
+            return self.in_square(tetrahedron, p)                                    # in the else would not work.
+
+        print(tetrahedron)
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
@@ -359,3 +386,46 @@ class Gamut:
         t = np.linalg.norm(b_X_p) / denom
 
         return r + t <= 1
+
+    def four_p_coplanar(self, points):
+        """Checks if four points are coplanar
+        :param points: ndarray
+            The four points to be tested
+        :return: Bool
+            True if the points are coplanar
+        """
+
+        b = points[1] - points[0]
+        c = points[2] - points[0]
+        d = points[3] - points[0]
+
+        return np.dot(d, np.cross(b, c)) == 0
+
+    def in_square(self, square, P):
+        """Checks if the point P is in the square
+
+        :param square: ndarray
+            shape(4,3), four points in 3d.
+        :param P: ndarray
+            point to be tested for inclusion
+        :return: bool
+            True if the point is within the square
+        """
+        ab = square[1] - square[0]
+        ap = P - square[0]
+        ab_X_ap = np.cross(ab, ap)
+
+        bc = square[2] - square[1]
+        bp = P - square[1]
+        bc_X_bp = np.cross(bc, bp)
+
+        cd = square[3] - square[2]
+        cp = P - square[2]
+        cd_X_cp = np.cross(cd, cp)
+
+        da = square[0] - square[3]
+        dp = P - square[3]
+        da_X_dp = np.cross(da, dp)
+
+        return (np.dot(ab_X_ap, bc_X_bp) == np.dot(bc_X_bp, cd_X_cp) == np.dot(cd_X_cp, da_X_dp))
+

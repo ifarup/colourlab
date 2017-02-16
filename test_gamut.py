@@ -45,10 +45,10 @@ point_not_paralell_to_line = np.array([2, 3, 2])    # Point outside the line to 
 point_opposite_direction_than_line = np.array([-1, -1, -1])
 point_further_away_than_line = np.array([4, 4, 4])
 
-tetrahedron = np.array([[0, 0, 0], [0, 10, 0], [10, 0, 0], [0, 0, 10]])     # Tetrahedron used in testing.
-tetra_p_inside = np.array([2, 3, 4])               # Point inside the tetrahedron to be tested.
-tetra_p_not_inside = np.array([20, 1, 2])          # Point outside the tetrahedron to be tested.
-tetra_p_on_surface = np.array([0, 5, 0])
+tetrahedron = np.array([[0., 0., 0.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])     # Tetrahedron used in testing.
+tetra_p_inside = np.array([2., 3., 4.])               # Point inside the tetrahedron to be tested.
+tetra_p_not_inside = np.array([20., 1., 2.])          # Point outside the tetrahedron to be tested.
+tetra_p_on_surface = np.array([0., 5., 0.])
 
 tetrahedron_two = np.array([[-2, 0, 0], [0, -2, 0], [0, 0, 0], [0, 0, 2]])     # Tetrahedron used in testing.
 
@@ -62,10 +62,6 @@ triangle2 = np.array([[2., 2., 2.], [6., 2., 2.], [2., 2., 6.]])
 triangle2_point_inside = np.array([4., 2., 4.])
 triangle2_point_not_coplanar = np.array([4., 4., 4.])
 triangle2_point_coplanar_but_outside = np.array([7., 2., 5.])
-
-
-
-
 
 
 class TestGamut(unittest.TestCase):
@@ -152,6 +148,17 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
 
         g.feito_torres(np.array([0., 5., 5.]))
+
+    def test_four_p_coplanar(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[0, 0, 0], [2, 2, 0], [3, 3, 0],[1, 1, 0]]) #coplanar points
+        self.assertTrue(True, g.four_p_coplanar(points))
+
+        points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points
+        self.assertFalse(False, g.four_p_coplanar(points))
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
