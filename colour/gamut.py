@@ -185,21 +185,26 @@ class Gamut:
         inclusion = []
         v_plus = []
         v_minus = []
-
+        print(self.simplices.size/3)
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
+                print(facet)
+                print(P)
+                print("P was in triangle, return true")
                 return True
 
-            o_v1 = np.array([0, 0, 0], facet[0])    # vector from origo to the first vertex in the facet.
+            o_v1 = np.array([[0., 0., 0.], facet[0]])    # vector from origo to the first vertex in the facet.
             o_face = np.array([[0, 0, 0], facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
+            sign_face = self.sign(o_face)   # Sign of the current original tetrahedron
 
             if(self.in_line(o_v1, P)) and \
-                    ((self.sign(o_face) > 0 and not (np.in1d(facet[0], v_plus))) or
-                        (self.sign(o_face) < 0 and not (np.in1d(facet[0], v_minus)))):
+                    ((sign_face > 0 and not (np.in1d(facet[0], v_plus))) or
+                        (sign_face < 0 and not (np.in1d(facet[0], v_minus)))):
                 print("heftig 'if' worked")
-                inclusion += self.sign(o_face[0])   # oppdatere sign til å funke for en vektor?!
-                if self.sign(o_face) < 0:           # add Point to pos. oriented facets or neg. oriented facets
+                inclusion += sign_face
+
+                if sign_face < 0:           # add Point to neg. oriented facets or pos. oriented facets
                     v_minus += P
                 else:
                     v_plus += P
@@ -220,8 +225,8 @@ class Gamut:
                            [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
                            [t[0, 2], t[1, 2], t[2, 2], t[3, 2]],
                            [1, 1, 1, 1]])
-        print(sci.linalg.det(matrix))
-        print(matrix)
+        # print(sci.linalg.det(matrix))
+        # print(matrix)
         return int(np.sign(sci.linalg.det(matrix)))  # Calculates the signed volume and returns its sign.
 
     def get_coordinates(self, indices):
@@ -232,11 +237,11 @@ class Gamut:
         :return: ndarray
             shape(N, 3)
         """
-        coordinates = np.array(indices.shape[0], 3)
+        coordinates = np.ndarray(shape=(indices.shape[0], 3))
 
         counter = 0
         for index in indices:
-            coordinates[counter] = self.points(index)
+            coordinates[counter] = self.hull.points[index]
             counter += 1
 
         return coordinates
@@ -255,15 +260,13 @@ class Gamut:
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
-    '''
-            # If neccesary move the line so that a is the origin.
-            if line[0] != np.array([0,0,0]):
-                a = np.array([0,0,0])
-                b = line[1] - line[0]
-            else:
-                a = line[0]
-                b = line[1]
-    '''
+        # # If neccesary move the line so that a is the origin.
+        # if line[0] != np.array([0,0,0]):
+        #     a = np.array([0,0,0])
+        #     b = line[1] - line[0]
+        # else:
+        #     a = line[0]
+        #     b = line[1]
 
     def in_line(self, line, p):
         """Checks if a point P is on the line from  A to B
@@ -295,7 +298,7 @@ class Gamut:
 
         return True
 
-    def in_trinagle(self, triangle, p):
+    def in_trinagle(self, triangle, P):
         """Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
             This function utilizes the baycentric technique explained here
             https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
@@ -310,28 +313,26 @@ class Gamut:
         # Make 'A' the local origo for the points.
         b = triangle[1] - triangle[0]  # 'b' is the vector from A to B
         c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
-        p -= triangle[0]               # 'p' is now the vector from A to the point being tested for inclusion
+        p = P - triangle[0]               # 'p' is now the vector from A to the point being tested for inclusion
 
         b_X_c = np.cross(b, c)         # Calculating the vector of the cross product b x c
         if np.dot(b_X_c, p) != 0:      # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
-            print("not coplanar")
+            print("point not coplanar")
             return False
 
         c_X_p = np.cross(c, p)          # Calculating the vector of the cross product c x p
         c_X_b = np.cross(c, b)          # Calculating the vector of the cross product c x b
-
         if np.dot(c_X_p, c_X_b) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
             print("c_X_p anc c_X_b has opposite directions")
             return False
 
-        c_X_p = np.cross(b, p)          # Calculating the vector of the cross product b x p
-
-        if np.dot(c_X_p, b_X_c) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
+        b_X_p = np.cross(b, p)          # Calculating the vector of the cross product b x p
+        if np.dot(b_X_p, b_X_c) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
             print("c_X_p and  ")
             return False
-        denom = np.linalg.norm(b_X_c)
-        r = c_X_p/denom
-        t = np.linalg.norm(c_X_p)
 
-        print("got to the end")
+        denom = np.linalg.norm(b_X_c)
+        r = np.linalg.norm(c_X_p) / denom
+        t = np.linalg.norm(b_X_p) / denom
+
         return r + t <= 1
