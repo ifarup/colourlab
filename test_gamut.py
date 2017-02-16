@@ -151,7 +151,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        g.feito_torres(np.array([5., 10., 8.]))
+        g.feito_torres(np.array([0., 5., 5.]))
 
 if __name__ == '__main__':
     unittest.main(exit=False)

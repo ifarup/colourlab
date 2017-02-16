@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
+from pip.commands import list
 from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d
@@ -116,10 +117,8 @@ class Gamut:
         else:   # We have reached a leaf node
             # self.single_point_inside(nda) # nda is now reduced to a one dimensional list containing three numbers.
                                             # (a data point to be checked)
-            print("Leaf node found:")
             bool_array[(tuple(indices))] = True
             print(bool_array)
-            print("----------------")
 
     def single_point_inside(self, hull, point):
         """Checks if a single coordinate in 3d is inside the given hull.
@@ -182,16 +181,15 @@ class Gamut:
         :return: bool
             True if P is included in the polyhedron.
         """
-        inclusion = []
-        v_plus = []
-        v_minus = []
-        print(self.simplices.size/3)
+        inclusion = 0
+        v_plus = []  # a list of vertecis whos original edge contains P, and it's face is POSITIVE oriented
+        v_minus = []  # a list of vertecis whos original edge contains P, and it's face is NEGATIVE oriented
+
         for el in self.simplices:
+            print("---NEW FOR LOOP---")
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
-                print(facet)
-                print(P)
-                print("P was in triangle, return true")
+                print("If 1: P was in triangle")
                 return True
 
             o_v1 = np.array([[0., 0., 0.], facet[0]])    # vector from origo to the first vertex in the facet.
@@ -199,15 +197,21 @@ class Gamut:
             sign_face = self.sign(o_face)   # Sign of the current original tetrahedron
 
             if(self.in_line(o_v1, P)) and \
-                    ((sign_face > 0 and not (np.in1d(facet[0], v_plus))) or
-                        (sign_face < 0 and not (np.in1d(facet[0], v_minus)))):
-                print("heftig 'if' worked")
+                    ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or
+                        (sign_face < 0 and not (np.in1d(el[0], v_minus)))):
+                print("If 2: P on original edge of first vertex")
                 inclusion += sign_face
 
                 if sign_face < 0:           # add Point to neg. oriented facets or pos. oriented facets
-                    v_minus += P
+                    print("legg til v-")
+                    v_minus.append(el[0])
+                    print("Printing v-: ", v_minus)
                 else:
-                    v_plus += P
+                    print("legg til v+")
+                    v_plus.append(el[0])
+                    print("Legg til v+:", v_plus)
+
+
 
     def sign(self, t):
         """ Calculates the orientation of the tetrahedron.
@@ -317,18 +321,15 @@ class Gamut:
 
         b_X_c = np.cross(b, c)         # Calculating the vector of the cross product b x c
         if np.dot(b_X_c, p) != 0:      # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
-            print("point not coplanar")
             return False
 
         c_X_p = np.cross(c, p)          # Calculating the vector of the cross product c x p
         c_X_b = np.cross(c, b)          # Calculating the vector of the cross product c x b
         if np.dot(c_X_p, c_X_b) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
-            print("c_X_p anc c_X_b has opposite directions")
             return False
 
         b_X_p = np.cross(b, p)          # Calculating the vector of the cross product b x p
         if np.dot(b_X_p, b_X_c) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
-            print("c_X_p and  ")
             return False
 
         denom = np.linalg.norm(b_X_c)
