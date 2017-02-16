@@ -239,7 +239,7 @@ class Gamut:
         """ Calculates the orientation of the tetrahedron.
 
         :param t: ndarray
-            shape(4,3) The four coordinates of the tetredron whos signed volume is to be calculated
+            shape(4,3) The four coordinates of the tetrahedron who's signed volume is to be calculated
         :return: int
              1 if tetrahedron is POSITIVE orientated(signed volume > 0)
              0 if volume is 0
