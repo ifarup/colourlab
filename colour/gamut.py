@@ -186,7 +186,6 @@ class Gamut:
         v_minus = []  # a list of vertecis whos original edge contains P, and it's face is NEGATIVE oriented
 
         for el in self.simplices:
-            print("---NEW FOR LOOP---")
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
                 print("If 1: P was in triangle")
@@ -210,6 +209,29 @@ class Gamut:
                     print("legg til v+")
                     v_plus.append(el[0])
                     print("Legg til v+:", v_plus)
+
+            if(self.in_line(o_v1, P)) and \
+                    ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or
+                        (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):
+                print("If 3: P on original edge of first vertex")
+                inclusion += sign_face
+
+                if sign_face < 0:           # add Point to neg. oriented facets or pos. oriented facets
+                    print("legg til v-")
+                    v_minus.append(el[-1])
+                    print("Printing v-: ", v_minus)
+                else:
+                    print("legg til v+")
+                    v_plus.append(el[-1])
+                    print("Legg til v+:", v_plus)
+
+            count = 1
+            for el in facet[1:-1]:
+                if self.in_trinagle(np.ndarray([[0, 0, 0,], [facet[0]], [facet[count]]])) or \
+                    self.in_trinagle(np.ndarray([[0, 0, 0, ], [facet[count]], [facet[count+1]]])) or \
+                        self.in_trinagle(np.ndarray([[0, 0, 0, ], [facet[count+1]], [facet[0]]])):
+                    inclusion += 0.5*self.sign()
+
 
 
 
