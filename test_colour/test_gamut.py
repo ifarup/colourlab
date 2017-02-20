@@ -95,7 +95,7 @@ class TestGamut(unittest.TestCase):
 
         c_data = data.Data(space.srgb, n_data)      # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
-        sp = g.space                                # specifies the color space
+        sp = space.cielab                                # specifies the color space
         g.plot_surface(ax, sp)                      # Calls the plot function
 
     def test_in_line(self):
@@ -131,5 +131,12 @@ class TestGamut(unittest.TestCase):
         g.feito_torres(P=1)
     """
 
+    """def test_clip_towards(self):
+        c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut
+        d = data.Data(........)
+        sp = g.space
+        d_clip = g.clip_towards(d, sp, center)
+    """
 if __name__ == '__main__':
     unittest.main(exit=False)

@@ -151,26 +151,22 @@ class Gamut:
         return point_array                  # Returns ndarray.
 
     def plot_surface(self, ax, sp):
-        """Plot all the vertices points on the recived axel
+        """Plot all the vertices points on the recived axis
 
-        :param ax: Axel
-            The axel to draw the points on
+        :param ax: Axis
+            The axis to draw the points on
         :param sp: Space
             The colour space for computing the gamut.
         """
         nd_data = self.data.get_linear(sp)              # Creates a new ndarray with points
-        points = self.get_vertices(nd_data)             # ndarray with all the vertices
-        x = points[:, 0]
-        y = points[:, 1]
-        z = points[:, 2]
 
         for i in range(self.hull.simplices.shape[0]):   # Itirates and draws all the vertices points
-            tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
+            tri = art3d.Poly3DCollection([nd_data[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
-        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
-        ax.set_ylim([-10, 10])
-        ax.set_zlim([-10, 10])
+        ax.set_xlim([0, 100])                            # Set the limits for the plot manually
+        ax.set_ylim([-100, 100])
+        ax.set_zlim([-100, 100])
         plt.show()
 
     def feito_torres(self, P):
@@ -310,3 +306,14 @@ class Gamut:
 
         print("got to the end")
         return r + t <= 1
+
+    def clip_towards(self, sp, center):
+        """Get the nearest points on the surface
+
+        :param sp: Space
+            The colour space for computing the gamut.
+        :param center:
+            The center is a point in the color space
+        :return:
+            Nearest point along a line
+        """
