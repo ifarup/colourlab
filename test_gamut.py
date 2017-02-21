@@ -153,7 +153,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        points = np.array([[0, 0, 0], [2, 2, 0], [3, 3, 0],[1, 1, 0]]) #coplanar points
+        points = np.array([[0, 0, 0], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # coplanar points
         self.assertTrue(True, g.four_p_coplanar(points))
 
         points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points

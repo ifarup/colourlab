@@ -239,9 +239,10 @@ class Gamut:
                 sign_tetra = self.sign(tetra)
                 # print("xxxxxxxxxxxx")
 
-                if self.in_trinagle(np.array([origin, [facet[0]], [facet[j]]]), P) or \
-                    self.in_trinagle(np.array([origin, [facet[j]], [facet[j+1]]]), P) or \
-                        self.in_trinagle(np.array([origin, [facet[j+1]], [facet[0]]]), P):
+                if self.in_trinagle(np.array([origin, facet[0], facet[j]]), P) or \
+                    self.in_trinagle(np.array([
+                        origin, facet[j], facet[j+1]]), P) or \
+                        self.in_trinagle(np.array([origin, facet[j+1], facet[0]]), P):
                     inclusion += 0.5*sign_tetra
 
                 elif self.in_line(np.array([origin, facet[j]]), P) and \
@@ -306,16 +307,14 @@ class Gamut:
         :return: Bool
             True if q is inside or on the surface of the tetrahedron.
         """
-        # The soutkion below asumes that tetrahedron[0] is origo.
         a = tetrahedron[0]
         if self.four_p_coplanar(tetrahedron):  # The points are coplanar and the "Delaunay soloution
             cross = np.cross(tetrahedron[1], tetrahedron[2])
-            tetrahedron[0] += cross * 0.0001 # If the points are planer, make a tiny adjustment to force a volume.
-
+            tetrahedron[0] += cross * 0.0001  # If the points are planer, make a tiny adjustment to force a volume.
 
         print(tetrahedron)
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
-        tetrahedron[0] = a # Dont make any permanent changes.
+        tetrahedron[0] = a  # Dont make any permanent changes.
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
         # # If neccesary move the line so that a is the origin.
@@ -325,8 +324,6 @@ class Gamut:
         # else:
         #     a = line[0]
         #     b = line[1]
-
-
 
     def in_line(self, line, p):
         """Checks if a point P is on the line from  A to B
@@ -375,12 +372,30 @@ class Gamut:
         c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
         p = P - triangle[0]               # 'p' is now the vector from A to the point being tested for inclusion
 
+        # If triangle is actually a line. It is treated as a line.
+        if np.array_equal(triangle[0], triangle[1]):
+            return self.in_line(np.array([triangle[0], triangle[1]]), p)
+        if np.array_equal(triangle[0], triangle[2]):
+            return self.in_line(np.array([triangle[0], triangle[2]]), p)
+        if np.array_equal(triangle[1], triangle[2]):
+            return self.in_line(np.array([triangle[1], triangle[2]]), p)
+
         b_X_c = np.cross(b, c)         # Calculating the vector of the cross product b x c
         if np.dot(b_X_c, p) != 0:      # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
             return False
 
         c_X_p = np.cross(c, p)          # Calculating the vector of the cross product c x p
+        c_X_p = np.asarray(c_X_p)
         c_X_b = np.cross(c, b)          # Calculating the vector of the cross product c x b
+        c_X_b = np.asarray(c_X_b)
+
+        print("HERE")
+        print(triangle[0], triangle[1], triangle[2])
+        print(p)
+        print(b)
+        print(c_X_p)
+        print(c_X_b)
+
         if np.dot(c_X_p, c_X_b) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
             return False
 
