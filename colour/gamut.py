@@ -306,11 +306,16 @@ class Gamut:
         :return: Bool
             True if q is inside or on the surface of the tetrahedron.
         """
+        # The soutkion below asumes that tetrahedron[0] is origo.
+        a = tetrahedron[0]
         if self.four_p_coplanar(tetrahedron):  # The points are coplanar and the "Delaunay soloution
-            return self.in_square(tetrahedron, p)                                    # in the else would not work.
+            cross = np.cross(tetrahedron[1], tetrahedron[2])
+            tetrahedron[0] += cross * 0.0001 # If the points are planer, make a tiny adjustment to force a volume.
+
 
         print(tetrahedron)
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
+        tetrahedron[0] = a # Dont make any permanent changes.
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
         # # If neccesary move the line so that a is the origin.
@@ -320,6 +325,8 @@ class Gamut:
         # else:
         #     a = line[0]
         #     b = line[1]
+
+
 
     def in_line(self, line, p):
         """Checks if a point P is on the line from  A to B
