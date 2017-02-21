@@ -411,7 +411,8 @@ class Gamut:
         :return: bool
             True if the point is within the square
         """
-        ab = square[1] - square[0]
+
+        ab = square[1] - square[0]  # Vector from A to B
         ap = P - square[0]
         ab_X_ap = np.cross(ab, ap)
 
