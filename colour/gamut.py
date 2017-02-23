@@ -317,3 +317,18 @@ class Gamut:
         :return:
             Nearest point along a line
         """
+
+    def find_plane(self, p):
+        """
+
+        :param p:
+        :return n:
+        """
+        n = np.array()
+        v1 = p[2] - p[0]
+        v2 = p[1] - p[0]
+        n2 = np.cross(v1, v2)
+        nnorm = np.linalg.norm(n2)
+        n = n2 / nnorm
+        np.hstack(n, np.dot(p[1],n))
+        return n
