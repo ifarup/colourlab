@@ -24,27 +24,6 @@ import colour
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d
 
-im = colour.data.Data(colour.space.srgb, .25 * np.array([[0, 1, 2], [1, 2, 3], [2, 3, 4]]))
-print(im.dip(colour.space.cielab).get(colour.space.cielab))
-print(im.dim(colour.space.cielab).get(colour.space.cielab))
-print(im.dic(colour.space.cielab).get(colour.space.cielab))
-print(im.djp(colour.space.cielab).get(colour.space.cielab))
-print(im.djm(colour.space.cielab).get(colour.space.cielab))
-print(im.djc(colour.space.cielab).get(colour.space.cielab))
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-dat = colour.data.d_regular(colour.space.srgb,
-                            np.linspace(0, 1, 5),
-                            np.linspace(0, 1, 5),
-                            np.linspace(0, 1, 5))
-
-gamut = colour.data.Gamut(colour.space.cielab, dat)
-for i in range(gamut.hull.simplices.shape[0]):
-    tri = art3d.Poly3DCollection([gamut.hull.points[gamut.hull.simplices[i]]])
-    ax.add_collection(tri)
-ax.set_xlim([0, 100])
-ax.set_ylim([-100, 100])
-ax.set_zlim([-100, 100])
-plt.show()
+p = colour.data.Data(colour.space.srgb, np.array([.5, .5, .5]))
+t = colour.data.TensorData(colour.space.srgb, p, np.array([[[[1, 0, 0], [0, 1, 0], [0, 0, 1]]]]))
+print(t.get(colour.space.cielab))

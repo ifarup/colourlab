@@ -82,7 +82,7 @@ def safe_div(a, b, fill=1.):
     return res
 
 
-def inner(data1, data2, tensor):
+def inner(tensor, data1, data2):
     """
     Compute the inner products of two datasets with a given metric tensor.
 
@@ -90,12 +90,12 @@ def inner(data1, data2, tensor):
 
     Parameters
     ----------
+    tensor: ndarray
+        The metric tensor for the inner product
     data1: ndarray
         The first dataset of the inner product
     data2: ndarray
         The second data set of the inner product
-    tensor: ndarray
-        The metric tensor for the inner product
 
     Returns
     -------
@@ -105,7 +105,7 @@ def inner(data1, data2, tensor):
     return np.einsum('...ij,...i,...j', tensor, data1, data2)
 
 
-def norm_sq(data, tensor):
+def norm_sq(tensor, data):
     """
     Compute the squared norm of a colour data set with a given metric tensor.
 
@@ -113,10 +113,10 @@ def norm_sq(data, tensor):
 
     Parameters
     ----------
-    data: ndarray
-        The data set of which to compute the squared norm
     tensor: ndarray
         The metric tensor for the norm.
+    data: ndarray
+        The data set of which to compute the squared norm
 
     Returns
     -------
@@ -126,7 +126,7 @@ def norm_sq(data, tensor):
     return inner(data, data, tensor)
 
 
-def norm(data, tensor):
+def norm(tensor, data):
     """
     Compute the norm of a colour data set with a given metric tensor.
 
@@ -134,10 +134,10 @@ def norm(data, tensor):
 
     Parameters
     ----------
-    data: ndarray
-        The data set of which to compute the norm
     tensor: ndarray
         The metric tensor for the norm.
+    data: ndarray
+        The data set of which to compute the norm
 
     Returns
     -------

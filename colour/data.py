@@ -25,7 +25,7 @@ import numpy as np
 import inspect
 from matplotlib.patches import Ellipse
 from scipy.spatial import ConvexHull
-from . import space, image
+from . import space, image, misc
 
 
 # =============================================================================
@@ -179,13 +179,14 @@ class Data:
                                   [0, 0, wh_out[2] / wh_in[2]]])
         return Data(sp, self.get(space.TransformLinear(sp, von_kries_mat)))
 
+    def diff(self, sp, dat):
+        return VectorData(sp, self, self.get(sp) - dat.get(sp))
+
     def dip(self, sp):
         return VectorData(sp, self, image.dip(self.get(sp)))
 
-
     def dim(self, sp):
         return VectorData(sp, self, image.dim(self.get(sp)))
-
 
     def dic(self, sp):
         return VectorData(sp, self, image.dic(self.get(sp)))
@@ -193,10 +194,8 @@ class Data:
     def djp(self, sp):
         return VectorData(sp, self, image.djp(self.get(sp)))
 
-
     def djm(self, sp):
         return VectorData(sp, self, image.djm(self.get(sp)))
-
 
     def djc(self, sp):
         return VectorData(sp, self, image.djc(self.get(sp)))
@@ -361,7 +360,34 @@ class TensorData:
         """
         self.points = None
         self.metrics = None
+        self.sh = None
+        self.linear_XYZ = None
         self.set(sp, points_data, metrics_ndata)
+
+    def linearise(self, ndata):
+        """
+        Shape the data so that is becomes an PxCxC matrix or CxC matrix
+
+        The data should be of the shape M x ... x N x C x D, where C is the
+        number of colour channels. Returns the shaped data as a P x C
+        matrix where P = M x ... x N, as well as the shape of the input
+        data. Get back to original shape by reshape(data, shape).
+
+        Parameters
+        ----------
+        ndata : ndarray
+            M x ... x N x C x C array of colour metrics
+
+        Returns
+        -------
+        ndata : ndarray
+            P x C x C array of colour metrics, P = M * ... * N
+        """
+        sh = np.shape(ndata)
+        sh_array = np.array(sh)
+        P_data = np.prod(sh_array[:len(sh) - 2])
+        C_data = sh[len(sh) - 2:]
+        return np.reshape(ndata, [P_data, C_data[0], C_data[1]])
 
     def set(self, sp, points_data, metrics_ndata):
         """
@@ -383,10 +409,14 @@ class TensorData:
         """
         self.points = points_data
         self.metrics = dict()
+        self.sh = metrics_ndata.shape
         self.metrics[sp] = metrics_ndata
-        if sp != space.xyz:
-            self.metrics[space.xyz] = \
-                sp.metrics_to_XYZ(points_data, metrics_ndata)
+        linear_data = self.linearise(metrics_ndata)
+        if sp == space.xyz:
+            self.linear_XYZ = linear_data
+        else:
+            self.linear_XYZ = sp.metrics_to_XYZ(points_data, linear_data)
+            self.metrics[space.xyz] = np.reshape(self.linear_XYZ, self.sh)
 
     def get(self, sp):
         """
@@ -409,9 +439,30 @@ class TensorData:
         if sp in self.metrics:
             return self.metrics[sp]
         else:
-            self.metrics[sp] = \
-                sp.metrics_from_XYZ(self.points, self.metrics[space.xyz])
-            return self.metrics[sp]
+            linear_metrics = sp.metrics_from_XYZ(self.points, self.linear_XYZ)
+            metrics_ndata = np.reshape(linear_metrics, self.sh)
+            self.metrics[sp] = metrics_ndata
+            return metrics_ndata
+
+    def get_linear(self, sp):
+        """
+        Return colour data in required colour space in PxC format.
+
+        If the data do not currently exist in the required colour
+        space, the necessary colour conversion will take place, and
+        the results stored in the object or future use.
+
+        Parameters
+        ----------
+        sp : Space
+            The colour space for the returned data.
+
+        Returns
+        -------
+        ndata : ndarray
+            The linearised colour data in the given colour space.
+        """
+        return self.linearise(self.get(sp))
 
     def get_ellipse_parameters(self, sp, plane=plane_xy, scale=1):
         """
@@ -487,6 +538,28 @@ class TensorData:
                                 height=2 * a_b_theta[i, 1],
                                 angle=a_b_theta[i, 2] * 180 / np.pi))
         return ells
+
+    def inner(self, sp, vec1, vec2):
+        """
+        Return the inner product of the two vectors computed in the given space.
+
+        The result should in theory be invariant with respect to the colour space.
+
+        Paramters
+        ---------
+        sp : Space
+            The space in which to compute the inner product
+        vec1: VectorData
+            The first vector
+        vec2: VectorData
+            The second vector
+
+        Returns
+        -------
+        inner : ndarray
+            The inner products (scalars)
+        """
+        return misc.inner(self.get(sp), vec1.get(sp), vec2.get(sp))
 
 
 class Gamut:
