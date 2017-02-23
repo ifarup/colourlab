@@ -81,10 +81,7 @@ class Space(object):
         jacobian : ndarray
             The list of Jacobians to XYZ.
         """
-        jac = self.inv_jacobian_XYZ(data)
-        for i in range(np.shape(jac)[0]):
-            jac[i] = np.linalg.inv(jac[i])
-        return jac
+        return np.linalg.inv(self.inv_jacobian_XYZ(data))
 
     def inv_jacobian_XYZ(self, data):
         """
@@ -103,10 +100,7 @@ class Space(object):
         jacobian : ndarray
             The list of Jacobians from XYZ.
         """
-        ijac = self.jacobian_XYZ(data)
-        for i in range(np.shape(ijac)[0]):
-            ijac[i] = np.linalg.inv(ijac[i])
-        return ijac
+        return np.linalg.inv(self.jacobian_XYZ(data))
 
     def vectors_to_XYZ(self, points_data, vectors_ndata):
         """
@@ -125,10 +119,7 @@ class Space(object):
             Array of colour vectors in XYZ.
         """
         jacobian = self.inv_jacobian_XYZ(points_data)
-        new_vectors = np.zeros(np.shape(vectors_ndata))
-        for i in range(np.shape(jacobian)[0]):
-            new_vectors[i] = np.dot(jacobian[i], vectors_ndata[i])
-        return new_vectors
+        return np.einsum('...ij,...j->...i', jacobian, vectors_ndata)
 
     def vectors_from_XYZ(self, points_data, vectors_ndata):
         """
@@ -147,10 +138,7 @@ class Space(object):
             Array of colour vectors in the current colour space.
         """
         jacobian = self.jacobian_XYZ(points_data)
-        new_vectors = np.zeros(np.shape(vectors_ndata))
-        for i in range(np.shape(jacobian)[0]):
-            new_vectors[i] = np.dot(jacobian[i], vectors_ndata[i])
-        return new_vectors
+        return np.einsum('...ij,...j->...i', jacobian, vectors_ndata)
 
     def metrics_to_XYZ(self, points_data, metrics_ndata):
         """
@@ -169,11 +157,7 @@ class Space(object):
             Array of colour metric tensors in XYZ.
         """
         jacobian = self.jacobian_XYZ(points_data)
-        new_metric = np.zeros(np.shape(metrics_ndata))
-        for i in range(np.shape(jacobian)[0]):
-            new_metric[i] = np.dot(jacobian[i].T,
-                                   np.dot(metrics_ndata[i], jacobian[i]))
-        return new_metric
+        return np.einsum('...ij,...jk,...lk->...ik', jacobian, metrics_ndata, jacobian)
 
     def metrics_from_XYZ(self, points_data, metrics_ndata):
         """
@@ -192,11 +176,7 @@ class Space(object):
             Array of colour metric tensors in the current colour space.
         """
         jacobian = self.inv_jacobian_XYZ(points_data)
-        new_metric = np.zeros(np.shape(metrics_ndata))
-        for i in range(np.shape(jacobian)[0]):
-            new_metric[i] = np.dot(jacobian[i].T,
-                                   np.dot(metrics_ndata[i], jacobian[i]))
-        return new_metric
+        return np.einsum('...ij,...jk,...lk->...ik', jacobian, metrics_ndata, jacobian)
 
 
 class XYZ(Space):
@@ -351,10 +331,7 @@ class Transform(Space):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        jac = self.inv_jacobian_base(data)
-        for i in range(np.shape(jac)[0]):
-            jac[i] = np.linalg.inv(jac[i])
-        return jac
+        return np.linalg.inv(self.inv_jacobian_base(data))
 
     def inv_jacobian_base(self, data):
         """
@@ -372,11 +349,8 @@ class Transform(Space):
         -------
         jacobian : ndarray
             The list of Jacobians from the base colour space.
-       """
-        ijac = self.jacobian_base(data)
-        for i in range(np.shape(ijac)[0]):
-            ijac[i] = np.linalg.inv(ijac[i])
-        return ijac
+        """
+        return np.linalg.inv(self.jacobian_base(data))
 
     def jacobian_XYZ(self, data):
         """
@@ -399,10 +373,7 @@ class Transform(Space):
         """
         dxdbase = self.jacobian_base(data)
         dbasedXYZ = self.base.jacobian_XYZ(data)
-        jac = self.empty_matrix(data.linear_XYZ)
-        for i in range(np.shape(jac)[0]):
-            jac[i] = np.dot(dxdbase[i], dbasedXYZ[i])
-        return jac
+        return np.einsum('...ij,...jk->...ik', dxdbase, dbasedXYZ)
 
     def inv_jacobian_XYZ(self, data):
         """
@@ -424,10 +395,7 @@ class Transform(Space):
         """
         dXYZdbase = self.base.inv_jacobian_XYZ(data)
         dbasedx = self.inv_jacobian_base(data)
-        ijac = self.empty_matrix(data.linear_XYZ)
-        for i in range(np.shape(ijac)[0]):
-            ijac[i] = np.dot(dXYZdbase[i], dbasedx[i])
-        return ijac
+        return np.einsum('...ij,...jk->...ik', dXYZdbase, dbasedx)
 
 
 class TransformxyY(Transform):

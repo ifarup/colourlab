@@ -28,11 +28,12 @@ g = np.array([[0, .25, .5], [.25, .5, .75], [.5, .75, 1]])
 r = np.zeros(np.shape(g))
 b = np.zeros(np.shape(g))
 
-im_rgb1 = np.dstack((r,g,b))
-im_rgb2 = im_rgb1.copy() + .1
-im_rgb2[im_rgb2 > 1] = 1
+im1_rgb = np.dstack((r,g,b))
+im2_rgb = im1_rgb.copy() + .001
+im2_rgb[im2_rgb > 1] = 1
 
-im1 = colour.data.Data(colour.space.srgb, im_rgb1)
-im2 = colour.data.Data(colour.space.srgb, im_rgb2)
-diff = colour.metric.dE_00(im1, im2)
-print(diff)
+im1 = colour.data.Data(colour.space.srgb, im1_rgb)
+im2 = colour.data.Data(colour.space.srgb, im2_rgb)
+d = im1.diff(colour.space.cielab, im2)
+g = colour.tensor.euclidean(colour.space.srgb, im1)
+print(g.inner(colour.space.srgb, d, d))
