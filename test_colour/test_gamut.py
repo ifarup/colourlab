@@ -138,5 +138,14 @@ class TestGamut(unittest.TestCase):
         sp = g.space
         d_clip = g.clip_towards(d, sp, center)
     """
+
+    def test_find_plane(self):
+        n_data = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        d = g.find_plane(n_data)
+        self.assertEquals(d, [0, 0, 1, 1])
+
 if __name__ == '__main__':
     unittest.main(exit=False)
