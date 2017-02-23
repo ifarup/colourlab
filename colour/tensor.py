@@ -251,7 +251,7 @@ def poincare_disk(sp, dat):
         g[i, 0, 0] = 1
         g[i, 1, 1] = sp.R**2 * 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
         g[i, 2, 2] = sp.R**2 * 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
-    return construct_tensor(sp, dat, g))
+    return construct_tensor(sp, dat, g)
 
 # TODO:
 #
