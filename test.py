@@ -24,6 +24,15 @@ import colour
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d
 
-p = colour.data.Data(colour.space.srgb, np.array([.5, .5, .5]))
-t = colour.data.TensorData(colour.space.srgb, p, np.array([[[[1, 0, 0], [0, 1, 0], [0, 0, 1]]]]))
-print(t.get(colour.space.cielab))
+g = np.array([[0, .25, .5], [.25, .5, .75], [.5, .75, 1]])
+r = np.zeros(np.shape(g))
+b = np.zeros(np.shape(g))
+
+im_rgb = np.dstack((r,g,b))
+im = colour.data.Data(colour.space.srgb, im_rgb)
+im_lab = im.get(colour.space.cielab)
+
+t = colour.tensor.dE_ab(im)
+t_srgb = t.get(colour.space.srgb)
+print(t_srgb.shape)
+print(t_srgb[0, 0, ...])
