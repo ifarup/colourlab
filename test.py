@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 import colour
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D, art3d
 
 im_rgb = plt.imread('lena.png')
 im = colour.data.Data(colour.space.srgb, im_rgb)
@@ -30,12 +29,17 @@ im = colour.data.Data(colour.space.srgb, im_rgb)
 sp = colour.space.cielab
 g = colour.tensor.dE_ab(im)
 
-di = im.dip(sp)
-dj = im.djp(sp)
+d11, d12, d22 = g.diffusion_tensor(colour.space.srgb, 1e-4)
+d11 = np.dstack((d11, d11, d11))
+d12 = np.dstack((d12, d12, d12))
+d22 = np.dstack((d22, d22, d22))
 
-di2 = g.inner(sp, di, di)
-dj2 = g.inner(sp, dj, dj)
-didj = g.inner(sp, di, dj)
-
-s11, s12, s22 = g.structure_tensor(colour.space.cielab)
-d11, d12, d22 = g.diffusion_tensor(colour.space.srgb, 1e-8)
+for i in range(500):
+    print(i)
+    gx = colour.image.dic(im_rgb)
+    gy = colour.image.djc(im_rgb)
+    gxx = colour.image.dic(d11 * gx + d12 * gy)
+    gyy = colour.image.djc(d12 * gx + d22 * gy)
+    tv = gxx + gyy
+    im_rgb[1:-1, 1:-1, :] = im_rgb[1:-1, 1:-1, :] + tv[1:-1, 1:-1, :]
+    plt.imsave('im_%03d.png' % i, im_rgb)
