@@ -24,16 +24,18 @@ import colour
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d
 
-g = np.array([[0, .25, .5], [.25, .5, .75], [.5, .75, 1]])
-r = np.zeros(np.shape(g))
-b = np.zeros(np.shape(g))
+im_rgb = plt.imread('lena.png')
+im = colour.data.Data(colour.space.srgb, im_rgb)
 
-im1_rgb = np.dstack((r,g,b))
-im2_rgb = im1_rgb.copy() + .001
-im2_rgb[im2_rgb > 1] = 1
+sp = colour.space.cielab
+g = colour.tensor.dE_ab(im)
 
-im1 = colour.data.Data(colour.space.srgb, im1_rgb)
-im2 = colour.data.Data(colour.space.srgb, im2_rgb)
-d = im1.diff(colour.space.cielab, im2)
-g = colour.tensor.euclidean(colour.space.srgb, im1)
-print(g.inner(colour.space.srgb, d, d))
+di = im.dip(sp)
+dj = im.djp(sp)
+
+di2 = g.inner(sp, di, di)
+dj2 = g.inner(sp, dj, dj)
+didj = g.inner(sp, di, dj)
+
+s11, s12, s22 = g.structure_tensor(colour.space.cielab)
+d11, d12, d22 = g.diffusion_tensor(colour.space.srgb, 1e-8)
