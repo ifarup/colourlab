@@ -30,10 +30,18 @@ from . import data, space
 def construct_tensor(sp, dat, tensor_ndata):
     """
     Construct the TensorData object with correct dimensions
-    :param sp: colour space
-    :param dat: colour data points
-    :param tensor_ndat: linear tensor data
-    :return: TensorData object
+
+    The tensors_ndata has shape N x 3 x 3. Construct TensorData object
+    with shape correspoinding to the data points in dat.
+
+    Parameters
+    ----------
+    sp: Space
+        The colour space of the tensor_ndata
+    dat: Data
+        Colour data points
+    tensor_ndata: ndarray
+        N x 3 x 3 ndarray of tensor data.
     """
     sh = np.hstack((np.array(dat.sh), 3))
     return data.TensorData(sp, dat, np.reshape(tensor_ndata, sh))
@@ -66,7 +74,7 @@ def dE_ab(dat):
     """
     Compute the DEab metric as TensorData for the given data points.
 
-    Parameters
+    |eters
     ----------
     dat : Data
         The colour points for which to compute the metric.

@@ -25,7 +25,7 @@ import numpy as np
 import inspect
 from matplotlib.patches import Ellipse
 from scipy.spatial import ConvexHull
-from . import space, image, misc
+from . import space, misc
 
 
 # =============================================================================
@@ -178,27 +178,6 @@ class Data:
                                   [0, wh_out[1] / wh_in[1], 0],
                                   [0, 0, wh_out[2] / wh_in[2]]])
         return Data(sp, self.get(space.TransformLinear(sp, von_kries_mat)))
-
-    def diff(self, sp, dat):
-        return VectorData(sp, self, self.get(sp) - dat.get(sp))
-
-    def dip(self, sp):
-        return VectorData(sp, self, image.dip(self.get(sp)))
-
-    def dim(self, sp):
-        return VectorData(sp, self, image.dim(self.get(sp)))
-
-    def dic(self, sp):
-        return VectorData(sp, self, image.dic(self.get(sp)))
-
-    def djp(self, sp):
-        return VectorData(sp, self, image.djp(self.get(sp)))
-
-    def djm(self, sp):
-        return VectorData(sp, self, image.djm(self.get(sp)))
-
-    def djc(self, sp):
-        return VectorData(sp, self, image.djc(self.get(sp)))
 
 
 class VectorData:
@@ -561,109 +540,6 @@ class TensorData:
         """
         return misc.inner(self.get(sp), vec1.get(sp), vec2.get(sp))
 
-    def structure_tensor(self, sp, dir='p'):
-        """
-        Return the structure tensor of the underlying data image point set
-
-        Assumes (for now) that the underlying data constitutes an image, i.e.,
-        is on the shape M x N x 3.
-
-        Parameters
-        ----------
-        sp : Space
-            The space in which to perform the computations
-        dir : str
-            The direction for the finite differences, p (plus), m (minus), c (centered)
-
-        Returns
-        -------
-        s11 : ndarray
-            The s11 component of the structure tensor of the image data.
-        s12 : ndarray
-            The s12 component of the structure tensor of the image data.
-        s22 : ndarray
-            The s22 component of the structure tensor of the image data.
-        """
-        if dir == 'p':
-            di = self.points.dip(sp)
-            dj = self.points.djp(sp)
-        elif dir == 'm':
-            di = self.points.dim(sp)
-            dj = self.points.djm(sp)
-        elif dir == 'c':
-            di = self.points.dic(sp)
-            dj = self.points.djc(sp)
-
-        s11 = self.inner(sp, di, di) # components of the structure tensor
-        s12 = self.inner(sp, di, dj)
-        s22 = self.inner(sp, dj, dj)
-
-        return s11, s12, s22
-
-    def diffusion_tensor(self, sp, param=1e-4, type='invsq', dir='p'):
-        """
-        Compute the diffusion tensor coefficients for the underying image point set
-
-        Assumes (for now) that the underlying data constitutes an image, i.e.,
-        is on the shape M x N x 3.
-
-        Parameters
-        ----------
-        sp : Space
-            The space in which to perform the computations
-        param : float
-            The parameter for the nonlinear diffusion function
-        type : str
-            The type of diffusion function, invsq (inverse square) or
-            exp (exponential), see Perona and Malik (1990)
-        dir : str
-            The direction for the finite differences, p (plus), m (minus), c (centered)
-
-        Returns
-        -------
-        d11 : ndarray
-            The d11 component of the structure tensor of the image data.
-        d12 : ndarray
-            The d12 component of the structure tensor of the image data.
-        d22 : ndarray
-            The d22 component of the structure tensor of the image data.
-        """
-
-        s11, s12, s22 = self.structure_tensor(sp, dir)
-
-        # Eigenvalues
-
-        lambda1 = .5 * (s11 + s22 + np.sqrt((s11 - s22)**2 + 4 * s12**2))
-        lambda2 = .5 * (s11 + s22 - np.sqrt((s11 - s22)**2 + 4 * s12**2))
-
-#        return lambda1, lambda2
-
-        theta1 = .5 * np.arctan2(2 * s12, s11 - s22)
-        theta2 = theta1 + np.pi / 2
-
-        # Eigenvectors
-
-        v1x = np.cos(theta1)
-        v1y = np.sin(theta1)
-        v2x = np.cos(theta2)
-        v2y = np.sin(theta2)
-
-        # Diffusion tensor
-
-        if type == 'invsq':
-            def D(lambdax):
-                return 1 / (1 + param * lambdax**2)
-        elif type == 'exp':
-            def D(lambdax):
-                return np.exp(-lambdax / param)
-
-        D1 = D(lambda1)
-        D2 = D(lambda2)
-
-        d11 = D1 * v1x**2 + D2 * v2x**2
-        d12 = D1 * v1x * v1y + D2 * v2x * v2y
-        d22 = D1 * v1y**2 + D2 * v2y**2
-        return d11, d12, d22
 
 class Gamut:
     """

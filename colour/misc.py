@@ -145,3 +145,118 @@ def norm(tensor, data):
         Array with numerical (scalar) values of the norm.
     """
     return np.sqrt(norm_sq(data, tensor))
+
+
+# =============================================================================
+# Functions for FDM on images
+# =============================================================================
+
+# Shifted images
+
+def ip1(im):
+    """
+    Image shifted one pixel positive i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im[np.r_[np.arange(1, m), m - 1], ...]
+
+
+def im1(im):
+    """
+    Image shifted one pixel negative i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im[np.r_[0, np.arange(0, m - 1)], ...]
+
+
+def jp1(im):
+    """
+    Image shifted one pixel positive j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im[:, np.r_[np.arange(1, n), n - 1], ...]
+
+
+def jm1(im):
+    """
+    Image shifted one pixel negative j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im[:, np.r_[0, np.arange(0, n - 1)], ...]
+
+
+# Finite differences
+
+def dip(im):
+    """
+    Finite difference positive i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im[np.r_[np.arange(1, m), m - 1], ...] - im
+
+
+def dim(im):
+    """
+    Finite difference negative i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im - im[np.r_[0, np.arange(0, m-1)], ...]
+
+
+def dic(im):
+    """
+    Finite difference centered i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return 0.5 * (im[np.r_[np.arange(1, m), m - 1], ...] -
+                  im[np.r_[0, np.arange(0, m-1)], ...])
+
+
+def djp(im):
+    """
+    Finite difference positive j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im[:, np.r_[np.arange(1, n), n - 1], ...] - im
+
+
+def djm(im):
+    """
+    Finite difference negative j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im - im[:, np.r_[0, np.arange(0, n - 1)], ...]
+
+
+def djc(im):
+    """
+    Finite difference centered j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return 0.5 * (im[:, np.r_[np.arange(1, n), n - 1], ...] -
+                  im[:, np.r_[0, np.arange(0, n - 1)], ...])
+
+
+# Laplacian
+
+def laplacian(im):
+    """
+    Standard laplacian of image
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    n = sh[1]
+    return (im[:, np.r_[np.arange(1, n), n - 1], ...] +
+            im[:, np.r_[0, np.arange(0, n - 1)], ...] +
+            im[np.r_[np.arange(1, m), m - 1], ...] +
+            im[np.r_[0, np.arange(0, m-1)], ...] - 4 * im)
