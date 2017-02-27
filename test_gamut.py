@@ -28,16 +28,16 @@ import matplotlib.pyplot as plt
 
 # Global variables.
 cube = np.array([[0., 0., 0.],  # 0 vertecis
-                   [10., 0., 0.],  # 1 vertecis
-                   [10., 10., 0.],  # 2 vertecis
-                   [0., 10., 0.],  # 3 vertecis
-                   [5., 5., 5.],  # 4 non vertecis
-                   [4., 6., 2.],  # 5 non vertecis
-                   [10., 10., 10.],  # 6 vertecis
-                   [1., 2., 3.],  # 7 non vertecis
-                   [10., 0., 10.],  # 8 vertecis
-                   [0., 0., 10.],  # 9 vertecis
-                   [0., 10., 10.]])    # 10 vertecis
+                [10., 0., 0.],  # 1 vertecis
+                [10., 10., 0.],  # 2 vertecis
+                [0., 10., 0.],  # 3 vertecis
+                [5., 5., 5.],  # 4 non vertecis
+                [4., 6., 2.],  # 5 non vertecis
+                [10., 10., 10.],  # 6 vertecis
+                [1., 2., 3.],  # 7 non vertecis
+                [10., 0., 10.],  # 8 vertecis
+                [0., 0., 10.],  # 9 vertecis
+                [0., 10., 10.]])    # 10 vertecis
 
 line = np.array([[0, 0, 0], [3, 3, 3]])             # Line used in testing.
 point_on_line = np.array([1, 1, 1])                 # Point inside the line to be tested.
@@ -159,7 +159,7 @@ class TestGamut(unittest.TestCase):
         points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points
         self.assertFalse(False, g.four_p_coplanar(points))
 
-    def test_generate_sphere_points(self,):
+    def test_generate_sphere_points(self):
         r = 1
         phi = np.linspace(0, np.pi, 20)
         theta = np.linspace(0, 2 * np.pi, 40)
@@ -177,6 +177,14 @@ class TestGamut(unittest.TestCase):
         #
         # coordinates = np.ndarray(shape=np.shape(num_of_points))
         # for i in range(num_of_points):
+
+    def test_center_of_mass(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+        CM = g.center_of_mass(g.get_vertices(g.hull.points))   # Get coordinate for center of the cube
+        CP = np.array([5., 5., 5.])                            # Point in center of cube.
+
+        self.assertEqual(CP.all(), CM.all())                   # Assert true that the points are the same.
 
 
 if __name__ == '__main__':
