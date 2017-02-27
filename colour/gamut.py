@@ -46,7 +46,6 @@ class Gamut:
         self.vertices = None
         self.simplices = None
         self.neighbors = None
-        self.center = None
         self.initialize_convex_hull(sp, points)     # Initializes all of the above, using a sub-initialization method
 
     def initialize_convex_hull(self, sp, points):
@@ -158,10 +157,12 @@ class Gamut:
         """Get all hull vertices and save them in a array list.
 
         :param nd_data : ndarray
-            The a copy of gamut.points pre-converted to a desierd colour space.
-        :return: point_list
+            Shape(N, 3) A list of points to return vertecis from. The a copy of gamut.points pre-converted
+            to a desierd colour space.
+        :return: point_array: ndarray
+
         """
-        point_list = []                     # Array list with vertices points.
+        point_list = []                     # Array list for the vertices.
 
         for i in self.hull.vertices:        # For loop that goes through all the vertices
                                             # and for each goes to the points and adds the coordinents to the list.
