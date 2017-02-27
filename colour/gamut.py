@@ -165,11 +165,9 @@ class Gamut:
         point_list = []                     # Array list for the vertices.
 
         for i in self.hull.vertices:        # For loop that goes through all the vertices
-                                            # and for each goes to the points and adds the coordinents to the list.
-            point_list.append(nd_data[i])
-        point_array = np.array(point_list)
+            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinents to the list.
 
-        return point_array                  # Returns ndarray.
+        return np.array(point_list)                  # Returns ndarray.
 
     def plot_surface(self, ax, sp):
         """Plot all the vertices points on the recived axel
