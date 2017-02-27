@@ -46,6 +46,7 @@ class Gamut:
         self.vertices = None
         self.simplices = None
         self.neighbors = None
+        self.center = None
         self.initialize_convex_hull(sp, points)     # Initializes all of the above, using a sub-initialization method
 
     def initialize_convex_hull(self, sp, points):
@@ -61,6 +62,25 @@ class Gamut:
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
+
+    def center_of_mass(self, points):
+        """Finds the center of mass of the points given. To find the "geometric center" of a gamut
+        lets points be only the verticis of the gamut.
+
+        Thanks to: http://stackoverflow.com/questions/8917478/center-of-mass-of-a-numpy-array-how-to-make-less-verbose
+
+        :param points: ndarray
+            Shape(N, 3), a list of points
+        :return: center: ndarray
+            Shape(3,), the coordinate of the center of mass.
+        """
+
+        CM = points.sum(0) / points.shape[0]
+        for i in range(points.shape[0]):
+            points[i, :] -= CM
+        return CM
+
+
 
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
@@ -230,14 +250,8 @@ class Gamut:
             j = 1
             for vertex in facet[1:-1]:
 
-                # print("xxxxxxxxxxxx")
-                # tetra = np.array([[0., 0., 0.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])
-                # print(tetra)
-                # print(".......................")
                 tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])
-                # print(tetra)
                 sign_tetra = self.sign(tetra)
-                # print("xxxxxxxxxxxx")
 
                 if self.in_trinagle(np.array([origin, facet[0], facet[j]]), P) or \
                     self.in_trinagle(np.array([

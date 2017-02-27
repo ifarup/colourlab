@@ -159,6 +159,25 @@ class TestGamut(unittest.TestCase):
         points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points
         self.assertFalse(False, g.four_p_coplanar(points))
 
+    def test_generate_sphere_points(self,):
+        r = 1
+        phi = np.linspace(0, np.pi, 20)
+        theta = np.linspace(0, 2 * np.pi, 40)
+        x = r * np.cos(theta) * np.sin(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(phi)
+
+        print(x)
+
+        # np.reshape(a, (3,3), order='F')
+
+        # print(y)
+        # print(z)
+
+        #
+        # coordinates = np.ndarray(shape=np.shape(num_of_points))
+        # for i in range(num_of_points):
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
