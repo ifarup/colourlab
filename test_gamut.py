@@ -27,7 +27,7 @@ from colour import data, gamut, space
 import matplotlib.pyplot as plt
 
 # Global variables.
-cube = np.array([[0., 0., 0.],  # 0 vertecis
+cube = np.array([[0.1, 0.1, 0.1],  # 0 vertecis
                 [10., 0., 0.],  # 1 vertecis
                 [10., 10., 0.],  # 2 vertecis
                 [0., 10., 0.],  # 3 vertecis
@@ -146,7 +146,20 @@ class TestGamut(unittest.TestCase):
     def test_feito_torres(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        g.feito_torres(np.array([0., 5., 5.]))
+
+        print("Will be random points, should be True")
+        for i in range(0, 10):
+            g.feito_torres(np.array([np.random.randint(1, 10), np.random.randint(1, 10),
+                                     np.random.randint(1, 10)]))
+
+        print("Should be True")
+        # True points are on a vertex
+        g.feito_torres(np.array([10., 0., 0.]))
+        g.feito_torres(np.array([10., 10., 0.]))
+        print("Should be False")
+        # False points are outside
+        g.feito_torres(np.array([11., 8., 4.]))
+        g.feito_torres(np.array([3., 2., 15.]))
 
     def test_four_p_coplanar(self):
         c_data = data.Data(space.srgb, cube)
@@ -158,24 +171,24 @@ class TestGamut(unittest.TestCase):
         points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points
         self.assertFalse(False, g.four_p_coplanar(points))
 
-    def test_generate_sphere_points(self):
-        r = 1
-        phi = np.linspace(0, np.pi, 20)
-        theta = np.linspace(0, 2 * np.pi, 40)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-
-        print(x)
-
-        # np.reshape(a, (3,3), order='F')
-
-        # print(y)
-        # print(z)
-
-        #
-        # coordinates = np.ndarray(shape=np.shape(num_of_points))
-        # for i in range(num_of_points):
+    # def test_generate_sphere_points(self):
+    #     r = 1
+    #     phi = np.linspace(0, np.pi, 20)
+    #     theta = np.linspace(0, 2 * np.pi, 40)
+    #     x = r * np.cos(theta) * np.sin(phi)
+    #     y = r * np.sin(theta) * np.sin(phi)
+    #     z = r * np.cos(phi)
+    #
+    #     print(x)
+    #
+    #     np.reshape(a, (3,3), order='F')
+    #
+    #     print(y)
+    #     print(z)
+    #
+    #
+    #     coordinates = np.ndarray(shape=np.shape(num_of_points))
+    #     for i in range(num_of_points):
 
     def test_center_of_mass(self):
         c_data = data.Data(space.srgb, cube)

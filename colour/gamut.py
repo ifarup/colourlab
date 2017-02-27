@@ -64,6 +64,9 @@ class Gamut:
         self.neighbors = self.hull.neighbors
         self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default centeter is the geometric
                                                                                 # center.
+        for el in self.simplices:
+
+            self.simplices[el] = self.fix_orientation_of_facet(self.simplices)
 
     def center_of_mass(self, points):
         """Finds the center of mass of the points given. To find the "geometric center" of a gamut
@@ -140,7 +143,6 @@ class Gamut:
             # self.single_point_inside(nda) # nda is now reduced to a one dimensional list containing three numbers.
                                             # (a data point to be checked)
             bool_array[(tuple(indices))] = True
-            print(bool_array)
 
     def single_point_inside(self, hull, point):
         """Checks if a single coordinate in 3d is inside the given hull.
@@ -204,51 +206,39 @@ class Gamut:
             True if P is included in the polyhedron.
         """
         inclusion = 0
-        v_plus = []  # a list of vertecis whos original edge contains P, and it's face is POSITIVE oriented
-        v_minus = []  # a list of vertecis whos original edge contains P, and it's face is NEGATIVE oriented
-
+        v_plus = []     # a list of vertecis whos original edge contains P, and it's face is POSITIVE oriented
+        v_minus = []    # a list of vertecis whos original edge contains P, and it's face is NEGATIVE oriented
         origin = np.array([0., 0., 0.])
 
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
-            facet = self.fix_orientation_of_facet(facet)
+            # facet = self.fix_orientation_of_facet(facet)
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
-                print("If 1: P was in triangle")
                 return True
 
-            o_v1 = np.array([origin, facet[0]])    # vector from origo to the first vertex in the facet.
+            o_v1 = np.array([origin, facet[0]])  # vector from origo to the first vertex in the facet.
             o_face = np.array([origin, facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
-            sign_face = self.sign(o_face)   # Sign of the current original tetrahedron
+            sign_face = self.sign(o_face)        # Sign of the current original tetrahedron
 
             if(self.in_line(o_v1, P)) and \
                     ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[0], v_minus)))):
-                print("If 2: P on original edge of first vertex")
                 inclusion += sign_face
 
-                if sign_face < 0:           # add Point to neg. oriented facets or pos. oriented facets
-                    print("legg til v-")
+                if sign_face < 0:               # add Point to neg. oriented facets or pos. oriented facets
                     v_minus.append(el[0])
-                    print("Printing v-: ", v_minus)
                 else:
-                    print("legg til v+")
                     v_plus.append(el[0])
-                    print("Legg til v+:", v_plus)
 
             if(self.in_line(o_v1, P)) and \
                     ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):
-                print("If 3: P on original edge of first vertex")
                 inclusion += sign_face
 
                 if sign_face < 0:           # add Point to neg. oriented facets or pos. oriented facets
-                    print("legg til v-")
                     v_minus.append(el[-1])
-                    print("Printing v-: ", v_minus)
                 else:
-                    print("legg til v+")
                     v_plus.append(el[-1])
-                    print("Legg til v+:", v_plus)
 
             j = 1
             for vertex in facet[1:-1]:
@@ -264,8 +254,7 @@ class Gamut:
 
                 elif self.in_line(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
-                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
-
+                            (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
                     inclusion += sign_tetra
                     if sign_tetra < 0:
                         v_minus.append(vertex[j])
@@ -275,6 +264,11 @@ class Gamut:
                     inclusion += sign_tetra
 
                 j += 1
+
+        if inclusion == 1:
+            print(P, " is ", inclusion, True)
+        else:
+            print(P, " is ", inclusion, False)
 
     def fix_orientation_of_facet(self, facet):
         """Ensures that the facet is properly oriented, meaning the the facet's normal vector is pointing outwards.
@@ -292,7 +286,6 @@ class Gamut:
         else:
             return np.array([facet[2], facet[1], facet[0]])
 
-
     def sign(self, t):
         """ Calculates the orientation of the tetrahedron.
 
@@ -309,8 +302,6 @@ class Gamut:
                            [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
                            [t[0, 2], t[1, 2], t[2, 2], t[3, 2]],
                            [1, 1, 1, 1]])
-        # print(sci.linalg.det(matrix))
-        # print(matrix)
         return int(np.sign(sci.linalg.det(matrix)))  # Calculates the signed volume and returns its sign.
 
     def get_coordinates(self, indices):
@@ -341,18 +332,13 @@ class Gamut:
         :return: Bool
             True if q is inside or on the surface of the tetrahedron.
         """
-        print("------------Start")
-        print(tetrahedron)
         a = tetrahedron[0]
         if self.four_p_coplanar(tetrahedron):   # The points are coplanar and the "Delaunay soloution
             cross = np.cross(tetrahedron[1], tetrahedron[2])
             tetrahedron[0] += cross * 0.001     # If the points are planer, make a tiny adjustment to force a volume.
-        print("--------------")
-        print(tetrahedron)
 
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
         tetrahedron[0] = a  # Dont make any permanent changes.
-        print("--------------End ")
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
         # # If neccesary move the line so that a is the origin.
@@ -388,7 +374,6 @@ class Gamut:
         # Finally check that q-vector is shorter b-vector
         dot_qq = np.dot(p, p)
         if dot_qq > dot_b_p:
-            print("q-vector longer than b-vector")
             return False
 
         return True
@@ -426,13 +411,6 @@ class Gamut:
         c_X_p = np.asarray(c_X_p)
         c_X_b = np.cross(c, b)          # Calculating the vector of the cross product c x b
         c_X_b = np.asarray(c_X_b)
-
-        print("HERE")
-        print(triangle[0], triangle[1], triangle[2])
-        print(p)
-        print(b)
-        print(c_X_p)
-        print(c_X_b)
 
         if np.dot(c_X_p, c_X_b) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
             return False
@@ -489,4 +467,3 @@ class Gamut:
         da_X_dp = np.cross(da, dp)
 
         return (np.dot(ab_X_ap, bc_X_bp) == np.dot(bc_X_bp, cd_X_cp) == np.dot(cd_X_cp, da_X_dp))
-
