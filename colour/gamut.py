@@ -46,6 +46,7 @@ class Gamut:
         self.vertices = None
         self.simplices = None
         self.neighbors = None
+        self.center = None
         self.initialize_convex_hull(sp, points)     # Initializes all of the above, using a sub-initialization method
 
     def initialize_convex_hull(self, sp, points):
@@ -61,6 +62,8 @@ class Gamut:
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
+        self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default centeter is the geometric
+                                                                                # center.
 
     def center_of_mass(self, points):
         """Finds the center of mass of the points given. To find the "geometric center" of a gamut
@@ -208,6 +211,7 @@ class Gamut:
 
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
+            facet = self.fix_orientation_of_facet(facet)
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
                 print("If 1: P was in triangle")
                 return True
@@ -272,6 +276,23 @@ class Gamut:
 
                 j += 1
 
+    def fix_orientation_of_facet(self, facet):
+        """Ensures that the facet is properly oriented, meaning the the facet's normal vector is pointing outwards.
+
+        :param facet: ndarray
+            Shape(3,3) The three points defining the facet facet.
+        :return: ndarray
+            Shape(3,3), the same points as in facet, but inn the order giving the correct orientation.
+        """
+        F = facet  # Make a working copy, so we dont mess with the original data.
+
+        normal = np.cross((F[1] - F[0]), F[2] - F[0])
+        if np.dot((facet[0]-self.center), normal) > 0:
+            return facet
+        else:
+            return np.array([facet[2], facet[1], facet[0]])
+
+
     def sign(self, t):
         """ Calculates the orientation of the tetrahedron.
 
@@ -320,14 +341,18 @@ class Gamut:
         :return: Bool
             True if q is inside or on the surface of the tetrahedron.
         """
-        a = tetrahedron[0]
-        if self.four_p_coplanar(tetrahedron):  # The points are coplanar and the "Delaunay soloution
-            cross = np.cross(tetrahedron[1], tetrahedron[2])
-            tetrahedron[0] += cross * 0.0001  # If the points are planer, make a tiny adjustment to force a volume.
-
+        print("------------Start")
         print(tetrahedron)
+        a = tetrahedron[0]
+        if self.four_p_coplanar(tetrahedron):   # The points are coplanar and the "Delaunay soloution
+            cross = np.cross(tetrahedron[1], tetrahedron[2])
+            tetrahedron[0] += cross * 0.001     # If the points are planer, make a tiny adjustment to force a volume.
+        print("--------------")
+        print(tetrahedron)
+
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
         tetrahedron[0] = a  # Dont make any permanent changes.
+        print("--------------End ")
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
         # # If neccesary move the line so that a is the origin.

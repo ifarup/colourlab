@@ -146,7 +146,6 @@ class TestGamut(unittest.TestCase):
     def test_feito_torres(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-
         g.feito_torres(np.array([0., 5., 5.]))
 
     def test_four_p_coplanar(self):
