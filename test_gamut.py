@@ -66,6 +66,9 @@ triangle2_point_not_coplanar = np.array([4., 4., 4.])
 triangle2_point_coplanar_but_outside = np.array([7., 2., 5.])
 
 
+
+
+
 class TestGamut(unittest.TestCase):
 
     def test_gamut_initialize(self):
@@ -217,6 +220,26 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
         g.fix_orientaion()
 
+    def test_feito_torres_with_circle(self):
+        c = self.generate_cirle(100, 10)
+        c_data = data.Data(space.srgb, c)
+        g = gamut.Gamut(space.srgb, c_data)
+
+
+
+        g.feito_torres()
+
+    def generate_cirle(numb_of_points, radius):
+        circle = np.ndarray(shape=(numb_of_points, 3))
+
+        i = 0
+        while (i < numb_of_points):
+            x = radius * np.sin(np.random.randint(0, 2 * np.pi)) * np.cos(np.random.randint(0, np.pi))
+            y = radius * np.sin(np.random.randint(0, 2 * np.pi)) * np.sin(np.random.randint(0, np.pi))
+            z = radius * np.cos(np.random.randint(0, 2 * np.pi))
+            circle[i] = np.array([x, y, z])
+
+        return circle
 
 
 if __name__ == '__main__':
