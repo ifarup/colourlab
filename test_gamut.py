@@ -52,6 +52,8 @@ tetra_p_on_surface = np.array([0., 5., 0.])
 
 tetrahedron_two = np.array([[-2, 0, 0], [0, -2, 0], [0, 0, 0], [0, 0, 2]])     # Tetrahedron used in testing.
 
+tetrahedron_three = np.array([[10, 10, 10], [10, 10, 0], [10, 0, 10], [0, 10, 10]])     # Tetrahedron used in testing.
+
 triangle = np.array([[0., 0., 0.], [4., 0., 0.], [0., 0., 4.]])
 triangle_point_inside = np.array([2., 0., 2.])
 triangle_point_not_coplanar = np.array([2., 2., 2.])
@@ -130,13 +132,15 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertFalse(False, g.in_trinagle(triangle, triangle_point_not_coplanar))
-        self.assertFalse(False, g.in_trinagle(triangle, triangle_point_coplanar_but_outside))
-        self.assertTrue(True, g.in_trinagle(triangle, triangle_point_inside))
+        # self.assertFalse(False, g.in_trinagle(triangle, triangle_point_not_coplanar))
+        # self.assertFalse(False, g.in_trinagle(triangle, triangle_point_coplanar_but_outside))
+        # self.assertTrue(True, g.in_trinagle(triangle, triangle_point_inside))
+        #
+        # self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_not_coplanar))
+        # self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_coplanar_but_outside))
+        # self.assertTrue(True, g.in_trinagle(triangle2, triangle2_point_inside))
 
-        self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_not_coplanar))
-        self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_coplanar_but_outside))
-        self.assertTrue(True, g.in_trinagle(triangle2, triangle2_point_inside))
+        self.assertTrue(True, g.in_trinagle(np.array([[0,0,1],[0,0,2],[0,0,4]]), np.array([0,0,3])))
 
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)
@@ -144,34 +148,27 @@ class TestGamut(unittest.TestCase):
         print(g.sign(tetrahedron_two))
 
     def test_feito_torres(self):
-        c_data = data.Data(space.srgb, tetrahedron)
+        c_data = data.Data(space.srgb, tetrahedron_three)
         g = gamut.Gamut(space.srgb, c_data)
 
-        print("Should be True")
-        print("----------------")
-        # Generate random points inside the convex hull
-        for i in range(0, 10):
-            g.feito_torres(np.array([float(np.random.randint(1, 10)),
-                                     float(np.random.randint(1, 10)),
-                                     float(np.random.randint(1, 10))]))
+        # print("Should be True")
+        # print("----------------")
+        # # Generate random points inside the convex hull
+        # for i in range(0, 10):
+        #     g.feito_torres(np.array([float(np.random.randint(1, 10)),
+        #                              float(np.random.randint(1, 10)),
+        #                              float(np.random.randint(1, 10))]))
 
-        a = np.array([10., 10., 10.])
-        b = np.array([0., 10., 10.])
-        c = np.array([10., 0., 10.])
-        d = np.array([10., 10., 0.])
 
-        # g.feito_torres(np.array([9., 0., 0.]))
-
-        print("----------------")
-        print("Should be True")
-        print("----------------")
         # Points are on a vertex
-        g.feito_torres(np.array([0.1, 0.1, 0.1]))
-        g.feito_torres(np.array([10., 10., 0.]))
+        print("Point on vertex, sould be true. Is: ", g.feito_torres(np.array([10., 10., 0.])), "Coordinate is: (10,9,8)")
 
-        print("----------------")
-        print("Should be False")
-        print("----------------")
+        # points are on a facet
+        print("Point on facet, sould be true. Is: ", g.feito_torres(np.array([10.,9.,8.])), "Coordinate is: (10,9,8)" )
+
+        # point INSIDE, not on surface
+        print("Point inside, sould be true. Is: ", g.feito_torres(np.array([9., 9., 9.])), "Coordinate is: (9,9,9)")
+
         # Points outside the convex hull
         g.feito_torres(np.array([11., 8., 4.]))
         g.feito_torres(np.array([3., 14., 0.]))
