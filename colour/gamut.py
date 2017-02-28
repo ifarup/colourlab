@@ -48,6 +48,7 @@ class Gamut:
         self.neighbors = None
         self.center = None
         self.initialize_convex_hull(sp, points)     # Initializes all of the above, using a sub-initialization method
+        self.fix_orientaion()
 
     def initialize_convex_hull(self, sp, points):
         """Initializes the gamuts convex hull in the desired colour space
@@ -64,6 +65,7 @@ class Gamut:
         self.neighbors = self.hull.neighbors
         self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default centeter is the geometric
 
+                                                                                # center.
 
     def center_of_mass(self, points):
 
@@ -267,6 +269,17 @@ class Gamut:
             print(P, " is ", inclusion, True)
         else:
             print(P, " is ", inclusion, False)
+
+    def fix_orientaion(self):
+        for simplex in self.simplices:
+            facet = self.get_coordinates(simplex)
+            normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector
+            if np.dot((facet[0]-self.center), normal) < 0:  # If the dot product of 'normal' and a vector from the
+                                                            # center of the gamut to the facet is negative, the
+                                                            # orientation of the facet needs to be fixed.
+                a = simplex[2]
+                simplex[2] = simplex[0]
+                simplex[0] = a
 
     def fix_orientation_of_facet(self, facet):
         """Ensures that the facet is properly oriented, meaning the the facet's normal vector is pointing outwards.

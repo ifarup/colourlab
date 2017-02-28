@@ -202,6 +202,12 @@ class TestGamut(unittest.TestCase):
 
         self.assertEqual(CP.all(), CM.all())                   # Assert true that the points are the same.
 
+    def test_fix_orientation(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+        g.fix_orientaion()
+
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
