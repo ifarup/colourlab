@@ -327,7 +327,7 @@ class Gamut:
                            [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
                            [t[0, 2], t[1, 2], t[2, 2], t[3, 2]],
                            [1, 1, 1, 1]])
-        return int(np.sign(sci.linalg.det(matrix)))  # Calculates the signed volume and returns its sign.
+        return int(np.sign(sci.linalg.det(matrix)))*-1  # Calculates the signed volume and returns its sign.
 
     def get_coordinates(self, indices):
         """Return the coordinates of points correlating to the  the indices provided.

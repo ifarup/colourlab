@@ -148,31 +148,32 @@ class TestGamut(unittest.TestCase):
         print(g.sign(tetrahedron_two))
 
     def test_feito_torres(self):
-        c_data = data.Data(space.srgb, tetrahedron_three)
+        c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        # print("Should be True")
-        # print("----------------")
-        # # Generate random points inside the convex hull
-        # for i in range(0, 10):
-        #     g.feito_torres(np.array([float(np.random.randint(1, 10)),
-        #                              float(np.random.randint(1, 10)),
-        #                              float(np.random.randint(1, 10))]))
+        print("Should be True")
+        print("----------------")
+        # Generate random points inside the convex hull
+        for i in range(0, 10):
+            bool = g.feito_torres(np.array([float(np.random.randint(1, 10)),
+                                     float(np.random.randint(1, 10)),
+                                     float(np.random.randint(1, 10))]))
+            print(bool, " ***********")
 
 
-        # Points are on a vertex
-        print("Point on vertex, sould be true. Is: ", g.feito_torres(np.array([10., 10., 0.])), "Coordinate is: (10,9,8)")
-
-        # points are on a facet
-        print("Point on facet, sould be true. Is: ", g.feito_torres(np.array([10.,9.,8.])), "Coordinate is: (10,9,8)" )
-
-        # point INSIDE, not on surface
-        print("Point inside, sould be true. Is: ", g.feito_torres(np.array([9., 9., 9.])), "Coordinate is: (9,9,9)")
-
-        # Points outside the convex hull
-        g.feito_torres(np.array([11., 8., 4.]))
-        g.feito_torres(np.array([3., 14., 0.]))
-        g.feito_torres(np.array([3., 2., -15.]))
+        # # Points are on a vertex
+        # print("Point on vertex, sould be true. Is: ", g.feito_torres(np.array([10., 10., 0.])), "Coordinate is: (10,9,8)")
+        #
+        # # points are on a facet
+        # print("Point on facet, sould be true. Is: ", g.feito_torres(np.array([10.,9.,8.])), "Coordinate is: (10,9,8)" )
+        #
+        # # point INSIDE, not on surface
+        # print("Point inside, sould be true. Is: ", g.feito_torres(np.array([9., 9., 9.])), "Coordinate is: (9,9,9)")
+        #
+        # # Points outside the convex hull
+        # g.feito_torres(np.array([11., 8., 4.]))
+        # g.feito_torres(np.array([3., 14., 0.]))
+        # g.feito_torres(np.array([3., 2., -15.]))
 
     def test_four_p_coplanar(self):
         c_data = data.Data(space.srgb, cube)
@@ -215,6 +216,8 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
         g.fix_orientaion()
+
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
