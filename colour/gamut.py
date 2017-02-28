@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
+import sympy as sy
 from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d
@@ -307,16 +308,21 @@ class Gamut:
         print("got to the end")
         return r + t <= 1
 
-    def clip_towards(self, sp, center):
-        """Get the nearest points on the surface
+    def clip_towards(self, d, sp, center):
+        """Get the nearest points on the surface.
 
+        :param d: point
+            The start point.
         :param sp: Space
             The colour space for computing the gamut.
         :param center:
-            The center is a point in the color space
+            The center is a point in the color space.
         :return:
-            Nearest point along a line
+            Nearest point along a line.
         """
+        n = self.find_plane(d)
+        x = (n(3) - center(0) * n(0) - center(1) * n(1) - center(2) * n(2)) / \
+            (d(0) * n(0) - center(0) * n(0) + d(1) * n(1) - center(1) * n(1) + d(2) * n(2) - center(2) * n(2))
 
     def find_plane(self, p):
         """
@@ -324,11 +330,11 @@ class Gamut:
         :param p:
         :return n:
         """
-        n = np.array()
+        n = np.array([1, 1, 1, 4])
         v1 = p[2] - p[0]
         v2 = p[1] - p[0]
         n2 = np.cross(v1, v2)
         nnorm = np.linalg.norm(n2)
         n = n2 / nnorm
-        np.hstack(n, np.dot(p[1],n))
+        np.hstack(n, np.dot(p[1], n))
         return n

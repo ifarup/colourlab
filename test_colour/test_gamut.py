@@ -131,20 +131,21 @@ class TestGamut(unittest.TestCase):
         g.feito_torres(P=1)
     """
 
-    """def test_clip_towards(self):
+    def test_clip_towards(self):
         c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut
-        d = data.Data(........)
-        sp = g.space
+        d = ([1, 2, 3])
+        sp = space.cielab
+        center = ([4, 5, 6])
         d_clip = g.clip_towards(d, sp, center)
-    """
+
 
     def test_find_plane(self):
-        n_data = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
-        c_data = data.Data(space.srgb, n_data)
-        g = gamut.Gamut(space.srgb, c_data)
+        p = ([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        #c_data = data.Data(space.srgb, n3_data)
+        #g = gamut.Gamut(space.srgb, c_data)
 
-        d = g.find_plane(n_data)
+        d = gamut.Gamut.find_plane(p)
         self.assertEquals(d, [0, 0, 1, 1])
 
 if __name__ == '__main__':
