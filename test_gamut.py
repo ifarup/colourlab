@@ -27,16 +27,16 @@ from colour import data, gamut, space
 import matplotlib.pyplot as plt
 
 # Global variables.
-cube = np.array([[0.1, 0.1, 0.1],  # 0 vertecis
-                [10., 0., 0.],  # 1 vertecis
-                [10., 10., 0.],  # 2 vertecis
-                [0., 10., 0.],  # 3 vertecis
-                [5., 5., 5.],  # 4 non vertecis
-                [4., 6., 2.],  # 5 non vertecis
-                [10., 10., 10.],  # 6 vertecis
-                [1., 2., 3.],  # 7 non vertecis
-                [10., 0., 10.],  # 8 vertecis
-                [0., 0., 10.],  # 9 vertecis
+cube = np.array([[0.1, 0.1, 0.1],   # 0  vertecis
+                [10., 0., 0.],      # 1  vertecis
+                [10., 10., 0.],     # 2  vertecis
+                [0., 10., 0.],      # 3  vertecis
+                [5., 5., 5.],       # 4  non vertecis
+                [4., 6., 2.],       # 5  non vertecis
+                [10., 10., 10.],    # 6  vertecis
+                [1., 2., 3.],       # 7  non vertecis
+                [10., 0., 10.],     # 8  vertecis
+                [0., 0., 10.],      # 9  vertecis
                 [0., 10., 10.]])    # 10 vertecis
 
 line = np.array([[0, 0, 0], [3, 3, 3]])             # Line used in testing.
@@ -151,29 +151,79 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        print("Should be True")
+        print("P INSIDE, should be True")
         print("----------------")
         # Generate random points inside the convex hull
         for i in range(0, 10):
-            bool = g.feito_torres(np.array([float(np.random.randint(1, 10)),
-                                     float(np.random.randint(1, 10)),
-                                     float(np.random.randint(1, 10))]))
-            print(bool, " ***********")
+            point = np.array([float(np.random.randint(1, 10)),
+                              float(np.random.randint(1, 10)),
+                              float(np.random.randint(1, 10))])
+            bool = g.feito_torres(point)
+            print(point, bool)
 
+        print("----------------")
+        print("P OUTSIDE, should be False")
+        print("----------------")
+        # Generate random points inside the convex hull
+        for i in range(0, 5):
+            point = np.array([float(np.random.randint(-10, -1)),
+                              float(np.random.randint(11, 20)),
+                              float(np.random.randint(1, 10))])
+            bool = g.feito_torres(point)
+            print(point, bool)
+        for i in range(0, 5):
+            point = np.array([float(np.random.randint(1, 10)),
+                              float(np.random.randint(13, 19)),
+                              float(np.random.randint(0, 90))])
+            bool = g.feito_torres(point)
+            print(point, bool)
 
-        # # Points are on a vertex
-        # print("Point on vertex, sould be true. Is: ", g.feito_torres(np.array([10., 10., 0.])), "Coordinate is: (10,9,8)")
-        #
-        # # points are on a facet
-        # print("Point on facet, sould be true. Is: ", g.feito_torres(np.array([10.,9.,8.])), "Coordinate is: (10,9,8)" )
-        #
-        # # point INSIDE, not on surface
-        # print("Point inside, sould be true. Is: ", g.feito_torres(np.array([9., 9., 9.])), "Coordinate is: (9,9,9)")
-        #
-        # # Points outside the convex hull
-        # g.feito_torres(np.array([11., 8., 4.]))
-        # g.feito_torres(np.array([3., 14., 0.]))
-        # g.feito_torres(np.array([3., 2., -15.]))
+        # Points are on a vertex
+        print("----------------")
+        print("P on vertex, should be True")
+        print("----------------")
+        point = np.array([10., 0., 0])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([0.1, 0.1, 0.1])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([10., 10., 10])
+        bool = g.feito_torres(point)
+        print(point, bool)
+
+        # points are on a facet
+        print("----------------")
+        print("P on facet, should be True")
+        print("----------------")
+        point = np.array([10., 5., 8])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([10., 7., 10])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([10., 1., 5])
+        bool = g.feito_torres(point)
+        print(point, bool)
+
+        # BUG XYZ equal, does not work!
+        print("----------------")
+        print("if Y ans d Z are equal = BUG!")
+        print("----------------")
+        for i in range(0, 3):
+            point = np.array([1., 2., 2.])
+            bool = g.feito_torres(point)
+            print(point, bool)
+
+        for i in range(0, 3):
+            point = np.array([3., 5., 5.])
+            bool = g.feito_torres(point)
+            print(point, bool)
+
+        for i in range(0, 3):
+            point = np.array([9., 7., 7.])
+            bool = g.feito_torres(point)
+            print(point, bool)
 
     def test_four_p_coplanar(self):
         c_data = data.Data(space.srgb, cube)

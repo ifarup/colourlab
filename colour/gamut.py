@@ -213,7 +213,6 @@ class Gamut:
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
-                print("Var på facet, hvis(0)")
                 return True
 
             o_v1 = np.array([origin, facet[0]])   # Line from origo to the first vertex in the facet.
@@ -226,7 +225,6 @@ class Gamut:
                     ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[0], v_minus)))):
                 inclusion += sign_face
-                print("Hvis er på første vertex orginale sin kant")
 
                 if sign_face < 0:               # add Point to neg. oriented facets or pos. oriented facets
                     v_minus.append(el[0])
@@ -238,7 +236,6 @@ class Gamut:
                     ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):
                 inclusion += sign_face
-                print("Hvis er på siste vertex sin orginale kant")
 
                 if sign_face < 0:           # add Point to neg. oriented facets or pos. oriented facets
                     v_minus.append(el[-1])
@@ -256,7 +253,6 @@ class Gamut:
                     self.in_trinagle(np.array([origin, facet[j], facet[j+1]]), P) or \
                         self.in_trinagle(np.array([origin, facet[j+1], facet[0]]), P):
                     inclusion += 0.5*sign_tetra
-                    print("hvis3.1")
 
 
                 # If 3.2
@@ -264,7 +260,6 @@ class Gamut:
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
                     inclusion += sign_tetra
-                    print("Hvis 3.2")
 
                     if sign_tetra < 0:
                         v_minus.append(vertex[j])
@@ -274,7 +269,6 @@ class Gamut:
                 # If 3.3
                 elif self.in_tetrahedron(tetra, P):
                     inclusion += sign_tetra
-                    print("hvis 3.3")
 
                 j += 1
 
@@ -361,7 +355,6 @@ class Gamut:
         if self.four_p_coplanar(tetrahedron):   # The points are coplanar and the "Delaunay soloution
             cross = np.cross(tetrahedron[1], tetrahedron[2])
             tetrahedron[0] += cross * 0.001     # If the points are planer, make a tiny adjustment to force a volume.
-
 
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
         tetrahedron[0] = a  # Dont make any permanent changes.
