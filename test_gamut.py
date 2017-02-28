@@ -45,7 +45,7 @@ point_not_paralell_to_line = np.array([2, 3, 2])    # Point outside the line to 
 point_opposite_direction_than_line = np.array([-1, -1, -1])
 point_further_away_than_line = np.array([4, 4, 4])
 
-tetrahedron = np.array([[0., 0., 0.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])     # Tetrahedron used in testing.
+tetrahedron = np.array([[10., 10., 10.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])  # Tetrahedron used in testing.
 tetra_p_inside = np.array([2., 3., 4.])               # Point inside the tetrahedron to be tested.
 tetra_p_not_inside = np.array([20., 1., 2.])          # Point outside the tetrahedron to be tested.
 tetra_p_on_surface = np.array([0., 5., 0.])
@@ -144,22 +144,34 @@ class TestGamut(unittest.TestCase):
         print(g.sign(tetrahedron_two))
 
     def test_feito_torres(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Data(space.srgb, tetrahedron)
         g = gamut.Gamut(space.srgb, c_data)
 
         print("Should be True")
+        print("----------------")
         # Generate random points inside the convex hull
         for i in range(0, 10):
             g.feito_torres(np.array([float(np.random.randint(1, 10)),
                                      float(np.random.randint(1, 10)),
                                      float(np.random.randint(1, 10))]))
 
-        print("Should be True (Does not work yet)")
+        a = np.array([10., 10., 10.])
+        b = np.array([0., 10., 10.])
+        c = np.array([10., 0., 10.])
+        d = np.array([10., 10., 0.])
+
+        # g.feito_torres(np.array([9., 0., 0.]))
+
+        print("----------------")
+        print("Should be True")
+        print("----------------")
         # Points are on a vertex
         g.feito_torres(np.array([0.1, 0.1, 0.1]))
         g.feito_torres(np.array([10., 10., 0.]))
 
+        print("----------------")
         print("Should be False")
+        print("----------------")
         # Points outside the convex hull
         g.feito_torres(np.array([11., 8., 4.]))
         g.feito_torres(np.array([3., 14., 0.]))
@@ -197,17 +209,15 @@ class TestGamut(unittest.TestCase):
     def test_center_of_mass(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        CM = g.center_of_mass(g.get_vertices(g.hull.points))   # Get coordinate for center of the cube
-        CP = np.array([5., 5., 5.])                            # Point in center of cube.
+        cm = g.center_of_mass(g.get_vertices(g.hull.points))   # Get coordinate for center of the cube
+        cp = np.array([5., 5., 5.])                            # Point in center of cube.
 
-        self.assertEqual(CP.all(), CM.all())                   # Assert true that the points are the same.
+        self.assertEqual(cp.all(), cm.all())                   # Assert true that the points are the same.
 
     def test_fix_orientation(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
         g.fix_orientaion()
-
-
 
 if __name__ == '__main__':
     unittest.main(exit=False)

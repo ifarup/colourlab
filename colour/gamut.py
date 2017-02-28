@@ -212,14 +212,16 @@ class Gamut:
 
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
-            # facet = self.fix_orientation_of_facet(facet)
             if self.in_trinagle(facet, P):      # Check if P is on the current facet.
+                print(True)
                 return True
 
-            o_v1 = np.array([origin, facet[0]])  # vector from origo to the first vertex in the facet.
+            o_v1 = np.array([origin, facet[0]])   # Line from origo to the first vertex in the facet.
+            o_vn = np.array([origin, facet[-1]])  # Line from origo to the last vertex in the facet.
             o_face = np.array([origin, facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
-            sign_face = self.sign(o_face)        # Sign of the current original tetrahedron
+            sign_face = self.sign(o_face)         # Sign of the current original tetrahedron
 
+            # If 1
             if(self.in_line(o_v1, P)) and \
                     ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[0], v_minus)))):
@@ -230,7 +232,8 @@ class Gamut:
                 else:
                     v_plus.append(el[0])
 
-            if(self.in_line(o_v1, P)) and \
+            # If 2
+            if(self.in_line(o_vn, P)) and \
                     ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):
                 inclusion += sign_face
@@ -246,20 +249,24 @@ class Gamut:
                 tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])
                 sign_tetra = self.sign(tetra)
 
+                # If 3.1
                 if self.in_trinagle(np.array([origin, facet[0], facet[j]]), P) or \
-                    self.in_trinagle(np.array([
-                        origin, facet[j], facet[j+1]]), P) or \
+                    self.in_trinagle(np.array([origin, facet[j], facet[j+1]]), P) or \
                         self.in_trinagle(np.array([origin, facet[j+1], facet[0]]), P):
                     inclusion += 0.5*sign_tetra
 
+                # If 3.2
                 elif self.in_line(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
                     inclusion += sign_tetra
+
                     if sign_tetra < 0:
                         v_minus.append(vertex[j])
                     else:
                         v_plus.append(vertex[j])
+
+                # If 3.3
                 elif self.in_tetrahedron(tetra, P):
                     inclusion += sign_tetra
 
@@ -347,6 +354,7 @@ class Gamut:
         if self.four_p_coplanar(tetrahedron):   # The points are coplanar and the "Delaunay soloution
             cross = np.cross(tetrahedron[1], tetrahedron[2])
             tetrahedron[0] += cross * 0.001     # If the points are planer, make a tiny adjustment to force a volume.
+
 
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
         tetrahedron[0] = a  # Dont make any permanent changes.
