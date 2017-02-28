@@ -147,19 +147,23 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        print("Will be random points, should be True")
-        for i in range(0, 10):
-            g.feito_torres(np.array([np.random.randint(1, 10), np.random.randint(1, 10),
-                                     np.random.randint(1, 10)]))
-
         print("Should be True")
-        # True points are on a vertex
-        g.feito_torres(np.array([10., 0., 0.]))
+        # Generate random points inside the convex hull
+        for i in range(0, 10):
+            g.feito_torres(np.array([float(np.random.randint(1, 10)),
+                                     float(np.random.randint(1, 10)),
+                                     float(np.random.randint(1, 10))]))
+
+        print("Should be True (Does not work yet)")
+        # Points are on a vertex
+        g.feito_torres(np.array([0.1, 0.1, 0.1]))
         g.feito_torres(np.array([10., 10., 0.]))
+
         print("Should be False")
-        # False points are outside
+        # Points outside the convex hull
         g.feito_torres(np.array([11., 8., 4.]))
-        g.feito_torres(np.array([3., 2., 15.]))
+        g.feito_torres(np.array([3., 14., 0.]))
+        g.feito_torres(np.array([3., 2., -15.]))
 
     def test_four_p_coplanar(self):
         c_data = data.Data(space.srgb, cube)

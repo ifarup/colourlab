@@ -63,12 +63,10 @@ class Gamut:
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
         self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default centeter is the geometric
-                                                                                # center.
-        for el in self.simplices:
 
-            self.simplices[el] = self.fix_orientation_of_facet(self.simplices)
 
     def center_of_mass(self, points):
+
         """Finds the center of mass of the points given. To find the "geometric center" of a gamut
         lets points be only the verticis of the gamut.
 
@@ -416,6 +414,8 @@ class Gamut:
             return False
 
         b_X_p = np.cross(b, p)          # Calculating the vector of the cross product b x p
+        b_X_p = np.asarray(b_X_p)
+
         if np.dot(b_X_p, b_X_c) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
             return False
 
