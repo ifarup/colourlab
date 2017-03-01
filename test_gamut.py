@@ -27,16 +27,16 @@ from colour import data, gamut, space
 import matplotlib.pyplot as plt
 
 # Global variables.
-cube = np.array([[0.1, 0.1, 0.1],  # 0 vertecis
-                [10., 0., 0.],  # 1 vertecis
-                [10., 10., 0.],  # 2 vertecis
-                [0., 10., 0.],  # 3 vertecis
-                [5., 5., 5.],  # 4 non vertecis
-                [4., 6., 2.],  # 5 non vertecis
-                [10., 10., 10.],  # 6 vertecis
-                [1., 2., 3.],  # 7 non vertecis
-                [10., 0., 10.],  # 8 vertecis
-                [0., 0., 10.],  # 9 vertecis
+cube = np.array([[0.1, 0.1, 0.1],   # 0  vertecis
+                [10., 0., 0.],      # 1  vertecis
+                [10., 10., 0.],     # 2  vertecis
+                [0., 10., 0.],      # 3  vertecis
+                [5., 5., 5.],       # 4  non vertecis
+                [4., 6., 2.],       # 5  non vertecis
+                [10., 10., 10.],    # 6  vertecis
+                [1., 2., 3.],       # 7  non vertecis
+                [10., 0., 10.],     # 8  vertecis
+                [0., 0., 10.],      # 9  vertecis
                 [0., 10., 10.]])    # 10 vertecis
 
 line = np.array([[0, 0, 0], [3, 3, 3]])             # Line used in testing.
@@ -59,11 +59,22 @@ triangle_point_inside = np.array([2., 0., 2.])
 triangle_point_not_coplanar = np.array([2., 2., 2.])
 triangle_point_coplanar_but_outside = np.array([5., 0., 3.])
 
-# Same trianglw as above, move by vetoor (2,2,2)
+# Same triangle as above, move by vector (2,2,2)
 triangle2 = np.array([[2., 2., 2.], [6., 2., 2.], [2., 2., 6.]])
 triangle2_point_inside = np.array([4., 2., 4.])
 triangle2_point_not_coplanar = np.array([4., 4., 4.])
 triangle2_point_coplanar_but_outside = np.array([7., 2., 5.])
+
+polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 45., 18.],
+                       [22., 13., 29.], [22., 2., 31.],  [26., 44., 35.], [31., 43., 22.],
+                       [22., 43., 13.], [13., 43., 11.], [50., 32., 29.], [26., 35., 18.],
+                       [43., 3., 11.],  [26., 3., 44.],  [11., 3., 18.],  [18., 3., 26.],
+                       [11., 45, 13.],  [13., 45., 29.], [18., 45., 11.], [2., 32., 31.],
+                       [29., 2., 22.],  [35., 12., 18.], [18., 12., 34.], [34., 12., 50.],
+                       [34., 50., 45.], [45., 50., 29.], [3., 30., 44.],  [29., 32., 2.],
+                       [30., 28., 44.], [50., 30., 32.], [37., 12., 35.], [44., 28., 35.],
+                       [35., 28., 37.], [32., 30., 31.], [31., 30., 3.],  [38., 30., 50.],
+                       [37., 28., 38.], [38., 12., 37.]])
 
 
 
@@ -90,13 +101,13 @@ class TestGamut(unittest.TestCase):
         # Test for gamut.Gamut.get_vertices
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        n1_data = np.array([[0, 0, 0],      # 0 vertecis    # Array with just the vercites used for comparison.
-                           [10, 0, 0],      # 1 vertecis
-                           [10, 10, 0],     # 2 vertecis
-                           [0, 10, 0],      # 3 vertecis
-                           [10, 10, 10],    # 6 vertecis
-                           [10, 0, 10],     # 8 vertecis
-                           [0, 0, 10],      # 9 vertecis
+        n1_data = np.array([[0, 0, 0],      # 0  vertecis    # Array with just the vercites used for comparison.
+                           [10, 0, 0],      # 1  vertecis
+                           [10, 10, 0],     # 2  vertecis
+                           [0, 10, 0],      # 3  vertecis
+                           [10, 10, 10],    # 6  vertecis
+                           [10, 0, 10],     # 8  vertecis
+                           [0, 0, 10],      # 9  vertecis
                            [0, 10, 10]])    # 10 vertecis
 
         vertices = g.get_vertices(cube)
@@ -109,7 +120,7 @@ class TestGamut(unittest.TestCase):
         fig = plt.figure()                          # Creates a figure
         ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
-        c_data = data.Data(space.srgb, cube)      # Generating the colour Data object
+        c_data = data.Data(space.srgb, polyhedron)      # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
         sp = g.space                                # specifies the color space
         g.plot_surface(ax, sp)                      # Calls the plot function
@@ -143,7 +154,7 @@ class TestGamut(unittest.TestCase):
         # self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_coplanar_but_outside))
         # self.assertTrue(True, g.in_trinagle(triangle2, triangle2_point_inside))
 
-        self.assertTrue(True, g.in_trinagle(np.array([[0,0,1],[0,0,2],[0,0,4]]), np.array([0,0,3])))
+        self.assertTrue(True, g.in_trinagle(np.array([[0, 0, 1], [0, 0, 2], [0, 0, 4]]), np.array([0, 0, 3])))
 
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)
@@ -151,32 +162,84 @@ class TestGamut(unittest.TestCase):
         print(g.sign(tetrahedron_two))
 
     def test_feito_torres(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Data(space.srgb, tetrahedron_three)
         g = gamut.Gamut(space.srgb, c_data)
 
-        print("Should be True")
+        """
+        print("P INSIDE, should be True")
         print("----------------")
         # Generate random points inside the convex hull
         for i in range(0, 10):
-            bool = g.feito_torres(np.array([float(np.random.randint(1, 10)),
-                                     float(np.random.randint(1, 10)),
-                                     float(np.random.randint(1, 10))]))
-            print(bool, " ***********")
+            point = np.array([float(np.random.randint(1, 10)),
+                              float(np.random.randint(1, 10)),
+                              float(np.random.randint(1, 10))])
+            bool = g.feito_torres(point)
+            print(point, bool)
 
+        print("----------------")
+        print("P OUTSIDE, should be False")
+        print("----------------")
+        # Generate random points inside the convex hull
+        for i in range(0, 5):
+            point = np.array([float(np.random.randint(-10, -1)),
+                              float(np.random.randint(11, 20)),
+                              float(np.random.randint(1, 10))])
+            bool = g.feito_torres(point)
+            print(point, bool)
+        for i in range(0, 5):
+            point = np.array([float(np.random.randint(1, 10)),
+                              float(np.random.randint(13, 19)),
+                              float(np.random.randint(0, 90))])
+            bool = g.feito_torres(point)
+            print(point, bool)
 
-        # # Points are on a vertex
-        # print("Point on vertex, sould be true. Is: ", g.feito_torres(np.array([10., 10., 0.])), "Coordinate is: (10,9,8)")
-        #
-        # # points are on a facet
-        # print("Point on facet, sould be true. Is: ", g.feito_torres(np.array([10.,9.,8.])), "Coordinate is: (10,9,8)" )
-        #
-        # # point INSIDE, not on surface
-        # print("Point inside, sould be true. Is: ", g.feito_torres(np.array([9., 9., 9.])), "Coordinate is: (9,9,9)")
-        #
-        # # Points outside the convex hull
-        # g.feito_torres(np.array([11., 8., 4.]))
-        # g.feito_torres(np.array([3., 14., 0.]))
-        # g.feito_torres(np.array([3., 2., -15.]))
+        # Points are on a vertex
+        print("----------------")
+        print("P on vertex, should be True")
+        print("----------------")
+        point = np.array([10., 0., 0])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([0.1, 0.1, 0.1])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([10., 10., 10])
+        bool = g.feito_torres(point)
+        print(point, bool)
+
+        # points are on a facet
+        print("----------------")
+        print("P on facet, should be True")
+        print("----------------")
+        point = np.array([10., 5., 8])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([10., 7., 10])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        point = np.array([10., 1., 5])
+        bool = g.feito_torres(point)
+        print(point, bool)
+        """
+
+        # BUG XYZ equal, does not work!
+        print("----------------")
+        print("if Y ans d Z are equal = BUG!")
+        print("----------------")
+        for i in range(0, 3):
+            point = np.array([9., 9., 9.])
+            bool = g.feito_torres(point)
+            print(point, bool)
+
+        for i in range(0, 3):
+            point = np.array([3., 5., 5.])
+            bool = g.feito_torres(point)
+            print(point, bool)
+
+        for i in range(0, 3):
+            point = np.array([9., 7., 7.])
+            bool = g.feito_torres(point)
+            print(point, bool)
 
     def test_four_p_coplanar(self):
         c_data = data.Data(space.srgb, cube)
