@@ -320,9 +320,11 @@ class Gamut:
         :return:
             Nearest point along a line.
         """
-        n = self.find_plane(d)
+
         x = (n(3) - center(0) * n(0) - center(1) * n(1) - center(2) * n(2)) / \
             (d(0) * n(0) - center(0) * n(0) + d(1) * n(1) - center(1) * n(1) + d(2) * n(2) - center(2) * n(2))
+
+        return x
 
     def find_plane(self, p):
         """
@@ -338,3 +340,15 @@ class Gamut:
         n = n2 / nnorm
         np.hstack(n, np.dot(p[1], n))
         return n
+
+    def plane_coordinents(self, d, center, sp):
+        """
+
+        :return:
+        """
+
+        distance = np.array()
+        for i in self.hull.simplices:
+            n = self.find_plane(i)
+            distance = np.append(n)
+
