@@ -264,12 +264,12 @@ class Gamut:
                         v_plus.append(vertex[j])
 
                 # If 3.3
-                elif self.in_tetrahedron(tetra, P):
+                elif self.in_tetrahedron(tetra, P, True):
                     inclusion += sign_tetra
 
                 j += 1
 
-        if inclusion == 1:
+        if inclusion > 0:
             return True
         else:
             return False
@@ -339,24 +339,32 @@ class Gamut:
 
         return coordinates
 
-    def in_tetrahedron(self, tetrahedron, p):
-        """Checks if the point P, pointed to by vector p, is inside(incuding the surface) the tetrahedron
+    def in_tetrahedron(self, tetrahedron, p, true_interior=False):
+        """Checks if the point P, pointed to by vector p, is inside(including the surface) the tetrahedron
 
         :param tetrahedron: ndarray
             The four points of a tetrahedron
         :param p: ndarray
             The point to be tested for inclusion in the tetrahedron.
-
+        :param true_interior: bool
+            Activate to exclude the surface of the tetrahedron from the search.
         :return: Bool
             True if q is inside or on the surface of the tetrahedron.
         """
+
+        if true_interior and (self.in_triangle(np.delete(tetrahedron, 0, 0), p) or
+                              self.in_triangle(np.delete(tetrahedron, 1, 0), p) or
+                              self.in_triangle(np.delete(tetrahedron, 2, 0), p) or
+                              self.in_triangle(np.delete(tetrahedron, 3, 0), p)):
+            return False
+
         a = tetrahedron[0]
         if self.four_p_coplanar(tetrahedron):   # The points are coplanar and the "Delaunay soloution
             cross = np.cross(tetrahedron[1], tetrahedron[2])
             tetrahedron[0] += cross * 0.001     # If the points are planer, make a tiny adjustment to force a volume.
 
-        hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull repesentaion of points
-        tetrahedron[0] = a  # Dont make any permanent changes.
+        hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull representation of points
+        tetrahedron[0] = a  # Don't make any permanent changes.
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
         # # If neccesary move the line so that a is the origin.
@@ -396,14 +404,14 @@ class Gamut:
 
         return True
 
-    def in_triangle(self, triangle, P, true_interior = False):
+    def in_triangle(self, triangle, P, true_interior=False):
         """Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
             This function utilizes the baycentric technique explained here
             https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
 
         :param triangle: ndarray
-            An ndarray with shape: (3,3), with points A, C and C beeing triangle[0]..[2]
-        :param p: ndarray
+            An ndarray with shape: (3,3), with points A, C and C being triangle[0]..[2]
+        :param P: ndarray
             An ndarray with shape: (3,), the point to be tested for inclusion in the triangle.
         :param true_interior: bool
             If true_interior is set to True, returns False if 'P' is on one of the triangles edges.
@@ -415,10 +423,8 @@ class Gamut:
         # If the true interior option is activated, return False if 'P' is on one of the triangles edges.
         if true_interior and (self.in_line(triangle[0:2], P) or
                               self.in_line(triangle[1:3], P) or
-                              self.in_line(np.array([triangle[2], triangle[0]]), P)):
+                              self.in_line(np.array([triangle[0], triangle[2]]), P)):
             return False
-
-
 
         # Make 'A' the local origo for the points.
         b = triangle[1] - triangle[0]  # 'b' is the vector from A to B
@@ -470,32 +476,3 @@ class Gamut:
         d = points[3] - points[0]
 
         return np.dot(d, np.cross(b, c)) == 0
-
-    def in_square(self, square, P):
-        """Checks if the point P is in the square
-
-        :param square: ndarray
-            shape(4,3), four points in 3d.
-        :param P: ndarray
-            point to be tested for inclusion
-        :return: bool
-            True if the point is within the square
-        """
-
-        ab = square[1] - square[0]  # Vector from A to B
-        ap = P - square[0]
-        ab_X_ap = np.cross(ab, ap)
-
-        bc = square[2] - square[1]
-        bp = P - square[1]
-        bc_X_bp = np.cross(bc, bp)
-
-        cd = square[3] - square[2]
-        cp = P - square[2]
-        cd_X_cp = np.cross(cd, cp)
-
-        da = square[0] - square[3]
-        dp = P - square[3]
-        da_X_dp = np.cross(da, dp)
-
-        return (np.dot(ab_X_ap, bc_X_bp) == np.dot(bc_X_bp, cd_X_cp) == np.dot(cd_X_cp, da_X_dp))
