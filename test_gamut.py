@@ -146,15 +146,15 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        # self.assertFalse(False, g.in_trinagle(triangle, triangle_point_not_coplanar))
-        # self.assertFalse(False, g.in_trinagle(triangle, triangle_point_coplanar_but_outside))
-        # self.assertTrue(True, g.in_trinagle(triangle, triangle_point_inside))
+        # self.assertFalse(False, g.in_triangle(triangle, triangle_point_not_coplanar))
+        # self.assertFalse(False, g.in_triangle(triangle, triangle_point_coplanar_but_outside))
+        # self.assertTrue(True, g.in_triangle(triangle, triangle_point_inside))
         #
-        # self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_not_coplanar))
-        # self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_coplanar_but_outside))
-        # self.assertTrue(True, g.in_trinagle(triangle2, triangle2_point_inside))
+        # self.assertFalse(False, g.in_triangle(triangle2, triangle2_point_not_coplanar))
+        # self.assertFalse(False, g.in_triangle(triangle2, triangle2_point_coplanar_but_outside))
+        # self.assertTrue(True, g.in_triangle(triangle2, triangle2_point_inside))
 
-        self.assertTrue(True, g.in_trinagle(np.array([[0, 0, 1], [0, 0, 2], [0, 0, 4]]), np.array([0, 0, 3])))
+        self.assertTrue(True, g.in_triangle(np.array([[0, 0, 1], [0, 0, 2], [0, 0, 4]]), np.array([0, 0, 3])))
 
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)

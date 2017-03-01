@@ -210,7 +210,7 @@ class Gamut:
 
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
-            if self.in_trinagle(facet, P):      # Check if P is on the current facet.
+            if self.in_triangle(facet, P, True):      # Check if P is on the current facet.
                 return True
 
             o_v1 = np.array([origin, facet[0]])   # Line from origo to the first vertex in the facet.
@@ -247,9 +247,9 @@ class Gamut:
                 sign_tetra = self.sign(tetra)
 
                 # If 3.1
-                if self.in_trinagle(np.array([origin, facet[0], facet[j]]), P) or \
-                    self.in_trinagle(np.array([origin, facet[j], facet[j+1]]), P) or \
-                        self.in_trinagle(np.array([origin, facet[j+1], facet[0]]), P):
+                if self.in_triangle(np.array([origin, facet[0], facet[j]]), P, True) or \
+                    self.in_triangle(np.array([origin, facet[j], facet[j+1]]), P, True) or \
+                        self.in_triangle(np.array([origin, facet[j+1], facet[0]]), P, True):
                     inclusion += 0.5*sign_tetra
 
                 # If 3.2
@@ -396,7 +396,7 @@ class Gamut:
 
         return True
 
-    def in_trinagle(self, triangle, P):
+    def in_triangle(self, triangle, P, true_interior = False):
         """Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
             This function utilizes the baycentric technique explained here
             https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
@@ -405,9 +405,21 @@ class Gamut:
             An ndarray with shape: (3,3), with points A, C and C beeing triangle[0]..[2]
         :param p: ndarray
             An ndarray with shape: (3,), the point to be tested for inclusion in the triangle.
-        :return: Bool
+        :param true_interior: bool
+            If true_interior is set to True, returns False if 'P' is on one of the triangles edges.
+
+        :return: bool
             True if 'w' is within the triangle ABC.
         """
+
+        # If the true interior option is activated, return False if 'P' is on one of the triangles edges.
+        if true_interior and (self.in_line(triangle[0:2], P) or
+                              self.in_line(triangle[1:3], P) or
+                              self.in_line(np.array([triangle[2], triangle[0]]), P)):
+            return False
+
+
+
         # Make 'A' the local origo for the points.
         b = triangle[1] - triangle[0]  # 'b' is the vector from A to B
         c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
