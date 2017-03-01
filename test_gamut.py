@@ -159,10 +159,10 @@ class TestGamut(unittest.TestCase):
         print(g.sign(tetrahedron_two))
 
     def test_feito_torres(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Data(space.srgb, tetrahedron_three)
         g = gamut.Gamut(space.srgb, c_data)
 
-
+        """
         print("P INSIDE, should be True")
         print("----------------")
         # Generate random points inside the convex hull
@@ -217,6 +217,7 @@ class TestGamut(unittest.TestCase):
         point = np.array([10., 1., 5])
         bool = g.feito_torres(point)
         print(point, bool)
+        """
 
         # BUG XYZ equal, does not work!
         print("----------------")
