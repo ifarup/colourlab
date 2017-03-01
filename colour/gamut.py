@@ -22,10 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from pip.commands import list
 from scipy import spatial
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D, art3d
+from mpl_toolkits.mplot3d import art3d
 import scipy as sci
 
 
@@ -35,10 +34,10 @@ class Gamut:
     def __init__(self, sp, points):
         """Construct new gamut instance and compute the gamut.
 
-            :param sp : Space
-                The colour space for computing the gamut.
-            :param points : Data
-                The colour points for the gamut.
+        :param sp : Space
+            The colour space for computing the gamut.
+        :param points : Data
+            The colour points for the gamut.
         """
         self.data = points      # The data points are stored in the original format.
         self.space = None
@@ -63,14 +62,11 @@ class Gamut:
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
-        self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default centeter is the geometric
-
-                                                                                # center.
+        self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default center is geometric center.
 
     def center_of_mass(self, points):
-
         """Finds the center of mass of the points given. To find the "geometric center" of a gamut
-        lets points be only the verticis of the gamut.
+        lets points be only the vertices of the gamut.
 
         Thanks to: http://stackoverflow.com/questions/8917478/center-of-mass-of-a-numpy-array-how-to-make-less-verbose
 
@@ -79,11 +75,10 @@ class Gamut:
         :return: center: ndarray
             Shape(3,), the coordinate of the center of mass.
         """
-
-        CM = points.sum(0) / points.shape[0]
+        cm = points.sum(0) / points.shape[0]
         for i in range(points.shape[0]):
-            points[i, :] -= CM
-        return CM
+            points[i, :] -= cm
+        return cm
 
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
@@ -94,19 +89,18 @@ class Gamut:
         :param c_data : Data
             Data object with the colour points for the gamut.
         """
-        # Calculate a new convexhull given only the vertecis for further use to increase efficiency
+        # Calculate a new convexhull given only the vertices for further use to increase efficiency
         # hull = spatial.ConvexHull(g.vertices()).
 
         nd_data = c_data.get(sp)    # Convert to ndarray
 
-        if nd_data.ndim == 1:   # Handle the special case of a only one point beeing evaluated.
+        if nd_data.ndim == 1:   # Handle the special case of a only one point being evaluated.
             self.single_point_inside(self, c_data)
         else:
             indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indencis is initialized with negative numb.
             c_data = c_data.get(sp)
             bool_array = np.zeros(np.shape(nd_data)[:-1], bool)     # Create a bool array with the same shape as the
-                                                                    # nd_data(minus the last dimension)
-            self.traverse_ndarray(c_data, indices, bool_array)
+            self.traverse_ndarray(c_data, indices, bool_array)      # nd_data(minus the last dimension)
 
     def traverse_ndarray(self, nda, indices, bool_array):
         """For the given data points checks if points are inn the convex hull
@@ -160,10 +154,9 @@ class Gamut:
         """Get all hull vertices and save them in a array list.
 
         :param nd_data : ndarray
-            Shape(N, 3) A list of points to return vertecis from. The a copy of gamut.points pre-converted
-            to a desierd colour space.
+            Shape(N, 3) A list of points to return vertices from. The a copy of gamut.points pre-converted
+            to a desired colour space.
         :return: point_array: ndarray
-
         """
         point_list = []                     # Array list for the vertices.
 
@@ -173,7 +166,7 @@ class Gamut:
         return np.array(point_list)                  # Returns ndarray.
 
     def plot_surface(self, ax, sp):
-        """Plot all the vertices points on the recived axel
+        """Plot all the vertices points on the received axel
 
         :param ax: Axel
             The axel to draw the points on
@@ -186,7 +179,7 @@ class Gamut:
         y = points[:, 1]
         z = points[:, 2]
 
-        for i in range(self.hull.simplices.shape[0]):   # Itirates and draws all the vertices points
+        for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
             tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
@@ -204,8 +197,8 @@ class Gamut:
             True if P is included in the polyhedron.
         """
         inclusion = 0
-        v_plus = []     # a list of vertecis whos original edge contains P, and it's face is POSITIVE oriented
-        v_minus = []    # a list of vertecis whos original edge contains P, and it's face is NEGATIVE oriented
+        v_plus = []     # a list of vertices who's original edge contains P, and it's face is POSITIVE oriented
+        v_minus = []    # a list of vertices who's original edge contains P, and it's face is NEGATIVE oriented
         origin = np.array([0., 0., 0.])
 
         for el in self.simplices:
@@ -367,14 +360,6 @@ class Gamut:
         tetrahedron[0] = a  # Don't make any permanent changes.
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
-        # # If neccesary move the line so that a is the origin.
-        # if line[0] != np.array([0,0,0]):
-        #     a = np.array([0,0,0])
-        #     b = line[1] - line[0]
-        # else:
-        #     a = line[0]
-        #     b = line[1]
-
     def in_line(self, line, p):
         """Checks if a point P is on the line from  A to B
 
@@ -439,38 +424,35 @@ class Gamut:
         if np.array_equal(triangle[1], triangle[2]):
             return self.in_line(np.array([triangle[1], triangle[2]]), p)
 
-        b_X_c = np.cross(b, c)         # Calculating the vector of the cross product b x c
-        if np.dot(b_X_c, p) != 0:      # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
+        b_x_c = np.cross(b, c)         # Calculating the vector of the cross product b x c
+        if np.dot(b_x_c, p) != 0:      # If p-vector is not coplanar to b and c-vector, it is not in the triangle.
             return False
 
-        c_X_p = np.cross(c, p)          # Calculating the vector of the cross product c x p
-        c_X_p = np.asarray(c_X_p)
-        c_X_b = np.cross(c, b)          # Calculating the vector of the cross product c x b
-        c_X_b = np.asarray(c_X_b)
+        c_x_p = np.asarray(np.cross(c, p))          # Calculating the vector of the cross product c x p
+        c_x_b = np.asarray(np.cross(c, b))          # Calculating the vector of the cross product c x b
 
-        if np.dot(c_X_p, c_X_b) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
+        if np.dot(c_x_p, c_x_b) < 0:    # If the two cross product vectors are not pointing in the same direction. exit
             return False
 
-        b_X_p = np.cross(b, p)          # Calculating the vector of the cross product b x p
-        b_X_p = np.asarray(b_X_p)
+        b_x_p = np.asarray(np.cross(b, p))          # Calculating the vector of the cross product b x p
 
-        if np.dot(b_X_p, b_X_c) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
+        if np.dot(b_x_p, b_x_c) < 0:  # If the two cross product vectors are not pointing in the same direction. exit
             return False
 
-        denom = np.linalg.norm(b_X_c)
-        r = np.linalg.norm(c_X_p) / denom
-        t = np.linalg.norm(b_X_p) / denom
+        denom = np.linalg.norm(b_x_c)
+        r = np.linalg.norm(c_x_p) / denom
+        t = np.linalg.norm(b_x_p) / denom
 
         return r + t <= 1
 
     def four_p_coplanar(self, points):
         """Checks if four points are coplanar
+
         :param points: ndarray
             The four points to be tested
-        :return: Bool
+        :return: bool
             True if the points are coplanar
         """
-
         b = points[1] - points[0]
         c = points[2] - points[0]
         d = points[3] - points[0]
