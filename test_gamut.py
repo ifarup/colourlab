@@ -77,9 +77,6 @@ polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 
                        [37., 28., 38.], [38., 12., 37.]])
 
 
-
-
-
 class TestGamut(unittest.TestCase):
 
     def test_gamut_initialize(self):
@@ -120,10 +117,15 @@ class TestGamut(unittest.TestCase):
         fig = plt.figure()                          # Creates a figure
         ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
-        c_data = data.Data(space.srgb, polyhedron)      # Generating the colour Data object
-        g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
-        sp = g.space                                # specifies the color space
-        g.plot_surface(ax, sp)                      # Calls the plot function
+        # c = self.generate_cirle(1000, 10)
+        # c_data = data.Data(space.srgb, c)
+        # g = gamut.Gamut(space.srgb, c_data)
+
+        c_data = data.Data(space.srgb, polyhedron) # Generating the colour Data object
+        g = gamut.Gamut(space.srgb, c_data)        # Creates a new gamut
+
+        sp = g.space                                 # specifies the color space
+        g.plot_surface(ax, sp)                       # Calls the plot function
 
     def test_in_line(self):
         c_data = data.Data(space.srgb, cube)
@@ -283,22 +285,39 @@ class TestGamut(unittest.TestCase):
 
     def test_feito_torres_with_circle(self):
         c = self.generate_cirle(100, 10)
+        c_outside = self.generate_cirle(100, 50)
+        c_innside = self.generate_cirle(100, 5)
+        c_idk = self.generate_cirle(100, 10)
         c_data = data.Data(space.srgb, c)
         g = gamut.Gamut(space.srgb, c_data)
 
+        print("----------------")
+        print("Should be inside")
+        print("----------------")
+        for i in range(0, 100):
+            print(g.feito_torres(c_innside[i]))
 
+        print("----------------")
+        print("Should be outside")
+        print("----------------")
+        for i in range(0, 100):
+            print(g.feito_torres(c_outside[i]))
+        print("----------------")
+        print("Uncertan")
+        print("----------------")
+        for i in range(0, 100):
+            print(g.feito_torres(c_idk[i]))
 
-        g.feito_torres()
-
-    def generate_cirle(numb_of_points, radius):
+    def generate_cirle(self, numb_of_points, radius):
         circle = np.ndarray(shape=(numb_of_points, 3))
 
         i = 0
-        while (i < numb_of_points):
-            x = radius * np.sin(np.random.randint(0, 2 * np.pi)) * np.cos(np.random.randint(0, np.pi))
-            y = radius * np.sin(np.random.randint(0, 2 * np.pi)) * np.sin(np.random.randint(0, np.pi))
-            z = radius * np.cos(np.random.randint(0, 2 * np.pi))
+        while i < numb_of_points:
+            x = radius * np.sin(np.random.uniform(0, 2 * np.pi)) * np.cos(np.random.uniform(0, np.pi))
+            y = radius * np.sin(np.random.uniform(0, 2 * np.pi)) * np.sin(np.random.uniform(0, np.pi))
+            z = radius * np.cos(np.random.uniform(0, 2 * np.pi))
             circle[i] = np.array([x, y, z])
+            i += 1
 
         return circle
 
