@@ -121,8 +121,8 @@ class TestGamut(unittest.TestCase):
         # c_data = data.Data(space.srgb, c)
         # g = gamut.Gamut(space.srgb, c_data)
 
-        c_data = data.Data(space.srgb, polyhedron) # Generating the colour Data object
-        g = gamut.Gamut(space.srgb, c_data)        # Creates a new gamut
+        c_data = data.Data(space.srgb, polyhedron)  # Generating the colour Data object
+        g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
 
         sp = g.space                                 # specifies the color space
         g.plot_surface(ax, sp)                       # Calls the plot function
@@ -174,8 +174,8 @@ class TestGamut(unittest.TestCase):
             point = np.array([float(np.random.randint(1, 10)),
                               float(np.random.randint(1, 10)),
                               float(np.random.randint(1, 10))])
-            bool = g.feito_torres(point)
-            print(point, bool)
+            b = g.feito_torres(point)
+            print(point, b)
 
         print("----------------")
         print("P OUTSIDE, should be False")
@@ -185,42 +185,42 @@ class TestGamut(unittest.TestCase):
             point = np.array([float(np.random.randint(-10, -1)),
                               float(np.random.randint(11, 20)),
                               float(np.random.randint(1, 10))])
-            bool = g.feito_torres(point)
-            print(point, bool)
+            b = g.feito_torres(point)
+            print(point, b)
         for i in range(0, 5):
             point = np.array([float(np.random.randint(1, 10)),
                               float(np.random.randint(13, 19)),
                               float(np.random.randint(0, 90))])
-            bool = g.feito_torres(point)
-            print(point, bool)
+            b = g.feito_torres(point)
+            print(point, b)
 
         # Points are on a vertex
         print("----------------")
         print("P on vertex, should be True")
         print("----------------")
         point = np.array([10., 0., 0])
-        bool = g.feito_torres(point)
-        print(point, bool)
+        b = g.feito_torres(point)
+        print(point, b)
         point = np.array([0.1, 0.1, 0.1])
-        bool = g.feito_torres(point)
-        print(point, bool)
+        b = g.feito_torres(point)
+        print(point, b)
         point = np.array([10., 10., 10])
-        bool = g.feito_torres(point)
-        print(point, bool)
+        b = g.feito_torres(point)
+        print(point, b)
 
         # points are on a facet
         print("----------------")
         print("P on facet, should be True")
         print("----------------")
         point = np.array([10., 5., 8])
-        bool = g.feito_torres(point)
-        print(point, bool)
+        b = g.feito_torres(point)
+        print(point, b)
         point = np.array([10., 7., 10])
-        bool = g.feito_torres(point)
-        print(point, bool)
+        b = g.feito_torres(point)
+        print(point, b)
         point = np.array([10., 1., 5])
-        bool = g.feito_torres(point)
-        print(point, bool)
+        b = g.feito_torres(point)
+        print(point, b)
 
         # BUG XYZ equal, does not work!
         print("----------------")
@@ -228,18 +228,18 @@ class TestGamut(unittest.TestCase):
         print("----------------")
         for i in range(0, 3):
             point = np.array([9., 9., 9.])
-            bool = g.feito_torres(point)
-            print(point, bool)
+            b = g.feito_torres(point)
+            print(point, b)
 
         for i in range(0, 3):
             point = np.array([3., 5., 5.])
-            bool = g.feito_torres(point)
-            print(point, bool)
+            b = g.feito_torres(point)
+            print(point, b)
 
         for i in range(0, 3):
             point = np.array([9., 7., 7.])
-            bool = g.feito_torres(point)
-            print(point, bool)
+            b = g.feito_torres(point)
+            print(point, b)
 
     def test_four_p_coplanar(self):
         c_data = data.Data(space.srgb, cube)
