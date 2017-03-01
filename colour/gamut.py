@@ -85,8 +85,6 @@ class Gamut:
             points[i, :] -= CM
         return CM
 
-
-
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
@@ -254,7 +252,6 @@ class Gamut:
                         self.in_trinagle(np.array([origin, facet[j+1], facet[0]]), P):
                     inclusion += 0.5*sign_tetra
 
-
                 # If 3.2
                 elif self.in_line(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
@@ -277,8 +274,9 @@ class Gamut:
         else:
             return False
 
-
     def fix_orientaion(self):
+        print(self.simplices)
+
         for simplex in self.simplices:
             facet = self.get_coordinates(simplex)
             normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector
@@ -288,6 +286,7 @@ class Gamut:
                 a = simplex[2]
                 simplex[2] = simplex[0]
                 simplex[0] = a
+        print(self.simplices)
 
     def fix_orientation_of_facet(self, facet):
         """Ensures that the facet is properly oriented, meaning the the facet's normal vector is pointing outwards.

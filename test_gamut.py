@@ -59,11 +59,22 @@ triangle_point_inside = np.array([2., 0., 2.])
 triangle_point_not_coplanar = np.array([2., 2., 2.])
 triangle_point_coplanar_but_outside = np.array([5., 0., 3.])
 
-# Same trianglw as above, move by vetoor (2,2,2)
+# Same triangle as above, move by vector (2,2,2)
 triangle2 = np.array([[2., 2., 2.], [6., 2., 2.], [2., 2., 6.]])
 triangle2_point_inside = np.array([4., 2., 4.])
 triangle2_point_not_coplanar = np.array([4., 4., 4.])
 triangle2_point_coplanar_but_outside = np.array([7., 2., 5.])
+
+polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 45., 18.],
+                       [22., 13., 29.], [22., 2., 31.],  [26., 44., 35.], [31., 43., 22.],
+                       [22., 43., 13.], [13., 43., 11.], [50., 32., 29.], [26., 35., 18.],
+                       [43., 3., 11.],  [26., 3., 44.],  [11., 3., 18.],  [18., 3., 26.],
+                       [11., 45, 13.],  [13., 45., 29.], [18., 45., 11.], [2., 32., 31.],
+                       [29., 2., 22.],  [35., 12., 18.], [18., 12., 34.], [34., 12., 50.],
+                       [34., 50., 45.], [45., 50., 29.], [3., 30., 44.],  [29., 32., 2.],
+                       [30., 28., 44.], [50., 30., 32.], [37., 12., 35.], [44., 28., 35.],
+                       [35., 28., 37.], [32., 30., 31.], [31., 30., 3.],  [38., 30., 50.],
+                       [37., 28., 38.], [38., 12., 37.]])
 
 
 class TestGamut(unittest.TestCase):
@@ -87,13 +98,13 @@ class TestGamut(unittest.TestCase):
         # Test for gamut.Gamut.get_vertices
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        n1_data = np.array([[0, 0, 0],      # 0 vertecis    # Array with just the vercites used for comparison.
-                           [10, 0, 0],      # 1 vertecis
-                           [10, 10, 0],     # 2 vertecis
-                           [0, 10, 0],      # 3 vertecis
-                           [10, 10, 10],    # 6 vertecis
-                           [10, 0, 10],     # 8 vertecis
-                           [0, 0, 10],      # 9 vertecis
+        n1_data = np.array([[0, 0, 0],      # 0  vertecis    # Array with just the vercites used for comparison.
+                           [10, 0, 0],      # 1  vertecis
+                           [10, 10, 0],     # 2  vertecis
+                           [0, 10, 0],      # 3  vertecis
+                           [10, 10, 10],    # 6  vertecis
+                           [10, 0, 10],     # 8  vertecis
+                           [0, 0, 10],      # 9  vertecis
                            [0, 10, 10]])    # 10 vertecis
 
         vertices = g.get_vertices(cube)
@@ -106,7 +117,7 @@ class TestGamut(unittest.TestCase):
         fig = plt.figure()                          # Creates a figure
         ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
-        c_data = data.Data(space.srgb, cube)      # Generating the colour Data object
+        c_data = data.Data(space.srgb, polyhedron)      # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
         sp = g.space                                # specifies the color space
         g.plot_surface(ax, sp)                      # Calls the plot function
@@ -140,7 +151,7 @@ class TestGamut(unittest.TestCase):
         # self.assertFalse(False, g.in_trinagle(triangle2, triangle2_point_coplanar_but_outside))
         # self.assertTrue(True, g.in_trinagle(triangle2, triangle2_point_inside))
 
-        self.assertTrue(True, g.in_trinagle(np.array([[0,0,1],[0,0,2],[0,0,4]]), np.array([0,0,3])))
+        self.assertTrue(True, g.in_trinagle(np.array([[0, 0, 1], [0, 0, 2], [0, 0, 4]]), np.array([0, 0, 3])))
 
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)
@@ -150,6 +161,7 @@ class TestGamut(unittest.TestCase):
     def test_feito_torres(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
+
 
         print("P INSIDE, should be True")
         print("----------------")
@@ -211,7 +223,7 @@ class TestGamut(unittest.TestCase):
         print("if Y ans d Z are equal = BUG!")
         print("----------------")
         for i in range(0, 3):
-            point = np.array([1., 2., 2.])
+            point = np.array([9., 9., 9.])
             bool = g.feito_torres(point)
             print(point, bool)
 
