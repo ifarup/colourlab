@@ -32,17 +32,17 @@ import numpy as np
 from itertools import product, combinations
 
 # Global variables.
-cube = np.array([[0.1, 0.1, 0.1],   # 0  vertecis
-                [10., 0., 0.],      # 1  vertecis
-                [10., 10., 0.],     # 2  vertecis
-                [0., 10., 0.],      # 3  vertecis
-                [5., 5., 5.],       # 4  non vertecis
-                [4., 6., 2.],       # 5  non vertecis
-                [10., 10., 10.],    # 6  vertecis
-                [1., 2., 3.],       # 7  non vertecis
-                [10., 0., 10.],     # 8  vertecis
-                [0., 0., 10.],      # 9  vertecis
-                [0., 10., 10.]])    # 10 vertecis
+cube = np.array([[0.1, 0.1, 0.1],   # 0  vertices
+                [10., 0., 0.],      # 1  vertices
+                [10., 10., 0.],     # 2  vertices
+                [0., 10., 0.],      # 3  vertices
+                [5., 5., 5.],       # 4  non vertices
+                [4., 6., 2.],       # 5  non vertices
+                [10., 10., 10.],    # 6  vertices
+                [1., 2., 3.],       # 7  non vertices
+                [10., 0., 10.],     # 8  vertices
+                [0., 0., 10.],      # 9  vertices
+                [0., 10., 10.]])    # 10 vertices
 
 line = np.array([[0, 0, 0], [3, 3, 3]])             # Line used in testing.
 point_on_line = np.array([1, 1, 1])                 # Point inside the line to be tested.
@@ -88,41 +88,50 @@ class TestGamut(unittest.TestCase):
         # Test for convex hull
         c_data = data.Data(space.srgb, cube)          # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])  # Known indices of vertecis for the test case
+        vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])  # Known indices of vertices for the test case
 
-        self.assertEqual(vertices.tolist(), g.vertices.tolist())    # Checking that the vertecis match
+        self.assertEqual(vertices.tolist(), g.vertices.tolist())    # Checking that the vertices match
 
     def test_is_inside(self):   # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        points = np.ones((2, 2, 2, 3))
-        c_points = data.Data(space.srgb, points)
-        g.is_inside(space.srgb, c_points)
+        points_1d = np.array([5, 11, 3])
+        points_2d = np.array([[5, 11, 3], [3, 2, 1], [11, 3, 4], [9, 2, 1]])
+        points_3d = np.array([[[3, 1, 2], [3, 2, 4], [10, 3, 11], [14, 3, 2]]])
+        print(points_3d)
+        print(points_3d.shape)
+
+        c_data = data.Data(space.srgb, points_3d)
+        a = g.is_inside(space.srgb, c_data)
+
+        print(a)
+        print(a.dtype)
+        print(a.shape)
 
     def test_get_vertices(self):
         # Test for gamut.Gamut.get_vertices
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        n1_data = np.array([[0, 0, 0],      # 0  vertecis    # Array with just the vercites used for comparison.
-                           [10, 0, 0],      # 1  vertecis
-                           [10, 10, 0],     # 2  vertecis
-                           [0, 10, 0],      # 3  vertecis
-                           [10, 10, 10],    # 6  vertecis
-                           [10, 0, 10],     # 8  vertecis
-                           [0, 0, 10],      # 9  vertecis
-                           [0, 10, 10]])    # 10 vertecis
+        n1_data = np.array([[0, 0, 0],      # 0  vertices    # Array with just the vertices used for comparison.
+                           [10, 0, 0],      # 1  vertices
+                           [10, 10, 0],     # 2  vertices
+                           [0, 10, 0],      # 3  vertices
+                           [10, 10, 10],    # 6  vertices
+                           [10, 0, 10],     # 8  vertices
+                           [0, 0, 10],      # 9  vertices
+                           [0, 10, 10]])    # 10 vertices
 
         vertices = g.get_vertices(cube)
         self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares return array with the known vertices array.
 
         vertices = g.get_vertices(cube)                     # Calls the function and add the vertices to the array.
-        self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares returend array with the known vertices array.
+        self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares returned array with the known vertices array.
 
     def test_plot_surface(self):         # Test for gamut.Gamut.plot_surface
         fig = plt.figure()                          # Creates a figure
         ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
-        # c = self.generate_cirle(1000, 10)
+        # c = self.generate_circle(1000, 10)
         # c_data = data.Data(space.srgb, c)
         # g = gamut.Gamut(space.srgb, c_data)
 
