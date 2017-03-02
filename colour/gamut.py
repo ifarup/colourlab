@@ -46,7 +46,7 @@ class Gamut:
         self.simplices = None
         self.neighbors = None
         self.center = None
-        self.initialize_convex_hull(sp, points)     # Initializes all of the above, using a sub-initialization method
+        self.initialize_convex_hull(sp, points)
         self.fix_orientaion()
 
     def initialize_convex_hull(self, sp, points):
@@ -64,22 +64,6 @@ class Gamut:
         self.neighbors = self.hull.neighbors
         self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default center is geometric center.
 
-    def center_of_mass(self, points):
-        """Finds the center of mass of the points given. To find the "geometric center" of a gamut
-        lets points be only the vertices of the gamut.
-
-        Thanks to: http://stackoverflow.com/questions/8917478/center-of-mass-of-a-numpy-array-how-to-make-less-verbose
-
-        :param points: ndarray
-            Shape(N, 3), a list of points
-        :return: center: ndarray
-            Shape(3,), the coordinate of the center of mass.
-        """
-        cm = points.sum(0) / points.shape[0]
-        for i in range(points.shape[0]):
-            points[i, :] -= cm
-        return cm
-
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
@@ -95,7 +79,7 @@ class Gamut:
         nd_data = c_data.get(sp)    # Convert to ndarray
 
         if nd_data.ndim == 1:   # Handle the special case of a only one point being evaluated.
-            self.single_point_inside(self, c_data)
+            self.single_point_inside(c_data)
         else:
             indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indencis is initialized with negative numb.
             c_data = c_data.get(sp)
@@ -112,89 +96,52 @@ class Gamut:
             The dimensional path to the coordinate.
             Needs to be as long as the (amount of dimensions)-1 in nda and filled with -1's
         :param bool_array : ndarray
-            Array containing true/fals in last dimention.
+            Array containing true/false in last dimension.
             Shape is the same as nda(minus the last dim)
-        :param hull: ConvexHull
-            A ConvexHull generated from the gamuts vertices.
         """
-        if np.ndim(nda) != 1:  # Not yet reached a leaf node
+        if np.ndim(nda) != 1:                               # Not yet reached a leaf node
             curr_dim = 0
-            for index in np.nditer(indices):              # calculate the dimension number witch we are currently in
+            for index in np.nditer(indices):                # calculate the dimension number witch we are currently in
                 if index != -1:         # If a dimension is previously iterated the cell will have been changed to a
-                                        # non-negative number.
+                                                            # non-negative number.
                     curr_dim += 1
 
             numb_of_iterations = 0
-            for nda_minus_one in nda:                   # Iterate over the length of the current dimension
-                indices[curr_dim] = numb_of_iterations  # Update the path in indices before next recusrive call
+            for nda_minus_one in nda:                       # Iterate over the length of the current dimension
+                indices[curr_dim] = numb_of_iterations      # Update the path in indices before next recursive call
                 self.traverse_ndarray(nda_minus_one, indices, bool_array)
                 numb_of_iterations += 1
-            indices[curr_dim] = -1      # should reset the indences array when the call dies
+            indices[curr_dim] = -1                          # should reset the indices array when the call dies
 
         else:   # We have reached a leaf node
             # self.single_point_inside(nda) # nda is now reduced to a one dimensional list containing three numbers.
                                             # (a data point to be checked)
             bool_array[(tuple(indices))] = True
 
-    def single_point_inside(self, hull, point):
+    def single_point_inside(self, point):
         """Checks if a single coordinate in 3d is inside the given hull.
 
-        :param hull : ndarray
-            Convex hull
         :param point: coordinate
             A single coordinate to be tested if it is inside the hull.
         :return True or False
         """
-        new_hull = spatial.ConvexHull(np.concatenate((hull.points, [point])))
-        if np.array_equal(new_hull.vertices, hull.vertices):
+        # # new_hull = spatial.ConvexHull(np.concatenate((hull.points, [point])))
+        # if np.array_equal(new_hull.vertices, hull.vertices):
+        #     return True
+        # return
+
+        if self.feito_torres(point):
             return True
-        return False
-
-    def get_vertices(self, nd_data):
-        """Get all hull vertices and save them in a array list.
-
-        :param nd_data : ndarray
-            Shape(N, 3) A list of points to return vertices from. The a copy of gamut.points pre-converted
-            to a desired colour space.
-        :return: point_array: ndarray
-        """
-        point_list = []                     # Array list for the vertices.
-
-        for i in self.hull.vertices:        # For loop that goes through all the vertices
-            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinents to the list.
-
-        return np.array(point_list)                  # Returns ndarray.
-
-    def plot_surface(self, ax, sp):
-        """Plot all the vertices points on the received axel
-
-        :param ax: Axel
-            The axel to draw the points on
-        :param sp: Space
-            The colour space for computing the gamut.
-        """
-        nd_data = self.data.get_linear(sp)              # Creates a new ndarray with points
-        points = self.get_vertices(nd_data)             # ndarray with all the vertices
-        x = points[:, 0]
-        y = points[:, 1]
-        z = points[:, 2]
-
-        for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
-            tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
-            ax.add_collection(tri)                      # Adds created points to the ax
-
-        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
-        ax.set_ylim([-10, 10])
-        ax.set_zlim([-10, 10])
-        plt.show()
+        else:
+            return False
 
     def feito_torres(self, P):
-        """ Tests if a point P is inside a polyhedron.
+        """ Tests if a point P is inside a convexHull(polyhedron)
 
         :param P: ndarray
             Point to be tested for inclusion.
         :return: bool
-            True if P is included in the polyhedron.
+            True if P is included in the convexHull(polyhedron)
         """
         inclusion = 0
         v_plus = []     # a list of vertices who's original edge contains P, and it's face is POSITIVE oriented
@@ -289,9 +236,9 @@ class Gamut:
         :return: ndarray
             Shape(3,3), the same points as in facet, but inn the order giving the correct orientation.
         """
-        F = facet  # Make a working copy, so we dont mess with the original data.
+        temp = facet  # Make a working copy, so we don't mess with the original data.
 
-        normal = np.cross((F[1] - F[0]), F[2] - F[0])
+        normal = np.cross((temp[1] - temp[0]), temp[2] - temp[0])
         if np.dot((facet[0]-self.center), normal) > 0:
             return facet
         else:
@@ -356,8 +303,9 @@ class Gamut:
             cross = np.cross(tetrahedron[1], tetrahedron[2])
             tetrahedron[0] += cross * 0.001     # If the points are planer, make a tiny adjustment to force a volume.
 
+        # noinspection pyUnresolvedReferences
         hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull representation of points
-        tetrahedron[0] = a  # Don't make any permanent changes.
+        tetrahedron[0] = a                      # Don't make any permanent changes.
         return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
 
     def in_line(self, line, p):
@@ -411,7 +359,7 @@ class Gamut:
                               self.in_line(np.array([triangle[0], triangle[2]]), P)):
             return False
 
-        # Make 'A' the local origo for the points.
+        # Make 'A' the local origin for the points.
         b = triangle[1] - triangle[0]  # 'b' is the vector from A to B
         c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
         p = P - triangle[0]               # 'p' is now the vector from A to the point being tested for inclusion
@@ -445,7 +393,8 @@ class Gamut:
 
         return r + t <= 1
 
-    def four_p_coplanar(self, points):
+    @staticmethod
+    def four_p_coplanar(points):
         """Checks if four points are coplanar
 
         :param points: ndarray
@@ -458,3 +407,59 @@ class Gamut:
         d = points[3] - points[0]
 
         return np.dot(d, np.cross(b, c)) == 0
+
+    @staticmethod
+    def center_of_mass(points):
+        """Finds the center of mass of the points given. To find the "geometric center" of a gamut
+        lets points be only the vertices of the gamut.
+
+        Thanks to: http://stackoverflow.com/questions/8917478/center-of-mass-of-a-numpy-array-how-to-make-less-verbose
+
+        :param points: ndarray
+            Shape(N, 3), a list of points
+        :return: center: ndarray
+            Shape(3,), the coordinate of the center of mass.
+        """
+        cm = points.sum(0) / points.shape[0]
+        for i in range(points.shape[0]):
+            points[i, :] -= cm
+        return cm
+
+    def get_vertices(self, nd_data):
+        """Get all hull vertices and save them in a array list.
+
+        :param nd_data : ndarray
+            Shape(N, 3) A list of points to return vertices from. The a copy of gamut.points pre-converted
+            to a desired colour space.
+        :return: ndarray
+            The coordinates of the requested vertices
+        """
+        point_list = []                     # Array list for the vertices.
+
+        for i in self.hull.vertices:        # For loop that goes through all the vertices
+            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinents to the list.
+
+        return np.array(point_list)          # Returns ndarray.
+
+    def plot_surface(self, ax, sp):
+        """Plot all the vertices points on the received axel
+
+        :param ax: Axel
+            The axel to draw the points on
+        :param sp: Space
+            The colour space for computing the gamut.
+        """
+        nd_data = self.data.get_linear(sp)              # Creates a new ndarray with points
+        points = self.get_vertices(nd_data)             # ndarray with all the vertices
+        x = points[:, 0]
+        y = points[:, 1]
+        z = points[:, 2]
+
+        for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
+            tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
+            ax.add_collection(tri)                      # Adds created points to the ax
+
+        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
+        ax.set_ylim([-10, 10])
+        ax.set_zlim([-10, 10])
+        plt.show()
