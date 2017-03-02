@@ -47,7 +47,7 @@ class Gamut:
         self.neighbors = None
         self.center = None
         self.initialize_convex_hull(sp, points)
-        self.fix_orientaion()
+        self.fix_orientation()
 
     def initialize_convex_hull(self, sp, points):
         """Initializes the gamuts convex hull in the desired colour space
@@ -195,9 +195,7 @@ class Gamut:
         else:
             return False
 
-    def fix_orientaion(self):
-        print(self.simplices)
-
+    def fix_orientation(self):
         for simplex in self.simplices:
             facet = self.get_coordinates(simplex)
             normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector
@@ -207,25 +205,8 @@ class Gamut:
                 a = simplex[2]
                 simplex[2] = simplex[0]
                 simplex[0] = a
-        print(self.simplices)
-
-    def fix_orientation_of_facet(self, facet):
-        """Ensures that the facet is properly oriented, meaning the the facet's normal vector is pointing outwards.
-
-        :param facet: ndarray
-            Shape(3,3) The three points defining the facet facet.
-        :return: ndarray
-            Shape(3,3), the same points as in facet, but inn the order giving the correct orientation.
-        """
-        temp = facet  # Make a working copy, so we don't mess with the original data.
-
-        normal = np.cross((temp[1] - temp[0]), temp[2] - temp[0])
-        if np.dot((facet[0]-self.center), normal) > 0:
-            return facet
-        else:
-            return np.array([facet[2], facet[1], facet[0]])
-
-    def sign(self, t):
+    @staticmethod
+    def sign(t):
         """ Calculates the orientation of the tetrahedron.
 
         :param t: ndarray

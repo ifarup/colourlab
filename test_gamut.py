@@ -26,11 +26,6 @@ import numpy as np
 from colour import data, gamut, space
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-import numpy as np
-from itertools import product, combinations
-
 # Global variables.
 cube = np.array([[0.1, 0.1, 0.1],   # 0  vertices
                 [10., 0., 0.],      # 1  vertices
@@ -295,7 +290,7 @@ class TestGamut(unittest.TestCase):
     def test_fix_orientation(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        g.fix_orientaion()
+        g.fix_orientation()
 
     def test_feito_torres_with_sphere(self):
         gamut_sphere = self.generate_sphere(10, 100)
@@ -323,7 +318,7 @@ class TestGamut(unittest.TestCase):
             print(g.feito_torres(c_idk[i]))
 
     def test_generate_sphere(self):
-        sphere = self.generate_sphere(5)
+        sphere = self.generate_sphere(5, 10)
 
         # plt.plot(sphere[:,0],sphere[:,1])
         # plt.show()
@@ -340,7 +335,8 @@ class TestGamut(unittest.TestCase):
         sp = g.space  # specifies the color space
         g.plot_surface(ax, sp)  # Calls the plot function
 
-    def generate_sphere(self, r, n):
+    @staticmethod
+    def generate_sphere(r, n):
         theta = np.random.uniform(0, 2*np.pi, n)
         phi = np.random.uniform(0, np.pi, n)
 
@@ -348,7 +344,7 @@ class TestGamut(unittest.TestCase):
         y = r * (np.sin(phi) * np.sin(theta))
         z = r * (np.cos(phi))
 
-        sphere = np.vstack((x,y,z)).T
+        sphere = np.vstack((x, y, z)).T
 
         return sphere
 
