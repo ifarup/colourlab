@@ -26,6 +26,11 @@ import numpy as np
 from colour import data, gamut, space
 import matplotlib.pyplot as plt
 
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import numpy as np
+from itertools import product, combinations
+
 # Global variables.
 cube = np.array([[0.1, 0.1, 0.1],   # 0  vertecis
                 [10., 0., 0.],      # 1  vertecis
@@ -283,44 +288,60 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
         g.fix_orientaion()
 
-    def test_feito_torres_with_circle(self):
-        c = self.generate_cirle(100, 10)
-        c_outside = self.generate_cirle(100, 50)
-        c_innside = self.generate_cirle(100, 5)
-        c_idk = self.generate_cirle(100, 10)
-        c_data = data.Data(space.srgb, c)
+    def test_feito_torres_with_sphere(self):
+        gamut_sphere = self.generate_sphere(10, 100)
+        outside = self.generate_sphere(12, 100)
+        innside = self.generate_sphere(8, 100)
+        c_idk = self.generate_sphere(9.9, 100)
+        c_data = data.Data(space.srgb, gamut_sphere)
         g = gamut.Gamut(space.srgb, c_data)
 
         print("----------------")
         print("Should be inside")
         print("----------------")
-        for i in range(0, 100):
-            print(g.feito_torres(c_innside[i]))
+        for i in range(0, innside.shape[0]):
+            print(g.feito_torres(innside[i]))
 
         print("----------------")
         print("Should be outside")
         print("----------------")
-        for i in range(0, 100):
-            print(g.feito_torres(c_outside[i]))
+        for i in range(0, innside.shape[0]):
+            print(g.feito_torres(outside[i]))
         print("----------------")
-        print("Uncertan")
+        print("Uncertain")
         print("----------------")
-        for i in range(0, 100):
+        for i in range(0, innside.shape[0]):
             print(g.feito_torres(c_idk[i]))
 
-    def generate_cirle(self, numb_of_points, radius):
-        circle = np.ndarray(shape=(numb_of_points, 3))
+    def test_generate_sphere(self):
+        sphere = self.generate_sphere(5)
 
-        i = 0
-        while i < numb_of_points:
-            x = radius * np.sin(np.random.uniform(0, 2 * np.pi)) * np.cos(np.random.uniform(0, np.pi))
-            y = radius * np.sin(np.random.uniform(0, 2 * np.pi)) * np.sin(np.random.uniform(0, np.pi))
-            z = radius * np.cos(np.random.uniform(0, 2 * np.pi))
-            circle[i] = np.array([x, y, z])
-            i += 1
+        # plt.plot(sphere[:,0],sphere[:,1])
+        # plt.show()
+        #
+        # plt.plot(sphere[:,0],sphere[:,2])
+        # plt.show()
 
-        return circle
+        fig = plt.figure()  # Creates a figure
+        ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
+        c_data = data.Data(space.srgb, sphere)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        sp = g.space  # specifies the color space
+        g.plot_surface(ax, sp)  # Calls the plot function
+
+    def generate_sphere(self, r, n):
+        theta = np.random.uniform(0, 2*np.pi, n)
+        phi = np.random.uniform(0, np.pi, n)
+
+        x = r * (np.sin(phi) * np.cos(theta))
+        y = r * (np.sin(phi) * np.sin(theta))
+        z = r * (np.cos(phi))
+
+        sphere = np.vstack((x,y,z)).T
+
+        return sphere
 
 if __name__ == '__main__':
     unittest.main(exit=False)

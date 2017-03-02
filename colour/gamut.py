@@ -59,7 +59,7 @@ class Gamut:
             The colour points for the gamut.
         """
         self.space = sp
-        self.hull = spatial.ConvexHull(points.get_linear(sp))
+        self.hull = spatial.ConvexHull(points.get_linear(sp), qhull_options='QJ')
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
