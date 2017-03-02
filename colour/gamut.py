@@ -68,27 +68,29 @@ class Gamut:
         """For the given data points checks if points are inn the convex hull
             NB: this method cannot be used for modified convex hull.
 
-        :param sp : Space
+        :param sp : colour.Space
             The colour space for computing the gamut.
-        :param c_data : Data
+        :param c_data : colour.Data
             Data object with the colour points for the gamut.
+        :return ndarray
+            A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
-        # Calculate a new convexhull given only the vertices for further use to increase efficiency
-        # hull = spatial.ConvexHull(g.vertices()).
 
-        nd_data = c_data.get(sp)    # Convert to ndarray
+        nd_data = c_data.get(sp)                                    # Get the data points as ndarray
 
-        if nd_data.ndim == 1:   # Handle the special case of a only one point being evaluated.
-            self.single_point_inside(c_data)
+        if nd_data.ndim == 1:                                       # If only one point was sent.
+            return np.array([self.feito_torres(nd_data)])    # Returns 1d boolean-array
+
         else:
-            indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indencis is initialized with negative numb.
-            c_data = c_data.get(sp)
-            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)     # Create a bool array with the same shape as the
-            self.traverse_ndarray(c_data, indices, bool_array)      # nd_data(minus the last dimension)
+            indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indices is initialized with negative numb.
+            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)      # Create a bool-array with the same shape as the
+            self.traverse_ndarray(nd_data, indices, bool_array)      # nd_data(minus the last dimension)
+
+            return bool_array                                        # Returns the boolean array
 
     def traverse_ndarray(self, nda, indices, bool_array):
-        """For the given data points checks if points are inn the convex hull
-            NB: this method cannot be used for modified convex hull.
+        """For the given data points checks if points are inn the convexhull
+            NB: this method cannot be used for modified convex hull.                ?????-JAKE-?????
 
         :param nda : ndarray
             An n-dimensional array containing the remaining dimensions to iterate.
@@ -96,15 +98,13 @@ class Gamut:
             The dimensional path to the coordinate.
             Needs to be as long as the (amount of dimensions)-1 in nda and filled with -1's
         :param bool_array : ndarray
-            Array containing true/false in last dimension.
-            Shape is the same as nda(minus the last dim)
+            Array shape(nda-1) containing true/false in last dimension.
         """
         if np.ndim(nda) != 1:                               # Not yet reached a leaf node
             curr_dim = 0
             for index in np.nditer(indices):                # calculate the dimension number witch we are currently in
-                if index != -1:         # If a dimension is previously iterated the cell will have been changed to a
-                                                            # non-negative number.
-                    curr_dim += 1
+                if index != -1:                             # If a dimension is previously iterated the cell will
+                    curr_dim += 1                           # have been changed to a non-negative number.
 
             numb_of_iterations = 0
             for nda_minus_one in nda:                       # Iterate over the length of the current dimension
@@ -113,27 +113,8 @@ class Gamut:
                 numb_of_iterations += 1
             indices[curr_dim] = -1                          # should reset the indices array when the call dies
 
-        else:   # We have reached a leaf node
-            # self.single_point_inside(nda) # nda is now reduced to a one dimensional list containing three numbers.
-                                            # (a data point to be checked)
-            bool_array[(tuple(indices))] = True
-
-    def single_point_inside(self, point):
-        """Checks if a single coordinate in 3d is inside the given hull.
-
-        :param point: coordinate
-            A single coordinate to be tested if it is inside the hull.
-        :return True or False
-        """
-        # # new_hull = spatial.ConvexHull(np.concatenate((hull.points, [point])))
-        # if np.array_equal(new_hull.vertices, hull.vertices):
-        #     return True
-        # return
-
-        if self.feito_torres(point):
-            return True
-        else:
-            return False
+        else:                                               # We have reached a leaf node
+            bool_array[(tuple(indices))] = self.feito_torres(nda)  # Set the boolean array to returned boolean.
 
     def feito_torres(self, P):
         """ Tests if a point P is inside a convexHull(polyhedron)

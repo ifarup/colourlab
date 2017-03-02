@@ -90,9 +90,18 @@ class TestGamut(unittest.TestCase):
     def test_is_inside(self):   # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        points = np.ones((2, 2, 2, 3))
-        c_points = data.Data(space.srgb, points)
-        g.is_inside(space.srgb, c_points)
+        points_1d = np.array([5, 11, 3])
+        points_2d = np.array([[5, 11, 3], [3, 2, 1], [11, 3, 4], [9, 2, 1]])
+        points_3d = np.array([[[3, 1, 2], [3, 2, 4], [10, 3, 11], [14, 3, 2]]])
+        print(points_3d)
+        print(points_3d.shape)
+
+        c_data = data.Data(space.srgb, points_3d)
+        a = g.is_inside(space.srgb, c_data)
+
+        print(a)
+        print(a.dtype)
+        print(a.shape)
 
     def test_get_vertices(self):
         # Test for gamut.Gamut.get_vertices
