@@ -332,13 +332,14 @@ class Gamut:
         :param p:
         :return n:
         """
+        print("P:", p)
         n = np.array([1, 1, 1, 4])
         v1 = p[2] - p[0]
         v2 = p[1] - p[0]
         n2 = np.cross(v1, v2)
         nnorm = np.linalg.norm(n2)
-        n = n2 / nnorm
-        np.hstack(n, np.dot(p[1], n))
+        n3 = n2 / nnorm
+        n = np.hstack([n3, np.dot(p[1], n3)])
         return n
 
     def plane_coordinents(self, d, center, sp):
@@ -346,9 +347,9 @@ class Gamut:
 
         :return:
         """
-
         distance = np.array()
         for i in self.hull.simplices:
             n = self.find_plane(i)
-            distance = np.append(n)
-
+            distance = np.append(n[3])
+            x = self.clip_towards(d, sp, center, distance[i][3])
+            np.hstack((distance[i], x))

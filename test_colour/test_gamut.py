@@ -95,7 +95,7 @@ class TestGamut(unittest.TestCase):
 
         c_data = data.Data(space.srgb, n_data)      # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
-        sp = space.cielab                                # specifies the color space
+        sp = space.cielab                           # specifies the color space
         g.plot_surface(ax, sp)                      # Calls the plot function
 
     def test_in_line(self):
@@ -134,19 +134,19 @@ class TestGamut(unittest.TestCase):
     def test_clip_towards(self):
         c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut
-        d = ([1, 2, 3])
+        d = [1, 2, 3]
         sp = space.cielab
-        center = ([4, 5, 6])
+        center = [4, 5, 6]
         d_clip = g.clip_towards(d, sp, center)
 
-
     def test_find_plane(self):
-        p = ([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        #c_data = data.Data(space.srgb, n3_data)
-        #g = gamut.Gamut(space.srgb, c_data)
+        p_data = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
 
-        d = gamut.Gamut.find_plane(p)
-        self.assertEquals(d, [0, 0, 1, 1])
+        d = g.find_plane(p_data)
+        r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
+        np.alltrue(d == r)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
