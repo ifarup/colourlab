@@ -132,12 +132,14 @@ class TestGamut(unittest.TestCase):
     """
 
     def test_clip_towards(self):
-        c_data = data.Data(space.srgb, n_data)  # Generating the colour Data object
-        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
         d = [1, 2, 3]
-        sp = space.cielab
-        center = [4, 5, 6]
-        d_clip = g.clip_towards(d, sp, center)
+        center = [3, 6, 9]
+        n = [5, 3, 2, 9]
+        sp = 0
+        a = g.clip_towards(d, sp, center, n)
+        print("A:", a)
 
     def test_find_plane(self):
         p_data = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])

@@ -308,7 +308,7 @@ class Gamut:
         print("got to the end")
         return r + t <= 1
 
-    def clip_towards(self, d, sp, center):
+    def clip_towards(self, d, sp, center, n):
         """Get the nearest points on the surface.
 
         :param d: point
@@ -321,8 +321,8 @@ class Gamut:
             Nearest point along a line.
         """
 
-        x = (n(3) - center(0) * n(0) - center(1) * n(1) - center(2) * n(2)) / \
-            (d(0) * n(0) - center(0) * n(0) + d(1) * n(1) - center(1) * n(1) + d(2) * n(2) - center(2) * n(2))
+        x = (n[3] - center[0] * n[0] - center[1] * n[1] - center[2] * n[2]) / \
+            (d[0] * n[0] - center[0] * n[0] + d[1] * n[1] - center[1] * n[1] + d[2] * n[2] - center[2] * n[2])
 
         return x
 
@@ -332,24 +332,44 @@ class Gamut:
         :param p:
         :return n:
         """
+        points = np.arrray([])
+        for i in p:
+            points = np.append(points[i])
         print("P:", p)
         n = np.array([1, 1, 1, 4])
-        v1 = p[2] - p[0]
-        v2 = p[1] - p[0]
+        v1 = points[2] - points[0]
+        v2 = points[1] - points[0]
         n2 = np.cross(v1, v2)
         nnorm = np.linalg.norm(n2)
         n3 = n2 / nnorm
-        n = np.hstack([n3, np.dot(p[1], n3)])
+        n = np.hstack([n3, np.dot(points[1], n3)])
         return n
 
     def plane_coordinents(self, d, center, sp):
         """
 
+        :param d:
+        :param center:
+        :param sp:
         :return:
         """
         distance = np.array()
+        points = np.array()
+        alpha = np.array([])
         for i in self.hull.simplices:
             n = self.find_plane(i)
             distance = np.append(n[3])
-            x = self.clip_towards(d, sp, center, distance[i][3])
-            np.hstack((distance[i], x))
+            x = self.clip_towards(d, sp, center, n)
+            for k in i:
+                points = np.append(self.data[i])
+            #np.hstack((distance[i], x))
+            if 0 <= x <= 1:
+                if self.in_trinagle(points, n[0:3]):
+                    alpha = np.append(x)
+
+        x = 0
+        for k in alpha:
+             if k > x:
+                 x = k
+        nearest_point = x * d + 1 * center - x * center
+        return nearest_point
