@@ -255,10 +255,10 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
 
         points = np.array([[0, 0, 0], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # coplanar points
-        self.assertTrue(True, g.four_p_coplanar(points))
+        self.assertTrue(True, g.is_coplanar(points))
 
         points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points
-        self.assertFalse(False, g.four_p_coplanar(points))
+        self.assertFalse(False, g.is_coplanar(points))
 
     # def test_generate_sphere_points(self):
     #     r = 1

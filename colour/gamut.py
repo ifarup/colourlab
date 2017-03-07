@@ -256,7 +256,7 @@ class Gamut:
         """
 
         # If the points in 't' are coplanar handle this special case:
-        if self.four_p_coplanar(t):
+        if self.is_coplanar(t):
             # To exclude the exterior lines, divide into two triangles and check their interior and their common edge.
             if true_interior and (self.in_triangle(np.array([t[0], t[1], t[2]]), p,  true_interior=True) or
                                   self.in_line(np.array([t[1], t[2]]), p) or
@@ -364,19 +364,24 @@ class Gamut:
         return r + t <= 1
 
     @staticmethod
-    def four_p_coplanar(points):
-        """Checks if four points are coplanar
+    def is_coplanar(p):
+        """Checks if the points provided are coplanar. Does not handle more than 4 points.
 
         :param points: ndarray
-            The four points to be tested
+            The points to be tested
         :return: bool
             True if the points are coplanar
         """
-        b = points[1] - points[0]
-        c = points[2] - points[0]
-        d = points[3] - points[0]
+        if p.shape[0] < 4: # Less than 4 p guarantees coplanar p.
+            return True
 
-        return np.dot(d, np.cross(b, c)) == 0
+        # Make p[0] the local origin, and d, c, and d vectors from origo to the other points.
+        b = p[1] - p[0]
+        c = p[2] - p[0]
+        d = p[3] - p[0]
+
+        return np.dot(d, np.cross(b, c)) == 0  # Coplanar if the cross product vector or two vectores dotted with the
+                                               # last vector is 0.
 
     @staticmethod
     def center_of_mass(points):
@@ -433,3 +438,19 @@ class Gamut:
         ax.set_ylim([-10, 10])
         ax.set_zlim([-10, 10])
         plt.show()
+
+    def true_shape(self, a):
+        """Removes identical points and non-vertex points from a.
+            Only designed to work with 4 or less points.
+            If a is three points on a line, the points furtherst away from each other are returned.
+        :param a: ndarray
+            Shape(N, 3) Points in 3d
+        :return: ndarray
+            The vertecis of a asuming it is supposed to represent a convex shape
+        """
+        # If points are coplanar
+        if self.is_c
+            # Remove identical points
+
+            # check if line
+        # Else in_tetrahedron
