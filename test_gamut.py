@@ -27,7 +27,7 @@ from colour import data, gamut, space
 import matplotlib.pyplot as plt
 
 # Global variables.
-cube = np.array([[0.1, 0.1, 0.1],   # 0  vertices
+cube = np.array([[0., 0., 0.],   # 0  vertices
                 [10., 0., 0.],      # 1  vertices
                 [10., 10., 0.],     # 2  vertices
                 [0., 10., 0.],      # 3  vertices
@@ -146,7 +146,7 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(True, g.in_line(line, point_on_line))                           # Point is on line
 
     def test_in_tetrahedron(self):
-        c_data = data.Data(space.srgb, tetrahedron_three)
+        c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
@@ -165,7 +165,7 @@ class TestGamut(unittest.TestCase):
         # self.assertFalse(False, g.in_triangle(triangle2, triangle2_point_coplanar_but_outside))
         # self.assertTrue(True, g.in_triangle(triangle2, triangle2_point_inside))
 
-        self.assertTrue(True, g.in_triangle(np.array([[0, 0, 1], [0, 0, 2], [0, 0, 4]]), np.array([0, 0, 3])))
+        self.assertTrue(True, g.in_triangle(np.array([[6., 6, 6], [5., 5, 5], [3., 3, 3]]), np.array([4., 4, 4])))
 
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)

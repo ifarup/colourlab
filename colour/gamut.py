@@ -205,6 +205,7 @@ class Gamut:
                 a = simplex[2]
                 simplex[2] = simplex[0]
                 simplex[0] = a
+
     @staticmethod
     def sign(t):
         """ Calculates the orientation of the tetrahedron.
@@ -241,10 +242,10 @@ class Gamut:
 
         return coordinates
 
-    def in_tetrahedron(self, tetrahedron, p, true_interior=False):
+    def in_tetrahedron(self, t, p, true_interior=False):
         """Checks if the point P, pointed to by vector p, is inside(including the surface) the tetrahedron
 
-        :param tetrahedron: ndarray
+        :param t: ndarray
             The four points of a tetrahedron
         :param p: ndarray
             The point to be tested for inclusion in the tetrahedron.
@@ -254,21 +255,28 @@ class Gamut:
             True if q is inside or on the surface of the tetrahedron.
         """
 
-        if true_interior and (self.in_triangle(np.delete(tetrahedron, 0, 0), p) or
-                              self.in_triangle(np.delete(tetrahedron, 1, 0), p) or
-                              self.in_triangle(np.delete(tetrahedron, 2, 0), p) or
-                              self.in_triangle(np.delete(tetrahedron, 3, 0), p)):
+        # If the points in 't' are coplanar handle this special case:
+        if self.four_p_coplanar(t):
+            # To exclude the exterior lines, divide into two triangles and check their interior and their common edge.
+            if true_interior and (self.in_triangle(np.array([t[0], t[1], t[2]]), p,  true_interior=True) or
+                                  self.in_line(np.array([t[1], t[2]]), p) or
+                                  self.in_triangle(np.array([t[1], t[2], t[3]]), p, true_interior=True)):
+                return True
+            else:
+                #  Divide into two triangles, and check if 'p' is in one of them. This does not exclude the exterior.
+                return (self.in_triangle(np.array([t[0], t[1], t[2]]), p) or
+                        self.in_triangle(np.array([t[1], t[2], t[3]]), p))
+
+        # Check if p is on the surface of the tetrahedron and return False if the surface is to be excluded.
+        if true_interior and (self.in_triangle(np.delete(t, 0, 0), p) or
+                              self.in_triangle(np.delete(t, 1, 0), p) or
+                              self.in_triangle(np.delete(t, 2, 0), p) or
+                              self.in_triangle(np.delete(t, 3, 0), p)):
             return False
 
-        a = tetrahedron[0]
-        if self.four_p_coplanar(tetrahedron):   # The points are coplanar and the "Delaunay soloution
-            cross = np.cross(tetrahedron[1], tetrahedron[2])
-            tetrahedron[0] += cross * 0.001     # If the points are planer, make a tiny adjustment to force a volume.
-
-        # noinspection pyUnresolvedReferences
-        hull = spatial.Delaunay(tetrahedron)    # Generate a convex hull representation of points
-        tetrahedron[0] = a                      # Don't make any permanent changes.
-        return hull.find_simplex(p) >= 0        # and check if 'q' is inside.
+        # Check if 'p' is in the tetrahedron.
+        hull = spatial.Delaunay(t)    # Generate a convexHull representation of the points
+        return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
     def in_line(self, line, p):
         """Checks if a point P is on the line from  A to B
@@ -324,7 +332,7 @@ class Gamut:
         # Make 'A' the local origin for the points.
         b = triangle[1] - triangle[0]  # 'b' is the vector from A to B
         c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
-        p = P - triangle[0]               # 'p' is now the vector from A to the point being tested for inclusion
+        p = P - triangle[0]            # 'p' is now the vector from A to the point being tested for inclusion
 
         # If triangle is actually a line. It is treated as a line.
         if np.array_equal(triangle[0], triangle[1]):
