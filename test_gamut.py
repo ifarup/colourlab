@@ -335,6 +335,15 @@ class TestGamut(unittest.TestCase):
         sp = g.space  # specifies the color space
         g.plot_surface(ax, sp)  # Calls the plot function
 
+    def test_true_shape(self):
+
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        a = np.array([[0,0,0], [2,2,2], [2,2,2]])
+        a = g.true_shape(a)
+        print(a)
+
     @staticmethod
     def generate_sphere(r, n):
         theta = np.random.uniform(0, 2*np.pi, n)
@@ -347,6 +356,7 @@ class TestGamut(unittest.TestCase):
         sphere = np.vstack((x, y, z)).T
 
         return sphere
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)

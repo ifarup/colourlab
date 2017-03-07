@@ -439,18 +439,35 @@ class Gamut:
         ax.set_zlim([-10, 10])
         plt.show()
 
-    def true_shape(self, a):
+    def true_shape(self, points):
         """Removes identical points and non-vertex points from a.
             Only designed to work with 4 or less points.
             If a is three points on a line, the points furtherst away from each other are returned.
-        :param a: ndarray
+        :param og_points: ndarray
             Shape(N, 3) Points in 3d
         :return: ndarray
             The vertecis of a asuming it is supposed to represent a convex shape
         """
+
+        # Remove duplicate points
+
+        #  SOLUTION 1
+        # uniques = []
+        # for arr in possible_duplicates:
+        #     if not any(numpy.array_equal(arr, unique_arr) for unique_arr in uniques):
+        #         uniques.append(arr)
+
+        uniques = []
+        for arr in points:
+            if not any(np.array_equal(arr, unique_arr) for unique_arr in uniques):
+                uniques.append(arr)
+        return uniques
+
+
+
         # If points are coplanar
-        if self.is_c
-            # Remove identical points
+        # if self.is_coplanar(og_points)
+        #     # Remove identical points
 
             # check if line
         # Else in_tetrahedron
