@@ -95,7 +95,7 @@ class TestGamut(unittest.TestCase):
 
         self.assertEqual(vertices.tolist(), g.vertices.tolist())    # Checking that the vertices match
 
-    def test_is_inside(self):   # Test for gamut.Gamut.is_inside
+    def test_is_inside(self):                               # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
@@ -117,10 +117,16 @@ class TestGamut(unittest.TestCase):
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_1d))            # Asserts that the returned values are correct
 
-        c_data = data.Data(space.srgb, self.generate_sphere(15, 30))
+        c_data = data.Data(space.srgb, self.generate_sphere(15, 100))
         g = gamut.Gamut(space.srgb, c_data)
 
+        c_data = data.Data(space.srgb, self.generate_sphere(10, 15))   # Points lie within the sphere(inclusion = true)
+        a = g.is_inside(space.srgb, c_data)
+        self.assertTrue(np.allclose(a, np.ones(a.shape)))              # Assert that all points lie within the gamut
 
+        c_data = data.Data(space.srgb, self.generate_sphere(20, 15))   # Points lie outside the sphere(inclusion = true)
+        a = g.is_inside(space.srgb, c_data)
+        self.assertTrue(np.allclose(a, np.zeros(a.shape)))             # Assert that all points lie without the gamut
 
     def test_get_vertices(self):
         # Test for gamut.Gamut.get_vertices
