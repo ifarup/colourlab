@@ -312,7 +312,6 @@ class TestGamut(unittest.TestCase):
         a = np.linalg.det(matrix)
         print(a)
 
-
     @staticmethod
     def generate_sphere(r, n):
         """Generates a sphere or points. Used in tests to generate gamut, and inclusion points.
