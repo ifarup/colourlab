@@ -309,67 +309,68 @@ class Gamut:
         return r + t <= 1
 
     def clip_towards(self, d, sp, center, n):
-        """Get the nearest points on the surface.
+        """Get the Alpha value
 
         :param d: point
             The start point.
         :param sp: Space
             The colour space for computing the gamut.
         :param center:
-            The center is a point in the color space.
-        :return:
-            Nearest point along a line.
+            The center is a end point in the color space.
+        :return x: value
+            Returns alpha value.
         """
-
         x = (n[3] - center[0] * n[0] - center[1] * n[1] - center[2] * n[2]) / \
             (d[0] * n[0] - center[0] * n[0] + d[1] * n[1] - center[1] * n[1] + d[2] * n[2] - center[2] * n[2])
 
         return x
 
-    def find_plane(self, p):
-        """
+    def find_plane(self, points):
+        """Find normal point to a plane(simplices) and the distance from p to the cross point.
 
-        :param p:
-        :return n:
+        :param points: point
+            the start point.
+        :return n: ndarray
+            Returns ndarray with normal points distance. [x, y, z, distance]
         """
-        points = np.arrray([])
-        for i in p:
-            points = np.append(points[i])
-        print("P:", p)
-        n = np.array([1, 1, 1, 4])
+        n = np.array([])
         v1 = points[2] - points[0]
         v2 = points[1] - points[0]
-        n2 = np.cross(v1, v2)
-        nnorm = np.linalg.norm(n2)
-        n3 = n2 / nnorm
-        n = np.hstack([n3, np.dot(points[1], n3)])
+        n2 = np.cross(v1, v2)                           # Find cross product of 2 points.
+        nnorm = np.linalg.norm(n2)                      # Find normal point.
+        n3 = n2 / nnorm                                 # Find the distance.
+        n = np.hstack([n3, np.dot(points[1], n3)])      # Add the distance to numpy array.
+
         return n
 
     def plane_coordinents(self, d, center, sp):
         """
 
-        :param d:
+        :param d: point
+            The start point.
         :param center:
-        :param sp:
+            The center is a end point in the color space.
+        :param sp: Space
+            The colour space for computing the gamut.
         :return:
+            Return the nearest point.
         """
-        distance = np.array()
-        points = np.array()
-        alpha = np.array([])
-        for i in self.hull.simplices:
-            n = self.find_plane(i)
-            distance = np.append(n[3])
-            x = self.clip_towards(d, sp, center, n)
-            for k in i:
-                points = np.append(self.data[i])
-            #np.hstack((distance[i], x))
-            if 0 <= x <= 1:
-                if self.in_trinagle(points, n[0:3]):
+        alpha = np.array([])                                      # a list for all the alpha variables we get
+        for i in self.hull.simplices:                   # Loops for all the simplexes
+            points = []                                 # A list for all the points coordinents
+            for m in i:                                 # Loops through all the indexs and find the coordinents
+                points.append(self.hull.points[m])
+            point = np.array(points)                    # converts to numpy array
+            n = self.find_plane(point)                  # Find the normal and distance
+            x = self.clip_towards(d, sp, center, n)     # Finds the alpha value
+            if 0 <= x <= 1:                             # If alpha between 0 and 1 it gets added to the alpha list
+                if self.in_trinagle(point, n[0:3]):     # And if its in the trinagle to
                     alpha = np.append(x)
 
         x = 0
-        for k in alpha:
-             if k > x:
-                 x = k
-        nearest_point = x * d + 1 * center - x * center
+        for k in alpha:                                     # Loops for every alpha and finds witch one has the highst value
+            print("alpha i forløkke:", alpha)
+            if k > x:
+                x = k
+        nearest_point = x * d + (1 - x) * center        # finds the coordinents for the nearst point
         return nearest_point

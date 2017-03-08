@@ -134,12 +134,12 @@ class TestGamut(unittest.TestCase):
     def test_clip_towards(self):
         c_data = data.Data(space.srgb, n_data)
         g = gamut.Gamut(space.srgb, c_data)
-        d = [1, 2, 3]
-        center = [3, 6, 9]
+        d = [0.001, 0.2, 0.2]
+        center = [10, 11, 14]
         n = [5, 3, 2, 9]
-        sp = 0
+        sp = space.cielab
         a = g.clip_towards(d, sp, center, n)
-        print("A:", a)
+        print("Alpha verdi:", a)
 
     def test_find_plane(self):
         p_data = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -149,6 +149,16 @@ class TestGamut(unittest.TestCase):
         d = g.find_plane(p_data)
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
+        print("find plane:", d)
+
+    def test_plane_coordinents(self):
+        c_data = data.Data(space.srgb, n_data)
+        g = gamut.Gamut(space.srgb, c_data)
+        d = [0.001, 0.2, 0.2]
+        center = [10, 11, 14]
+        sp = space.cielab
+        a = g.plane_coordinents(d, center, sp)
+        print("Nærmeste punkt.:", a)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
