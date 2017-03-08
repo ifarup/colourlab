@@ -480,9 +480,9 @@ class Gamut:
         if(self.is_coplanar(pts)):
             true_shape = self.true_shape(pts)
             if true_shape.shape[0] == 1:
-                return np.allclose(true_shape, q, true_interior=true_interior)
+                return np.allclose(true_shape, q)
             elif true_shape.shape[0] == 2:
-                return self.in_line(true_shape, q, true_interior=true_interior)
+                return self.in_line(true_shape, q)
             elif true_shape.shape[0] == 3:
                 return  self.in_triangle(true_shape, q, true_interior=true_interior)
             elif true_shape.shape[0] == 4:
@@ -490,6 +490,8 @@ class Gamut:
             else:
                 print("Error: interior recived to many points, retuning False")
                 return False
+        else:
+            return self.in_tetrahedron(pts, q, true_interior=true_interior)
 
     def in_polygon(self, pts, q, true_interior=False):
         if true_interior:

@@ -45,7 +45,7 @@ point_not_paralell_to_line = np.array([2, 3, 2])    # Point outside the line to 
 point_opposite_direction_than_line = np.array([-1, -1, -1])
 point_further_away_than_line = np.array([4, 4, 4])
 
-tetrahedron = np.array([[10., 10., 10.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])  # Tetrahedron used in testing.
+tetrahedron = np.array([[10., 10., 10.], [0., 10., 0.], [0, 0., 0.], [0., 0., 10.]])  # Tetrahedron used in testing.
 tetra_p_inside = np.array([2., 3., 4.])               # Point inside the tetrahedron to be tested.
 tetra_p_not_inside = np.array([20., 1., 2.])          # Point outside the tetrahedron to be tested.
 tetra_p_on_surface = np.array([0., 5., 0.])
@@ -160,27 +160,44 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(g.in_line(line, point_on_line))                           # Point is on line
         self.assertFalse(g.in_line(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
+        self.assertFalse(g.interior(line, point_not_paralell_to_line))            # Point in NOT parallel to line
+        self.assertFalse(g.interior(line, point_opposite_direction_than_line))    # Point opposite dir then line
+        self.assertFalse(g.interior(line, point_further_away_than_line))          # Point is is further then line
+        self.assertTrue(g.interior(line, point_on_line))                           # Point is on line
+        self.assertFalse(g.interior(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
+
     def test_in_tetrahedron(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Data(space.srgb, tetrahedron)
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
         self.assertFalse(g.in_tetrahedron(tetrahedron, tetra_p_not_inside))  # Point is NOT on tetrahedron
         self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_on_surface))
 
+        self.assertTrue(g.interior(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
+        self.assertFalse(g.interior(tetrahedron, tetra_p_not_inside))  # Point is NOT on tetrahedron
+        self.assertTrue(g.interior(tetrahedron, tetra_p_on_surface))
+
     def test_in_triangle(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        # self.assertFalse(False, g.in_triangle(triangle, triangle_point_not_coplanar))
-        # self.assertFalse(False, g.in_triangle(triangle, triangle_point_coplanar_but_outside))
-        # self.assertTrue(True, g.in_triangle(triangle, triangle_point_inside))
-        #
-        # self.assertFalse(False, g.in_triangle(triangle2, triangle2_point_not_coplanar))
-        # self.assertFalse(False, g.in_triangle(triangle2, triangle2_point_coplanar_but_outside))
-        # self.assertTrue(True, g.in_triangle(triangle2, triangle2_point_inside))
+        self.assertFalse(g.in_triangle(triangle, triangle_point_not_coplanar))
+        self.assertFalse(g.in_triangle(triangle, triangle_point_coplanar_but_outside))
+        self.assertTrue(g.in_triangle(triangle, triangle_point_inside))
 
-        self.assertTrue(True, g.in_triangle(np.array([[6., 6, 6], [5., 5, 5], [3., 3, 3]]), np.array([4., 4, 4])))
+        self.assertFalse(g.in_triangle(triangle2, triangle2_point_not_coplanar))
+        self.assertFalse(g.in_triangle(triangle2, triangle2_point_coplanar_but_outside))
+        self.assertTrue(g.in_triangle(triangle2, triangle2_point_inside))
+
+        self.assertFalse(g.interior(triangle, triangle_point_not_coplanar))
+        self.assertFalse(g.interior(triangle, triangle_point_coplanar_but_outside))
+        self.assertTrue(g.interior(triangle, triangle_point_inside))
+
+        self.assertFalse(g.interior(triangle2, triangle2_point_not_coplanar))
+        self.assertFalse(g.interior(triangle2, triangle2_point_coplanar_but_outside))
+        self.assertTrue(g.interior(triangle2, triangle2_point_inside))
+
 
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)
@@ -265,7 +282,7 @@ class TestGamut(unittest.TestCase):
             b = g.feito_torres(point)
             print(point, b)
 
-    def test_four_p_coplanar(self):
+    def test_is_coplanar(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
@@ -275,31 +292,11 @@ class TestGamut(unittest.TestCase):
         points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points
         self.assertFalse(False, g.is_coplanar(points))
 
-    # def test_generate_sphere_points(self):
-    #     r = 1
-    #     phi = np.linspace(0, np.pi, 20)
-    #     theta = np.linspace(0, 2 * np.pi, 40)
-    #     x = r * np.cos(theta) * np.sin(phi)
-    #     y = r * np.sin(theta) * np.sin(phi)
-    #     z = r * np.cos(phi)
-    #
-    #     print(x)
-    #
-    #     np.reshape(a, (3,3), order='F')
-    #
-    #     print(y)
-    #     print(z)
-    #
-    #
-    #     coordinates = np.ndarray(shape=np.shape(num_of_points))
-    #     for i in range(num_of_points):
-
     def test_center_of_mass(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
         cm = g.center_of_mass(g.get_vertices(g.hull.points))   # Get coordinate for center of the cube
         cp = np.array([5., 5., 5.])                            # Point in center of cube.
-
         self.assertEqual(cp.all(), cm.all())                   # Assert true that the points are the same.
 
     def test_fix_orientation(self):
