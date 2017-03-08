@@ -355,9 +355,27 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        a = np.array([[0, 0, 0], [2, 2, 2], [2, 2, 2]])
-        a = g.true_shape(a)
+        # Test remove duplicates
+        a = np.array([[0, 0, 0], [2, 2, 2], [0, 0, 0], [2, 2, 2]])
+        self.assertEqual(2, g.true_shape(a).shape[0])
+
+        # Test 3 points on the same line should return outer points
+        a = np.array([[0, 0, 0], [2, 2, 2], [3, 3, 3]])
+        self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [3, 3, 3]])))
+
+        # Test 4 points that are actually a triagle
+        a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [1, 1, 0]])
+        self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0]])))
+
+        # Test 4 points that are all outher vetecis in a convex polygon
+        a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])
+        self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])))
+
+    def test_linalg_det(self):
+        matrix = np.array([[1, 1, 1], [3, 3, 3], [4, 4, 4]])
+        a = np.linalg.det(matrix)
         print(a)
+
 
     @staticmethod
     def generate_sphere(r, n):
