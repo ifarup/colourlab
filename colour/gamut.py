@@ -224,8 +224,17 @@ class Gamut:
                            [1, 1, 1, 1]])
         return int(np.sign(sci.linalg.det(matrix)))*-1  # Calculates the signed volume and returns its sign.
 
+        # Above code works as it should, but there must be a way to do this without multiplying with '-1'
+        # The below code SHOULD WORK, but.. it doesn't.
+        # matrix = np.array([[t[0, 0], t[0, 1], t[0, 2], 1],
+        #                    [t[1, 0], t[1, 1], t[1, 2], 1],
+        #                    [t[2, 0], t[2, 1], t[2, 2], 1],
+        #                    [t[3, 0], t[3, 1], t[3, 2], 1]])
+        #
+        # return int(np.sign(sci.linalg.det(matrix)))
+
     def get_coordinates(self, indices):
-        """Return the coordinates of points correlating to the  the indices provided.
+        """Return the coordinates of the points correlating to the the indices provided.
 
         :param indices: ndarray
             shape(N,), list of indices
@@ -236,13 +245,14 @@ class Gamut:
 
         counter = 0
         for index in indices:
-            coordinates[counter] = self.hull.points[index]
+            coordinates[counter] = self.hull.points[index]  # Get the coordinates.
             counter += 1
 
         return coordinates
 
     def in_tetrahedron(self, t, p, true_interior=False):
         """Checks if the point P, pointed to by vector p, is inside(including the surface) the tetrahedron
+            If 'p' is not guaranteed a true tetrahedron, use interior().
 
         :param t: ndarray
             The four points of a tetrahedron
@@ -254,19 +264,7 @@ class Gamut:
             True if q is inside or on the surface of the tetrahedron.
         """
 
-        # If the points in 't' are coplanar handle this special case:
-        if self.is_coplanar(t):
-            # To exclude the exterior lines, divide into two triangles and check their interior and their common edge.
-            if true_interior and (self.in_triangle(np.array([t[0], t[1], t[2]]), p,  true_interior=True) or
-                                  self.in_line(np.array([t[1], t[2]]), p) or
-                                  self.in_triangle(np.array([t[1], t[2], t[3]]), p, true_interior=True)):
-                return True
-            else:
-                #  Divide into two triangles, and check if 'p' is in one of them. This does not exclude the exterior.
-                return (self.in_triangle(np.array([t[0], t[1], t[2]]), p) or
-                        self.in_triangle(np.array([t[1], t[2], t[3]]), p))
-
-        # Check if p is on the surface of the tetrahedron and return False if the surface is to be excluded.
+        # If the surface is to be excluded, return False if p is on the surface.
         if true_interior and (self.in_triangle(np.delete(t, 0, 0), p) or
                               self.in_triangle(np.delete(t, 1, 0), p) or
                               self.in_triangle(np.delete(t, 2, 0), p) or
@@ -278,7 +276,7 @@ class Gamut:
         return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
     def in_line(self, line, point):
-        """Checks if a point P is on the line from  A to B
+        """Checks if a point P is on the line segment AB.
 
         :param line: ndarray
             line segment from point A to point B
@@ -300,7 +298,7 @@ class Gamut:
         if dot_b_p < 0:
             return False
 
-        # Finally check that p-vector is shorter b-vector
+        # Finally check that p-vector is than shorter b-vector
         if np.linalg.norm(p) > np.linalg.norm(b):
             return False
 
@@ -477,6 +475,18 @@ class Gamut:
         return uniques  # return a convex polygon with 4 vertecis
 
     def interior(self, pts, q, true_interior=False):
+        """ Finds the vertecis of pts's convex shape, and calls the appropriate function
+            to test for inclusion
+            Is not designed to work with more than 4 points.
+        :param pts: ndarray
+            Shape(n, 3). 0 < n < 5.
+        :param q:
+            Point to be tested for inclusion in pts's true shape.
+        :param true_interior:
+            Activate to exclude the edges if pts is acctually a triangle or polygon with 4 vertecis, or the surface
+             if pts is a tetrahedron
+        :return:
+        """
         if(self.is_coplanar(pts)):
             true_shape = self.true_shape(pts)
             if true_shape.shape[0] == 1:
@@ -494,22 +504,23 @@ class Gamut:
             return self.in_tetrahedron(pts, q, true_interior=true_interior)
 
     def in_polygon(self, pts, q, true_interior=False):
+        """
+        Checks if q is in the polygon formed by pts
+        :param pts: ndarray
+            shape(4, 3). Points on a polygon. Must be coplanar.
+        :param q:
+            Point to be tested for inclusion
+        :param true_interior:
+            Activate to exclude the edges from the search
+        :return:
+        """
         if true_interior:
+            # Divide into two triangles and check thier true_interior, and their common edge with is in the true
+            # interior or the polygon
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q, true_interior=True) or
                     self.in_line(np.array([pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q, true_interior=True))
         else:
+            # Divide in two triangles and see is q is in either.
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
-
-
-
-
-
-
-        # If pts are coplanar
-        # if self.is_coplanar(og_points)
-        #     # Remove identical pts
-
-            # check if line
-        # Else in_tetrahedron

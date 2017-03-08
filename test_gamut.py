@@ -165,6 +165,8 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
+
+        self.assertTrue(g.in_line(np.array([[2, 2, 2],[2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
         self.assertFalse(g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
         self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.in_line(line, point_further_away_than_line))          # Point is is further then line
@@ -216,11 +218,6 @@ class TestGamut(unittest.TestCase):
 
         print(g.sign(tetrahedron_two))
 
-    def test_feito_torres(self):
-        # This test can be used to test the feito_torres algorithm.
-        # We have chosen to test each of its components for them self's and the is_inside which tests the whole logic.
-        self.assertTrue(True)
-
     def test_is_coplanar(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
@@ -245,9 +242,9 @@ class TestGamut(unittest.TestCase):
 
     def test_feito_torres_with_sphere(self):
         gamut_sphere = self.generate_sphere(10, 100)
-        outside = self.generate_sphere(12, 100)
-        innside = self.generate_sphere(8, 100)
-        c_idk = self.generate_sphere(9.9, 100)
+        outside = self.generate_sphere(12, 5)
+        innside = self.generate_sphere(8, 5)
+        c_idk = self.generate_sphere(9.9, 12)
         c_data = data.Data(space.srgb, gamut_sphere)
         g = gamut.Gamut(space.srgb, c_data)
 
