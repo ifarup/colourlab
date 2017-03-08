@@ -54,6 +54,14 @@ tetrahedron_two = np.array([[-2, 0, 0], [0, -2, 0], [0, 0, 0], [0, 0, 2]])     #
 
 tetrahedron_three = np.array([[10, 10, 10], [10, 10, 0], [10, 0, 10], [0, 10, 10]])     # Tetrahedron used in testing.
 
+# Used in test for is_inside
+points_1d = np.array([5., 11., 3.])
+bool_1d = np.array([False])
+points_2d = np.array([[5., 11., 3.], [3., 2., 1.], [11., 3., 4.], [9., 2., 1.]])
+bool_2d = np.array([False, True, False, True])
+points_3d = np.array([[[3., 1., 2.], [3., 2., 4.], [10., 3., 11.], [14., 3., 2.]]])
+bool_3d = np.array([[True, True, False, False]])
+
 triangle = np.array([[0., 0., 0.], [4., 0., 0.], [0., 0., 4.]])
 triangle_point_inside = np.array([2., 0., 2.])
 triangle_point_not_coplanar = np.array([2., 2., 2.])
@@ -90,18 +98,24 @@ class TestGamut(unittest.TestCase):
     def test_is_inside(self):   # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        points_1d = np.array([5, 11, 3])
-        points_2d = np.array([[5, 11, 3], [3, 2, 1], [11, 3, 4], [9, 2, 1]])
-        points_3d = np.array([[[3, 1, 2], [3, 2, 4], [10, 3, 11], [14, 3, 2]]])
-        print(points_3d)
-        print(points_3d.shape)
 
         c_data = data.Data(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data)
+        self.assertEqual(a.shape, points_3d.shape[:-1])     # Asserts if shape is reduced by 1dim
+        self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
+        self.assertTrue(np.allclose(a, bool_3d))            # Asserts that the returned values are correct
 
-        print(a)
-        print(a.dtype)
-        print(a.shape)
+        c_data = data.Data(space.srgb, points_2d)
+        a = g.is_inside(space.srgb, c_data)
+        self.assertEqual(a.shape, points_2d.shape[:-1])     # Asserts if shape is reduced by 1dim
+        self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
+        self.assertTrue(np.allclose(a, bool_2d))            # Asserts that the returned values are correct
+
+        c_data = data.Data(space.srgb, points_1d)
+        a = g.is_inside(space.srgb, c_data)
+        self.assertEqual(1, a.size)                         # When only one point is sent, still returned a array
+        self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
+        self.assertTrue(np.allclose(a, bool_1d))            # Asserts that the returned values are correct
 
     def test_get_vertices(self):
         # Test for gamut.Gamut.get_vertices
@@ -144,7 +158,7 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.in_line(line, point_further_away_than_line))          # Point is is further then line
         self.assertTrue(g.in_line(line, point_on_line))                           # Point is on line
-        self.assertFalse(g.in_line(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5,5,5])))                           # Point is on line
+        self.assertFalse(g.in_line(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
     def test_in_tetrahedron(self):
         c_data = data.Data(space.srgb, cube)
@@ -341,23 +355,9 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        # Test remove duplicates
-        a = np.array([[0, 0, 0], [2, 2, 2], [0, 0, 0], [2, 2, 2]])
-        self.assertEqual(2, g.true_shape(a).shape[0])
-
-        # Test 3 points on the same line should return outer points
-        a = np.array([[0,0,0], [2,2,2], [3,3,3]])
-        self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [3, 3, 3]])))
-
-        # Test 4 points that are actually a triagle
-        a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [1, 1, 0]])
-        self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0]])))
-
-        # Test 4 points that are all outher vetecis in a convex polygon
-        a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])
-        self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0],[3, 0, 0], [5, 5, 0]])))
-
-
+        a = np.array([[0, 0, 0], [2, 2, 2], [2, 2, 2]])
+        a = g.true_shape(a)
+        print(a)
 
     @staticmethod
     def generate_sphere(r, n):
@@ -371,11 +371,6 @@ class TestGamut(unittest.TestCase):
         sphere = np.vstack((x, y, z)).T
 
         return sphere
-
-    def test_linalg_det(self):
-        matrix = np.array([[1, 1, 1], [3, 3, 3], [4, 4, 4]])
-        a = np.linalg.det(matrix)
-        print(a)
 
 
 if __name__ == '__main__':
