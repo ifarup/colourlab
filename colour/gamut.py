@@ -90,7 +90,6 @@ class Gamut:
 
     def traverse_ndarray(self, nda, indices, bool_array):
         """For the given data points checks if points are inn the convexhull
-            NB: this method cannot be used for modified convex hull.                ?????-JAKE-?????
 
         :param nda : ndarray
             An n-dimensional array containing the remaining dimensions to iterate.
