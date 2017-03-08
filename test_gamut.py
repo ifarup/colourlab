@@ -117,6 +117,11 @@ class TestGamut(unittest.TestCase):
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_1d))            # Asserts that the returned values are correct
 
+        c_data = data.Data(space.srgb, self.generate_sphere(15, 30))
+        g = gamut.Gamut(space.srgb, c_data)
+
+
+
     def test_get_vertices(self):
         # Test for gamut.Gamut.get_vertices
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object
@@ -289,6 +294,15 @@ class TestGamut(unittest.TestCase):
 
     @staticmethod
     def generate_sphere(r, n):
+        """Generates a sphere or points. Used in tests to generate gamut, and inclusion points.
+
+        :param r: int
+            The radius to the points.
+        :param n: int
+            Number of points to be generated.
+        :return: ndarray
+            Numpy array dim(n,3) with the points of the sphere.
+        """
         theta = np.random.uniform(0, 2*np.pi, n)
         phi = np.random.uniform(0, np.pi, n)
 
