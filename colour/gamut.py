@@ -439,9 +439,8 @@ class Gamut:
         plt.show()
 
     def true_shape(self, points):
-        """Removes identical points and non-vertex points from a.
-            Only designed to work with 4 or less points.
-            If a is three points on a line, the points furtherst away from each other are returned.
+        """Removes all points in 'points' the does not belong to it's convex polygon.
+            Works with 4 or less coplanar points.
         :param og_points: ndarray
             Shape(N, 3) Points in 3d
         :return: ndarray
@@ -458,12 +457,27 @@ class Gamut:
         if uniques.shape[0] < 3:  # one or two unique points are garaunteed a point or line.
             return uniques
 
-        # Check if the points are on a line
+        # If we have 3 points, they are either a triangle or a line.
+        if uniques.shape[0] == 3:
+            i = 0
+            while i<3:
+                a = np.delete(uniques, i, 0)
+                if self.in_line(a, uniques[i]):  # If a point is on the line segment between two other points
+                    return a           # Return that line segment.
+                i += 1
+            return uniques  # Guaranteed to be a trinalge.
+
         i = 0
-        while(i<3):
-            a = np.delete(uniques, i, 0)
-            if self.in_line(a, uniques[i]):
-                return a
+        while i < 4:
+            b = np.delete(uniques, i, 0)
+            if self.in_triangle(b, uniques[i]):  # See if any of the points lay inside the triangle formed by the
+                return b                         # other points
+            i += 1
+
+        return uniques  # return a convex polygon with 4 vertecis
+
+
+
 
 
 
