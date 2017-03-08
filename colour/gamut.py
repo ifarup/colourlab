@@ -130,7 +130,7 @@ class Gamut:
 
         for el in self.simplices:
             facet = self.get_coordinates(el)    # Get the coordinates for the current facet
-            if self.in_triangle(facet, P, True):      # Check if P is on the current facet.
+            if self.interior(facet, P, True):      # Check if P is on the current facet.
                 return True
 
             o_v1 = np.array([origin, facet[0]])   # Line from origo to the first vertex in the facet.
@@ -139,7 +139,7 @@ class Gamut:
             sign_face = self.sign(o_face)         # Sign of the current original tetrahedron
 
             # If 1
-            if(self.in_line(o_v1, P)) and \
+            if(self.interior(o_v1, P)) and \
                     ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[0], v_minus)))):
                 inclusion += sign_face
@@ -150,7 +150,7 @@ class Gamut:
                     v_plus.append(el[0])
 
             # If 2
-            if(self.in_line(o_vn, P)) and \
+            if(self.interior(o_vn, P)) and \
                     ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or
                         (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):
                 inclusion += sign_face
@@ -167,13 +167,13 @@ class Gamut:
                 sign_tetra = self.sign(tetra)
 
                 # If 3.1
-                if self.in_triangle(np.array([origin, facet[0], facet[j]]), P, True) or \
-                    self.in_triangle(np.array([origin, facet[j], facet[j+1]]), P, True) or \
-                        self.in_triangle(np.array([origin, facet[j+1], facet[0]]), P, True):
+                if self.interior(np.array([origin, facet[0], facet[j]]), P, True) or \
+                    self.interior(np.array([origin, facet[j], facet[j+1]]), P, True) or \
+                        self.interior(np.array([origin, facet[j+1], facet[0]]), P, True):
                     inclusion += 0.5*sign_tetra
 
                 # If 3.2
-                elif self.in_line(np.array([origin, facet[j]]), P) and \
+                elif self.interior(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
                     inclusion += sign_tetra
@@ -184,7 +184,7 @@ class Gamut:
                         v_plus.append(vertex[j])
 
                 # If 3.3
-                elif self.in_tetrahedron(tetra, P, True):
+                elif self.interior(tetra, P, True):
                     inclusion += sign_tetra
 
                 j += 1
