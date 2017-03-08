@@ -140,18 +140,19 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertFalse(False, g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
-        self.assertFalse(False, g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
-        self.assertFalse(False, g.in_line(line, point_further_away_than_line))          # Point is is further then line
-        self.assertTrue(True, g.in_line(line, point_on_line))                           # Point is on line
+        self.assertFalse(g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
+        self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
+        self.assertFalse(g.in_line(line, point_further_away_than_line))          # Point is is further then line
+        self.assertTrue(g.in_line(line, point_on_line))                           # Point is on line
+        self.assertFalse(g.in_line(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5,5,5])))                           # Point is on line
 
     def test_in_tetrahedron(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
-        self.assertFalse(False, g.in_tetrahedron(tetrahedron, tetra_p_not_inside))  # Point is NOT on tetrahedron
-        self.assertTrue(True, g.in_tetrahedron(tetrahedron, tetra_p_on_surface))
+        self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
+        self.assertFalse(g.in_tetrahedron(tetrahedron, tetra_p_not_inside))  # Point is NOT on tetrahedron
+        self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_on_surface))
 
     def test_in_triangle(self):
         c_data = data.Data(space.srgb, cube)
@@ -340,7 +341,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        a = np.array([[0,0,0], [2,2,2], [2,2,2]])
+        a = np.array([[0,0,0], [2,2,2], [3,3,3]])
         a = g.true_shape(a)
         print(a)
 

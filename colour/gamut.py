@@ -278,7 +278,7 @@ class Gamut:
         hull = spatial.Delaunay(t)    # Generate a convexHull representation of the points
         return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
-    def in_line(self, line, p):
+    def in_line(self, line, point):
         """Checks if a point P is on the line from  A to B
 
         :param line: ndarray
@@ -289,6 +289,7 @@ class Gamut:
             True is P in in the line segment from A to P.
         """
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
+        p = point - line[0]     # Make the same adjustments to the points. Copy to not change the original point
 
         # Check if the cross b x p is 0, if not the vectors are not collinear.
         matrix = np.array([[1, 1, 1], b, p, ])
@@ -300,9 +301,8 @@ class Gamut:
         if dot_b_p < 0:
             return False
 
-        # Finally check that q-vector is shorter b-vector
-        dot_qq = np.dot(p, p)
-        if dot_qq > dot_b_p:
+        # Finally check that p-vector is shorter b-vector
+        if np.linalg.norm(p) > np.linalg.norm(b):
             return False
 
         return True
@@ -449,19 +449,23 @@ class Gamut:
             The vertecis of a asuming it is supposed to represent a convex shape
         """
 
-        # Remove duplicate points
-
-        #  SOLUTION 1
-        # uniques = []
-        # for arr in possible_duplicates:
-        #     if not any(numpy.array_equal(arr, unique_arr) for unique_arr in uniques):
-        #         uniques.append(arr)
-
-        uniques = []
+        # Remove duplicate points.
+        uniques = []  # Use list while removing
         for arr in points:
             if not any(np.array_equal(arr, unique_arr) for unique_arr in uniques):
                 uniques.append(arr)
-        return uniques
+        uniques = np.array(uniques)  # Convert back to ndarray.
+
+        if uniques.shape[0] < 3:  # one or two unique points are garaunteed a point or line.
+            return uniques
+
+        # Check if the points are on a line
+        i = 0
+        while(i<3):
+            a = np.delete(uniques, i, 0)
+            if self.in_line(a, uniques[i]):
+                return a
+
 
 
 
