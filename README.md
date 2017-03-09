@@ -136,7 +136,10 @@ c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to
 g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
 ```
 
-With and Gamut objekt you can use the following funktions:
+With and Gamut objekt you can use the following functions:
+
+* **is_inside()**
+* **plot_surface()**
 
 * is_inside()
 * plot_surface()
