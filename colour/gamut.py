@@ -275,16 +275,23 @@ class Gamut:
         hull = spatial.Delaunay(t)    # Generate a convexHull representation of the points
         return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
-    def in_line(self, line, point):
+    def in_line(self, line, point, true_interior=False):
         """Checks if a point P is on the line segment AB.
+
 
         :param line: ndarray
             line segment from point A to point B
         :param p: ndarray
             Vector from A to P
         :return: Bool
+        :param true_interior: bool
+            Set to True if you want to exclude the end points in the search for inclusion.
+        :return: Bool
             True is P in in the line segment from A to P.
         """
+        if true_interior and (point == line[0] or point == line[1]):  #
+            return False
+
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
         p = point - line[0]     # Make the same adjustments to the points. Copy to not change the original point
 
