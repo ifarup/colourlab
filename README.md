@@ -141,5 +141,14 @@ With and Gamut objekt you can use the following functions:
 * **is_inside()**
 * **plot_surface()**
 
-* is_inside()
+* is_inside(sp, c_data)
+"""For the given data points checks if points are inn the convex hull
+
+        :param sp : colour.space
+            The colour space for computing the gamut.
+        :param c_data : colour.data.Data
+            Data object with the colour points for the gamut.
+        :return ndarray
+            A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
+        """
 * plot_surface()
