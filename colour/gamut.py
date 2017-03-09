@@ -34,9 +34,9 @@ class Gamut:
     def __init__(self, sp, points):
         """Construct new gamut instance and compute the gamut.
 
-        :param sp : Space
+        :param sp : colour.Space
             The colour space for computing the gamut.
-        :param points : Data
+        :param points : colour.Data
             The colour points for the gamut.
         """
         self.data = points      # The data points are stored in the original format.
@@ -66,7 +66,6 @@ class Gamut:
 
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
-            NB: this method cannot be used for modified convex hull.
 
         :param sp : colour.Space
             The colour space for computing the gamut.
