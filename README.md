@@ -126,3 +126,12 @@ Common white points are available as the following Data objects:
 * colour.space.white_F2
 * colour.space.white_F7
 * colour.space.white_F11
+
+Constructing Colour Gamut
+--------------------------
+To construct a new Gamut we need to provide a colour space in the format provided by colour.Space, and data/colour points provided by an colour.Data object. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
+
+```python
+c_data = data.Data(space.srgb, my_points)    # Generating the colour Data object
+g = gamut.Gamut(space.srgb, c_data)          # Generate the Gamut
+```
