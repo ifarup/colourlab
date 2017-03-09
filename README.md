@@ -138,5 +138,5 @@ g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and da
 
 With and Gamut objekt you can use the following funktions:
 
-*is_inside()
-*plot_surface()
+* is_inside()
+* plot_surface()
