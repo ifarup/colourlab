@@ -122,7 +122,7 @@ class Gamut:
         :return: bool
             True if P is included in the convexHull(polyhedron)
         """
-        inclusion = 0
+        inclusion = 0   # Will be greater than 0 if P is inside.
         v_plus = []     # a list of vertices who's original edge contains P, and it's face is POSITIVE oriented
         v_minus = []    # a list of vertices who's original edge contains P, and it's face is NEGATIVE oriented
         origin = np.array([0., 0., 0.])
@@ -137,52 +137,51 @@ class Gamut:
             o_face = np.array([origin, facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
             sign_face = self.sign(o_face)         # Sign of the current original tetrahedron
 
-            # If 1
+            # Check if P is on the original edge of the facets first vertex.
             if(self.interior(o_v1, P)) and \
-                    ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or
-                        (sign_face < 0 and not (np.in1d(el[0], v_minus)))):
+                    ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or  # and that the vertex is not already
+                        (sign_face < 0 and not (np.in1d(el[0], v_minus)))):  # in v_plus/minus
                 inclusion += sign_face
 
-                if sign_face < 0:               # add Point to neg. oriented facets or pos. oriented facets
+                if sign_face < 0:               # add vertex to neg. oriented facets or pos. oriented facets
                     v_minus.append(el[0])
                 else:
                     v_plus.append(el[0])
 
-            # If 2
+            # Check if P is on the original edge of the facets last vertex.
             if(self.interior(o_vn, P)) and \
-                    ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or
-                        (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):
+                    ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or  # and that the vertex is not already
+                        (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):  # in v_plus/minus
                 inclusion += sign_face
 
-                if sign_face < 0:           # add Point to neg. oriented facets or pos. oriented facets
+                if sign_face < 0:           # add vertex to neg. oriented facets or pos. oriented facets
                     v_minus.append(el[-1])
                 else:
                     v_plus.append(el[-1])
 
             j = 1
-            for vertex in facet[1:-1]:
+            for vertex in facet[1:-1]:  # For the remaining vertices
+                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])  # Origninal tetrahedron
+                sign_tetra = self.sign(tetra)  # The sign of the original tetrahedron
 
-                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])
-                sign_tetra = self.sign(tetra)
-
-                # If 3.1
+                # See if P is on any of the facets original triangles.
                 if self.interior(np.array([origin, facet[0], facet[j]]), P, True) or \
                     self.interior(np.array([origin, facet[j], facet[j+1]]), P, True) or \
                         self.interior(np.array([origin, facet[j+1], facet[0]]), P, True):
                     inclusion += 0.5*sign_tetra
 
-                # If 3.2
+                # See if P is the orginal edge of vertex j
                 elif self.interior(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
                     inclusion += sign_tetra
 
-                    if sign_tetra < 0:
+                    if sign_tetra < 0:  # add vertex to neg. oriented facets or pos. oriented facets
                         v_minus.append(vertex[j])
                     else:
                         v_plus.append(vertex[j])
 
-                # If 3.3
+                # See if P is in the orginal tetrahedron of the current facet.
                 elif self.interior(tetra, P, True):
                     inclusion += sign_tetra
 
@@ -274,16 +273,23 @@ class Gamut:
         hull = spatial.Delaunay(t)    # Generate a convexHull representation of the points
         return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
-    def in_line(self, line, point):
+    def in_line(self, line, point, true_interior=False):
         """Checks if a point P is on the line segment AB.
+
 
         :param line: ndarray
             line segment from point A to point B
         :param point: ndarray
             Vector from A to P
         :return: Bool
+        :param true_interior: bool
+            Set to True if you want to exclude the end points in the search for inclusion.
+        :return: Bool
             True is P in in the line segment from A to P.
         """
+        if true_interior and (point == line[0] or point == line[1]):  #
+            return False
+
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
         p = point - line[0]     # Make the same adjustments to the points. Copy to not change the original point
 
@@ -518,7 +524,7 @@ class Gamut:
             # Divide into two triangles and check their true_interior, and their common edge with is in the true
             # interior or the polygon
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q, true_interior=True) or
-                    self.in_line(np.array([pts[1], pts[2]]), q) or
+                    self.in_line(np.array([pts[1], pts[2]]), q, true_interior=True) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q, true_interior=True))
         else:
             # Divide in two triangles and see is q is in either.
