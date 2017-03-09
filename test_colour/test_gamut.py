@@ -98,6 +98,14 @@ class TestGamut(unittest.TestCase):
     def test_is_inside(self):                               # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
+<<<<<<< Temporary merge branch 1:test_colour/test_gamut.py
+        # points_1d = np.array([5, 11, 3])
+        # points_2d = np.array([[5, 11, 3], [3, 2, 1], [11, 3, 4], [9, 2, 1]])
+        points_3d = np.array([[[3, 1, 2], [3, 2, 4], [10, 3, 11], [14, 3, 2]]])
+        print(points_3d)
+        print(points_3d.shape)
+=======
+>>>>>>> Temporary merge branch 2:test_gamut.py
 
         c_data = data.Data(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data)
