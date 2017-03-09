@@ -27,7 +27,7 @@ from colour import data, gamut, space
 import matplotlib.pyplot as plt
 
 # Global variables.
-cube = np.array([[0., 0., 0.],   # 0  vertices
+cube = np.array([[0., 0., 0.],      # 0  vertices
                 [10., 0., 0.],      # 1  vertices
                 [10., 10., 0.],     # 2  vertices
                 [0., 10., 0.],      # 3  vertices
@@ -45,7 +45,7 @@ point_not_paralell_to_line = np.array([2, 3, 2])    # Point outside the line to 
 point_opposite_direction_than_line = np.array([-1, -1, -1])
 point_further_away_than_line = np.array([4, 4, 4])
 
-tetrahedron = np.array([[10., 10., 10.], [0., 10., 0.], [0, 0., 0.], [0., 0., 10.]])  # Tetrahedron used in testing.
+tetrahedron = np.array([[10., 10., 10.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])  # Tetrahedron used in testing.
 tetra_p_inside = np.array([2., 3., 4.])               # Point inside the tetrahedron to be tested.
 tetra_p_not_inside = np.array([20., 1., 2.])          # Point outside the tetrahedron to be tested.
 tetra_p_on_surface = np.array([0., 5., 0.])
@@ -165,7 +165,6 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-
         self.assertTrue(g.in_line(np.array([[2, 2, 2],[2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
         self.assertFalse(g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
         self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
@@ -211,7 +210,6 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(g.interior(triangle2, triangle2_point_coplanar_but_outside))
         self.assertTrue(g.interior(triangle2, triangle2_point_inside))
 
-
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
@@ -227,6 +225,25 @@ class TestGamut(unittest.TestCase):
 
         points = np.array([[0, 0, 1], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # non-coplanar points
         self.assertFalse(False, g.is_coplanar(points))
+
+    # def test_generate_sphere_points(self):
+    #     r = 1
+    #     phi = np.linspace(0, np.pi, 20)
+    #     theta = np.linspace(0, 2 * np.pi, 40)
+    #     x = r * np.cos(theta) * np.sin(phi)
+    #     y = r * np.sin(theta) * np.sin(phi)
+    #     z = r * np.cos(phi)
+    #
+    #     print(x)
+    #
+    #     np.reshape(a, (3,3), order='F')
+    #
+    #     print(y)
+    #     print(z)
+    #
+    #
+    #     coordinates = np.ndarray(shape=np.shape(num_of_points))
+    #     for i in range(num_of_points):
 
     def test_center_of_mass(self):
         c_data = data.Data(space.srgb, cube)
@@ -288,6 +305,8 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
+        a = np.array([[0, 0, 0], [2, 2, 2], [2, 2, 2]])
+        a = g.true_shape(a)
         # Test remove duplicates
         a = np.array([[0, 0, 0], [2, 2, 2], [0, 0, 0], [2, 2, 2]])
         self.assertEqual(2, g.true_shape(a).shape[0])
