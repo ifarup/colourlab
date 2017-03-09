@@ -45,7 +45,7 @@ point_not_paralell_to_line = np.array([2, 3, 2])    # Point outside the line to 
 point_opposite_direction_than_line = np.array([-1, -1, -1])
 point_further_away_than_line = np.array([4, 4, 4])
 
-tetrahedron = np.array([[10., 10., 10.], [0., 10., 0.], [10., 0., 0.], [0., 0., 10.]])  # Tetrahedron used in testing.
+tetrahedron = np.array([[10., 10., 10.], [0., 10., 0.], [0., 0., 0.], [0., 0., 10.]])  # Tetrahedron used in testing.
 tetra_p_inside = np.array([2., 3., 4.])               # Point inside the tetrahedron to be tested.
 tetra_p_not_inside = np.array([20., 1., 2.])          # Point outside the tetrahedron to be tested.
 tetra_p_on_surface = np.array([0., 5., 0.])

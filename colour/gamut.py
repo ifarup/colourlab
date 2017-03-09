@@ -280,7 +280,7 @@ class Gamut:
 
         :param line: ndarray
             line segment from point A to point B
-        :param p: ndarray
+        :param point: ndarray
             Vector from A to P
         :return: Bool
             True is P in in the line segment from A to P.
@@ -369,7 +369,7 @@ class Gamut:
         :return: bool
             True if the points are coplanar
         """
-        if p.shape[0] < 4: # Less than 4 p guarantees coplanar p.
+        if p.shape[0] < 4:  # Less than 4 p guarantees coplanar p.
             return True
 
         # Make p[0] the local origin, and d, c, and d vectors from origo to the other points.
@@ -377,8 +377,8 @@ class Gamut:
         c = p[2] - p[0]
         d = p[3] - p[0]
 
-        return np.dot(d, np.cross(b, c)) == 0  # Coplanar if the cross product vector or two vectores dotted with the
-                                               # last vector is 0.
+        return np.dot(d, np.cross(b, c)) == 0  # Coplanar if the cross product vector or two vectors dotted with the
+        #  last vector is 0.
 
     @staticmethod
     def center_of_mass(points):
@@ -439,10 +439,10 @@ class Gamut:
     def true_shape(self, points):
         """Removes all points in 'points' the does not belong to it's convex polygon.
             Works with 4 or less coplanar points.
-        :param og_points: ndarray
+        :param points: ndarray
             Shape(N, 3) Points in 3d
         :return: ndarray
-            The vertecis of a asuming it is supposed to represent a convex shape
+            The vertices of a assuming it is supposed to represent a convex shape
         """
 
         # Remove duplicate points.
@@ -458,7 +458,7 @@ class Gamut:
         # If we have 3 points, they are either a triangle or a line.
         if uniques.shape[0] == 3:
             i = 0
-            while i<3:
+            while i < 3:
                 a = np.delete(uniques, i, 0)
                 if self.in_line(a, uniques[i]):  # If a point is on the line segment between two other points
                     return a           # Return that line segment.
@@ -475,26 +475,26 @@ class Gamut:
         return uniques  # return a convex polygon with 4 vertecis
 
     def interior(self, pts, q, true_interior=False):
-        """ Finds the vertecis of pts's convex shape, and calls the appropriate function
+        """ Finds the vertices of pts convex shape, and calls the appropriate function
             to test for inclusion
             Is not designed to work with more than 4 points.
         :param pts: ndarray
             Shape(n, 3). 0 < n < 5.
         :param q:
-            Point to be tested for inclusion in pts's true shape.
+            Point to be tested for inclusion in pts true shape.
         :param true_interior:
-            Activate to exclude the edges if pts is acctually a triangle or polygon with 4 vertecis, or the surface
+            Activate to exclude the edges if pts is actually a triangle or polygon with 4 vertices, or the surface
              if pts is a tetrahedron
         :return:
         """
-        if(self.is_coplanar(pts)):
+        if self.is_coplanar(pts):
             true_shape = self.true_shape(pts)
             if true_shape.shape[0] == 1:
                 return np.allclose(true_shape, q)
             elif true_shape.shape[0] == 2:
                 return self.in_line(true_shape, q)
             elif true_shape.shape[0] == 3:
-                return  self.in_triangle(true_shape, q, true_interior=true_interior)
+                return self.in_triangle(true_shape, q, true_interior=true_interior)
             elif true_shape.shape[0] == 4:
                 return self.in_polygon(true_shape, q, true_interior=true_interior)
             else:
