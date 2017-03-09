@@ -22,4 +22,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Main file. Just import the other files.
 
 from colour import space, data, tensor, metric, statistics, misc, image, gamut
-

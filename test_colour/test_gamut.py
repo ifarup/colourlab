@@ -165,7 +165,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertTrue(g.in_line(np.array([[2, 2, 2],[2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
+        self.assertTrue(g.in_line(np.array([[2, 2, 2], [2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
         self.assertFalse(g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
         self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.in_line(line, point_further_away_than_line))          # Point is is further then line
@@ -257,30 +257,30 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
         g.fix_orientation()
 
-    def test_feito_torres_with_sphere(self):
-        gamut_sphere = self.generate_sphere(10, 100)
-        outside = self.generate_sphere(12, 5)
-        innside = self.generate_sphere(8, 5)
-        c_idk = self.generate_sphere(9.9, 12)
-        c_data = data.Data(space.srgb, gamut_sphere)
-        g = gamut.Gamut(space.srgb, c_data)
-
-        print("----------------")
-        print("Should be inside")
-        print("----------------")
-        for i in range(0, innside.shape[0]):
-            print(g.feito_torres(innside[i]))
-
-        print("----------------")
-        print("Should be outside")
-        print("----------------")
-        for i in range(0, innside.shape[0]):
-            print(g.feito_torres(outside[i]))
-        print("----------------")
-        print("Uncertain")
-        print("----------------")
-        for i in range(0, innside.shape[0]):
-            print(g.feito_torres(c_idk[i]))
+    # def test_feito_torres_with_sphere(self):
+    #     gamut_sphere = self.generate_sphere(10, 100)
+    #     outside = self.generate_sphere(12, 5)
+    #     innside = self.generate_sphere(8, 5)
+    #     c_idk = self.generate_sphere(9.9, 12)
+    #     c_data = data.Data(space.srgb, gamut_sphere)
+    #     g = gamut.Gamut(space.srgb, c_data)
+    #
+    #     print("----------------")
+    #     print("Should be inside")
+    #     print("----------------")
+    #     for i in range(0, innside.shape[0]):
+    #         print(g.feito_torres(innside[i]))
+    #
+    #     print("----------------")
+    #     print("Should be outside")
+    #     print("----------------")
+    #     for i in range(0, innside.shape[0]):
+    #         print(g.feito_torres(outside[i]))
+    #     print("----------------")
+    #     print("Uncertain")
+    #     print("----------------")
+    #     for i in range(0, innside.shape[0]):
+    #         print(g.feito_torres(c_idk[i]))
 
     def test_generate_sphere(self):
         sphere = self.generate_sphere(5, 10)
@@ -315,7 +315,7 @@ class TestGamut(unittest.TestCase):
         a = np.array([[0, 0, 0], [2, 2, 2], [3, 3, 3]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [3, 3, 3]])))
 
-        # Test 4 points that are actually a triagle
+        # Test 4 points that are actually a triangle
         a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [1, 1, 0]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0]])))
 
