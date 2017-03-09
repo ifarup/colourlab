@@ -135,3 +135,8 @@ To construct a new Gamut we need to provide a colour space in the format provide
 c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
 g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
 ```
+
+With and Gamut objekt you can use the following funktions:
+
+*is_inside()
+*plot_surface()
