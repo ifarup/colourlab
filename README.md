@@ -142,7 +142,8 @@ With and Gamut objekt you can use the following functions:
 * **plot_surface()**
 
 * is_inside(sp, c_data)
-""" For the given data points checks if points are inn the convex hull
+""" 
+For the given data points checks if points are inn the convex hull
 
         :param sp : colour.space
             The colour space for computing the gamut.
