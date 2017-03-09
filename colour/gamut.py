@@ -364,7 +364,7 @@ class Gamut:
             n = self.find_plane(point)                  # Find the normal and distance
             x = self.clip_towards(d, sp, center, n)     # Finds the alpha value
             if 0 <= x <= 1:                             # If alpha between 0 and 1 it gets added to the alpha list
-                if self.in_trinagle(point, n[0:3]):     # And if its in the trinagle to
+                if self.in_trinagle(point, self.line_alpha(x, d, center)):     # And if its in the trinagle to
                     alpha = np.append(x)
 
         x = 0
@@ -372,5 +372,10 @@ class Gamut:
             print("alpha i forløkke:", alpha)
             if k > x:
                 x = k
-        nearest_point = x * d + (1 - x) * center        # finds the coordinents for the nearst point
+        nearest_point = self.line_alpha(x, d, center)
+        return nearest_point
+
+    def line_alpha(self, alpha, d, center):
+
+        nearest_point = alpha * d + (1 - alpha) * center        # finds the coordinents for the nearst point
         return nearest_point
