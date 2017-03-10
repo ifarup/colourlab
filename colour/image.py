@@ -3,7 +3,7 @@
 """
 image: Colour image, part of the colour package
 
-Copyright (C) 2013-2016 Ivar Farup
+Copyright (C) 2017 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from . import data, misc, tensor
+from . import data, space, tensor, misc
 
 class Image(data.Data):
     """
@@ -103,7 +103,65 @@ class Image(data.Data):
         s12 = g.inner(sp, di, dj)
         s22 = g.inner(sp, dj, dj)
 
-        return s11, s12, s22
+        # Eigenvalues
+
+        lambda1 = .5 * (s11 + s22 + np.sqrt((s11 - s22)**2 + 4 * s12**2))
+        lambda2 = .5 * (s11 + s22 - np.sqrt((s11 - s22)**2 + 4 * s12**2))
+
+        theta1 = .5 * np.arctan2(2 * s12, s11 - s22)
+        theta2 = theta1 + np.pi / 2
+
+        # Eigenvectors
+
+        e1x = np.cos(theta1)
+        e1y = np.sin(theta1)
+        e2x = np.cos(theta2)
+        e2y = np.sin(theta2)
+
+        return s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y
+
+    def diffusion_tensor_from_structure(self, s_tuple, param=1e-4, type='invsq'):
+        """
+        Compute the diffusion tensor coefficients from the structure tensor parameters
+
+        Parameters
+        ----------
+        s_tuple : tuple
+            The resulting tuple from a call to self.structure_tensor
+        param : float
+            The parameter for the nonlinear diffusion function
+        type : str
+            The type of diffusion function, invsq (inverse square) or
+            exp (exponential), see Perona and Malik (1990)
+
+        Returns
+        -------
+        d11 : ndarray
+            The d11 component of the structure tensor of the image data.
+        d12 : ndarray
+            The d12 component of the structure tensor of the image data.
+        d22 : ndarray
+            The d22 component of the structure tensor of the image data.
+
+        """
+        s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y = s_tuple
+
+        # Diffusion tensor
+
+        if type == 'invsq':
+            def D(lambdax):
+                return 1 / (1 + param * lambdax ** 2)
+        elif type == 'exp':
+            def D(lambdax):
+                return np.exp(-lambdax / param)
+
+        D1 = D(lambda1)
+        D2 = D(lambda2)
+
+        d11 = D1 * e1x ** 2 + D2 * e2x ** 2
+        d12 = D1 * e1x * e1y + D2 * e2x * e2y
+        d22 = D1 * e1y ** 2 + D2 * e2y ** 2
+        return d11, d12, d22
 
     def diffusion_tensor(self, sp, param=1e-4, g=None, type='invsq', dir='p'):
         """
@@ -135,39 +193,53 @@ class Image(data.Data):
         d22 : ndarray
             The d22 component of the structure tensor of the image data.
         """
+        return self.diffusion_tensor_from_structure(self.structure_tensor(sp, g, dir), param, type)
 
-        s11, s12, s22 = self.structure_tensor(sp, g, dir)
+    def c2g_anisotropic(self, sp, nit, g=None, param=1e-4, type='invsq', scale=1, dt = .24):
+        """
+        Convert colour image to greyscale using anisotropic diffusion
 
-        # Eigenvalues
+        Parameters
+        ----------
+        sp : Space
+            Colour space in which to perform the numerical computations
+        g : TensorData
+            The colour metric tensor. If not given, use Euclidean
+        nit : int
+            Number of iterations to compute
+        param : float
+            The parameter for the nonlinear diffusion function
+        type : str
+            The type of diffusion function, invsq (inverse square) or
+            exp (exponential), see Perona and Malik (1990)
+        scale : float
+            The distance from black to white according to the applied metric
 
-        lambda1 = .5 * (s11 + s22 + np.sqrt((s11 - s22)**2 + 4 * s12**2))
-        lambda2 = .5 * (s11 + s22 - np.sqrt((s11 - s22)**2 + 4 * s12**2))
+        Returns
+        -------
+        grey_image : ndarray
+            Greyscale image (range 0–1)
+        """
+        s_tuple = self.structure_tensor(sp, g)
+        s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y = s_tuple
+        d11, d12, d22 = self.diffusion_tensor_from_structure(s_tuple, param, type)
 
-#        return lambda1, lambda2
+        vi = e1x * np.sqrt(lambda1 - lambda2) / scale
+        vj = e1y * np.sqrt(lambda1 - lambda2) / scale
 
-        theta1 = .5 * np.arctan2(2 * s12, s11 - s22)
-        theta2 = theta1 + np.pi / 2
+        grey_image = self.get(space.cielab)[..., 0] / 100
 
-        # Eigenvectors
+        for i in range(nit):
+            gi = misc.dip(grey_image) - vi
+            gj = misc.djp(grey_image) - vj
 
-        v1x = np.cos(theta1)
-        v1y = np.sin(theta1)
-        v2x = np.cos(theta2)
-        v2y = np.sin(theta2)
+#            ti = d11 * gi + d12 * gj
+#            tj = d12 * gi + d22 * gj
 
-        # Diffusion tensor
+            tv = misc.dim(gi) + misc.djm(gj)
 
-        if type == 'invsq':
-            def D(lambdax):
-                return 1 / (1 + param * lambdax**2)
-        elif type == 'exp':
-            def D(lambdax):
-                return np.exp(-lambdax / param)
+            grey_image += dt * tv
+            grey_image[grey_image < 0] = 0
+            grey_image[grey_image > 1] = 1
 
-        D1 = D(lambda1)
-        D2 = D(lambda2)
-
-        d11 = D1 * v1x**2 + D2 * v2x**2
-        d12 = D1 * v1x * v1y + D2 * v2x * v2y
-        d22 = D1 * v1y**2 + D2 * v2y**2
-        return d11, d12, d22
+        return grey_image
