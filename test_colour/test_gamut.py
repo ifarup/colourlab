@@ -357,33 +357,33 @@ class TestGamut(unittest.TestCase):
 
 
     def test_clip_towards(self):
-        c_data = data.Data(space.srgb, cube)
-        g = gamut.Gamut(space.srgb, c_data)
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
         n = [5, 3, 2, 9]
         sp = space.cielab
         a = g.clip_towards(d, sp, center, n)
-        print("Alpha verdi:", a)
+        print("Alpha value:", a)
 
     def test_find_plane(self):
         p_data = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        c_data = data.Data(space.srgb, cube)
-        g = gamut.Gamut(space.srgb, c_data)
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
 
         d = g.find_plane(p_data)
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
-        print("find plane:", d)
+        print("find plane:", d)                 # Normalvektor xyz and distance.
 
     def test_plane_coordinents(self):
-        c_data = data.Data(space.srgb, cube)
-        g = gamut.Gamut(space.srgb, c_data)
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
         sp = space.cielab
         a = g.plane_coordinents(d, center, sp)
-        print("Nærmeste punkt.:", a)
+        print("Nearest point:", a)
 
 if __name__ == '__main__':
     unittest.main(exit=False)

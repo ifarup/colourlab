@@ -581,13 +581,11 @@ class Gamut:
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
 
-    def clip_towards(self, d, sp, center, n):
+    def clip_towards(self, d, center, n):
         """Get the Alpha value
 
         :param d: point
             The start point.
-        :param sp: Space
-            The colour space for computing the gamut.
         :param center:
             The center is a end point in the color space.
         :return x: value
@@ -609,15 +607,15 @@ class Gamut:
         n = np.array([])
         v1 = points[2] - points[0]
         v2 = points[1] - points[0]
-        n2 = np.cross(v1, v2)  # Find cross product of 2 points.
-        nnorm = np.linalg.norm(n2)  # Find normal point.
-        n3 = n2 / nnorm  # Find the distance.
-        n = np.hstack([n3, np.dot(points[1], n3)])  # Add the distance to numpy array.
+        n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
+        nnorm = np.linalg.norm(n2)                     # Find normal point.
+        n3 = n2 / nnorm                                # Find the distance.
+        n = np.hstack([n3, np.dot(points[1], n3)])     # Add the distance to numpy array.
 
         return n
 
     def plane_coordinents(self, d, center, sp):
-        """
+        """Finding the Nearest point along a line.
 
         :param d: point
             The start point.
@@ -628,27 +626,38 @@ class Gamut:
         :return:
             Return the nearest point.
         """
-        alpha = []  # a list for all the alpha variables we get
-        for i in self.hull.simplices:  # Loops for all the simplexes
-            points = []  # A list for all the points coordinents
-            for m in i:  # Loops through all the indexs and find the coordinents
+        self.hull.points = self.data.get(sp)           # Converts gamut to new space
+        alpha = []                                     # a list for all the alpha variables we get
+        for i in self.hull.simplices:                  # Loops for all the simplexes
+            points = []                                # A list for all the points coordinents
+            for m in i:                                # Loops through all the indexs and find the coordinents
                 points.append(self.hull.points[m])
-            point = np.array(points)  # converts to numpy array
-            n = self.find_plane(point)  # Find the normal and distance
-            x = self.clip_towards(d, sp, center, n)  # Finds the alpha value
-            if 0 <= x <= 1:  # If alpha between 0 and 1 it gets added to the alpha list
-                if self.in_trinagle(point, self.line_alpha(x, d, center)):  # And if its in the trinagle to
+            point = np.array(points)                   # converts to numpy array
+            n = self.find_plane(point)                 # Find the normal and distance
+            x = self.clip_towards(d, sp, center, n)    # Finds the alpha value
+            if 0 <= x <= 1:                            # If alpha between 0 and 1 it gets added to the alpha list
+                if self.in_triangle(point, self.line_alpha(x, d, center)):      # And if its in the trinagle to
                     alpha.append(x)
         a = np.array(alpha)
         x = 0
-        for k in a:  # Loops for every alpha and finds witch one has the highst value
-            print("alpha i forløkke:", a)
+        for k in a:                                    # Loops for every alpha and finds witch one has the highst value
             if k > x:
                 x = k
         nearest_point = self.line_alpha(x, d, center)
         return nearest_point
     
     def line_alpha(self, alpha, d, center):
-        nearest_point = alpha * np.array(d) + center - alpha * np.array(
-            center)  # finds the coordinents for the nearst point
+        """Equation for calculating the nearst point
+
+        :param alpha: Alpha value
+            The highest given alpha value
+        :param d: point
+            The start point.
+        :param center:
+            The center is a end point in the color space.
+        :return:
+            Return the nearest point.
+        """
+        nearest_point = alpha * np.array(d) + center \
+                        - alpha * np.array(center)     # finds the coordinents for the nearst point
         return nearest_point
