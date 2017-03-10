@@ -32,7 +32,7 @@ import colour.space as space
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-    def __init__(self, sp, points, gamma = 1):
+    def __init__(self, sp, points, gamma = 1, center = 0):  # TODO default value for center that alowes for if/else in modified.
         """Construct new gamut instance and compute the gamut.
 
         :param sp : Space
@@ -52,7 +52,7 @@ class Gamut:
         if gamma == 1:
             self.initialize_convex_hull()
         else:
-            self.initialize_modified_convex_hull()
+            self.initialize_modified_convex_hull(gamma, )
 
     def initialize_convex_hull(self):
         """Initializes the gamuts convex hull in the desired colour space
@@ -70,9 +70,10 @@ class Gamut:
         self.fix_orientation()
 
 
-    def initialize_modified_convex_hull(self, gamma, center):
+    def initialize_modified_convex_hull(self, gamma, center=np.array([5, 5, 5])):
         # Move all points so that 'center' is origo
-        for point in self.data:
+
+        for point in self.data:  # TODO 'Data' Not iterable. Put the points in a ndarray
             point -= center
 
         # Modify their radius

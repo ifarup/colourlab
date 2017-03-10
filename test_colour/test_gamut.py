@@ -331,6 +331,26 @@ class TestGamut(unittest.TestCase):
 
         return sphere
 
+    def test_modified_convex_hull(self):
+
+        # c_data = data.Data(space.srgb, cube)
+        # g = gamut.Gamut(space.srgb, c_data)
+
+        test_points = np.array([[0, 0, 0],      # 0  vertices    # Array with just the vertices used for comparison.
+                            [10, 0, 0],         # 1  vertices
+                            [10, 10, 0],        # 2  vertices
+                            [0, 10, 0],         # 3  vertices
+                            [10, 10, 10],       # 6  vertices
+                            [10, 0, 10],        # 8  vertices
+                            [0, 0, 10],         # 9  vertices
+                            [0, 10, 10],        # 10 vertices
+                            [4.9, 4.9, 4.9]])   # Only a vertex in modifed hull
+
+        c_data = data.Data(space.srgb, test_points)
+        g = gamut.Gamut(space.srgb, c_data, gamma = 0.2)
+
+        self.assertTrue(g.vertices.shape[0] == 11)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
