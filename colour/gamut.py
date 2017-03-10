@@ -355,7 +355,7 @@ class Gamut:
         :return:
             Return the nearest point.
         """
-        alpha = np.array([])                                      # a list for all the alpha variables we get
+        alpha = []                                      # a list for all the alpha variables we get
         for i in self.hull.simplices:                   # Loops for all the simplexes
             points = []                                 # A list for all the points coordinents
             for m in i:                                 # Loops through all the indexs and find the coordinents
@@ -365,11 +365,11 @@ class Gamut:
             x = self.clip_towards(d, sp, center, n)     # Finds the alpha value
             if 0 <= x <= 1:                             # If alpha between 0 and 1 it gets added to the alpha list
                 if self.in_trinagle(point, self.line_alpha(x, d, center)):     # And if its in the trinagle to
-                    alpha = np.append(x)
-
+                    alpha.append(x)
+        a = np.array(alpha)
         x = 0
-        for k in alpha:                                     # Loops for every alpha and finds witch one has the highst value
-            print("alpha i forløkke:", alpha)
+        for k in a:                                     # Loops for every alpha and finds witch one has the highst value
+            print("alpha i forløkke:", a)
             if k > x:
                 x = k
         nearest_point = self.line_alpha(x, d, center)
@@ -377,5 +377,5 @@ class Gamut:
 
     def line_alpha(self, alpha, d, center):
 
-        nearest_point = alpha * d + (1 - alpha) * center        # finds the coordinents for the nearst point
+        nearest_point = alpha * np.array(d) + center - alpha * np.array(center)        # finds the coordinents for the nearst point
         return nearest_point
