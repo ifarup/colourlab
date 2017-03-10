@@ -26,12 +26,13 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import scipy as sci
+import colour.space as space
 
 
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-    def __init__(self, sp, points):
+    def __init__(self, sp, points, gamma = 1):
         """Construct new gamut instance and compute the gamut.
 
         :param sp : Space
@@ -39,17 +40,21 @@ class Gamut:
         :param points : Data
             The colour points for the gamut.
         """
-        self.data = points      # The data points are stored in the original format.
-        self.space = None
-        self.hull = None
-        self.vertices = None
-        self.simplices = None
-        self.neighbors = None
-        self.center = None
-        self.initialize_convex_hull(sp, points)
-        self.fix_orientation()
 
-    def initialize_convex_hull(self, sp, points):
+        self.data = points       # The data points are stored in the original format. Use hull.points for actual points.
+        self.space = sp
+        self.hull = None         # Initialiezed by initialize_(modified)convex_hull
+        self.vertices = None     # Initialiezed by initialize_(modified)convex_hull
+        self.simplices = None    # Initialiezed by initialize_(modified)convex_hull
+        self.neighbors = None    # Initialiezed by initialize_(modified)convex_hull
+        self.center = None       # Initialiezed by initialize_(modified)convex_hull
+
+        if gamma == 1:
+            self.initialize_convex_hull()
+        else:
+            self.initialize_modified_convex_hull()
+
+    def initialize_convex_hull(self):
         """Initializes the gamuts convex hull in the desired colour space
 
         :param sp : Space
@@ -57,12 +62,46 @@ class Gamut:
         :param points : Data
             The colour points for the gamut.
         """
-        self.space = sp
-        self.hull = spatial.ConvexHull(points.get_linear(sp), qhull_options='QJ')
+        self.hull = spatial.ConvexHull(self.data.get_linear(self.space), qhull_options='QJ')
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
-        self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default center is geometric center.
+        self.center = self.center_of_mass(self.get_coordinates(self.vertices))
+        self.fix_orientation()
+
+
+    def initialize_modified_convex_hull(self, gamma, center):
+        # Move all points so that 'center' is origo
+        for point in self.data:
+            point -= center
+
+        # Modify their radius
+        for point in self.data:
+            r = np.linalg.norm(point)
+            point = point * r ** gamma / r
+
+        # Calculate the convex hull, with the modfied radiuses
+        self.hull = spatial.ConvexHull(self.data)
+        self.vertices = self.hull.vertices
+        self.simplices = self.hull.simplices
+        self.neighbors = self.hull.neighbors
+
+        # Fix the orientation of the facet's while the hull is still convex
+        self.center = np.array([0, 0, 0])
+        self.fix_orientation()
+
+        # Modify back to original radius
+        for point in self.data:
+            r = np.linalg.norm(point)
+            point = point * r / r ** gamma
+
+        # Add 'center' to all points to put the gamut back to where it was
+        for point in self.data:
+            point += center
+
+        self.center = self.center_of_mass(self.get_coordinates(self.vertices))
+
+
 
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
@@ -530,3 +569,4 @@ class Gamut:
             # Divide in two triangles and see is q is in either.
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
+
