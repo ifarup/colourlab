@@ -287,7 +287,7 @@ class Gamut:
         :return: Bool
             True is P in in the line segment from A to P.
         """
-        if true_interior and (point == line[0] or point == line[1]):  #
+        if true_interior and (tuple(point) == tuple(line[0]) or tuple(point) == tuple(line[1])):  #
             return False
 
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
