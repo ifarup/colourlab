@@ -163,6 +163,6 @@ g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and da
 
 Function name	                              | Description
 --------------------------------------------  | -----------------------------------------------------------
- `is_inside(sp, c_data)`                      | Return the boolean array, true if it's in side convex hull.          
- `plot_surface(ax, sp)`                       | Plot all the vertices points in matplotlib.
- `intersectionpoint_on_line(d, center, sp)`   | Return the nearest point along a line.
+`is_inside(sp, c_data)`                       | Return the boolean array, true if it's in side convex hull.          
+`plot_surface(ax, sp)`                        | Plot all the vertices points in matplotlib.
+`intersectionpoint_on_line(d, center, sp)`    | Return the nearest point along a line.
