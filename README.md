@@ -132,13 +132,15 @@ Common white points are available as the following Data objects:
 
 ## Attributes
 ***
-* data         Data are represented as numpy arrays and gamut-points are stored in the data.
-* space        The colour space for computing the gamut.
-* hull         The gamuts convex hull in the desired colour space.
-* vertices     The vertices describe a surface that is non-convex.
-* simplices    The triangulation points of a gamut.
-* neighbors    
-* center       The center is a point in the gamut color space.
+| Attributs name | Description                    
+| -------------  | ------------------------------------------------------------------------------
+data             | Data are represented as numpy arrays and gamut-points are stored in the data.
+space            | The colour space for computing the gamut.
+hull             | The gamuts convex hull in the desired colour space.
+vertices         | The vertices describe a surface that is non-convex.
+simplices        | The triangulation points of a gamut.
+neighbors        | 
+center           | The center is a point in the gamut color space.
 
 ## Constructing Colour 
 To construct a new Gamut we need to provide a colour space in the format provided by colour.space, and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
