@@ -79,7 +79,6 @@ class Gamut:
 
         i = 0
         for point in n_data:
-        for point in n_data:
             # Adjust all points, so center is origin
             point -= center
 
@@ -566,4 +565,3 @@ class Gamut:
             # Divide in two triangles and see is q is in either.
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
-
