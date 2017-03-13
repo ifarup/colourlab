@@ -132,13 +132,13 @@ Common white points are available as the following Data objects:
 
 ## Attributes
 ***
-* data
-* space 
-* hull
-* vertices
-* simplices
-* neighbors
-* center
+* data         Data are represented as numpy arrays and gamut-points are stored in the data.
+* space        The colour space for computing the gamut.
+* hull         The gamuts convex hull in the desired colour space.
+* vertices     The vertices describe a surface that is non-convex.
+* simplices    The triangulation points of a gamut.
+* neighbors    
+* center       The center is a point in the gamut color space.
 
 ## Constructing Colour 
 To construct a new Gamut we need to provide a colour space in the format provided by colour.space, and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
@@ -161,16 +161,6 @@ g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and da
 * **plot_surface()**
 * **intersectionpoint_on_line() **
 
-* is_inside(sp, c_data)
-```python
-For the given data points checks if points are inn the convex hull
-
-        :param sp : colour.space
-            The colour space for computing the gamut.
-        :param c_data : colour.data.Data
-            Data object with the colour points for the gamut.
-        :return ndarray
-            A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
-```
-* plot_surface()
-* intersectionpoint_on_line()
+* is_inside(sp, c_data)                       Return the boolean array, true if it's in side convex hull.          
+* plot_surface(ax, sp)                        Plot all the vertices points in matplotlib.
+* intersectionpoint_on_line(d, center, sp)    Return the nearest point along a line.
