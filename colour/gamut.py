@@ -44,11 +44,11 @@ class Gamut:
 
         self.data = points       # The data points are stored in the original format. Use hull.points for actual points.
         self.space = sp
-        self.hull = None         # Initialiezed by initialize_(modified)convex_hull
-        self.vertices = None     # Initialiezed by initialize_(modified)convex_hull
-        self.simplices = None    # Initialiezed by initialize_(modified)convex_hull
-        self.neighbors = None    # Initialiezed by initialize_(modified)convex_hull
-        self.center = None       # Initialiezed by initialize_(modified)convex_hull
+        self.hull = None         # Initialized by initialize_(modified)convex_hull
+        self.vertices = None     # Initialized by initialize_(modified)convex_hull
+        self.simplices = None    # Initialized by initialize_(modified)convex_hull
+        self.neighbors = None    # Initialized by initialize_(modified)convex_hull
+        self.center = None       # Initialized by initialize_(modified)convex_hull
 
         if gamma == 1:
             self.initialize_convex_hull()
@@ -73,10 +73,14 @@ class Gamut:
 
     def initialize_modified_convex_hull(self, gamma, center):
         # Move all points so that 'center' is origo
+        # Move all points so that 'center' is origin
+
         n_data = self.data.get(self.space)
 
         i = 0
         for point in n_data:
+        for point in n_data:
+            # Adjust all points, so center is origin
             point -= center
 
             # Modify their radius
