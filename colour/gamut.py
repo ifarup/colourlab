@@ -76,13 +76,18 @@ class Gamut:
 
         n_data = self.data.get(self.space)
 
-        for point in n_data:
-            # Adjust all points, so center is origo.
+        # Adjust all points, so center is origo.
+        for point in np.nditer(n_data, op_flags=['readwrite']):
             point -= center
 
             # Modify their radius
             r = np.linalg.norm(point)
-            point = point * r ** gamma / r
+            point = point * (r ** gamma / r)
+
+
+
+
+
 
         # Calculate the convex hull, with the modfied radiuses
         self.hull = spatial.ConvexHull(n_data)
@@ -90,9 +95,7 @@ class Gamut:
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
 
-
-
-        self.center = self.center_of_mass(self.get_coordinates(self.vertices))
+        self.center = center
 
 
 
