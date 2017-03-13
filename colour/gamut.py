@@ -480,10 +480,10 @@ class Gamut:
     def true_shape(self, points):
         """Removes all points in 'points' the does not belong to it's convex polygon.
             Works with 4 or less coplanar points.
-        :param og_points: ndarray
+        :param points: ndarray
             Shape(N, 3) Points in 3d
         :return: ndarray
-            The vertecis of a asuming it is supposed to represent a convex shape
+            The vertices of a assuming it is supposed to represent a convex shape
         """
 
         # Remove duplicate points.
