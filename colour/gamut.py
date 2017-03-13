@@ -564,3 +564,210 @@ class Gamut:
             # Divide in two triangles and see is q is in either.
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
+
+    @staticmethod
+    def is_coplanar(p):
+        """Checks if the points provided are coplanar. Does not handle more than 4 points.
+
+        :param points: ndarray
+            The points to be tested
+        :return: bool
+            True if the points are coplanar
+        """
+        if p.shape[0] < 4:  # Less than 4 p guarantees coplanar p.
+            return True
+
+        # Make p[0] the local origin, and d, c, and d vectors from origo to the other points.
+        b = p[1] - p[0]
+        c = p[2] - p[0]
+        d = p[3] - p[0]
+
+        return np.dot(d, np.cross(b, c)) == 0  # Coplanar if the cross product vector or two vectors dotted with the
+        #  last vector is 0.
+
+    @staticmethod
+    def center_of_mass(points):
+        """Finds the center of mass of the points given. To find the "geometric center" of a gamut
+        lets points be only the vertices of the gamut.
+
+        Thanks to: http://stackoverflow.com/questions/8917478/center-of-mass-of-a-numpy-array-how-to-make-less-verbose
+
+        :param points: ndarray
+            Shape(N, 3), a list of points
+        :return: center: ndarray
+            Shape(3,), the coordinate of the center of mass.
+        """
+        cm = points.sum(0) / points.shape[0]
+        for i in range(points.shape[0]):
+            points[i, :] -= cm
+        return cm
+
+    def true_shape(self, points):
+        """Removes all points in 'points' the does not belong to it's convex polygon.
+            Works with 4 or less coplanar points.
+        :param points: ndarray
+            Shape(N, 3) Points in 3d
+        :return: ndarray
+            The vertices of a assuming it is supposed to represent a convex shape
+        """
+
+        # Remove duplicate points.
+        uniques = []  # Use list while removing
+        for arr in points:
+            if not any(np.array_equal(arr, unique_arr) for unique_arr in uniques):
+                uniques.append(arr)
+        uniques = np.array(uniques)  # Convert back to ndarray.
+
+        if uniques.shape[0] < 3:  # one or two unique points are garaunteed a point or line.
+            return uniques
+
+        # If we have 3 points, they are either a triangle or a line.
+        if uniques.shape[0] == 3:
+            i = 0
+            while i < 3:
+                a = np.delete(uniques, i, 0)
+                if self.in_line(a, uniques[i]):  # If a point is on the line segment between two other points
+                    return a           # Return that line segment.
+                i += 1
+            return uniques  # Guaranteed to be a trinalge.
+
+        i = 0
+        while i < 4:
+            b = np.delete(uniques, i, 0)
+            if self.in_triangle(b, uniques[i]):  # See if any of the points lay inside the triangle formed by the
+                return b                         # other points
+            i += 1
+
+        return uniques  # return a convex polygon with 4 vertices
+
+    def interior(self, pts, q, true_interior=False):
+        """ Finds the vertices of pts convex shape, and calls the appropriate function
+            to test for inclusion.
+            Is not designed to work with more than 4 points.
+        :param pts: ndarray
+            Shape(n, 3). 0 < n < 5.
+        :param q: ndarray
+            Point to be tested for inclusion in pts true shape.
+        :param true_interior: boolean
+            Activate to exclude the edges if pts is actually a triangle or polygon with 4 vertices, or the surface
+            if pts is a tetrahedron
+        :return: boolean
+            True if the point was inside.
+        """
+        if self.is_coplanar(pts):
+            true_shape = self.true_shape(pts)
+            if true_shape.shape[0] == 1:
+                return np.allclose(true_shape, q)
+            elif true_shape.shape[0] == 2:
+                return self.in_line(true_shape, q)
+            elif true_shape.shape[0] == 3:
+                return self.in_triangle(true_shape, q, true_interior=true_interior)
+            elif true_shape.shape[0] == 4:
+                return self.in_polygon(true_shape, q, true_interior=true_interior)
+            else:
+                print("Error: interior received to many points, retuning False")
+                return False
+        else:
+            return self.in_tetrahedron(pts, q, true_interior=true_interior)
+
+    def in_polygon(self, pts, q, true_interior=False):
+        """Checks if q is in the polygon formed by pts
+
+        :param pts: ndarray
+            shape(4, 3). Points on a polygon. Must be coplanar.
+        :param q: ndarray
+            Point to be tested for inclusion
+        :param true_interior: boolean
+            Activate to exclude the edges from the search
+        :return:
+        """
+        if true_interior:
+            # Divide into two triangles and check their true_interior, and their common edge with is in the true
+            # interior or the polygon
+            return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q, true_interior=True) or
+                    self.in_line(np.array([pts[1], pts[2]]), q, true_interior=True) or
+                    self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q, true_interior=True))
+        else:
+            # Divide in two triangles and see is q is in either.
+            return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
+                    self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
+
+    def get_alpha(self, d, center, n):
+        """Get the Alpha value by computing.
+
+        :param d: ndarray
+            The start point.
+        :param center: ndarray
+            The center is a end point in the color space.
+        :param n: ndarray
+            The normal and distance value for the simplex
+        :return x: float
+            Returns alpha value.
+        """
+        x = (n[3] - center[0] * n[0] - center[1] * n[1] - center[2] * n[2]) / \
+            (d[0] * n[0] - center[0] * n[0] + d[1] * n[1] - center[1] * n[1] + d[2] * n[2] - center[2] * n[2])
+
+        return x
+
+    def find_plane(self, points):
+        """Find normal point to a plane(simplices) and the distance from p to the cross point.
+
+        :param points: ndarray
+            the start point.
+        :return n: ndarray
+            Returns ndarray with normal points distance. [x, y, z, distance]
+        """
+
+        v1 = points[2] - points[0]
+        v2 = points[1] - points[0]
+        n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
+        nnorm = np.linalg.norm(n2)                     # Find normal point.
+        n3 = n2 / nnorm                                # Find the distance.
+        n = np.hstack([n3, np.dot(points[1], n3)])     # Add the distance to numpy array.
+
+        return n
+
+    def intersectionpoint_on_line(self, d, center, sp):
+        """Finding the Nearest point along a line.
+
+        :param d: ndarray
+            The start point.
+        :param center: ndarray
+            The center is a end point in the color space.
+        :param sp: Space
+            The colour space for computing the gamut.
+        :return: ndarray
+            Return the nearest point.
+        """
+        new_points = self.data.get(sp)                 # Converts gamut to new space
+        alpha = []                                     # a list for all the alpha variables we get
+        for i in self.hull.simplices:                  # Loops for all the simplexes
+            points = []                                # A list for all the points coordinates
+            for m in i:                                # Loops through all the index's and find the coordinates
+                points.append(new_points[m])
+            point = np.array(points)                   # converts to numpy array
+            n = self.find_plane(point)                 # Find the normal and distance
+            x = self.get_alpha(d, center, n)           # Finds the alpha value
+            if 0 <= x <= 1:                            # If alpha between 0 and 1 it gets added to the alpha list
+                if self.in_triangle(point, self.line_alpha(x, d, center)):  # And if its in the triangle to
+                    alpha.append(x)
+        a = np.array(alpha)
+        np.sort(a, axis=0)
+        nearest_point = self.line_alpha(a[0], d, center)
+        return nearest_point
+
+    def line_alpha(self, alpha, d, center):
+        """Equation for calculating the nearest point
+
+        :param alpha: float
+            The highest given alpha value
+        :param d: ndarray
+            The start point.
+        :param center: ndarray
+            The center is a end point in the color space.
+        :return: ndarray
+            Return the nearest point.
+        """
+        nearest_point = alpha * np.array(d) + center \
+            - alpha * np.array(center)     # finds the coordinates for the nearest point
+        return nearest_point
