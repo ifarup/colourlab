@@ -581,7 +581,7 @@ class Gamut:
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
 
-    def clip_towards(self, d, center, n):
+    def get_alpha(self, d, center, n):
         """Get the Alpha value
 
         :param d: point
@@ -614,7 +614,7 @@ class Gamut:
 
         return n
 
-    def plane_coordinents(self, d, center, sp):
+    def intersectionpoint_on_line(self, d, center, sp):
         """Finding the Nearest point along a line.
 
         :param d: point
@@ -634,7 +634,7 @@ class Gamut:
                 points.append(self.hull.points[m])
             point = np.array(points)                   # converts to numpy array
             n = self.find_plane(point)                 # Find the normal and distance
-            x = self.clip_towards(d, sp, center, n)    # Finds the alpha value
+            x = self.get_alpha(d, center, n)           # Finds the alpha value
             if 0 <= x <= 1:                            # If alpha between 0 and 1 it gets added to the alpha list
                 if self.in_triangle(point, self.line_alpha(x, d, center)):      # And if its in the trinagle to
                     alpha.append(x)
@@ -659,5 +659,5 @@ class Gamut:
             Return the nearest point.
         """
         nearest_point = alpha * np.array(d) + center \
-                        - alpha * np.array(center)     # finds the coordinents for the nearst point
+            - alpha * np.array(center)     # finds the coordinents for the nearst point
         return nearest_point

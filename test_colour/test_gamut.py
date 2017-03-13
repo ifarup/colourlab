@@ -356,14 +356,14 @@ class TestGamut(unittest.TestCase):
         return sphere
 
 
-    def test_clip_towards(self):
+    def test_get_alpha(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
         n = [5, 3, 2, 9]
         sp = space.cielab
-        a = g.clip_towards(d, sp, center, n)
+        a = g.get_alpha(d, center, n)
         print("Alpha value:", a)
 
     def test_find_plane(self):
@@ -376,13 +376,13 @@ class TestGamut(unittest.TestCase):
         np.alltrue(d == r)
         print("find plane:", d)                 # Normalvektor xyz and distance.
 
-    def test_plane_coordinents(self):
+    def test_intersectionpoint_on_line(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
         sp = space.cielab
-        a = g.plane_coordinents(d, center, sp)
+        a = g.intersectionpoint_on_line(d, center, sp)
         print("Nearest point:", a)
 
 if __name__ == '__main__':
