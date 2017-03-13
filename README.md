@@ -131,7 +131,7 @@ Common white points are available as the following Data objects:
 ***
 
 ## Attributes
-***
+
 | Attribute      | Description                    
 | -------------  | ------------------------------------------------------------------------------
 data             | The data.Data object used when constructed.
@@ -147,7 +147,7 @@ https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.ht
 
 ## Constructing Gamut 
 To construct a new Gamut we need to provide a colour space in the format provided by colour.space, 
-and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
+and data/colour points in the format given the colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
 
 #### For convex hull
 ```python
@@ -155,7 +155,7 @@ c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to
 g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and c_data
 ```
 #### For modified-convex hull
-When using the modified constructor, we have to choose an exponent for modifying the radius(gamma), and define a center for expansion.
+When using the modified constructor, we have to choose an exponent for modifying the gamut radius(gamma), and define a center for expansion.
 ```python
 c_data = data.Data(space.srgb, my_points)                        # First generate the Data objekt to use
 g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along the colourspace, c_data, gamma and center 
