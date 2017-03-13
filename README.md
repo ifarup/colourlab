@@ -131,6 +131,12 @@ Constructing Colour Gamut
 --------------------------
 To construct a new Gamut we need to provide a colour space in the format provided by colour.space, and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
 
+* **For convex hulls**
+```python
+c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
+g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
+```
+* **For non-convex hulls**
 ```python
 c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
 g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
@@ -140,8 +146,7 @@ With and Gamut objekt you can use the following functions:
 
 * **is_inside()**
 * **plot_surface()**
-* ** **
-* ** **
+* **intersectionpoint_on_line() **
 
 * is_inside(sp, c_data)
 ```python
