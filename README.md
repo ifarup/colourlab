@@ -131,22 +131,7 @@ Common white points are available as the following Data objects:
 ***
 (This module is written in python 3.6)
 
-## Attributes
-
-| Attribute      | Description                    
-| -------------  | ------------------------------------------------------------------------------
-data             | The data.Data object used when constructed.
-space            | The original colour space used when constructed.
-hull*            | The gamuts convex hull in the desired colour space.
-vertices         | Indices of points forming the vertices of the convex hull.
-simplices        | Indices of points forming the simplices facets of the convex Hull.
-neighbors        | Indices of neighbor facets for each facet.
-center           | The Gamuts geometric center.
-
- *see documentation on convex hull for a list of attributes.
-https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
-
-## Constructing Gamut 
+### Constructing Gamut 
 To construct a new Gamut we need to provide a colour space in the format provided by colour.space, 
 and data/colour points in the format given the colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
 
@@ -162,6 +147,25 @@ c_data = data.Data(space.srgb, my_points)                        # First generat
 g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along the colourspace, c_data, gamma and center 
 ```
 
+## Examples
+**Examples for all methods coming soon, a ninja stole them**
+
+
+## Attributes
+
+| Attribute      | Description                    
+| -------------  | ------------------------------------------------------------------------------
+data             | The data.Data object used when constructed.
+space            | The original colour space used when constructed.
+hull*            | The gamuts convex hull in the desired colour space.
+vertices         | Indices of points forming the vertices of the convex hull.
+simplices        | Indices of points forming the simplices facets of the convex Hull.
+neighbors        | Indices of neighbor facets for each facet.
+center           | The Gamuts geometric center.
+
+ *see documentation on convex hull for a list of attributes.
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
+
 ## Methods
 
 * **is_inside()**
@@ -173,9 +177,6 @@ Method      	                              | Description
 `is_inside(sp, c_data)`                       | Returns a boolean array containing T/F for all points in the array.        
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.
 `intersectionpoint_on_line(d, center, sp)`    | Return the nearest point on a gamut serface for the given point.
-
-## Examples
-**Coming soon, a ninja stole them**
 
 test_colour
 ===========
