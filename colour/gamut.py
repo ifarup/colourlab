@@ -32,7 +32,7 @@ import colour.space as space
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-    def __init__(self, sp, points, gamma = 1, center = 0):  # TODO default value for center that alowes for if/else in modified.
+    def __init__(self, sp, points, gamma=1, center=0):  # TODO default value for center that alowes for if/else in modified.
         """Construct new gamut instance and compute the gamut. To initialize the hull with the convex hull method,
         set gamma != 1, and provide the center for expansion.
 
@@ -44,11 +44,11 @@ class Gamut:
 
         self.data = points       # The data points are stored in the original format. Use hull.points for actual points.
         self.space = sp
-        self.hull = None         # Initialiezed by initialize_(modified)convex_hull
-        self.vertices = None     # Initialiezed by initialize_(modified)convex_hull
-        self.simplices = None    # Initialiezed by initialize_(modified)convex_hull
-        self.neighbors = None    # Initialiezed by initialize_(modified)convex_hull
-        self.center = None       # Initialiezed by initialize_(modified)convex_hull
+        self.hull = None         # Initialized by initialize_(modified)convex_hull
+        self.vertices = None     # Initialized by initialize_(modified)convex_hull
+        self.simplices = None    # Initialized by initialize_(modified)convex_hull
+        self.neighbors = None    # Initialized by initialize_(modified)convex_hull
+        self.center = None       # Initialized by initialize_(modified)convex_hull
 
         if gamma == 1:
             self.initialize_convex_hull()
@@ -70,31 +70,26 @@ class Gamut:
         self.center = self.center_of_mass(self.get_coordinates(self.vertices))
         self.fix_orientation()
 
-
     def initialize_modified_convex_hull(self, gamma, center):
-        # Move all points so that 'center' is origo
+        # Move all points so that 'center' is origin
 
         n_data = self.data.get(self.space)
 
         for point in n_data:
-            # Adjust all points, so center is origo.
+            # Adjust all points, so center is origin
             point -= center
 
             # Modify their radius
             r = np.linalg.norm(point)
             point = point * r ** gamma / r
 
-        # Calculate the convex hull, with the modfied radiuses
+        # Calculate the convex hull, with the modified radius
         self.hull = spatial.ConvexHull(n_data)
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
 
-
-
         self.center = self.center_of_mass(self.get_coordinates(self.vertices))
-
-
 
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
