@@ -629,25 +629,26 @@ class Gamut:
         self.hull.points = self.data.get(sp)           # Converts gamut to new space
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
-            points = []                                # A list for all the points coordinents
-            for m in i:                                # Loops through all the indexs and find the coordinents
+            points = []                                # A list for all the points coordinates
+            for m in i:                                # Loops through all the index's and find the coordinates
                 points.append(self.hull.points[m])
             point = np.array(points)                   # converts to numpy array
             n = self.find_plane(point)                 # Find the normal and distance
             x = self.get_alpha(d, center, n)           # Finds the alpha value
             if 0 <= x <= 1:                            # If alpha between 0 and 1 it gets added to the alpha list
-                if self.in_triangle(point, self.line_alpha(x, d, center)):      # And if its in the trinagle to
+                if self.in_triangle(point, self.line_alpha(x, d, center)):  # And if its in the triangle to
                     alpha.append(x)
         a = np.array(alpha)
+
         x = 0
-        for k in a:                                    # Loops for every alpha and finds witch one has the highst value
+        for k in a:                                    # Loops for every alpha and finds witch one has the highest value
             if k > x:
                 x = k
         nearest_point = self.line_alpha(x, d, center)
         return nearest_point
     
     def line_alpha(self, alpha, d, center):
-        """Equation for calculating the nearst point
+        """Equation for calculating the nearest point
 
         :param alpha: Alpha value
             The highest given alpha value
@@ -659,5 +660,5 @@ class Gamut:
             Return the nearest point.
         """
         nearest_point = alpha * np.array(d) + center \
-            - alpha * np.array(center)     # finds the coordinents for the nearst point
+            - alpha * np.array(center)     # finds the coordinates for the nearest point
         return nearest_point
