@@ -140,6 +140,8 @@ With and Gamut objekt you can use the following functions:
 
 * **is_inside()**
 * **plot_surface()**
+* ** **
+* ** **
 
 * is_inside(sp, c_data)
 ```python
