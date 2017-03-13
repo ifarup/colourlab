@@ -31,25 +31,31 @@ import scipy as sci
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-    def __init__(self, sp, points):
-        """Construct new gamut instance and compute the gamut.
+    def __init__(self, sp, points, gamma=1, center=0):
+        """Construct new gamut instance and compute the gamut. To initialize the hull with the convex hull method,
+        set gamma != 1, and provide the center for expansion.
 
         :param sp : colour.Space
             The colour space for computing the gamut.
         :param points : colour.Data
             The colour points for the gamut.
         """
-        self.data = points      # The data points are stored in the original format.
-        self.space = None
-        self.hull = None
-        self.vertices = None
-        self.simplices = None
-        self.neighbors = None
-        self.center = None
-        self.initialize_convex_hull(sp, points)
+
+        self.data = points       # The data points are stored in the original format. Use hull.points for actual points.
+        self.space = sp
+        self.hull = None         # Initialized by initialize_(modified)convex_hull
+        self.vertices = None     # Initialized by initialize_(modified)convex_hull
+        self.simplices = None    # Initialized by initialize_(modified)convex_hull
+        self.neighbors = None    # Initialized by initialize_(modified)convex_hull
+        self.center = None       # Initialized by initialize_(modified)convex_hull
+
+        if gamma == 1:
+            self.initialize_convex_hull()
+        else:
+            self.initialize_modified_convex_hull(gamma, center)
         self.fix_orientation()
 
-    def initialize_convex_hull(self, sp, points):
+    def initialize_convex_hull(self):
         """Initializes the gamuts convex hull in the desired colour space
 
         :param sp : Space
@@ -57,12 +63,37 @@ class Gamut:
         :param points : Data
             The colour points for the gamut.
         """
-        self.space = sp
-        self.hull = spatial.ConvexHull(points.get_linear(sp), qhull_options='QJ')
+        # Calculate the convex hull
+        self.hull = spatial.ConvexHull(self.data.get_linear(self.space), qhull_options='QJ')
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
-        self.center = self.center_of_mass(self.get_vertices(self.hull.points))  # Default center is geometric center.
+        self.center = self.center_of_mass(self.get_coordinates(self.vertices))
+
+    def initialize_modified_convex_hull(self, gamma, center):
+        """Initializes the gamut with the modified convex hull method.
+
+        :param gamma: float
+            The exponent for modifying the radius.
+        :param center: ndarray
+            Center of expansion.
+        """
+        # Move all points so that 'center' is origin
+        n_data = self.data.get(self.space)
+
+        i = 0
+        for point in n_data:
+            point -= center                             # Adjust all points, so center is origin
+            r = np.linalg.norm(point)                   # Get the points radius.
+            n_data[i] = point * (r ** gamma / r)        # Modify their radius
+            i += 1
+
+        # Calculate the convex hull, with the modified radius's
+        self.hull = spatial.ConvexHull(n_data)
+        self.vertices = self.hull.vertices
+        self.simplices = self.hull.simplices
+        self.neighbors = self.hull.neighbors
+        self.center = center
 
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
@@ -161,7 +192,7 @@ class Gamut:
 
             j = 1
             for vertex in facet[1:-1]:  # For the remaining vertices
-                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])  # Origninal tetrahedron
+                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])  # original tetrahedron
                 sign_tetra = self.sign(tetra)  # The sign of the original tetrahedron
 
                 # See if P is on any of the facets original triangles.
@@ -170,7 +201,7 @@ class Gamut:
                         self.interior(np.array([origin, facet[j+1], facet[0]]), P, True):
                     inclusion += 0.5*sign_tetra
 
-                # See if P is the orginal edge of vertex j
+                # See if P is the original edge of vertex j
                 elif self.interior(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
@@ -181,7 +212,7 @@ class Gamut:
                     else:
                         v_plus.append(vertex[j])
 
-                # See if P is in the orginal tetrahedron of the current facet.
+                # See if P is in the original tetrahedron of the current facet.
                 elif self.interior(tetra, P, True):
                     inclusion += sign_tetra
 
@@ -193,10 +224,15 @@ class Gamut:
             return False
 
     def fix_orientation(self):
+        """Fixes the orientation of the facets in the hull.
+        """
+
+        c = self.center_of_mass(self.get_coordinates(self.vertices))
+
         for simplex in self.simplices:
             facet = self.get_coordinates(simplex)
             normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector
-            if np.dot((facet[0]-self.center), normal) < 0:  # If the dot product of 'normal' and a vector from the
+            if np.dot((facet[0]-c), normal) < 0:  # If the dot product of 'normal' and a vector from the
                                                             # center of the gamut to the facet is negative, the
                                                             # orientation of the facet needs to be fixed.
                 a = simplex[2]
@@ -275,7 +311,6 @@ class Gamut:
 
     def in_line(self, line, point, true_interior=False):
         """Checks if a point P is on the line segment AB.
-
 
         :param line: ndarray
             line segment from point A to point B
@@ -369,7 +404,7 @@ class Gamut:
     def is_coplanar(p):
         """Checks if the points provided are coplanar. Does not handle more than 4 points.
 
-        :param points: ndarray
+        :param p: ndarray
             The points to be tested
         :return: bool
             True if the points are coplanar
@@ -377,13 +412,13 @@ class Gamut:
         if p.shape[0] < 4:  # Less than 4 p guarantees coplanar p.
             return True
 
-        # Make p[0] the local origin, and d, c, and d vectors from origo to the other points.
+        # Make p[0] the local origin, and d, c, and d vectors from origin to the other points.
         b = p[1] - p[0]
         c = p[2] - p[0]
         d = p[3] - p[0]
 
-        return np.dot(d, np.cross(b, c)) == 0  # Coplanar if the cross product vector or two vectors dotted with the
-        #  last vector is 0.
+        return np.dot(d, np.cross(b, c)) == 0   # Coplanar if the cross product vector or two vectors dotted with the
+                                                # last vector is 0.
 
     @staticmethod
     def center_of_mass(points):
@@ -468,7 +503,7 @@ class Gamut:
                 if self.in_line(a, uniques[i]):  # If a point is on the line segment between two other points
                     return a           # Return that line segment.
                 i += 1
-            return uniques  # Guaranteed to be a trinalge.
+            return uniques  # Guaranteed to be a triangle.
 
         i = 0
         while i < 4:
@@ -480,18 +515,17 @@ class Gamut:
         return uniques  # return a convex polygon with 4 vertices
 
     def interior(self, pts, q, true_interior=False):
-        """ Finds the vertices of pts convex shape, and calls the appropriate function
-            to test for inclusion.
+        """ Finds the vertecis of pts's convex shape, and calls the appropriate function
+            to test for inclusion
             Is not designed to work with more than 4 points.
         :param pts: ndarray
             Shape(n, 3). 0 < n < 5.
-        :param q: ndarray
-            Point to be tested for inclusion in pts true shape.
-        :param true_interior: boolean
-            Activate to exclude the edges if pts is actually a triangle or polygon with 4 vertices, or the surface
-            if pts is a tetrahedron
-        :return: boolean
-            True if the point was inside.
+        :param q:
+            Point to be tested for inclusion in pts's true shape.
+        :param true_interior:
+            Activate to exclude the edges if pts is acctually a triangle or polygon with 4 vertecis, or the surface
+             if pts is a tetrahedron
+        :return:
         """
         if self.is_coplanar(pts):
             true_shape = self.true_shape(pts)

@@ -330,8 +330,8 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])))
 
     def test_linalg_det(self):
-        matrix = np.array([[1, 1, 1], [3, 3, 3], [4, 4, 4]])
-        a = np.linalg.det(matrix)
+        matrix = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        a = np.linalg._umath_linalg.det(matrix, signature='d->d')
         print(a)
 
     @staticmethod
@@ -355,6 +355,28 @@ class TestGamut(unittest.TestCase):
         sphere = np.vstack((x, y, z)).T
 
         return sphere
+
+    def test_modified_convex_hull(self):
+
+        # c_data = data.Data(space.srgb, cube)
+        # g = gamut.Gamut(space.srgb, c_data)
+
+        test_points = np.array([[0, 0, 0],           # 0  vertices  # Array with just the vertices used for comparison.
+                                [10, 0, 0],          # 1  vertices
+                                [10, 10, 0],         # 2  vertices
+                                [0, 10, 0],          # 3  vertices
+                                [10, 10, 10],        # 6  vertices
+                                [10, 0, 10],         # 8  vertices
+                                [0, 0, 10],          # 9  vertices
+                                [0, 10, 10],         # 10 vertices
+                                [4.999, 4.999, 0]])  # Only a vertex in modified hull
+
+        c_data = data.Data(space.srgb, test_points)
+        g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=np.array([5, 5, 5]))
+
+        print(g.vertices.shape[0])
+
+        self.assertTrue(g.vertices.shape[0] == 9)
 
 
 if __name__ == '__main__':
