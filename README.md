@@ -160,3 +160,4 @@ For the given data points checks if points are inn the convex hull
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
 ```
 * plot_surface()
+* intersectionpoint_on_line()
