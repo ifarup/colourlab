@@ -32,7 +32,7 @@ import colour.space as space
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-    def __init__(self, sp, points, gamma = 1, center = 0):  # TODO default value for center that alowes for if/else in modified.
+    def __init__(self, sp, points, gamma=1, center=0):
         """Construct new gamut instance and compute the gamut. To initialize the hull with the convex hull method,
         set gamma != 1, and provide the center for expansion.
 
@@ -54,6 +54,7 @@ class Gamut:
             self.initialize_convex_hull()
         else:
             self.initialize_modified_convex_hull(gamma, center)
+        self.fix_orientation()
 
     def initialize_convex_hull(self):
         """Initializes the gamuts convex hull in the desired colour space
@@ -63,41 +64,33 @@ class Gamut:
         :param points : Data
             The colour points for the gamut.
         """
+        # Calculate the convex hull
         self.hull = spatial.ConvexHull(self.data.get_linear(self.space), qhull_options='QJ')
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
         self.center = self.center_of_mass(self.get_coordinates(self.vertices))
-        self.fix_orientation()
-
 
     def initialize_modified_convex_hull(self, gamma, center):
         # Move all points so that 'center' is origo
-
         n_data = self.data.get(self.space)
 
-        # Adjust all points, so center is origo.
-        for point in np.nditer(n_data, op_flags=['readwrite']):
+        i = 0
+        for point in n_data:
             point -= center
 
             # Modify their radius
             r = np.linalg.norm(point)
-            point = point * (r ** gamma / r)
+            n_data[i] = point * (r ** gamma / r)
 
-
-
-
-
+            i += 1
 
         # Calculate the convex hull, with the modfied radiuses
         self.hull = spatial.ConvexHull(n_data)
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
-
         self.center = center
-
-
 
     def is_inside(self, sp, c_data):
         """For the given data points checks if points are inn the convex hull
@@ -197,7 +190,7 @@ class Gamut:
 
             j = 1
             for vertex in facet[1:-1]:  # For the remaining vertices
-                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])  # Origninal tetrahedron
+                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])  # original tetrahedron
                 sign_tetra = self.sign(tetra)  # The sign of the original tetrahedron
 
                 # See if P is on any of the facets original triangles.
@@ -206,7 +199,7 @@ class Gamut:
                         self.interior(np.array([origin, facet[j+1], facet[0]]), P, True):
                     inclusion += 0.5*sign_tetra
 
-                # See if P is the orginal edge of vertex j
+                # See if P is the original edge of vertex j
                 elif self.interior(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
@@ -217,7 +210,7 @@ class Gamut:
                     else:
                         v_plus.append(vertex[j])
 
-                # See if P is in the orginal tetrahedron of the current facet.
+                # See if P is in the original tetrahedron of the current facet.
                 elif self.interior(tetra, P, True):
                     inclusion += sign_tetra
 
@@ -317,10 +310,9 @@ class Gamut:
     def in_line(self, line, point, true_interior=False):
         """Checks if a point P is on the line segment AB.
 
-
         :param line: ndarray
             line segment from point A to point B
-        :param p: ndarray
+        :param point: ndarray
             Vector from A to P
         :return: Bool
         :param true_interior: bool
@@ -328,7 +320,7 @@ class Gamut:
         :return: Bool
             True is P in in the line segment from A to P.
         """
-        if true_interior and (point == line[0] or point == line[1]):  #
+        if true_interior and (tuple(point) == tuple(line[0]) or tuple(point) == tuple(line[1])):  #
             return False
 
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
@@ -410,12 +402,12 @@ class Gamut:
     def is_coplanar(p):
         """Checks if the points provided are coplanar. Does not handle more than 4 points.
 
-        :param points: ndarray
+        :param p: ndarray
             The points to be tested
         :return: bool
             True if the points are coplanar
         """
-        if p.shape[0] < 4: # Less than 4 p guarantees coplanar p.
+        if p.shape[0] < 4:  # Less than 4 p guarantees coplanar p.
             return True
 
         # Make p[0] the local origin, and d, c, and d vectors from origo to the other points.
@@ -423,8 +415,8 @@ class Gamut:
         c = p[2] - p[0]
         d = p[3] - p[0]
 
-        return np.dot(d, np.cross(b, c)) == 0  # Coplanar if the cross product vector or two vectores dotted with the
-                                               # last vector is 0.
+        return np.dot(d, np.cross(b, c)) == 0   # Coplanar if the cross product vector or two vectors dotted with the
+                                                # last vector is 0.
 
     @staticmethod
     def center_of_mass(points):
@@ -504,12 +496,12 @@ class Gamut:
         # If we have 3 points, they are either a triangle or a line.
         if uniques.shape[0] == 3:
             i = 0
-            while i<3:
+            while i < 3:
                 a = np.delete(uniques, i, 0)
                 if self.in_line(a, uniques[i]):  # If a point is on the line segment between two other points
                     return a           # Return that line segment.
                 i += 1
-            return uniques  # Guaranteed to be a trinalge.
+            return uniques  # Guaranteed to be a triangle.
 
         i = 0
         while i < 4:
@@ -518,7 +510,7 @@ class Gamut:
                 return b                         # other points
             i += 1
 
-        return uniques  # return a convex polygon with 4 vertecis
+        return uniques  # return a convex polygon with 4 vertices
 
     def interior(self, pts, q, true_interior=False):
         """ Finds the vertecis of pts's convex shape, and calls the appropriate function
@@ -540,7 +532,7 @@ class Gamut:
             elif true_shape.shape[0] == 2:
                 return self.in_line(true_shape, q)
             elif true_shape.shape[0] == 3:
-                return  self.in_triangle(true_shape, q, true_interior=true_interior)
+                return self.in_triangle(true_shape, q, true_interior=true_interior)
             elif true_shape.shape[0] == 4:
                 return self.in_polygon(true_shape, q, true_interior=true_interior)
             else:

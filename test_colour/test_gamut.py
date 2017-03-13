@@ -305,8 +305,8 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])))
 
     def test_linalg_det(self):
-        matrix = np.array([[1, 1, 1], [3, 3, 3], [4, 4, 4]])
-        a = np.linalg.det(matrix)
+        matrix = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        a = np.linalg._umath_linalg.det(matrix, signature='d->d')
         print(a)
 
     @staticmethod
