@@ -584,11 +584,13 @@ class Gamut:
     def get_alpha(self, d, center, n):
         """Get the Alpha value
 
-        :param d: point
+        :param d: ndarray
             The start point.
-        :param center:
+        :param center: ndarray
             The center is a end point in the color space.
-        :return x: value
+        :param n: ndarray
+            The noraml and distance value for the simplex
+        :return x: float
             Returns alpha value.
         """
         x = (n[3] - center[0] * n[0] - center[1] * n[1] - center[2] * n[2]) / \
@@ -599,12 +601,12 @@ class Gamut:
     def find_plane(self, points):
         """Find normal point to a plane(simplices) and the distance from p to the cross point.
 
-        :param points: point
+        :param points: ndarray
             the start point.
         :return n: ndarray
             Returns ndarray with normal points distance. [x, y, z, distance]
         """
-        n = np.array([])
+
         v1 = points[2] - points[0]
         v2 = points[1] - points[0]
         n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
@@ -617,21 +619,21 @@ class Gamut:
     def intersectionpoint_on_line(self, d, center, sp):
         """Finding the Nearest point along a line.
 
-        :param d: point
+        :param d: ndarray
             The start point.
-        :param center:
+        :param center: ndarray
             The center is a end point in the color space.
         :param sp: Space
             The colour space for computing the gamut.
-        :return:
+        :return: ndarray
             Return the nearest point.
         """
-        self.hull.points = self.data.get(sp)           # Converts gamut to new space
+        new_data = self.data.get(sp)           # Converts gamut to new space
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
             points = []                                # A list for all the points coordinates
             for m in i:                                # Loops through all the index's and find the coordinates
-                points.append(self.hull.points[m])
+                points.append(new_data[m])
             point = np.array(points)                   # converts to numpy array
             n = self.find_plane(point)                 # Find the normal and distance
             x = self.get_alpha(d, center, n)           # Finds the alpha value
@@ -640,23 +642,20 @@ class Gamut:
                     alpha.append(x)
         a = np.array(alpha)
 
-        x = 0
-        for k in a:                                    # Loops for every alpha and finds witch one has the highest value
-            if k > x:
-                x = k
-        nearest_point = self.line_alpha(x, d, center)
+        np.sort(a, axis=0)
+        nearest_point = self.line_alpha(a[0], d, center)
         return nearest_point
     
     def line_alpha(self, alpha, d, center):
         """Equation for calculating the nearest point
 
-        :param alpha: Alpha value
+        :param alpha: flaot
             The highest given alpha value
-        :param d: point
+        :param d: ndarray
             The start point.
-        :param center:
+        :param center: ndarray
             The center is a end point in the color space.
-        :return:
+        :return: ndarray
             Return the nearest point.
         """
         nearest_point = alpha * np.array(d) + center \
