@@ -174,6 +174,9 @@ Method      	                              | Description
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.
 `intersectionpoint_on_line(d, center, sp)`    | Return the nearest point on a gamut serface for the given point.
 
+## Examples
+**Coming soon, a ninja stole them**
+
 test_colour
 ===========
 This is a test package containing one test module for each module in colour. The test modules does unittesting 
