@@ -165,8 +165,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-
-        self.assertTrue(g.in_line(np.array([[2, 2, 2],[2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
+        self.assertTrue(g.in_line(np.array([[2, 2, 2], [2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
         self.assertFalse(g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
         self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.in_line(line, point_further_away_than_line))          # Point is is further then line
@@ -210,7 +209,6 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(g.interior(triangle2, triangle2_point_not_coplanar))
         self.assertFalse(g.interior(triangle2, triangle2_point_coplanar_but_outside))
         self.assertTrue(g.interior(triangle2, triangle2_point_inside))
-
 
     def test_sign(self):
         c_data = data.Data(space.srgb, cube)
@@ -336,18 +334,18 @@ class TestGamut(unittest.TestCase):
         # c_data = data.Data(space.srgb, cube)
         # g = gamut.Gamut(space.srgb, c_data)
 
-        test_points = np.array([[0, 0, 0],      # 0  vertices    # Array with just the vertices used for comparison.
-                            [10, 0, 0],         # 1  vertices
-                            [10, 10, 0],        # 2  vertices
-                            [0, 10, 0],         # 3  vertices
-                            [10, 10, 10],       # 6  vertices
-                            [10, 0, 10],        # 8  vertices
-                            [0, 0, 10],         # 9  vertices
-                            [0, 10, 10],        # 10 vertices
-                            [4.999, 4.999, 0]])   # Only a vertex in modifed hull
+        test_points = np.array([[0, 0, 0],           # 0  vertices  # Array with just the vertices used for comparison.
+                                [10, 0, 0],          # 1  vertices
+                                [10, 10, 0],         # 2  vertices
+                                [0, 10, 0],          # 3  vertices
+                                [10, 10, 10],        # 6  vertices
+                                [10, 0, 10],         # 8  vertices
+                                [0, 0, 10],          # 9  vertices
+                                [0, 10, 10],         # 10 vertices
+                                [4.999, 4.999, 0]])  # Only a vertex in modified hull
 
         c_data = data.Data(space.srgb, test_points)
-        g = gamut.Gamut(space.srgb, c_data, gamma = 0.2, center = np.array([5, 5, 5]))
+        g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=np.array([5, 5, 5]))
 
         print(g.vertices.shape[0])
 
