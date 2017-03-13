@@ -129,6 +129,7 @@ Common white points are available as the following Data objects:
 
 # Gamut
 ***
+(This module is written in python 3.6)
 
 ## Attributes
 
@@ -175,5 +176,10 @@ Method      	                              | Description
 
 test_colour
 ===========
+This is a test package containing one test module for each module in colour. The test modules does unittesting 
+of each major function in the correlating module. All tests are automatically run when you run test_colour/init.py.
+Each unit test can be run separately. If you are using pycharm, navigate to the module containing the test you want 
+to run, right-click the test function and select 'run unittest XXX'
 
-Test the colour module
+####Tests currently exists for the following modules:
+* Gamut (v3.6)
