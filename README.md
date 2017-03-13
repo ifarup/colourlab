@@ -162,7 +162,6 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 ```
 
 ## Methods
-***
 
 * **is_inside()**
 * **plot_surface()**
