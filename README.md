@@ -128,11 +128,17 @@ Common white points are available as the following Data objects:
 * colour.space.white_F11
 
 # Gamut
---------------------------
+***
+
 ## Attributes
-*points
-*data1
-*data2
+***
+* data
+* space 
+* hull
+* vertices
+* simplices
+* neighbors
+* center
 
 ## Constructing Colour 
 To construct a new Gamut we need to provide a colour space in the format provided by colour.space, and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
@@ -149,6 +155,7 @@ g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and da
 ```
 
 ## Methods
+***
 
 * **is_inside()**
 * **plot_surface()**
