@@ -145,7 +145,7 @@ class Gamut:
         return point_array                  # Returns ndarray.
 
     def plot_surface(self, ax, sp):
-        """Plot all the vertices points on the recived axis
+        """Plot all the vertices points on the received axis
 
         :param ax: Axis
             The axis to draw the points on
@@ -162,7 +162,6 @@ class Gamut:
         ax.set_ylim([-100, 100])
         ax.set_zlim([-100, 100])
         plt.show()
-
 
     def feito_torres(self, P):
         """ Tests if a point P is inside a convexHull(polyhedron)
@@ -220,7 +219,7 @@ class Gamut:
                         self.interior(np.array([origin, facet[j+1], facet[0]]), P, True):
                     inclusion += 0.5*sign_tetra
 
-                # See if P is the orginal edge of vertex j
+                # See if P is the original edge of vertex j
                 elif self.interior(np.array([origin, facet[j]]), P) and \
                         ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
                             (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
@@ -452,45 +451,6 @@ class Gamut:
             points[i, :] -= cm
         return cm
 
-    def get_vertices(self, nd_data):
-        """Get all hull vertices and save them in a array list.
-
-        :param nd_data : ndarray
-            Shape(N, 3) A list of points to return vertices from. The a copy of gamut.points pre-converted
-            to a desired colour space.
-        :return: ndarray
-            The coordinates of the requested vertices
-        """
-        point_list = []                     # Array list for the vertices.
-
-        for i in self.hull.vertices:        # For loop that goes through all the vertices
-            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinents to the list.
-
-        return np.array(point_list)          # Returns ndarray.
-
-    def plot_surface(self, ax, sp):
-        """Plot all the vertices points on the received axel
-
-        :param ax: Axel
-            The axel to draw the points on
-        :param sp: Space
-            The colour space for computing the gamut.
-        """
-        nd_data = self.data.get_linear(sp)              # Creates a new ndarray with points
-        points = self.get_vertices(nd_data)             # ndarray with all the vertices
-        x = points[:, 0]
-        y = points[:, 1]
-        z = points[:, 2]
-
-        for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
-            tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
-            ax.add_collection(tri)                      # Adds created points to the ax
-
-        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
-        ax.set_ylim([-10, 10])
-        ax.set_zlim([-10, 10])
-        plt.show()
-
     def true_shape(self, points):
         """Removes all points in 'points' the does not belong to it's convex polygon.
             Works with 4 or less coplanar points.
@@ -589,7 +549,7 @@ class Gamut:
         :param center: ndarray
             The center is a end point in the color space.
         :param n: ndarray
-            The noraml and distance value for the simplex
+            The normal and distance value for the simplex
         :return x: float
             Returns alpha value.
         """
@@ -648,7 +608,7 @@ class Gamut:
     def line_alpha(self, alpha, d, center):
         """Equation for calculating the nearest point
 
-        :param alpha: flaot
+        :param alpha: float
             The highest given alpha value
         :param d: ndarray
             The start point.
