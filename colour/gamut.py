@@ -582,7 +582,7 @@ class Gamut:
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
 
     def get_alpha(self, d, center, n):
-        """Get the Alpha value
+        """Get the Alpha value by computing.
 
         :param d: ndarray
             The start point.
@@ -628,12 +628,12 @@ class Gamut:
         :return: ndarray
             Return the nearest point.
         """
-        new_data = self.data.get(sp)           # Converts gamut to new space
+        new_points = self.data.get(sp)                 # Converts gamut to new space
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
             points = []                                # A list for all the points coordinates
             for m in i:                                # Loops through all the index's and find the coordinates
-                points.append(new_data[m])
+                points.append(new_points[m])
             point = np.array(points)                   # converts to numpy array
             n = self.find_plane(point)                 # Find the normal and distance
             x = self.get_alpha(d, center, n)           # Finds the alpha value
@@ -641,7 +641,6 @@ class Gamut:
                 if self.in_triangle(point, self.line_alpha(x, d, center)):  # And if its in the triangle to
                     alpha.append(x)
         a = np.array(alpha)
-
         np.sort(a, axis=0)
         nearest_point = self.line_alpha(a[0], d, center)
         return nearest_point

@@ -362,7 +362,6 @@ class TestGamut(unittest.TestCase):
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
         n = [5, 3, 2, 9]
-        sp = space.cielab
         a = g.get_alpha(d, center, n)
         print("Alpha value:", a)
 
@@ -381,7 +380,7 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
-        sp = space.cielab
+        sp = g.space
         a = g.intersectionpoint_on_line(d, center, sp)
         print("Nearest point:", a)
 
