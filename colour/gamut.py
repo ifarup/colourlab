@@ -33,7 +33,8 @@ class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
     def __init__(self, sp, points, gamma = 1, center = 0):  # TODO default value for center that alowes for if/else in modified.
-        """Construct new gamut instance and compute the gamut.
+        """Construct new gamut instance and compute the gamut. To initialize the hull with the convex hull method,
+        set gamma != 1, and provide the center for expansion.
 
         :param sp : Space
             The colour space for computing the gamut.
@@ -52,7 +53,7 @@ class Gamut:
         if gamma == 1:
             self.initialize_convex_hull()
         else:
-            self.initialize_modified_convex_hull(gamma, )
+            self.initialize_modified_convex_hull(gamma, center)
 
     def initialize_convex_hull(self):
         """Initializes the gamuts convex hull in the desired colour space
@@ -70,35 +71,26 @@ class Gamut:
         self.fix_orientation()
 
 
-    def initialize_modified_convex_hull(self, gamma, center=np.array([5, 5, 5])):
+    def initialize_modified_convex_hull(self, gamma, center):
         # Move all points so that 'center' is origo
 
-        for point in self.data:  # TODO 'Data' Not iterable. Put the points in a ndarray
+        n_data = self.data.get(self.space)
+
+        for point in n_data:
+            # Adjust all points, so center is origo.
             point -= center
 
-        # Modify their radius
-        for point in self.data:
+            # Modify their radius
             r = np.linalg.norm(point)
             point = point * r ** gamma / r
 
         # Calculate the convex hull, with the modfied radiuses
-        self.hull = spatial.ConvexHull(self.data)
+        self.hull = spatial.ConvexHull(n_data)
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
 
-        # Fix the orientation of the facet's while the hull is still convex
-        self.center = np.array([0, 0, 0])
-        self.fix_orientation()
 
-        # Modify back to original radius
-        for point in self.data:
-            r = np.linalg.norm(point)
-            point = point * r / r ** gamma
-
-        # Add 'center' to all points to put the gamut back to where it was
-        for point in self.data:
-            point += center
 
         self.center = self.center_of_mass(self.get_coordinates(self.vertices))
 
@@ -234,10 +226,15 @@ class Gamut:
             return False
 
     def fix_orientation(self):
+        """Fixes the orientation of the facets in the hull.
+        """
+
+        c = self.center_of_mass(self.get_coordinates(self.vertices))
+
         for simplex in self.simplices:
             facet = self.get_coordinates(simplex)
             normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector
-            if np.dot((facet[0]-self.center), normal) < 0:  # If the dot product of 'normal' and a vector from the
+            if np.dot((facet[0]-c), normal) < 0:  # If the dot product of 'normal' and a vector from the
                                                             # center of the gamut to the facet is negative, the
                                                             # orientation of the facet needs to be fixed.
                 a = simplex[2]

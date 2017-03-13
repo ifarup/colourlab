@@ -344,12 +344,14 @@ class TestGamut(unittest.TestCase):
                             [10, 0, 10],        # 8  vertices
                             [0, 0, 10],         # 9  vertices
                             [0, 10, 10],        # 10 vertices
-                            [4.9, 4.9, 4.9]])   # Only a vertex in modifed hull
+                            [4.999, 4.999, 0]])   # Only a vertex in modifed hull
 
         c_data = data.Data(space.srgb, test_points)
-        g = gamut.Gamut(space.srgb, c_data, gamma = 0.2)
+        g = gamut.Gamut(space.srgb, c_data, gamma = 0.2, center = np.array([5, 5, 5]))
 
-        self.assertTrue(g.vertices.shape[0] == 11)
+        print(g.vertices.shape[0])
+
+        self.assertTrue(g.vertices.shape[0] == 9)
 
 
 if __name__ == '__main__':
