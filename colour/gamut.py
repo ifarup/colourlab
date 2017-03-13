@@ -26,7 +26,6 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import scipy as sci
-import colour.space as space
 
 
 class Gamut:
@@ -72,23 +71,24 @@ class Gamut:
         self.center = self.center_of_mass(self.get_coordinates(self.vertices))
 
     def initialize_modified_convex_hull(self, gamma, center):
-        # Move all points so that 'center' is origo
-        # Move all points so that 'center' is origin
+        """Initializes the gamut with the modified convex hull method.
 
+        :param gamma: float
+            The exponent for modifying the radius.
+        :param center: ndarray
+            Center of expansion.
+        """
+        # Move all points so that 'center' is origin
         n_data = self.data.get(self.space)
 
         i = 0
         for point in n_data:
-            # Adjust all points, so center is origin
-            point -= center
-
-            # Modify their radius
-            r = np.linalg.norm(point)
-            n_data[i] = point * (r ** gamma / r)
-
+            point -= center                             # Adjust all points, so center is origin
+            r = np.linalg.norm(point)                   # Get the points radius.
+            n_data[i] = point * (r ** gamma / r)        # Modify their radius
             i += 1
 
-        # Calculate the convex hull, with the modfied radiuses
+        # Calculate the convex hull, with the modified radius's
         self.hull = spatial.ConvexHull(n_data)
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
@@ -413,7 +413,7 @@ class Gamut:
         if p.shape[0] < 4:  # Less than 4 p guarantees coplanar p.
             return True
 
-        # Make p[0] the local origin, and d, c, and d vectors from origo to the other points.
+        # Make p[0] the local origin, and d, c, and d vectors from origin to the other points.
         b = p[1] - p[0]
         c = p[2] - p[0]
         d = p[3] - p[0]
