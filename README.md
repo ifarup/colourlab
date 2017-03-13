@@ -161,7 +161,7 @@ g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and da
 
 * **is_inside()**
 * **plot_surface()**
-* **intersectionpoint_on_line() **
+* **intersectionpoint_on_line()**
 
 Function name	                              | Description
 --------------------------------------------  | -----------------------------------------------------------
