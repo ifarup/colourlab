@@ -126,3 +126,51 @@ Common white points are available as the following Data objects:
 * colour.space.white_F2
 * colour.space.white_F7
 * colour.space.white_F11
+
+# Gamut
+***
+
+## Attributes
+***
+* data
+* space 
+* hull
+* vertices
+* simplices
+* neighbors
+* center
+
+## Constructing Colour 
+To construct a new Gamut we need to provide a colour space in the format provided by colour.space, and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
+
+* **For convex hulls**
+```python
+c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
+g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
+```
+* **For non-convex hulls**
+```python
+c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
+g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
+```
+
+## Methods
+***
+
+* **is_inside()**
+* **plot_surface()**
+* **intersectionpoint_on_line() **
+
+* is_inside(sp, c_data)
+```python
+For the given data points checks if points are inn the convex hull
+
+        :param sp : colour.space
+            The colour space for computing the gamut.
+        :param c_data : colour.data.Data
+            Data object with the colour points for the gamut.
+        :return ndarray
+            A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
+```
+* plot_surface()
+* intersectionpoint_on_line()
