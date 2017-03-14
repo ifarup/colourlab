@@ -81,12 +81,9 @@ class Gamut:
         # Move all points so that 'center' is origin
         n_data = self.data.get(self.space)
 
-        i = 0
-        for point in n_data:
-            point -= center                             # Adjust all points, so center is origin
-            r = np.linalg.norm(point)                   # Get the points radius.
-            n_data[i] = point * (r ** gamma / r)        # Modify their radius
-            i += 1
+        shifted = n_data - center                           # Make center the local origin
+        r = np.linalg.norm(shifted, axis=1, keepdims=1)     # Get the radius of all points
+        n_data = shifted * (r ** gamma / r)                 # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
         self.hull = spatial.ConvexHull(n_data)
@@ -467,18 +464,23 @@ class Gamut:
         y = points[:, 1]
         z = points[:, 2]
 
+        x.sort()                                        # Sort the value from smallest to biggest value.
+        y.sort()
+        z.sort()
+
         for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
             tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
-        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
-        ax.set_ylim([-10, 10])
-        ax.set_zlim([-10, 10])
+        ax.set_xlim([x[0] - 5, x[-1] + 5])              # Set the limits for the plot by calculating.
+        ax.set_ylim([y[0] - 5, y[-1] + 5])
+        ax.set_zlim([z[0] - 5, z[-1] + 5])
         plt.show()
 
     def true_shape(self, points):
         """Removes all points in 'points' the does not belong to it's convex polygon.
             Works with 4 or less coplanar points.
+
         :param points: ndarray
             Shape(N, 3) Points in 3d
         :return: ndarray
@@ -514,35 +516,6 @@ class Gamut:
 
         return uniques  # return a convex polygon with 4 vertices
 
-    def interior(self, pts, q, true_interior=False):
-        """ Finds the vertecis of pts's convex shape, and calls the appropriate function
-            to test for inclusion
-            Is not designed to work with more than 4 points.
-        :param pts: ndarray
-            Shape(n, 3). 0 < n < 5.
-        :param q:
-            Point to be tested for inclusion in pts's true shape.
-        :param true_interior:
-            Activate to exclude the edges if pts is acctually a triangle or polygon with 4 vertecis, or the surface
-             if pts is a tetrahedron
-        :return:
-        """
-        if self.is_coplanar(pts):
-            true_shape = self.true_shape(pts)
-            if true_shape.shape[0] == 1:
-                return np.allclose(true_shape, q)
-            elif true_shape.shape[0] == 2:
-                return self.in_line(true_shape, q)
-            elif true_shape.shape[0] == 3:
-                return self.in_triangle(true_shape, q, true_interior=true_interior)
-            elif true_shape.shape[0] == 4:
-                return self.in_polygon(true_shape, q, true_interior=true_interior)
-            else:
-                print("Error: interior received to many points, retuning False")
-                return False
-        else:
-            return self.in_tetrahedron(pts, q, true_interior=true_interior)
-
     def in_polygon(self, pts, q, true_interior=False):
         """Checks if q is in the polygon formed by pts
 
@@ -564,81 +537,6 @@ class Gamut:
             # Divide in two triangles and see is q is in either.
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
-
-    @staticmethod
-    def is_coplanar(p):
-        """Checks if the points provided are coplanar. Does not handle more than 4 points.
-
-        :param points: ndarray
-            The points to be tested
-        :return: bool
-            True if the points are coplanar
-        """
-        if p.shape[0] < 4:  # Less than 4 p guarantees coplanar p.
-            return True
-
-        # Make p[0] the local origin, and d, c, and d vectors from origo to the other points.
-        b = p[1] - p[0]
-        c = p[2] - p[0]
-        d = p[3] - p[0]
-
-        return np.dot(d, np.cross(b, c)) == 0  # Coplanar if the cross product vector or two vectors dotted with the
-        #  last vector is 0.
-
-    @staticmethod
-    def center_of_mass(points):
-        """Finds the center of mass of the points given. To find the "geometric center" of a gamut
-        lets points be only the vertices of the gamut.
-
-        Thanks to: http://stackoverflow.com/questions/8917478/center-of-mass-of-a-numpy-array-how-to-make-less-verbose
-
-        :param points: ndarray
-            Shape(N, 3), a list of points
-        :return: center: ndarray
-            Shape(3,), the coordinate of the center of mass.
-        """
-        cm = points.sum(0) / points.shape[0]
-        for i in range(points.shape[0]):
-            points[i, :] -= cm
-        return cm
-
-    def true_shape(self, points):
-        """Removes all points in 'points' the does not belong to it's convex polygon.
-            Works with 4 or less coplanar points.
-        :param points: ndarray
-            Shape(N, 3) Points in 3d
-        :return: ndarray
-            The vertices of a assuming it is supposed to represent a convex shape
-        """
-
-        # Remove duplicate points.
-        uniques = []  # Use list while removing
-        for arr in points:
-            if not any(np.array_equal(arr, unique_arr) for unique_arr in uniques):
-                uniques.append(arr)
-        uniques = np.array(uniques)  # Convert back to ndarray.
-
-        if uniques.shape[0] < 3:  # one or two unique points are garaunteed a point or line.
-            return uniques
-
-        # If we have 3 points, they are either a triangle or a line.
-        if uniques.shape[0] == 3:
-            i = 0
-            while i < 3:
-                a = np.delete(uniques, i, 0)
-                if self.in_line(a, uniques[i]):  # If a point is on the line segment between two other points
-                    return a           # Return that line segment.
-                i += 1
-            return uniques  # Guaranteed to be a trinalge.
-
-        i = 0
-        while i < 4:
-            b = np.delete(uniques, i, 0)
-            if self.in_triangle(b, uniques[i]):  # See if any of the points lay inside the triangle formed by the
-                return b                         # other points
-            i += 1
-
-        return uniques  # return a convex polygon with 4 vertices
 
     def interior(self, pts, q, true_interior=False):
         """ Finds the vertices of pts convex shape, and calls the appropriate function
@@ -669,28 +567,6 @@ class Gamut:
                 return False
         else:
             return self.in_tetrahedron(pts, q, true_interior=true_interior)
-
-    def in_polygon(self, pts, q, true_interior=False):
-        """Checks if q is in the polygon formed by pts
-
-        :param pts: ndarray
-            shape(4, 3). Points on a polygon. Must be coplanar.
-        :param q: ndarray
-            Point to be tested for inclusion
-        :param true_interior: boolean
-            Activate to exclude the edges from the search
-        :return:
-        """
-        if true_interior:
-            # Divide into two triangles and check their true_interior, and their common edge with is in the true
-            # interior or the polygon
-            return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q, true_interior=True) or
-                    self.in_line(np.array([pts[1], pts[2]]), q, true_interior=True) or
-                    self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q, true_interior=True))
-        else:
-            # Divide in two triangles and see is q is in either.
-            return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
-                    self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
 
     def get_alpha(self, d, center, n):
         """Get the Alpha value by computing.
