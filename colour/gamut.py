@@ -81,12 +81,9 @@ class Gamut:
         # Move all points so that 'center' is origin
         n_data = self.data.get(self.space)
 
-        i = 0
-        for point in n_data:
-            point -= center                             # Adjust all points, so center is origin
-            r = np.linalg.norm(point)                   # Get the points radius.
-            n_data[i] = point * (r ** gamma / r)        # Modify their radius
-            i += 1
+        shifted = n_data - center                           # Make center the local origin
+        r = np.linalg.norm(shifted, axis=1, keepdims=1)     # Get the radius of all points
+        n_data = shifted * (r ** gamma / r)                 # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
         self.hull = spatial.ConvexHull(n_data)
