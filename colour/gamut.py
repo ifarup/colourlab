@@ -250,7 +250,6 @@ class Gamut:
              0 if volume is 0
             -1 if tetrahedron is NEGATIVE orientated(signed volume < 0)
         """
-
         matrix = np.array([  # Creating the matrix for calculating a determinant, representing
                            [t[0, 0], t[1, 0], t[2, 0], t[3, 0]],  # the signed volume of the t.
                            [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
@@ -467,18 +466,23 @@ class Gamut:
         y = points[:, 1]
         z = points[:, 2]
 
+        x.sort()                                        # Sort the value from smallest to biggest value.
+        y.sort()
+        z.sort()
+
         for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
             tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
-        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
-        ax.set_ylim([-10, 10])
-        ax.set_zlim([-10, 10])
+        ax.set_xlim([x[0] - 5, x[-1] + 5])              # Set the limits for the plot by calculating.
+        ax.set_ylim([y[0] - 5, y[-1] + 5])
+        ax.set_zlim([z[0] - 5, z[-1] + 5])
         plt.show()
 
     def true_shape(self, points):
         """Removes all points in 'points' the does not belong to it's convex polygon.
             Works with 4 or less coplanar points.
+
         :param points: ndarray
             Shape(N, 3) Points in 3d
         :return: ndarray
@@ -515,17 +519,19 @@ class Gamut:
         return uniques  # return a convex polygon with 4 vertices
 
     def interior(self, pts, q, true_interior=False):
-        """ Finds the vertecis of pts's convex shape, and calls the appropriate function
-            to test for inclusion
+        """ Finds the vertices of pts convex shape, and calls the appropriate function
+            to test for inclusion.
             Is not designed to work with more than 4 points.
+
         :param pts: ndarray
             Shape(n, 3). 0 < n < 5.
-        :param q:
-            Point to be tested for inclusion in pts's true shape.
-        :param true_interior:
-            Activate to exclude the edges if pts is acctually a triangle or polygon with 4 vertecis, or the surface
-             if pts is a tetrahedron
-        :return:
+        :param q: ndarray
+            Point to be tested for inclusion in pts true shape.
+        :param true_interior: boolean
+            Activate to exclude the edges if pts is actually a triangle or polygon with 4 vertices, or the surface
+            if pts is a tetrahedron
+        :return: boolean
+            True if the point was inside.
         """
         if self.is_coplanar(pts):
             true_shape = self.true_shape(pts)
@@ -564,6 +570,85 @@ class Gamut:
             # Divide in two triangles and see is q is in either.
             return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
                     self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
+
+    def get_alpha(self, d, center, n):
+        """Get the Alpha value by computing.
+
+        :param d: ndarray
+            The start point.
+        :param center: ndarray
+            The center is a end point in the color space.
+        :param n: ndarray
+            The noraml and distance value for the simplex
+        :return x: float
+            Returns alpha value.
+        """
+        x = (n[3] - center[0] * n[0] - center[1] * n[1] - center[2] * n[2]) / \
+            (d[0] * n[0] - center[0] * n[0] + d[1] * n[1] - center[1] * n[1] + d[2] * n[2] - center[2] * n[2])
+
+        return x
+
+    def find_plane(self, points):
+        """Find normal point to a plane(simplices) and the distance from p to the cross point.
+
+        :param points: ndarray
+            the start point.
+        :return n: ndarray
+            Returns ndarray with normal points distance. [x, y, z, distance]
+        """
+        v1 = points[2] - points[0]
+        v2 = points[1] - points[0]
+        n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
+        nnorm = np.linalg.norm(n2)                     # Find normal point.
+        n3 = n2 / nnorm                                # Find the distance.
+        n = np.hstack([n3, np.dot(points[1], n3)])     # Add the distance to numpy array.
+
+        return n
+
+    def intersectionpoint_on_line(self, d, center, sp):
+        """Finding the Nearest point along a line.
+
+        :param d: ndarray
+            The start point.
+        :param center: ndarray
+            The center is a end point in the color space.
+        :param sp: Space
+            The colour space for computing the gamut.
+        :return: ndarray
+            Return the nearest point.
+        """
+        new_points = self.data.get(sp)                 # Converts gamut to new space
+        alpha = []                                     # a list for all the alpha variables we get
+        for i in self.hull.simplices:                  # Loops for all the simplexes
+            points = []                                # A list for all the points coordinates
+            for m in i:                                # Loops through all the index's and find the coordinates
+                points.append(new_points[m])
+            point = np.array(points)                   # converts to numpy array
+            n = self.find_plane(point)                 # Find the normal and distance
+            x = self.get_alpha(d, center, n)           # Finds the alpha value
+            if 0 <= x <= 1:                            # If alpha between 0 and 1 it gets added to the alpha list
+                if self.in_triangle(point, self.line_alpha(x, d, center)):  # And if its in the triangle to
+                    alpha.append(x)
+        a = np.array(alpha)
+        np.sort(a, axis=0)
+        nearest_point = self.line_alpha(a[0], d, center)
+        return nearest_point
+
+    def line_alpha(self, alpha, d, center):
+        """Equation for calculating the nearest point
+
+        :param alpha: flaot
+            The highest given alpha value
+        :param d: ndarray
+            The start point.
+        :param center: ndarray
+            The center is a end point in the color space.
+        :return: ndarray
+            Return the nearest point.
+        """
+        nearest_point = alpha * np.array(d) + center \
+            - alpha * np.array(center)     # finds the coordinates for the nearest point
+        return nearest_point
 
     @staticmethod
     def is_coplanar(p):
