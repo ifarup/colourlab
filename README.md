@@ -129,42 +129,61 @@ Common white points are available as the following Data objects:
 
 # Gamut
 ***
+(This module is written in python 3.6)
+
+### Constructing Gamut 
+To construct a new Gamut we need to provide a colour space in the format provided by colour.space, 
+and data/colour points in the format given the colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
+
+#### For convex hull
+```python
+c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
+g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and c_data
+```
+#### For modified-convex hull
+When using the modified constructor, we have to choose an exponent for modifying the gamut radius(gamma), and define a center for expansion.
+```python
+c_data = data.Data(space.srgb, my_points)                        # First generate the Data objekt to use
+g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along the colourspace, c_data, gamma and center 
+```
+
+## Examples
+**Examples for all methods coming soon, a ninja stole them**
+
 
 ## Attributes
-***
-| Attributs name | Description                    
+
+| Attribute      | Description                    
 | -------------  | ------------------------------------------------------------------------------
-data             | Data are represented as numpy arrays and gamut-points are stored in the data.
-space            | The colour space for computing the gamut.
-hull             | The gamuts convex hull in the desired colour space.
-vertices         | The vertices describe a surface that is non-convex.
-simplices        | The triangulation points of a gamut.
-neighbors        | Indices of points forming the simplical facets of the convex Hull.
+data             | The data.Data object used when constructed.
+space            | The original colour space used when constructed.
+hull*            | The gamuts convex hull in the desired colour space.
+vertices         | Indices of points forming the vertices of the convex hull.
+simplices        | Indices of points forming the simplices facets of the convex Hull.
+neighbors        | Indices of neighbor facets for each facet.
 center           | The Gamuts geometric center.
 
-## Constructing Colour 
-To construct a new Gamut we need to provide a colour space in the format provided by colour.space, and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
-
-* **For convex hulls**
-```python
-c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
-g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
-```
-* **For non-convex hulls**
-```python
-c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
-g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
-```
+ *see documentation on convex hull for a list of attributes.
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
 
 ## Methods
-***
 
 * **is_inside()**
 * **plot_surface()**
-* **intersectionpoint_on_line() **
+* **intersectionpoint_on_line()**
 
-Function name	                              | Description
+Method      	                              | Description
 --------------------------------------------  | -----------------------------------------------------------
-`is_inside(sp, c_data)`                       | Return the boolean array, true if it's in side convex hull.          
-`plot_surface(ax, sp)`                        | Plot all the vertices points in matplotlib.
-`intersectionpoint_on_line(d, center, sp)`    | Return the nearest point along a line.
+`is_inside(sp, c_data)`                       | Returns a boolean array containing T/F for all points in the array.        
+`plot_surface(ax, sp)`                        | Plot the gamut's simplices.
+`intersectionpoint_on_line(d, center, sp)`    | Return the nearest point on a gamut serface for the given point.
+
+test_colour
+===========
+This is a test package containing one test module for each module in colour. The test modules does unittesting 
+of each major function in the correlating module. All tests are automatically run when you run test_colour/init.py.
+Each unit test can be run separately. If you are using pycharm, navigate to the module containing the test you want 
+to run, right-click the test function and select 'run unittest XXX'
+
+####Tests currently exists for the following modules:
+* Gamut (v3.6)

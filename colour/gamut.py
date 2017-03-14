@@ -464,18 +464,23 @@ class Gamut:
         y = points[:, 1]
         z = points[:, 2]
 
+        x.sort()                                        # Sort the value from smallest to biggest value.
+        y.sort()
+        z.sort()
+
         for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
             tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
-        ax.set_xlim([0, 10])                            # Set the limits for the plot manually
-        ax.set_ylim([-10, 10])
-        ax.set_zlim([-10, 10])
+        ax.set_xlim([x[0] - 5, x[-1] + 5])              # Set the limits for the plot by calculating.
+        ax.set_ylim([y[0] - 5, y[-1] + 5])
+        ax.set_zlim([z[0] - 5, z[-1] + 5])
         plt.show()
 
     def true_shape(self, points):
         """Removes all points in 'points' the does not belong to it's convex polygon.
             Works with 4 or less coplanar points.
+
         :param points: ndarray
             Shape(N, 3) Points in 3d
         :return: ndarray
