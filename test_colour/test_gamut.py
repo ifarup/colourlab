@@ -514,7 +514,6 @@ class TestGamut(unittest.TestCase):
 
         return sphere
 
-
     def test_get_alpha(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
