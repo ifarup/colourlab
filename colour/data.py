@@ -24,7 +24,6 @@ import re
 import numpy as np
 import inspect
 from matplotlib.patches import Ellipse
-from scipy.spatial import ConvexHull
 from . import space, misc
 
 
@@ -513,6 +512,7 @@ class TensorData:
         ells = []
         for i in range(np.shape(a_b_theta)[0]):
             ells.append(Ellipse(points[i],
+
                                 width=2 * a_b_theta[i, 0],
                                 height=2 * a_b_theta[i, 1],
                                 angle=a_b_theta[i, 2] * 180 / np.pi))
@@ -539,26 +539,6 @@ class TensorData:
             The inner products (scalars)
         """
         return misc.inner(self.get(sp), vec1.get(sp), vec2.get(sp))
-
-
-class Gamut:
-    """
-    Class for representing colour gamuts computed in various colour spaces.
-    """
-    def __init__(self, sp, points):
-        """
-        Construct new gamut instance and compute the gamut.
-
-        Parameters
-        ----------
-        sp : Space
-            The colour space for computing the gamut.
-        points : Data
-            The colour points for the gamut.
-        """
-        self.space = sp
-        self.data = points
-        self.hull = ConvexHull(points.get_linear(sp))
 
 
 # =============================================================================
@@ -1073,6 +1053,7 @@ def test():
     Test entire module, and print report.
     """
     col1 = np.array([.5, .5, .5])
+
     col2 = np.array([[.5, .5, .5]])
     col3 = np.array([[1e-10, 1e-10, 1e-10],
                      [.95, 1., 1.08],

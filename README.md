@@ -6,7 +6,7 @@ colour is a Python package for colour metrics and colour space transforms. Many 
 Modules
 -------
 
-The package consists of seven modules:
+The package consists of eight modules:
 
 * colour.data
 * colour.space
@@ -15,6 +15,7 @@ The package consists of seven modules:
 * colour.statistics
 * colour.misc
 * colour.image
+* colour.gamut
 
 All the modules are imported when importing the package. The basic functionality of supposedly general interest is found in the three first modules. Only the really basic functionality is documented here. For more advanced features, please refer to the code (which is documented with standard pydoc docstrings), or contact the author.
 
@@ -125,3 +126,45 @@ Common white points are available as the following Data objects:
 * colour.space.white_F2
 * colour.space.white_F7
 * colour.space.white_F11
+
+# Gamut
+***
+
+## Attributes
+***
+| Attributs name | Description                    
+| -------------  | ------------------------------------------------------------------------------
+data             | Data are represented as numpy arrays and gamut-points are stored in the data.
+space            | The colour space for computing the gamut.
+hull             | The gamuts convex hull in the desired colour space.
+vertices         | The vertices describe a surface that is non-convex.
+simplices        | The triangulation points of a gamut.
+neighbors        | Indices of points forming the simplical facets of the convex Hull.
+center           | The Gamuts geometric center.
+
+## Constructing Colour 
+To construct a new Gamut we need to provide a colour space in the format provided by colour.space, and data/colour points provided by an colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
+
+* **For convex hulls**
+```python
+c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
+g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
+```
+* **For non-convex hulls**
+```python
+c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
+g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and data points
+```
+
+## Methods
+***
+
+* **is_inside()**
+* **plot_surface()**
+* **intersectionpoint_on_line() **
+
+Function name	                              | Description
+--------------------------------------------  | -----------------------------------------------------------
+`is_inside(sp, c_data)`                       | Return the boolean array, true if it's in side convex hull.          
+`plot_surface(ax, sp)`                        | Plot all the vertices points in matplotlib.
+`intersectionpoint_on_line(d, center, sp)`    | Return the nearest point along a line.

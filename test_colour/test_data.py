@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-colour: Colour spaces, colour metrics and colour data
 
-Copyright (C) 2011-2016 Ivar Farup
+"""
+test_data: Unittests for all functions in the data module.
+
+Copyright (C) 2013-2016 Ivar Farup, Lars Niebuhr,
+Sahand Lahafdoozian, Nawar Behenam, Jakob Voigt
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +21,4 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# Main file. Just import the other files.
-
-from colour import space, data, tensor, metric, statistics, misc, image, gamut
+import unittest
