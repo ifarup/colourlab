@@ -107,17 +107,26 @@ class Gamut:
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
 
-        nd_data = c_data.get(sp)                                    # Get the data points as ndarray
+        # nd_data = c_data.get(sp)                                    # Get the data points as ndarray
+        #
+        # if nd_data.ndim == 1:                                       # If only one point was sent.
+        #     return np.array([self.feito_torres(nd_data)])    # Returns 1d boolean-array
+        #
+        # else:
+        #     indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indices is initialized with negative numb.
+        #     bool_array = np.zeros(np.shape(nd_data)[:-1], bool)      # Create a bool-array with the same shape as the
+        #     self.traverse_ndarray(nd_data, indices, bool_array)      # nd_data(minus the last dimension)
+        #
+        #     return bool_array                                        # Returns the boolean array
 
-        if nd_data.ndim == 1:                                       # If only one point was sent.
-            return np.array([self.feito_torres(nd_data)])    # Returns 1d boolean-array
+        # Get the shape of c_data
+        shape = c_data.get(sp).shape[:-1]
 
-        else:
-            indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indices is initialized with negative numb.
-            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)      # Create a bool-array with the same shape as the
-            self.traverse_ndarray(nd_data, indices, bool_array)      # nd_data(minus the last dimension)
+        # Flatten
+        l_data = c_data.get_linear(sp)
 
-            return bool_array                                        # Returns the boolean array
+        bool_array = np.zeros(shape)
+        bool_array.flatten()
 
         # # Get the shape of c_data
         # shape = c_data.get(sp).shape[:-1]

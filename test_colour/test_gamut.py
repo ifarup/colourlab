@@ -86,6 +86,13 @@ polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 
 
 
 class TestGamut(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        gam = 3
+
+    def test_speed_is_inside(self, cls):
+        print("ME SECOND")
+        print(cls)
 
     def test_gamut_initialize(self):
         # Test for convex hull
