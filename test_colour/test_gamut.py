@@ -98,8 +98,6 @@ class TestGamut(unittest.TestCase):
     def test_is_inside(self):                               # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        print(points_3d)
-        print(points_3d.shape)
 
         c_data = data.Data(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data)
@@ -177,7 +175,7 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(g.interior(line, point_not_paralell_to_line))            # Point in NOT parallel to line
         self.assertFalse(g.interior(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.interior(line, point_further_away_than_line))          # Point is is further then line
-        self.assertTrue(g.interior(line, point_on_line))                           # Point is on line
+        self.assertTrue(g.interior(line, point_on_line))                          # Point is on line
         self.assertFalse(g.interior(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
     def test_in_tetrahedron(self):

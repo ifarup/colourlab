@@ -31,7 +31,7 @@ import scipy as sci
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-    def __init__(self, sp, points, gamma=1, center=0):
+    def __init__(self, sp, points, gamma=1, center=None):
         """Construct new gamut instance and compute the gamut. To initialize the hull with the convex hull method,
         set gamma != 1, and provide the center for expansion.
 
@@ -83,10 +83,10 @@ class Gamut:
             Center of expansion.
         """
         # Move all points so that 'center' is origin
-        n_data = self.data.get(self.space)
+        n_data = self.data.get_linear(self.space)
 
         shifted = n_data - center                           # Make center the local origin
-        r = np.linalg.norm(shifted, axis=1, keepdims=1)     # Get the radius of all points
+        r = np.linalg.norm(shifted, axis=1, keepdims=True)     # Get the radius of all points
         n_data = shifted * (r ** gamma / r)                 # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
@@ -107,37 +107,36 @@ class Gamut:
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
 
-        # nd_data = c_data.get(sp)                                    # Get the data points as ndarray
+        nd_data = c_data.get(sp)                                    # Get the data points as ndarray
+
+        if nd_data.ndim == 1:                                       # If only one point was sent.
+            return np.array([self.feito_torres(nd_data)])    # Returns 1d boolean-array
+
+        else:
+            indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indices is initialized with negative numb.
+            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)      # Create a bool-array with the same shape as the
+            self.traverse_ndarray(nd_data, indices, bool_array)      # nd_data(minus the last dimension)
+
+            return bool_array                                        # Returns the boolean array
+
+        # # Get the shape of c_data
+        # shape = c_data.get(sp).shape[:-1]
         #
-        # if nd_data.ndim == 1:                                       # If only one point was sent.
-        #     return np.array([self.feito_torres(nd_data)])    # Returns 1d boolean-array
+        # l_data = c_data.get_linear(sp)
         #
-        # else:
-        #     indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indices is initialized with negative numb.
-        #     bool_array = np.zeros(np.shape(nd_data)[:-1], bool)      # Create a bool-array with the same shape as the
-        #     self.traverse_ndarray(nd_data, indices, bool_array)      # nd_data(minus the last dimension)
+        # bool_array = np.zeros(shape, bool)
+        # bool_array = bool_array.flatten()
         #
-        #     return bool_array                                        # Returns the boolean array
-
-        # Get the shape of c_data
-        shape = c_data.get(sp).shape[:-1]
-
-        # Flatten
-        lin_data = c_data.get_linear(sp)
-
-        bool_array = np.zeros(shape)
-        bool_array.flatten()
-
-        # Do feito
-        for i in range(0, int(bool_array.shape)):
-            bool_array[i] = self.feito_torres(lin_data[i])
-
-        # bool_array = self.feito_torres(lin_data)
-
-        # Reshape (without last dimmension)
-        bool_array.reshape(shape)
-
-        return bool_array
+        # # Do feito
+        # for i in range(0, bool_array.shape[0]):
+        #     bool_array[i] = self.feito_torres(l_data[i])
+        #
+        # # bool_array = self.feito_torres(lin_data)
+        #
+        # # Reshape (without last dimmension)
+        # bool_array = bool_array.reshape(shape)
+        #
+        # return bool_array
 
     def traverse_ndarray(self, nda, indices, bool_array):
         """For the given data points checks if points are inn the convexhull
