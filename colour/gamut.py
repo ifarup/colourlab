@@ -145,7 +145,7 @@ class Gamut:
 
             # bool_array = self.feito_torres(lin_data)
 
-            # Reshape (without last dimmension)
+            # Reshape (without last dimension)
             bool_array = bool_array.reshape(shape)
 
             return bool_array
