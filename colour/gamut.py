@@ -96,7 +96,7 @@ class Gamut:
         self.neighbors = self.hull.neighbors
         self.center = center
 
-    def is_inside(self, sp, c_data, bool):
+    def is_inside(self, sp, c_data, b):
         """For the given data points checks if points are inn the convex hull
 
         :param sp : colour.Space
@@ -107,7 +107,7 @@ class Gamut:
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
 
-        if bool:
+        if b:
             nd_data = c_data.get(sp)  # Get the data points as ndarray
 
             if nd_data.ndim == 1:  # If only one point was sent.
