@@ -82,7 +82,7 @@ def safe_div(a, b, fill=1.):
     return res
 
 
-def inner(data1, data2, tensor):
+def inner(tensor, data1, data2):
     """
     Compute the inner products of two datasets with a given metric tensor.
 
@@ -90,12 +90,12 @@ def inner(data1, data2, tensor):
 
     Parameters
     ----------
+    tensor: ndarray
+        The metric tensor for the inner product
     data1: ndarray
         The first dataset of the inner product
     data2: ndarray
         The second data set of the inner product
-    tensor: ndarray
-        The metric tensor for the inner product
 
     Returns
     -------
@@ -105,7 +105,7 @@ def inner(data1, data2, tensor):
     return np.einsum('...ij,...i,...j', tensor, data1, data2)
 
 
-def norm_sq(data, tensor):
+def norm_sq(tensor, data):
     """
     Compute the squared norm of a colour data set with a given metric tensor.
 
@@ -113,10 +113,10 @@ def norm_sq(data, tensor):
 
     Parameters
     ----------
-    data: ndarray
-        The data set of which to compute the squared norm
     tensor: ndarray
         The metric tensor for the norm.
+    data: ndarray
+        The data set of which to compute the squared norm
 
     Returns
     -------
@@ -126,7 +126,7 @@ def norm_sq(data, tensor):
     return inner(data, data, tensor)
 
 
-def norm(data, tensor):
+def norm(tensor, data):
     """
     Compute the norm of a colour data set with a given metric tensor.
 
@@ -134,10 +134,10 @@ def norm(data, tensor):
 
     Parameters
     ----------
-    data: ndarray
-        The data set of which to compute the norm
     tensor: ndarray
         The metric tensor for the norm.
+    data: ndarray
+        The data set of which to compute the norm
 
     Returns
     -------
@@ -145,3 +145,118 @@ def norm(data, tensor):
         Array with numerical (scalar) values of the norm.
     """
     return np.sqrt(norm_sq(data, tensor))
+
+
+# =============================================================================
+# Functions for FDM on images
+# =============================================================================
+
+# Shifted images
+
+def ip1(im):
+    """
+    Image shifted one pixel positive i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im[np.r_[np.arange(1, m), m - 1], ...]
+
+
+def im1(im):
+    """
+    Image shifted one pixel negative i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im[np.r_[0, np.arange(0, m - 1)], ...]
+
+
+def jp1(im):
+    """
+    Image shifted one pixel positive j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im[:, np.r_[np.arange(1, n), n - 1], ...]
+
+
+def jm1(im):
+    """
+    Image shifted one pixel negative j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im[:, np.r_[0, np.arange(0, n - 1)], ...]
+
+
+# Finite differences
+
+def dip(im):
+    """
+    Finite difference positive i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im[np.r_[np.arange(1, m), m - 1], ...] - im
+
+
+def dim(im):
+    """
+    Finite difference negative i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return im - im[np.r_[0, np.arange(0, m-1)], ...]
+
+
+def dic(im):
+    """
+    Finite difference centered i
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    return 0.5 * (im[np.r_[np.arange(1, m), m - 1], ...] -
+                  im[np.r_[0, np.arange(0, m-1)], ...])
+
+
+def djp(im):
+    """
+    Finite difference positive j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im[:, np.r_[np.arange(1, n), n - 1], ...] - im
+
+
+def djm(im):
+    """
+    Finite difference negative j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return im - im[:, np.r_[0, np.arange(0, n - 1)], ...]
+
+
+def djc(im):
+    """
+    Finite difference centered j
+    """
+    sh = np.shape(im)
+    n = sh[1]
+    return 0.5 * (im[:, np.r_[np.arange(1, n), n - 1], ...] -
+                  im[:, np.r_[0, np.arange(0, n - 1)], ...])
+
+
+# Laplacian
+
+def laplacian(im):
+    """
+    Standard laplacian of image
+    """
+    sh = np.shape(im)
+    m = sh[0]
+    n = sh[1]
+    return (im[:, np.r_[np.arange(1, n), n - 1], ...] +
+            im[:, np.r_[0, np.arange(0, n - 1)], ...] +
+            im[np.r_[np.arange(1, m), m - 1], ...] +
+            im[np.r_[0, np.arange(0, m-1)], ...] - 4 * im)
