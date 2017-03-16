@@ -21,6 +21,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from colour import data
+
 import numpy as np
 from scipy import spatial
 import matplotlib.pyplot as plt
@@ -95,6 +97,12 @@ class Gamut:
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
         self.center = center
+
+        # TODO fikse points
+        # self.hull.points =
+        # self.hull.points += center
+
+
 
     def is_inside(self, sp, c_data, b=False):
         """For the given data points checks if points are inn the convex hull
@@ -721,5 +729,10 @@ class Gamut:
         delta_p = p_max - p_min     # Calculating the delta values.
         delta_g = g_max - g_min
 
-        b = delta_g / delta_p
+        b = delta_g / delta_p       # The slope of the line bx + a
         a = g_min - b * p_min
+
+        for i in range(0, points.shape[0]):
+            points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
+
+        return data.Data(sp, points)  # Return the points as a coulour.data.Data object.
