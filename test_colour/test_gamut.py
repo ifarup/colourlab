@@ -88,10 +88,16 @@ polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 
 class TestGamut(unittest.TestCase):
     @classmethod
     def setUp(self):
-        self.gam = 3
+        c_data = data.Data(space.srgb, self.generate_sphere(15, 100))
+        self.gam = gamut.Gamut(space.srgb, c_data)
+        self.test_data = self.generate_sphere(14.9, 1000)
 
     def test_speed_is_inside(self, cls):
-        print(self.gam)
+        bool_array = self.gam.is_inside(space.srgb, self.test_data, True)
+
+
+    def test_speed_is_inside(self, cls):
+        bool_array = self.gam.is_inside(space.srgb, self.test_data, False)
 
     def test_gamut_initialize(self):
         # Test for convex hull

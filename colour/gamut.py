@@ -96,7 +96,7 @@ class Gamut:
         self.neighbors = self.hull.neighbors
         self.center = center
 
-    def is_inside(self, sp, c_data):
+    def is_inside(self, sp, c_data, bool):
         """For the given data points checks if points are inn the convex hull
 
         :param sp : colour.Space
@@ -107,45 +107,48 @@ class Gamut:
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
 
-        # nd_data = c_data.get(sp)                                    # Get the data points as ndarray
-        #
-        # if nd_data.ndim == 1:                                       # If only one point was sent.
-        #     return np.array([self.feito_torres(nd_data)])    # Returns 1d boolean-array
-        #
-        # else:
-        #     indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indices is initialized with negative numb.
-        #     bool_array = np.zeros(np.shape(nd_data)[:-1], bool)      # Create a bool-array with the same shape as the
-        #     self.traverse_ndarray(nd_data, indices, bool_array)      # nd_data(minus the last dimension)
-        #
-        #     return bool_array                                        # Returns the boolean array
+        if bool:
+            nd_data = c_data.get(sp)  # Get the data points as ndarray
 
-        # Get the shape of c_data
-        shape = c_data.get(sp).shape[:-1]
+            if nd_data.ndim == 1:  # If only one point was sent.
+                return np.array([self.feito_torres(nd_data)])  # Returns 1d boolean-array
 
-        # Flatten
-        l_data = c_data.get_linear(sp)
+            else:
+                indices = np.ones(nd_data.ndim - 1,
+                                  int) * -1  # Important that indices is initialized with negative numb.
+                bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool-array with the same shape as the
+                self.traverse_ndarray(nd_data, indices, bool_array)  # nd_data(minus the last dimension)
 
-        bool_array = np.zeros(shape)
-        bool_array.flatten()
+                return bool_array  # Returns the boolean array
+        else:
 
-        # # Get the shape of c_data
-        # shape = c_data.get(sp).shape[:-1]
-        #
-        # l_data = c_data.get_linear(sp)
-        #
-        # bool_array = np.zeros(shape, bool)
-        # bool_array = bool_array.flatten()
-        #
-        # # Do feito
-        # for i in range(0, bool_array.shape[0]):
-        #     bool_array[i] = self.feito_torres(l_data[i])
-        #
-        # # bool_array = self.feito_torres(lin_data)
-        #
-        # # Reshape (without last dimmension)
-        # bool_array = bool_array.reshape(shape)
-        #
-        # return bool_array
+            # Get the shape of c_data
+            shape = c_data.get(sp).shape[:-1]
+
+            # Flatten
+            l_data = c_data.get_linear(sp)
+
+            bool_array = np.zeros(shape)
+            bool_array.flatten()
+
+            # Get the shape of c_data
+            shape = c_data.get(sp).shape[:-1]
+
+            l_data = c_data.get_linear(sp)
+
+            bool_array = np.zeros(shape, bool)
+            bool_array = bool_array.flatten()
+
+            # Do feito
+            for i in range(0, bool_array.shape[0]):
+                bool_array[i] = self.feito_torres(l_data[i])
+
+            # bool_array = self.feito_torres(lin_data)
+
+            # Reshape (without last dimmension)
+            bool_array = bool_array.reshape(shape)
+
+            return bool_array
 
     def traverse_ndarray(self, nda, indices, bool_array):
         """For the given data points checks if points are inn the convexhull
