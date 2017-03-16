@@ -96,13 +96,15 @@ class Gamut:
         self.neighbors = self.hull.neighbors
         self.center = center
 
-    def is_inside(self, sp, c_data, b):
+    def is_inside(self, sp, c_data, b=False):
         """For the given data points checks if points are inn the convex hull
 
         :param sp : colour.Space
             The colour space for computing the gamut.
         :param c_data : colour.Data
             Data object with the colour points for the gamut.
+        :param b : boolean
+            True if use the traverse method, false if use the flatten method.
         :return ndarray
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
