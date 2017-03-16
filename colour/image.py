@@ -3,7 +3,7 @@
 """
 image: Colour image, part of the colour package
 
-Copyright (C) 2013-2016 Ivar Farup
+Copyright (C) 2017 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,118 +20,226 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
+from . import data, space, tensor, misc
 
-
-# =============================================================================
-# Functions for FDM on images
-# =============================================================================
-
-# Shifted images
-
-def ip1(im):
+class Image(data.Data):
     """
-    Image shifted one pixel positive i
+    Subclass of colour.data.Data specifically for image shaped data.
     """
-    sh = np.shape(im)
-    m = sh[0]
-    return im[np.r_[np.arange(1, m), m - 1], ...]
 
+    def __init__(self, sp, ndata):
+        """
+        Construct new image instance and set colour space and data.
 
-def im1(im):
-    """
-    Image shifted one pixel negative i
-    """
-    sh = np.shape(im)
-    m = sh[0]
-    return im[np.r_[0, np.arange(0, m - 1)], ...]
+        Parameters
+        ----------
+        sp : Space
+            The colour space for the given instanisiation data.
+        ndata : ndarray
+            The colour data in the given space.
+        """
+        data.Data.__init__(self, sp, ndata)
 
+    def diff(self, sp, dat):
+        return data.VectorData(sp, self, self.get(sp) - dat.get(sp))
 
-def jp1(im):
-    """
-    Image shifted one pixel positive j
-    """
-    sh = np.shape(im)
-    n = sh[1]
-    return im[:, np.r_[np.arange(1, n), n - 1], ...]
+    def dip(self, sp):
+        return data.VectorData(sp, self, misc.dip(self.get(sp)))
 
+    def dim(self, sp):
+        return data.VectorData(sp, self, misc.dim(self.get(sp)))
 
-def jm1(im):
-    """
-    Image shifted one pixel negative j
-    """
-    sh = np.shape(im)
-    n = sh[1]
-    return im[:, np.r_[0, np.arange(0, n - 1)], ...]
+    def dic(self, sp):
+        return data.VectorData(sp, self, misc.dic(self.get(sp)))
 
+    def djp(self, sp):
+        return data.VectorData(sp, self, misc.djp(self.get(sp)))
 
-# Finite differences
+    def djm(self, sp):
+        return data.VectorData(sp, self, misc.djm(self.get(sp)))
 
-def dip(im):
-    """
-    Finite difference positive i
-    """
-    sh = np.shape(im)
-    m = sh[0]
-    return im[np.r_[np.arange(1, m), m - 1], ...] - im
+    def djc(self, sp):
+        return data.VectorData(sp, self, misc.djc(self.get(sp)))
 
+    def structure_tensor(self, sp, g=None, dir='p'):
+        """
+        Return the structure tensor of the underlying data image point set
 
-def dim(im):
-    """
-    Finite difference negative i
-    """
-    sh = np.shape(im)
-    m = sh[0]
-    return im - im[np.r_[0, np.arange(0, m-1)], ...]
+        Assumes (for now) that the underlying data constitutes an image, i.e.,
+        is on the shape M x N x 3.
 
+        Parameters
+        ----------
+        sp : Space
+            The space in which to perform the computations
+        g : TensorData
+            The metric tensor to use. If not given, uses Euclidean in the current space
+        dir : str
+            The direction for the finite differences, p (plus), m (minus), c (centered)
 
-def dic(im):
-    """
-    Finite difference centered i
-    """
-    sh = np.shape(im)
-    m = sh[0]
-    return 0.5 * (im[np.r_[np.arange(1, m), m - 1], ...] -
-                  im[np.r_[0, np.arange(0, m-1)], ...])
+        Returns
+        -------
+        s11 : ndarray
+            The s11 component of the structure tensor of the image data.
+        s12 : ndarray
+            The s12 component of the structure tensor of the image data.
+        s22 : ndarray
+            The s22 component of the structure tensor of the image data.
+        """
+        if dir == 'p':
+            di = self.dip(sp)
+            dj = self.djp(sp)
+        elif dir == 'm':
+            di = self.dim(sp)
+            dj = self.djm(sp)
+        elif dir == 'c':
+            di = self.dic(sp)
+            dj = self.djc(sp)
 
+        if g == None:
+            g = tensor.euclidean(sp, self)
 
-def djp(im):
-    """
-    Finite difference positive j
-    """
-    sh = np.shape(im)
-    n = sh[1]
-    return im[:, np.r_[np.arange(1, n), n - 1], ...] - im
+        s11 = g.inner(sp, di, di) # components of the structure tensor
+        s12 = g.inner(sp, di, dj)
+        s22 = g.inner(sp, dj, dj)
 
+        # Eigenvalues
 
-def djm(im):
-    """
-    Finite difference negative j
-    """
-    sh = np.shape(im)
-    n = sh[1]
-    return im - im[:, np.r_[0, np.arange(0, n - 1)], ...]
+        lambda1 = .5 * (s11 + s22 + np.sqrt((s11 - s22)**2 + 4 * s12**2))
+        lambda2 = .5 * (s11 + s22 - np.sqrt((s11 - s22)**2 + 4 * s12**2))
 
+        theta1 = .5 * np.arctan2(2 * s12, s11 - s22)
+        theta2 = theta1 + np.pi / 2
 
-def djc(im):
-    """
-    Finite difference centered j
-    """
-    sh = np.shape(im)
-    n = sh[1]
-    return 0.5 * (im[:, np.r_[np.arange(1, n), n - 1], ...] -
-                  im[:, np.r_[0, np.arange(0, n - 1)], ...])
+        # Eigenvectors
 
+        e1x = np.cos(theta1)
+        e1y = np.sin(theta1)
+        e2x = np.cos(theta2)
+        e2y = np.sin(theta2)
 
-# Laplacian
+        return s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y
 
-def laplacian(im):
-    """
-    Standard laplacian of image
-    """
-    sh = np.shape(im)
-    m = sh[0]
-    n = sh[1]
-    return (im[:, np.r_[np.arange(1, n), n - 1], ...] +
-            im[:, np.r_[0, np.arange(0, n - 1)], ...] +
-            im[np.r_[np.arange(1, m), m - 1], ...] +
-            im[np.r_[0, np.arange(0, m-1)], ...] - 4 * im)
+    def diffusion_tensor_from_structure(self, s_tuple, param=1e-4, type='invsq'):
+        """
+        Compute the diffusion tensor coefficients from the structure tensor parameters
+
+        Parameters
+        ----------
+        s_tuple : tuple
+            The resulting tuple from a call to self.structure_tensor
+        param : float
+            The parameter for the nonlinear diffusion function
+        type : str
+            The type of diffusion function, invsq (inverse square) or
+            exp (exponential), see Perona and Malik (1990)
+
+        Returns
+        -------
+        d11 : ndarray
+            The d11 component of the structure tensor of the image data.
+        d12 : ndarray
+            The d12 component of the structure tensor of the image data.
+        d22 : ndarray
+            The d22 component of the structure tensor of the image data.
+
+        """
+        s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y = s_tuple
+
+        # Diffusion tensor
+
+        if type == 'invsq':
+            def D(lambdax):
+                return 1 / (1 + param * lambdax ** 2)
+        elif type == 'exp':
+            def D(lambdax):
+                return np.exp(-lambdax / param)
+
+        D1 = D(lambda1)
+        D2 = D(lambda2)
+
+        d11 = D1 * e1x ** 2 + D2 * e2x ** 2
+        d12 = D1 * e1x * e1y + D2 * e2x * e2y
+        d22 = D1 * e1y ** 2 + D2 * e2y ** 2
+        return d11, d12, d22
+
+    def diffusion_tensor(self, sp, param=1e-4, g=None, type='invsq', dir='p'):
+        """
+        Compute the diffusion tensor coefficients for the underying image point set
+
+        Assumes (for now) that the underlying data constitutes an image, i.e.,
+        is on the shape M x N x 3.
+
+        Parameters
+        ----------
+        sp : Space
+            The space in which to perform the computations
+        param : float
+            The parameter for the nonlinear diffusion function
+        g: TensorData
+            The colour metric tensor. If not given, use Euclidean
+        type : str
+            The type of diffusion function, invsq (inverse square) or
+            exp (exponential), see Perona and Malik (1990)
+        dir : str
+            The direction for the finite differences, p (plus), m (minus), c (centered)
+
+        Returns
+        -------
+        d11 : ndarray
+            The d11 component of the structure tensor of the image data.
+        d12 : ndarray
+            The d12 component of the structure tensor of the image data.
+        d22 : ndarray
+            The d22 component of the structure tensor of the image data.
+        """
+        return self.diffusion_tensor_from_structure(self.structure_tensor(sp, g, dir), param, type)
+
+    def c2g_anisotropic(self, sp, nit, g=None, param=1e-4, type='invsq', scale=1, dt = .24):
+        """
+        Convert colour image to greyscale using anisotropic diffusion
+
+        Parameters
+        ----------
+        sp : Space
+            Colour space in which to perform the numerical computations
+        g : TensorData
+            The colour metric tensor. If not given, use Euclidean
+        nit : int
+            Number of iterations to compute
+        param : float
+            The parameter for the nonlinear diffusion function
+        type : str
+            The type of diffusion function, invsq (inverse square) or
+            exp (exponential), see Perona and Malik (1990)
+        scale : float
+            The distance from black to white according to the applied metric
+
+        Returns
+        -------
+        grey_image : ndarray
+            Greyscale image (range 0–1)
+        """
+        s_tuple = self.structure_tensor(sp, g)
+        s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y = s_tuple
+        d11, d12, d22 = self.diffusion_tensor_from_structure(s_tuple, param, type)
+
+        vi = e1x * np.sqrt(lambda1 - lambda2) / scale
+        vj = e1y * np.sqrt(lambda1 - lambda2) / scale
+
+        grey_image = self.get(space.cielab)[..., 0] / 100
+
+        for i in range(nit):
+            gi = misc.dip(grey_image) - vi
+            gj = misc.djp(grey_image) - vj
+
+#            ti = d11 * gi + d12 * gj
+#            tj = d12 * gi + d22 * gj
+
+            tv = misc.dim(gi) + misc.djm(gj)
+
+            grey_image += dt * tv
+            grey_image[grey_image < 0] = 0
+            grey_image[grey_image > 1] = 1
+
+        return grey_image
