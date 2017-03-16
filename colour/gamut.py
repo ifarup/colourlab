@@ -85,9 +85,9 @@ class Gamut:
         # Move all points so that 'center' is origin
         n_data = self.data.get_linear(self.space)
 
-        shifted = n_data - center                           # Make center the local origin
-        r = np.linalg.norm(shifted, axis=1, keepdims=True)     # Get the radius of all points
-        n_data = shifted * (r ** gamma / r)                 # Modify the radius.
+        shifted = n_data - center                               # Make center the local origin
+        r = np.linalg.norm(shifted, axis=1, keepdims=True)      # Get the radius of all points
+        n_data = shifted * (r ** gamma / r)                     # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
         self.hull = spatial.ConvexHull(n_data)
@@ -110,10 +110,10 @@ class Gamut:
         """
 
         if b:
-            nd_data = c_data.get(sp)  # Get the data points as ndarray
+            nd_data = c_data.get(sp)                            # Get the data points as ndarray
 
-            if nd_data.ndim == 1:  # If only one point was sent.
-                return np.array([self.feito_torres(nd_data)])  # Returns 1d boolean-array
+            if nd_data.ndim == 1:                               # If only one point was sent.
+                return np.array([self.feito_torres(nd_data)])   # Returns 1d boolean-array
 
             else:
                 indices = np.ones(nd_data.ndim - 1,
@@ -684,3 +684,42 @@ class Gamut:
         nearest_point = alpha * np.array(d) + center \
             - alpha * np.array(center)     # finds the coordinates for the nearest point
         return nearest_point
+
+    def compress_axis(self, c_data, sp, ax):
+        """ Stuff
+
+        :param c_data: colour.data.Data
+            The points to be compressed.
+        :param sp: colour.space
+            The colour space to work in.
+        :param ax: int
+            Integer representing which axis to do the compressing.
+        :return: colour.data.Data
+            Returns a colour.data.Data object with the new points.
+        """
+
+        points = c_data.get_linear(sp)
+        p_min = 9001
+        p_max = 0
+
+        for p in points:    # Finding the minimum and maximum values along given axis of the points to be compressed.
+            if p[ax] > p_max:
+                p_max = p[ax]
+            if p[ax] < p_min:
+                p_min = p[ax]
+
+        g_points = self.get_coordinates(self.vertices)  # Using only vertices to find min and max points of the gamut.
+        g_min = 9001
+        g_max = 0
+
+        for p in g_points:    # Finding the minimum and maximum values along given axis of the points in the gamut.
+            if p[ax] > g_max:
+                g_max = p[ax]
+            if p[ax] < g_min:
+                g_min = p[ax]
+
+        delta_p = p_max - p_min     # Calculating the delta values.
+        delta_g = g_max - g_min
+
+        b = delta_g / delta_p
+        a = g_min - b * p_min
