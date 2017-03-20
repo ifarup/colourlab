@@ -26,6 +26,7 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import scipy as sci
+import colour.data as data
 
 
 class Gamut:
@@ -662,7 +663,7 @@ class Gamut:
         for i in range(0, re_data.shape[0]):
             re_data[i] = self.get_nearest_point_on_line(re_data[i], center, sp)
 
-        return np.reshape(re_data, c_data.sh)
+        return data.Data(sp, np.reshape(re_data, c_data.sh))
 
     def get_nearest_point_on_line(self, d, center, sp):
         """Finding the Nearest point along a line.

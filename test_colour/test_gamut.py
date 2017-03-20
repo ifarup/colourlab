@@ -444,13 +444,13 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])
-        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # points to map
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])         # wanted result
 
-        c_data = data.Data(space.srgb, points)
-        re_points = g.intersectionpoint_on_line(space.srgb, c_data)
+        c_data = data.Data(space.srgb, points)                              # data.Data object
+        re_data = g.intersectionpoint_on_line(space.srgb, c_data)           # data.Data object returned
 
-        self.assertTrue(np.allclose(re_points, mod_points))
+        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))    # assert that the points are changed
 
 
 if __name__ == '__main__':
