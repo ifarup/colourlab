@@ -335,7 +335,7 @@ class TestGamut(unittest.TestCase):
         a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [1, 1, 0]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0]])))
 
-        # Test 4 points that are all outher vetecis in a convex polygon
+        # Test 4 points that are all other vertices in a convex polygon
         a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])))
 
@@ -429,7 +429,7 @@ class TestGamut(unittest.TestCase):
         d = g.find_plane(p_data)
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
-        print("find plane:", d)                 # Normalvektor xyz and distance.
+        print("find plane:", d)                 # Normal vector xyz and distance.
 
     def test_intersectionpoint_on_line(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
@@ -439,6 +439,16 @@ class TestGamut(unittest.TestCase):
         sp = g.space
         a = g.intersectionpoint_on_line(d, center, sp)
         print("Nearest point:", a)
+
+    def test_compress(self):
+        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)   # Creates a new gamut.
+
+        col_data = data.Data(space.srgb, np.array([[15., 15., 15.], [8., 8., 8.], [-5., -5., -5.]]))
+
+        g.compress_axis(col_data, space.srgb, 2)
+
+        print(col_data.get(space.srgb))
 
 if __name__ == '__main__':
     unittest.main(exit=False)
