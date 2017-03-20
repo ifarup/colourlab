@@ -444,7 +444,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
 
-        col_data = data.Data(space.srgb, np.array([[15,15,15], [8,8,8], [-5,-5,-5]]))
+        col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [-5, -5, -5]]))
 
         g.compress_axis(col_data, space.srgb, 2)
 
