@@ -21,6 +21,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from colour import data
+
 import numpy as np
 from scipy import spatial
 import matplotlib.pyplot as plt
@@ -638,9 +640,10 @@ class Gamut:
 
         return n
 
-    def intersectionpoint_on_line(self, sp, c_data):
+    def intersectionpoint_on_line(self, sp, c_data, center):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
-            in the c_data object.
+            in the c_data object. Cell number i in the returned array correspondes to cell number i from the
+            'c_data' parameter. Handels input on the format Nx...xMx3
 
         :param sp: colour.space
             The Colour.space
@@ -655,9 +658,9 @@ class Gamut:
 
         # Do get_nearest_point_on_line
         for i in range(0, re_data.shape[0]):
-            re_data[i] = self.get_nearest_point_on_line(re_data[i], self.center, sp)
+            re_data[i] = self.get_nearest_point_on_line(re_data[i], center, sp)
 
-        return np.reshape(re_data, c_data.sh)
+        return data.Data(sp, np.reshape(re_data, c_data.sh))
 
     def get_nearest_point_on_line(self, d, center, sp):
         """Finding the Nearest point along a line.
