@@ -638,24 +638,29 @@ class Gamut:
 
         return n
 
-    def intersectionpoint_on_line(self, sp, c_data):
+    def intersectionpoint_on_line(self, sp, c_data, center=None):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
             in the c_data object.
 
         :param sp: colour.space
             The Colour.space
         :param c_data: colour.data.Data
-            colour.data.Data object containing all points.
+            Colour.data.Data object containing all points.
+        :param center : ndarray
+            Center point to use when computing the nearest point.
         :return: ndarray
             Shape(3,) containing the nearest point on the gamuts surface.
         """
+
+        if not center:  # If no center is defined, use geometric center.
+            center = self.center
 
         # Get linearised colour data
         re_data = c_data.get_linear(sp)
 
         # Do get_nearest_point_on_line
         for i in range(0, re_data.shape[0]):
-            re_data[i] = self.get_nearest_point_on_line(re_data[i], self.center, sp)
+            re_data[i] = self.get_nearest_point_on_line(re_data[i], center, sp)
 
         return np.reshape(re_data, c_data.sh)
 

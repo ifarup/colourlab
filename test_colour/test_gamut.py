@@ -431,14 +431,27 @@ class TestGamut(unittest.TestCase):
         np.alltrue(d == r)
         print("find plane:", d)                 # Normalvektor xyz and distance.
 
-    def test_intersectionpoint_on_line(self):
+    def test_nearest_point_on_line(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [0.001, 0.2, 0.2]
-        center = [10, 11, 14]
+        d = [5., 5., 15.]
+        center = [5., 5., 5.]
         sp = g.space
         a = g.get_nearest_point_on_line(d, center, sp)
         print("Nearest point:", a)
+
+    def test_intersectionpoint_on_line(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])
+
+        c_data = data.Data(space.srgb, points)
+        re_points = g.intersectionpoint_on_line(space.srgb, c_data)
+
+        self.assertTrue(np.allclose(re_points, mod_points))
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
