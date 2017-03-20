@@ -452,6 +452,5 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))    # assert that the points are changed
 
-
 if __name__ == '__main__':
     unittest.main(exit=False)
