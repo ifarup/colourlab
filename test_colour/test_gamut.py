@@ -437,7 +437,7 @@ class TestGamut(unittest.TestCase):
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
         sp = g.space
-        a = g.intersectionpoint_on_line(d, center, sp)
+        a = g.get_nearest_point_on_line(d, center, sp)
         print("Nearest point:", a)
 
 if __name__ == '__main__':

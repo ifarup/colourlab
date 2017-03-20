@@ -145,8 +145,6 @@ class Gamut:
             for i in range(0, bool_array.shape[0]):
                 bool_array[i] = self.feito_torres(l_data[i])
 
-            # bool_array = self.feito_torres(lin_data)
-
             # Reshape (without last dimension)
             bool_array = bool_array.reshape(shape)
 
@@ -640,7 +638,28 @@ class Gamut:
 
         return n
 
-    def intersectionpoint_on_line(self, d, center, sp):
+    def intersectionpoint_on_line(self, sp, c_data):
+        """ Returns an array containing the nearest point on the gamuts surface, for every point
+            in the c_data object.
+
+        :param sp: colour.space
+            The Colour.space
+        :param c_data: colour.data.Data
+            colour.data.Data object containing all points.
+        :return: ndarray
+            Shape(3,) containing the nearest point on the gamuts surface.
+        """
+
+        # Get linearised colour data
+        re_data = c_data.get_linear(sp)
+
+        # Do get_nearest_point_on_line
+        for i in range(0, re_data.shape[0]):
+            re_data[i] = self.get_nearest_point_on_line(re_data[i], self.center, sp)
+
+        return np.reshape(re_data, c_data.sh)
+
+    def get_nearest_point_on_line(self, d, center, sp):
         """Finding the Nearest point along a line.
 
         :param d: ndarray
@@ -650,8 +669,9 @@ class Gamut:
         :param sp: Space
             The colour space for computing the gamut.
         :return: ndarray
-            Return the nearest point.
+            Returns the nearest point.
         """
+
         new_points = self.data.get(sp)                 # Converts gamut to new space
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
@@ -666,6 +686,7 @@ class Gamut:
                     alpha.append(x)
         a = np.array(alpha)
         np.sort(a, axis=0)
+
         nearest_point = self.line_alpha(a[0], d, center)
         return nearest_point
 
