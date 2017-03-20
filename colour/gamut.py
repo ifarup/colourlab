@@ -472,9 +472,9 @@ class Gamut:
             tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
-        ax.set_xlim([x[0] - 5, x[-1] + 5])              # Set the limits for the plot by calculating.
-        ax.set_ylim([y[0] - 5, y[-1] + 5])
-        ax.set_zlim([z[0] - 5, z[-1] + 5])
+        ax.set_xlim([x[0] - (x[0] * 0.20), x[-1] + x[-1] * 0.20])  # Set the limits for the plot by calculating.
+        ax.set_ylim([y[0] - (y[0] * 0.20), y[-1] + y[-1] * 0.20])
+        ax.set_zlim([z[0] - (z[0] * 0.20), z[-1] + z[-1] * 0.20])
         plt.show()
 
     def true_shape(self, points):
@@ -628,8 +628,8 @@ class Gamut:
                 if self.in_triangle(point, self.line_alpha(x, d, center)):  # And if its in the triangle to
                     alpha.append(x)
         a = np.array(alpha)
-        np.sort(a, axis=0)
-        nearest_point = self.line_alpha(a[0], d, center)
+        a.sort()
+        nearest_point = self.line_alpha(a[-1], d, center)
         return nearest_point
 
     def line_alpha(self, alpha, d, center):
@@ -647,3 +647,28 @@ class Gamut:
         nearest_point = alpha * np.array(d) + center \
             - alpha * np.array(center)     # finds the coordinates for the nearest point
         return nearest_point
+
+    def clip_nearest(self, d, sp):
+        new_points = self.data.get(sp)                 # Converts gamut to new space
+       # distance = []
+        new_dis = 9001
+        for i in self.vertices:
+            points = []                                # A list for all the points coordinates.
+            points.append(new_points[i])
+            distance = np.linalg.norm(d - new_points[i])
+            if distance < new_dis:
+                new_dis = distance
+                point_index = i
+                point = new_points[i]           # NB!!! hvis nei return point.
+                print("index:", point_index)
+
+        neighbors = []
+        for j in self.hull.simplices:
+            if point_index == j[0] or point_index == j[1] or point_index == j[2]:
+                neighbors.append(j)
+        neighbors_list = np.array(neighbors)
+
+        n = self.find_plane()
+        x = self.get_alpha(d, self.hull.center, n)
+        if(self.in_triangle(self.hull.simplices, x)):
+            return
