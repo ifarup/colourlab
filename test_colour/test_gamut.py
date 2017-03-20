@@ -420,8 +420,8 @@ class TestGamut(unittest.TestCase):
     def test_intersectionpoint_on_line(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [0.001, 0.2, 0.2]
-        center = [10, 11, 14]
+        d = [5, 5, 15]
+        center = [5, 5, 5]
         sp = g.space
         a = g.intersectionpoint_on_line(d, center, sp)
         print("Nearest point:", a)
@@ -429,9 +429,10 @@ class TestGamut(unittest.TestCase):
     def test_clip_nearest(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [0.001, 0.2, 0.2]
+        d = [5, 5, 15]
         sp = g.space
         d_clip = g.clip_nearest(d, sp)
+        print("Nearest point in 3D:", d_clip)
 
 if __name__ == '__main__':
     unittest.main(exit=False)

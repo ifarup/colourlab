@@ -593,7 +593,7 @@ class Gamut:
         :return n: ndarray
             Returns ndarray with normal points distance. [x, y, z, distance]
         """
-
+        print("pointsss:", points)
         v1 = points[2] - points[0]
         v2 = points[1] - points[0]
         n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
@@ -659,16 +659,37 @@ class Gamut:
             if distance < new_dis:
                 new_dis = distance
                 point_index = i
+                print("new point", new_points[i])
                 point = new_points[i]           # NB!!! hvis nei return point.
                 print("index:", point_index)
 
+        points = []  # A list for all the points coordinates
         neighbors = []
         for j in self.hull.simplices:
             if point_index == j[0] or point_index == j[1] or point_index == j[2]:
-                neighbors.append(j)
+                #neighbors.append(j)
+                for m in j:  # Loops through all the index's and find the coordinates
+                    neighbors.append(new_points[m])
         neighbors_list = np.array(neighbors)
 
-        n = self.find_plane()
-        x = self.get_alpha(d, self.hull.center, n)
-        if(self.in_triangle(self.hull.simplices, x)):
-            return
+        print("neighbors:", neighbors_list)
+
+        in_trangle = False
+        alpha = []
+        for k in neighbors_list:
+            print("k", k)
+            n = self.find_plane(k)
+            print("n", n)
+            x = self.get_alpha(d, self.hull.center, n)
+            if 0 <= x <= 1:  # If alpha between 0 and 1 it gets added to the alpha list
+                if self.in_triangle(neighbors_list, self.line_alpha(x, d, self.center)):  # And if its in the triangle to
+                    alpha.append(x)
+                    in_trangle = True
+        print("in triangle:", in_trangle)
+        if in_trangle:
+            a = np.array(alpha)
+            a.sort()
+            nearest_point = self.line_alpha(a[-1], d, self.center)
+            return nearest_point
+        else:
+            return point
