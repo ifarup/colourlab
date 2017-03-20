@@ -641,7 +641,8 @@ class Gamut:
 
     def intersectionpoint_on_line(self, sp, c_data, center=None):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
-            in the c_data object.
+            in the c_data object. Cell number i in the returned array correspondes to cell number i from the
+            'c_data' parameter. Handels input on the format Nx...xMx3
 
         :param sp: colour.space
             The Colour.space
