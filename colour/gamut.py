@@ -102,8 +102,6 @@ class Gamut:
         # self.hull.points =
         # self.hull.points += center
 
-
-
     def is_inside(self, sp, c_data, b=False):
         """For the given data points checks if points are inn the convex hull
 
