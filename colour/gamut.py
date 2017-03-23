@@ -693,14 +693,14 @@ class Gamut:
             - alpha * np.array(center)     # finds the coordinates for the nearest point
         return nearest_point
 
-    def compress_axis(self, c_data, sp, ax):
+    def compress_axis(self, sp, c_data, ax):
         """ Stuff
 
-        :param c_data: colour.data.Data
-            The points to be compressed.
         :param sp: colour.space
             The colour space to work in.
-        :param ax: int
+        :param c_data: colour.data.Data
+            The points to be compressed.
+       :param ax: int
             Integer representing which axis to do the compressing.
         :return: colour.data.Data
             Returns a colour.data.Data object with the new points.

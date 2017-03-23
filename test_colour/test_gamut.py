@@ -444,11 +444,14 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
 
-        col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [-5, -5, -5]]))
+        col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
+        re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
+        fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
 
-        g.compress_axis(col_data, space.srgb, 2)
+        self.assertTrue(np.allclose(fasit_data, re_data))
 
-        print(col_data.get(space.srgb))
+
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
