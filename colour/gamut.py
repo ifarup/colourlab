@@ -593,7 +593,6 @@ class Gamut:
         :return n: ndarray
             Returns ndarray with normal points distance. [x, y, z, distance]
         """
-        print("pointsss:", points)
         v1 = points[2] - points[0]
         v2 = points[1] - points[0]
         n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
@@ -615,7 +614,7 @@ class Gamut:
         :return: ndarray
             Return the nearest point.
         """
-        new_points = self.data.get(sp)                 # Converts gamut to new space
+        new_points = self.data.get_linear(sp)          # Converts gamut to new space
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
             points = []                                # A list for all the points coordinates
@@ -645,51 +644,38 @@ class Gamut:
             Return the nearest point.
         """
         nearest_point = alpha * np.array(d) + center \
-            - alpha * np.array(center)     # finds the coordinates for the nearest point
+            - alpha * np.array(center)                      # finds the coordinates for the nearest point
         return nearest_point
 
     def clip_nearest(self, d, sp):
-        new_points = self.data.get(sp)                 # Converts gamut to new space
-       # distance = []
-        new_dis = 9001
-        for i in self.vertices:
-            points = []                                # A list for all the points coordinates.
-            points.append(new_points[i])
-            distance = np.linalg.norm(d - new_points[i])
-            if distance < new_dis:
-                new_dis = distance
-                point_index = i
-                print("new point", new_points[i])
-                point = new_points[i]           # NB!!! hvis nei return point.
-                print("index:", point_index)
+        new_points = self.data.get(sp)                      # Converts gamut to new space
+        new_dis = 9001                                      # High value for use in the if
+        for i in self.vertices:                             # Goes through all the vertices to find the closest
+            distance = np.linalg.norm(d - new_points[i])    # Finds the distance for the vertices
+            if distance < new_dis:                          # If distance is shorter than previous distance
+                new_dis = distance                          # Adds value for new distance
+                point_index = i                             # Index for the point
+                point = new_points[i]                       # Coordinents for the new point
 
-        points = []  # A list for all the points coordinates
-        neighbors = []
-        for j in self.hull.simplices:
+        neighbors = []                                      # List for all the neighbors
+        for j in self.simplices:                            # Goes through all the simplices
+            # If the simplex has the vertieces as a side
             if point_index == j[0] or point_index == j[1] or point_index == j[2]:
-                #neighbors.append(j)
-                for m in j:  # Loops through all the index's and find the coordinates
-                    neighbors.append(new_points[m])
-        neighbors_list = np.array(neighbors)
-
-        print("neighbors:", neighbors_list)
+                neighbors.append(self.get_coordinates(j))
 
         in_trangle = False
         alpha = []
-        for k in neighbors_list:
-            print("k", k)
-            n = self.find_plane(k)
-            print("n", n)
-            x = self.get_alpha(d, self.hull.center, n)
+        for k in neighbors:                                 # Goes through all the neighbors
+            n = self.find_plane(k)                          # Findes normal and distance
+            x = self.get_alpha(d, self.center, n)           # Finds the alpha value
             if 0 <= x <= 1:  # If alpha between 0 and 1 it gets added to the alpha list
-                if self.in_triangle(neighbors_list, self.line_alpha(x, d, self.center)):  # And if its in the triangle to
+                if self.in_triangle(k, self.line_alpha(x, d, self.center)):     # If it's in triangle
                     alpha.append(x)
                     in_trangle = True
-        print("in triangle:", in_trangle)
-        if in_trangle:
-            a = np.array(alpha)
-            a.sort()
+        a = np.array(alpha)
+        a.sort()
+        if in_trangle:                                      # If the point is in triangle
             nearest_point = self.line_alpha(a[-1], d, self.center)
             return nearest_point
-        else:
+        else:                                               # If not returns the vertex point
             return point
