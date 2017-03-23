@@ -26,7 +26,7 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import scipy as sci
-
+from colour import data
 
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
@@ -676,6 +676,6 @@ class Gamut:
         a.sort()
         if in_trangle:                                      # If the point is in triangle
             nearest_point = self.line_alpha(a[-1], d, self.center)
-            return nearest_point
+            return data.Data(sp, nearest_point)  # Return the points as a coulour.data.Data object.
         else:                                               # If not returns the vertex point
-            return point
+            return data.Data(sp, point)  # Return the points as a coulour.data.Data object.
