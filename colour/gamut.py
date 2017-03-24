@@ -655,7 +655,7 @@ class Gamut:
             if distance < new_dis:                          # If distance is shorter than previous distance
                 new_dis = distance                          # Adds value for new distance
                 point_index = i                             # Index for the point
-                point = new_points[i]                       # Coordinents for the new point
+                point = new_points[i]                       # Coordinates for the new point
 
         neighbors = []                                      # List for all the neighbors
         for j in self.simplices:                            # Goes through all the simplices
@@ -663,19 +663,19 @@ class Gamut:
             if point_index == j[0] or point_index == j[1] or point_index == j[2]:
                 neighbors.append(self.get_coordinates(j))
 
-        in_trangle = False
+        in_triangle = False
         alpha = []
         for k in neighbors:                                 # Goes through all the neighbors
-            n = self.find_plane(k)                          # Findes normal and distance
+            n = self.find_plane(k)                          # Finds normal and distance
             x = self.get_alpha(d, self.center, n)           # Finds the alpha value
-            if 0 <= x <= 1:  # If alpha between 0 and 1 it gets added to the alpha list
-                if self.in_triangle(k, self.line_alpha(x, d, self.center)):     # If it's in triangle
+            if 0 <= x <= 1:                                 # If alpha between 0 and 1 it gets added to the alpha list
+                if self.in_triangle(k, self.line_alpha(x, d, self.center)):  # If it's in triangle
                     alpha.append(x)
-                    in_trangle = True
+                    in_triangle = True
         a = np.array(alpha)
         a.sort()
-        if in_trangle:                                      # If the point is in triangle
+        if in_triangle:                                     # If the point is in triangle
             nearest_point = self.line_alpha(a[-1], d, self.center)
-            return data.Data(sp, nearest_point)  # Return the points as a coulour.data.Data object.
+            return data.Data(sp, nearest_point)             # Return the points as a colour.data.Data object.
         else:                                               # If not returns the vertex point
-            return data.Data(sp, point)  # Return the points as a coulour.data.Data object.
+            return data.Data(sp, point)                     # Return the points as a colour.data.Data object.

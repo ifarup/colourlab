@@ -429,10 +429,10 @@ class TestGamut(unittest.TestCase):
     def test_clip_nearest(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [5, 5, 15]
+        d = [12, 12, 12]
         sp = g.space
         d_clip = g.clip_nearest(d, sp)
-        print("Nearest point in 3D:", d_clip)
+        print("Nearest point in 3D:", d_clip.get_linear(sp))
 
 if __name__ == '__main__':
     unittest.main(exit=False)
