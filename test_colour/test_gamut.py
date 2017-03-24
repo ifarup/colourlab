@@ -335,7 +335,7 @@ class TestGamut(unittest.TestCase):
         a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [1, 1, 0]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0]])))
 
-        # Test 4 points that are all outher vetecis in a convex polygon
+        # Test 4 points that are all other vertices in a convex polygon
         a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])))
 
@@ -429,15 +429,15 @@ class TestGamut(unittest.TestCase):
         d = g.find_plane(p_data)
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
-        print("find plane:", d)                 # Normalvektor xyz and distance.
+        print("find plane:", d)                 # Normal vector xyz and distance.
 
-    def test_intersectionpoint_on_line(self):
+    def test_nearest_point_on_line(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [0.001, 0.2, 0.2]
-        center = [10, 11, 14]
+        d = [5., 5., 15.]
+        center = [5., 5., 5.]
         sp = g.space
-        a = g.intersectionpoint_on_line(d, center, sp)
+        a = g.get_nearest_point_on_line(d, center, sp)
         print("Nearest point:", a)
 
     def test_compress(self):
@@ -452,6 +452,28 @@ class TestGamut(unittest.TestCase):
 
 
 
+
+    def test_compress(self):
+        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)   # Creates a new gamut.
+
+        col_data = data.Data(space.srgb, np.array([[15., 15., 15.], [8., 8., 8.], [-5., -5., -5.]]))
+
+        g.compress_axis(col_data, space.srgb, 2)
+
+        print(col_data.get(space.srgb))
+
+    def test_intersectionpoint_on_line(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # points to map
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])         # wanted result
+
+        c_data = data.Data(space.srgb, points)                              # data.Data object
+        re_data = g.intersectionpoint_on_line(space.srgb, c_data)           # data.Data object returned
+
+        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
 if __name__ == '__main__':
     unittest.main(exit=False)
