@@ -450,19 +450,6 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(np.allclose(fasit_data, re_data))
 
-
-
-
-    def test_compress(self):
-        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
-        g = gamut.Gamut(space.srgb, c_data)   # Creates a new gamut.
-
-        col_data = data.Data(space.srgb, np.array([[15., 15., 15.], [8., 8., 8.], [-5., -5., -5.]]))
-
-        g.compress_axis(col_data, space.srgb, 2)
-
-        print(col_data.get(space.srgb))
-
     def test_intersectionpoint_on_line(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
