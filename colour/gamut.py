@@ -21,8 +21,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from colour import data
-
 import numpy as np
 from scipy import spatial
 import matplotlib.pyplot as plt
@@ -103,8 +101,6 @@ class Gamut:
         # self.hull.points =
         # self.hull.points += center
 
-
-
     def is_inside(self, sp, c_data, b=False):
         """For the given data points checks if points are inn the convex hull
 
@@ -153,6 +149,8 @@ class Gamut:
             # Do feito
             for i in range(0, bool_array.shape[0]):
                 bool_array[i] = self.feito_torres(l_data[i])
+
+            # bool_array = self.feito_torres(lin_data)
 
             # Reshape (without last dimension)
             bool_array = bool_array.reshape(shape)
@@ -721,15 +719,15 @@ class Gamut:
             - alpha * np.array(center)     # finds the coordinates for the nearest point
         return nearest_point
 
-    def compress_axis(self, c_data, sp, ax):
+    def compress_axis(self, sp, c_data, ax):
         """ Stuff
 
-        :param c_data: colour.data.Data
-            The points to be compressed.
         :param sp: colour.space
             The colour space to work in.
-        :param ax: int
-            Integer representing which axis to do the compressing. eg.(0-X, 1-Y, 2-Z)
+        :param c_data: colour.data.Data
+            The points to be compressed.
+       :param ax: int
+            Integer representing which axis to do the compressing.
         :return: colour.data.Data
             Returns a colour.data.Data object with the new points.
         """
