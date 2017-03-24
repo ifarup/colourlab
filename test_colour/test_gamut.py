@@ -431,13 +431,13 @@ class TestGamut(unittest.TestCase):
         np.alltrue(d == r)
         print("find plane:", d)                 # Normal vector xyz and distance.
 
-    def test_intersectionpoint_on_line(self):
+    def test_nearest_point_on_line(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [0.001, 0.2, 0.2]
-        center = [10, 11, 14]
+        d = [5., 5., 15.]
+        center = [5., 5., 5.]
         sp = g.space
-        a = g.intersectionpoint_on_line(d, center, sp)
+        a = g.get_nearest_point_on_line(d, center, sp)
         print("Nearest point:", a)
 
     def test_compress(self):
@@ -449,6 +449,18 @@ class TestGamut(unittest.TestCase):
         g.compress_axis(col_data, space.srgb, 2)
 
         print(col_data.get(space.srgb))
+
+    def test_intersectionpoint_on_line(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # points to map
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])         # wanted result
+
+        c_data = data.Data(space.srgb, points)                              # data.Data object
+        re_data = g.intersectionpoint_on_line(space.srgb, c_data)           # data.Data object returned
+
+        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
 if __name__ == '__main__':
     unittest.main(exit=False)
