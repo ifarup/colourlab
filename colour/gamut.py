@@ -197,15 +197,20 @@ class Gamut:
         v_minus = []    # a list of vertices who's original edge contains P, and it's face is NEGATIVE oriented
 
         for face in self.simplices:
-            a = self.get_coordinates(np.array(face[0]))
-            b = self.get_coordinates(np.array(face[1]))
-            c = self.get_coordinates(np.array(face[2]))
+            # a = self.get_coordinates(face[0])
+            # b = self.get_coordinates(np.array(face[1]))
+            # c = self.get_coordinates(np.array(face[2]))
+
+            facet = self.get_coordinates(face)
+            a = facet[0]
+            b = facet[1]
+            c = facet[2]
+
             origin = np.array([0., 0., 0.])
             s_t = self.sign(np.array([origin, a, b, c]))  # sign of the face's original tetrahedron
             s_nt = s_t*-1
             signs = np.zeros(4)     # array for indexing the sign values
             zeros = 0
-            intersection = 0
 
             # Check if q sees the same side of the tetrahedron's facets as origin does. If this is not true,
             # point is not inside.
@@ -222,8 +227,8 @@ class Gamut:
             if signs[3] == s_nt:
                 continue
 
-            for zero in signs:
-                if signs[zero] == 0:
+            for i in range(0, 3):
+                if signs[i] == 0:
                     zeros += 1
 
             if signs[0] == 0:               # If true point is inside the tetrahedron.

@@ -117,6 +117,8 @@ class TestGamut(unittest.TestCase):
 
         c_data = data.Data(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data)
+        print(a)
+        print(bool_3d)
         self.assertEqual(a.shape, points_3d.shape[:-1])     # Asserts if shape is reduced by 1dim
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_3d))            # Asserts that the returned values are correct
