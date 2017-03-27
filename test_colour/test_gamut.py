@@ -462,5 +462,33 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
+    def test_feito_eff(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        O = np.array([0, 0, 0])
+        A = np.array([10, 0, 0])
+        B = np.array([0, 0, 10])
+        C = np.array([0, 10, 0])
+        Q = np.array([2, 2, 2])
+
+        original_tetrahedron = np.array([O,A,C,B]) # Positive sign
+
+        sign_OT = g.sign(original_tetrahedron)
+        sign_QABC = g.sign(np.array([Q, A, B, C]))
+        sign_QACO = g.sign(np.array([Q, A, C, O]))
+        sign_QAOB = g.sign(np.array([Q, A, O, B]))
+        sign_QBOC = g.sign(np.array([Q, B, O, C]))
+
+        print("sign_OT", sign_OT)
+        print("sign_QABC", sign_QABC)
+        print("sign_QACO", sign_QACO)
+        print("sign_QAOB", sign_QAOB)
+        print("sign_QBOC", sign_QBOC)
+
+
+
+        print(original_tetrahedron)
+
 if __name__ == '__main__':
     unittest.main(exit=False)
