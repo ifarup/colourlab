@@ -92,7 +92,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, self.generate_sphere(15, 100))
         self.gam = gamut.Gamut(space.srgb, c_data)
 
-        self.test_data = self.generate_sphere(14.9, 50)
+        self.test_data = self.generate_sphere(14.9, 100)
         self.c_data = data.Data(space.srgb, self.test_data)
 
     def test_speed_traverse(self):

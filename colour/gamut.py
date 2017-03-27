@@ -118,7 +118,7 @@ class Gamut:
             nd_data = c_data.get(sp)                            # Get the data points as ndarray
 
             if nd_data.ndim == 1:                               # If only one point was sent.
-                return np.array([self.feito_torres(nd_data)])   # Returns 1d boolean-array
+                return np.array([self.new_feito_torres(nd_data)])   # Returns 1d boolean-array
 
             else:
                 indices = np.ones(nd_data.ndim - 1,
@@ -148,7 +148,7 @@ class Gamut:
 
             # Do feito
             for i in range(0, bool_array.shape[0]):
-                bool_array[i] = self.feito_torres(l_data[i])
+                bool_array[i] = self.new_feito_torres(l_data[i])
 
             # bool_array = self.feito_torres(lin_data)
 
@@ -182,7 +182,88 @@ class Gamut:
             indices[curr_dim] = -1                          # should reset the indices array when the call dies
 
         else:                                               # We have reached a leaf node
-            bool_array[(tuple(indices))] = self.feito_torres(nda)  # Set the boolean array to returned boolean.
+            bool_array[(tuple(indices))] = self.new_feito_torres(nda)  # Set the boolean array to returned boolean.
+
+    def new_feito_torres(self, q):
+        """ Tests if a point P is inside a convexHull(polyhedron)
+
+            :param q: ndarray
+                Point to be tested for inclusion.
+            :return: bool
+                True if P is included in the convexHull(polyhedron)
+            """
+        inclusion = 0
+        v_plus = []     # a list of vertices who's original edge contains P, and it's face is POSITIVE oriented
+        v_minus = []    # a list of vertices who's original edge contains P, and it's face is NEGATIVE oriented
+
+        for face in self.simplices:
+            a = self.get_coordinates(np.array(face[0]))
+            b = self.get_coordinates(np.array(face[1]))
+            c = self.get_coordinates(np.array(face[2]))
+            origin = np.array([0., 0., 0.])
+            s_t = self.sign(np.array([origin, a, b, c]))  # sign of the face's original tetrahedron
+            s_nt = s_t*-1
+            signs = np.zeros(4)     # array for indexing the sign values
+            zeros = 0
+            intersection = 0
+
+            # Check if q sees the same side of the tetrahedron's facets as origin does. If this is not true,
+            # point is not inside.
+            signs[0] = self.sign(np.array([q, a, b, c]))
+            if signs[0] == s_nt:
+                continue
+            signs[1] = self.sign(np.array([q, a, c, origin]))
+            if signs[1] == s_nt:
+                continue
+            signs[2] = self.sign(np.array([q, a, origin, b]))
+            if signs[2] == s_nt:
+                continue
+            signs[3] = self.sign(np.array([q, b, origin, c]))
+            if signs[3] == s_nt:
+                continue
+
+            for zero in signs:
+                if signs[zero] == 0:
+                    zeros += 1
+
+            if signs[0] == 0:               # If true point is inside the tetrahedron.
+                return True
+
+            elif zeros == 0:                  # Tetrahedra
+                inclusion += s_t
+
+            elif zeros == 1:                  # Triangle
+                inclusion += 0.5*s_t
+
+            elif zeros == 2:                  # Line
+                inclusion += 0.5*s_t
+
+                if signs[1] == 0 and signs[2] == 0:         # Intersection point is on line is between A and O
+                    if s_t > 0 and np.in1d(face[0], v_plus):
+                        v_plus.append(face[0])
+                        inclusion += s_t
+                    elif s_t < 0 and np.in1d(face[0], v_minus):
+                        v_minus.append(face[0])
+                        inclusion += s_t
+                elif signs[1] == 0 and signs[3] == 0:       # Intersection point is on line is between B and O
+                    if s_t > 0 and np.in1d(face[1], v_plus):
+                        v_plus.append(face[1])
+                        inclusion += s_t
+                    elif s_t < 0 and np.in1d(face[1], v_minus):
+                        v_minus.append(face[1])
+                        inclusion += s_t
+                elif signs[2] == 0 and signs[3] == 0:       # Intersection point is on line is between C and O
+                    if s_t > 0 and np.in1d(face[2], v_plus):
+                        v_plus.append(face[2])
+                        inclusion += s_t
+                    elif s_t < 0 and np.in1d(face[2], v_minus):
+                        v_minus.append(face[2])
+                        inclusion += s_t
+
+        if inclusion > 0:
+            return True
+        else:
+            return False
 
     def feito_torres(self, P):
         """ Tests if a point P is inside a convexHull(polyhedron)
@@ -271,7 +352,7 @@ class Gamut:
         for simplex in self.simplices:
             facet = self.get_coordinates(simplex)
             normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector
-            if np.dot((facet[0]-c), normal) < 0:  # If the dot product of 'normal' and a vector from the
+            if np.dot((facet[0]-c), normal) < 0:            # If the dot product of 'normal' and a vector from the
                                                             # center of the gamut to the facet is negative, the
                                                             # orientation of the facet needs to be fixed.
                 a = simplex[2]
