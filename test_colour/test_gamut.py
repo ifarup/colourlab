@@ -426,14 +426,25 @@ class TestGamut(unittest.TestCase):
         a = g.intersectionpoint_on_line(sp, center, d)
         print("Nearest point:", a)
 
-    def test_clip_nearest(self):
+    def test_get_clip_nearest(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [5, 5, 15]
+        d = [5., 5., 15.]
         sp = g.space
         d_clip = g.get_clip_nearest(sp, d)
         print("Nearest point in 3D:", d_clip)
 
+    def test_clip_nearest(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])  # points to map
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])  # wanted result
+
+        c_data = data.Data(space.srgb, points)  # data.Data object
+        re_data = g.clip_nearest(space.srgb, c_data)  # data.Data object returned
+
+        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
 if __name__ == '__main__':
     unittest.main(exit=False)
