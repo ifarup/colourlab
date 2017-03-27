@@ -87,6 +87,22 @@ polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 
 
 class TestGamut(unittest.TestCase):
 
+    @classmethod
+    def setUp(self):
+        c_data = data.Data(space.srgb, self.generate_sphere(15, 100))
+        self.gam = gamut.Gamut(space.srgb, c_data)
+
+        self.test_data = self.generate_sphere(14.9, 50)
+        self.c_data = data.Data(space.srgb, self.test_data)
+
+    def test_speed_traverse(self):
+        print("Testing traverse speed")
+        bool_array = self.gam.is_inside(space.srgb, self.c_data, True)
+
+    def test_speed_flatten(self):
+        print("Testing flatten speed")
+        bool_array = self.gam.is_inside(space.srgb, self.c_data, False)
+
     def test_gamut_initialize(self):
         # Test for convex hull
         c_data = data.Data(space.srgb, cube)          # Generating the colour Data object
@@ -98,8 +114,6 @@ class TestGamut(unittest.TestCase):
     def test_is_inside(self):                               # Test for gamut.Gamut.is_inside
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
-        print(points_3d)
-        print(points_3d.shape)
 
         c_data = data.Data(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data)
@@ -177,7 +191,7 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(g.interior(line, point_not_paralell_to_line))            # Point in NOT parallel to line
         self.assertFalse(g.interior(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.interior(line, point_further_away_than_line))          # Point is is further then line
-        self.assertTrue(g.interior(line, point_on_line))                           # Point is on line
+        self.assertTrue(g.interior(line, point_on_line))                          # Point is on line
         self.assertFalse(g.interior(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
     def test_in_tetrahedron(self):
@@ -321,7 +335,7 @@ class TestGamut(unittest.TestCase):
         a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [1, 1, 0]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0]])))
 
-        # Test 4 points that are all outher vetecis in a convex polygon
+        # Test 4 points that are all other vertices in a convex polygon
         a = np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])
         self.assertTrue(np.allclose(g.true_shape(a), np.array([[0, 0, 0], [0, 3, 0], [3, 0, 0], [5, 5, 0]])))
 
@@ -415,34 +429,45 @@ class TestGamut(unittest.TestCase):
         d = g.find_plane(p_data)
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
-        print("find plane:", d)                 # Normalvektor xyz and distance.
+        print("find plane:", d)                 # Normal vector xyz and distance.
 
-    def test_intersectionpoint_on_line(self):
+    def test_nearest_point_on_line(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [5, 5, 15]
         center = [5, 5, 5]
+
         sp = g.space
-        a = g.intersectionpoint_on_line(sp, center, d)
+        a = g.get_nearest_point_on_line(d, center, sp)
         print("Nearest point:", a)
 
-    def test_get_clip_nearest(self):
+    def test_clip_nearest(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-        d = [5., 5., 15.]
+        d = [12, 12, 12]
         sp = g.space
-        d_clip = g.get_clip_nearest(sp, d)
-        print("Nearest point in 3D:", d_clip)
+        d_clip = g.clip_nearest(d, sp)
+        print("Nearest point in 3D:", d_clip.get_linear(sp))
 
-    def test_clip_nearest(self):
+    def test_compress(self):
+        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
+
+        col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
+        re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
+        fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
+
+        self.assertTrue(np.allclose(fasit_data, re_data))
+
+    def test_intersectionpoint_on_line(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])  # points to map
-        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])  # wanted result
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # points to map
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])         # wanted result
 
-        c_data = data.Data(space.srgb, points)  # data.Data object
-        re_data = g.clip_nearest(space.srgb, c_data)  # data.Data object returned
+        c_data = data.Data(space.srgb, points)                              # data.Data object
+        re_data = g.intersectionpoint_on_line(space.srgb, c_data)           # data.Data object returned
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 

@@ -26,13 +26,12 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import scipy as sci
-from colour import data
-
+import colour.data as data
 
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
-    def __init__(self, sp, points, gamma=1, center=0):
+    def __init__(self, sp, points, gamma=1, center=None):
         """Construct new gamut instance and compute the gamut. To initialize the hull with the convex hull method,
         set gamma != 1, and provide the center for expansion.
 
@@ -74,17 +73,21 @@ class Gamut:
     def initialize_modified_convex_hull(self, gamma, center):
         """Initializes the gamut with the modified convex hull method.
 
+        Thanks to Divakar from stackoverflow.
+        http://stackoverflow.com/questions/42763615/proper-python-way-to-work-on-
+        original-in-for-loop?noredirect=1#comment72645178_42763615
+
         :param gamma: float
             The exponent for modifying the radius.
         :param center: ndarray
             Center of expansion.
         """
         # Move all points so that 'center' is origin
-        n_data = self.data.get(self.space)
+        n_data = self.data.get_linear(self.space)
 
-        shifted = n_data - center                           # Make center the local origin
-        r = np.linalg.norm(shifted, axis=1, keepdims=1)     # Get the radius of all points
-        n_data = shifted * (r ** gamma / r)                 # Modify the radius.
+        shifted = n_data - center                               # Make center the local origin
+        r = np.linalg.norm(shifted, axis=1, keepdims=True)      # Get the radius of all points
+        n_data = shifted * (r ** gamma / r)                     # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
         self.hull = spatial.ConvexHull(n_data)
@@ -93,28 +96,65 @@ class Gamut:
         self.neighbors = self.hull.neighbors
         self.center = center
 
-    def is_inside(self, sp, c_data):
+        # TODO fikse points
+        # self.hull.points =
+        # self.hull.points += center
+
+    def is_inside(self, sp, c_data, b=False):
         """For the given data points checks if points are inn the convex hull
 
         :param sp : colour.Space
             The colour space for computing the gamut.
         :param c_data : colour.Data
             Data object with the colour points for the gamut.
+        :param b : boolean
+            True if use the traverse method, false if use the flatten method.
         :return ndarray
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
 
-        nd_data = c_data.get(sp)                                    # Get the data points as ndarray
+        if b:
+            nd_data = c_data.get(sp)                            # Get the data points as ndarray
 
-        if nd_data.ndim == 1:                                       # If only one point was sent.
-            return np.array([self.feito_torres(nd_data)])    # Returns 1d boolean-array
+            if nd_data.ndim == 1:                               # If only one point was sent.
+                return np.array([self.feito_torres(nd_data)])   # Returns 1d boolean-array
 
+            else:
+                indices = np.ones(nd_data.ndim - 1,
+                                  int) * -1  # Important that indices is initialized with negative numb.
+                bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool-array with the same shape as the
+                self.traverse_ndarray(nd_data, indices, bool_array)  # nd_data(minus the last dimension)
+
+                return bool_array  # Returns the boolean array
         else:
-            indices = np.ones(nd_data.ndim - 1, int) * -1  # Important that indices is initialized with negative numb.
-            bool_array = np.zeros(np.shape(nd_data)[:-1], bool)      # Create a bool-array with the same shape as the
-            self.traverse_ndarray(nd_data, indices, bool_array)      # nd_data(minus the last dimension)
 
-            return bool_array                                        # Returns the boolean array
+            # Get the shape of c_data
+            shape = c_data.get(sp).shape[:-1]
+
+            # Flatten
+            l_data = c_data.get_linear(sp)
+
+            bool_array = np.zeros(shape)
+            bool_array.flatten()
+
+            # Get the shape of c_data
+            shape = c_data.get(sp).shape[:-1]
+
+            l_data = c_data.get_linear(sp)
+
+            bool_array = np.zeros(shape, bool)
+            bool_array = bool_array.flatten()
+
+            # Do feito
+            for i in range(0, bool_array.shape[0]):
+                bool_array[i] = self.feito_torres(l_data[i])
+
+            # bool_array = self.feito_torres(lin_data)
+
+            # Reshape (without last dimension)
+            bool_array = bool_array.reshape(shape)
+
+            return bool_array
 
     def traverse_ndarray(self, nda, indices, bool_array):
         """For the given data points checks if points are inn the convexhull
@@ -603,7 +643,34 @@ class Gamut:
 
         return n
 
-    def intersectionpoint_on_line(self, sp, center, d):
+    def intersectionpoint_on_line(self, sp, c_data, center=None):
+        """ Returns an array containing the nearest point on the gamuts surface, for every point
+            in the c_data object. Cell number i in the returned array correspondes to cell number i from the
+            'c_data' parameter. Handels input on the format Nx...xMx3
+
+        :param sp: colour.space
+            The Colour.space
+        :param c_data: colour.data.Data
+            Colour.data.Data object containing all points.
+        :param center : ndarray
+            Center point to use when computing the nearest point.
+        :return: ndarray
+            Shape(3,) containing the nearest point on the gamuts surface.
+        """
+
+        if not center:  # If no center is defined, use geometric center.
+            center = self.center
+
+        # Get linearised colour data
+        re_data = c_data.get_linear(sp)
+
+        # Do get_nearest_point_on_line
+        for i in range(0, re_data.shape[0]):
+            re_data[i] = self.get_nearest_point_on_line(re_data[i], center, sp)
+
+        return data.Data(sp, np.reshape(re_data, c_data.sh))
+
+    def get_nearest_point_on_line(self, d, center, sp):
         """Finding the Nearest point along a line.
 
         :param d: ndarray
@@ -613,9 +680,10 @@ class Gamut:
         :param sp: Space
             The colour space for computing the gamut.
         :return: ndarray
-            Return the nearest point.
+            Returns the nearest point.
         """
         new_points = self.data.get_linear(sp)          # Converts gamut to new space
+
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
             points = []                                # A list for all the points coordinates
@@ -630,6 +698,7 @@ class Gamut:
         a = np.array(alpha)
         a.sort()
         nearest_point = self.line_alpha(a[-1], d, center)
+
         return nearest_point
 
     def line_alpha(self, alpha, d, center):
@@ -648,26 +717,7 @@ class Gamut:
             - alpha * np.array(center)                      # finds the coordinates for the nearest point
         return nearest_point
 
-    def clip_nearest(self, sp, c_data):
-        # Get linearised colour data
-        re_data = c_data.get_linear(sp)
-
-        # Do get_nearest_point_on_line
-        for i in range(0, re_data.shape[0]):
-            re_data[i] = self.get_clip_nearest(sp, re_data[i])
-
-        return data.Data(sp, np.reshape(re_data, c_data.sh))
-
-    def get_clip_nearest(self, sp, d):
-        """Returns the nearest point on the surface for all points outside gamut in 3D.
-
-        :param d: ndarray
-            The start point.
-        :param sp: Space
-            The colour space for computing the gamut.
-        :return: ndarray
-            Return the nearest point.
-        """
+    def clip_nearest(self, d, sp):
         new_points = self.data.get(sp)                      # Converts gamut to new space
         new_dis = 9001                                      # High value for use in the if
         for i in self.vertices:                             # Goes through all the vertices to find the closest
@@ -699,3 +749,47 @@ class Gamut:
             return data.Data(sp, nearest_point)             # Return the points as a colour.data.Data object.
         else:                                               # If not returns the vertex point
             return data.Data(sp, point)                     # Return the points as a colour.data.Data object.
+
+    def compress_axis(self, sp, c_data, ax):
+        """ Stuff
+
+        :param sp: colour.space
+            The colour space to work in.
+        :param c_data: colour.data.Data
+            The points to be compressed.
+       :param ax: int
+            Integer representing which axis to do the compressing.
+        :return: colour.data.Data
+            Returns a colour.data.Data object with the new points.
+        """
+
+        points = c_data.get_linear(sp)
+        p_min = 9001
+        p_max = 0
+
+        for p in points:    # Finding the minimum and maximum values along given axis of the points to be compressed.
+            if p[ax] > p_max:
+                p_max = p[ax]
+            if p[ax] < p_min:
+                p_min = p[ax]
+
+        g_points = self.get_coordinates(self.vertices)  # Using only vertices to find min and max points of the gamut.
+        g_min = 9001
+        g_max = 0
+
+        for p in g_points:    # Finding the minimum and maximum values along given axis of the points in the gamut.
+            if p[ax] > g_max:
+                g_max = p[ax]
+            if p[ax] < g_min:
+                g_min = p[ax]
+
+        delta_p = p_max - p_min     # Calculating the delta values.
+        delta_g = g_max - g_min
+
+        b = delta_g / delta_p       # The slope of the line bx + a
+        a = g_min - b * p_min
+
+        for i in range(0, points.shape[0]):
+            points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
+
+        return data.Data(sp, points)  # Return the points as a coulour.data.Data object.
