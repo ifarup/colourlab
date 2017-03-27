@@ -423,7 +423,7 @@ class TestGamut(unittest.TestCase):
         d = [5, 5, 15]
         center = [5, 5, 5]
         sp = g.space
-        a = g.intersectionpoint_on_line(d, center, sp)
+        a = g.intersectionpoint_on_line(sp, center, d)
         print("Nearest point:", a)
 
     def test_clip_nearest(self):
@@ -431,8 +431,9 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [5, 5, 15]
         sp = g.space
-        d_clip = g.clip_nearest(d, sp)
+        d_clip = g.get_clip_nearest(sp, d)
         print("Nearest point in 3D:", d_clip)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)

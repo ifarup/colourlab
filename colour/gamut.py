@@ -26,6 +26,7 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import scipy as sci
+from colour import data
 
 
 class Gamut:
@@ -602,7 +603,7 @@ class Gamut:
 
         return n
 
-    def intersectionpoint_on_line(self, d, center, sp):
+    def intersectionpoint_on_line(self, sp, center, d):
         """Finding the Nearest point along a line.
 
         :param d: ndarray
@@ -647,7 +648,26 @@ class Gamut:
             - alpha * np.array(center)                      # finds the coordinates for the nearest point
         return nearest_point
 
-    def clip_nearest(self, d, sp):
+    def clip_nearest(self, sp, c_data, center=None):
+        # Get linearised colour data
+        re_data = c_data.get_linear(sp)
+
+        # Do get_nearest_point_on_line
+        for i in range(0, re_data.shape[0]):
+            re_data[i] = self.get_clip_nearest(sp, re_data[i])
+
+        return data.Data(sp, np.reshape(re_data, c_data.sh))
+
+    def get_clip_nearest(self, sp, d):
+        """Returns the nearest point on the surface for all points outside gamut in 3D.
+
+        :param d: ndarray
+            The start point.
+        :param sp: Space
+            The colour space for computing the gamut.
+        :return: ndarray
+            Return the nearest point.
+        """
         new_points = self.data.get(sp)                      # Converts gamut to new space
         new_dis = 9001                                      # High value for use in the if
         for i in self.vertices:                             # Goes through all the vertices to find the closest
