@@ -92,7 +92,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, self.generate_sphere(15, 100))
         self.gam = gamut.Gamut(space.srgb, c_data)
 
-        self.test_data = self.generate_sphere(14.9, 100)
+        self.test_data = self.generate_sphere(14.9, 500)
         self.c_data = data.Data(space.srgb, self.test_data)
 
     def test_speed_traverse(self):
@@ -117,8 +117,6 @@ class TestGamut(unittest.TestCase):
 
         c_data = data.Data(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data)
-        print(a)
-        print(bool_3d)
         self.assertEqual(a.shape, points_3d.shape[:-1])     # Asserts if shape is reduced by 1dim
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_3d))            # Asserts that the returned values are correct
@@ -469,9 +467,9 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
 
         O = np.array([0, 0, 0])
-        A = np.array([10, 0, 0])
-        B = np.array([0, 0, 10])
-        C = np.array([0, 10, 0])
+        A = np.array([10, 10, 0])
+        B = np.array([10, 0, 10])
+        C = np.array([10, 0, 0])
         Q = np.array([2, 2, 2])
 
         original_tetrahedron = np.array([O,A,C,B]) # Positive sign

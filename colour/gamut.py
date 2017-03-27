@@ -381,7 +381,7 @@ class Gamut:
                            [t[0, 1], t[1, 1], t[2, 1], t[3, 1]],
                            [t[0, 2], t[1, 2], t[2, 2], t[3, 2]],
                            [1, 1, 1, 1]])
-        return int(np.sign(sci.linalg.det(matrix)))  # Calculates the signed volume and returns its sign.
+        return int(np.sign(sci.linalg.det(matrix)))*-1  # Calculates the signed volume and returns its sign.
 
         # Above code works as it should, but there must be a way to do this without multiplying with '-1'
         # The below code SHOULD WORK, but.. it doesn't.
