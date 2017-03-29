@@ -442,12 +442,25 @@ class TestGamut(unittest.TestCase):
         print("Nearest point:", a)
 
     def test_clip_nearest(self):
+       c_data = data.Data(space.srgb, cube)
+
+       g = gamut.Gamut(space.srgb, c_data)
+       points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])  # points to map
+       mod_points = np.array([[5, 5, 10], [5, 5, 10], [5, 5, 10]])  # wanted result
+
+       c_data = data.Data(space.srgb, points)  # data.Data object
+       re_data = g.clip_nearest(space.srgb, c_data)  # data.Data object returned
+
+       self.assertTrue(
+        np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
+       print("Nearest point in 3D:", re_data.data)
+
+    def test_get_clip_nearest(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [12, 12, 12]
         sp = g.space
-        d_clip = g.clip_nearest(d, sp)
-        print("Nearest point in 3D:", d_clip.get_linear(sp))
+        d_clip = g.get_clip_nearest(d, sp)
 
     def test_compress(self):
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.

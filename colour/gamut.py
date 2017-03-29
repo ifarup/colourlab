@@ -717,9 +717,20 @@ class Gamut:
             - alpha * np.array(center)                      # finds the coordinates for the nearest point
         return nearest_point
 
-    def clip_nearest(self, d, sp):
-        new_points = self.data.get(sp)                      # Converts gamut to new space
+    def clip_nearest(self, sp, c_data):
+        # Get linearised colour data
+        re_data = c_data.get_linear(sp)
+
+        # Do get_nearest_point_on_line
+        for i in range(0, re_data.shape[0]):
+            re_data[i] = self.get_clip_nearest(sp, re_data[i])
+
+        return data.Data(sp, np.reshape(re_data, c_data.sh))
+
+    def get_clip_nearest(self, sp, d):
+        new_points = self.data.get_linear(sp)               # Converts gamut to new space
         new_dis = 9001                                      # High value for use in the if
+        point = None
         for i in self.vertices:                             # Goes through all the vertices to find the closest
             distance = np.linalg.norm(d - new_points[i])    # Finds the distance for the vertices
             if distance < new_dis:                          # If distance is shorter than previous distance
@@ -733,22 +744,26 @@ class Gamut:
             if point_index == j[0] or point_index == j[1] or point_index == j[2]:
                 neighbors.append(self.get_coordinates(j))
 
-        in_triangle = False
-        alpha = []
+        a = -9001
+        normal = None
+        simplex_id = None
         for k in neighbors:                                 # Goes through all the neighbors
-            n = self.find_plane(k)                          # Finds normal and distance
-            x = self.get_alpha(d, self.center, n)           # Finds the alpha value
-            if 0 <= x <= 1:                                 # If alpha between 0 and 1 it gets added to the alpha list
-                if self.in_triangle(k, self.line_alpha(x, d, self.center)):  # If it's in triangle
-                    alpha.append(x)
-                    in_triangle = True
-        a = np.array(alpha)
-        a.sort()
-        if in_triangle:                                     # If the point is in triangle
-            nearest_point = self.line_alpha(a[-1], d, self.center)
-            return data.Data(sp, nearest_point)             # Return the points as a colour.data.Data object.
+             n = self.find_plane(k)                          # Finds normal and distance
+
+             a_new = n[3] + np.dot(d, n[:3])
+             if a < a_new:                  # bytte fortegn med største verdi
+                 a = a_new
+                 simplex_id = k
+                 normal = n
+
+        nearest_point = (np.array(d) - a * np.array(normal[:3])) * np.array(normal[:3])
+        print("nearest", simplex_id)
+        print(self.in_triangle(simplex_id, nearest_point))
+        if self.in_triangle(simplex_id, nearest_point):  # If it's in triangle
+            return nearest_point             # Return the points as a colour.data.Data object.
         else:                                               # If not returns the vertex point
-            return data.Data(sp, point)                     # Return the points as a colour.data.Data object.
+            return point                     # Return the points as a colour.data.Data object.
+
 
     def compress_axis(self, sp, c_data, ax):
         """ Stuff
