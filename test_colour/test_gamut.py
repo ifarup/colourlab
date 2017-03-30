@@ -105,7 +105,7 @@ class TestGamut(unittest.TestCase):
 
     def test_gamut_initialize(self):
         # Test for convex hull
-        c_data = data.Data(space.srgb, cube)          # Generating the colour Data object
+        c_data = data.Data(space.srgb, cube)            # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
         vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])  # Known indices of vertices for the test case
 
@@ -146,9 +146,11 @@ class TestGamut(unittest.TestCase):
 
     def test_get_vertices(self):
         # Test for gamut.Gamut.get_vertices
-        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
-        n1_data = np.array([[0, 0, 0],      # 0  vertices    # Array with just the vertices used for comparison.
+
+        # Array with just the vertices used for comparison.
+        n1_data = np.array([[0, 0, 0],      # 0  vertices
                            [10, 0, 0],      # 1  vertices
                            [10, 10, 0],     # 2  vertices
                            [0, 10, 0],      # 3  vertices
@@ -163,7 +165,7 @@ class TestGamut(unittest.TestCase):
         vertices = g.get_vertices(cube)                     # Calls the function and add the vertices to the array.
         self.assertTrue(np.array_equiv(n1_data, vertices))    # Compares returned array with the known vertices array.
 
-    def test_plot_surface(self):         # Test for gamut.Gamut.plot_surface
+    def test_plot_surface(self):                    # Test for gamut.Gamut.plot_surface
         fig = plt.figure()                          # Creates a figure
         ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
@@ -174,36 +176,36 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, polyhedron)  # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
 
-        sp = g.space                                 # specifies the color space
-        g.plot_surface(ax, sp)                       # Calls the plot function
+        sp = g.space                                # specifies the color space
+        g.plot_surface(ax, sp)                      # Calls the plot function
 
     def test_in_line(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertTrue(g.in_line(np.array([[2, 2, 2], [2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
-        self.assertFalse(g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
-        self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
-        self.assertFalse(g.in_line(line, point_further_away_than_line))          # Point is is further then line
-        self.assertTrue(g.in_line(line, point_on_line))                          # Point is on line
+        self.assertFalse(g.in_line(line, point_not_paralell_to_line))           # Point in NOT parallel to line
+        self.assertFalse(g.in_line(line, point_opposite_direction_than_line))   # Point opposite dir then line
+        self.assertFalse(g.in_line(line, point_further_away_than_line))         # Point is is further then line
+        self.assertTrue(g.in_line(line, point_on_line))                         # Point is on line
         self.assertFalse(g.in_line(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
-        self.assertFalse(g.interior(line, point_not_paralell_to_line))            # Point in NOT parallel to line
-        self.assertFalse(g.interior(line, point_opposite_direction_than_line))    # Point opposite dir then line
-        self.assertFalse(g.interior(line, point_further_away_than_line))          # Point is is further then line
-        self.assertTrue(g.interior(line, point_on_line))                          # Point is on line
+        self.assertFalse(g.interior(line, point_not_paralell_to_line))          # Point in NOT parallel to line
+        self.assertFalse(g.interior(line, point_opposite_direction_than_line))  # Point opposite dir then line
+        self.assertFalse(g.interior(line, point_further_away_than_line))        # Point is is further then line
+        self.assertTrue(g.interior(line, point_on_line))                        # Point is on line
         self.assertFalse(g.interior(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
     def test_in_tetrahedron(self):
         c_data = data.Data(space.srgb, tetrahedron)
         g = gamut.Gamut(space.srgb, c_data)
 
-        self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
-        self.assertFalse(g.in_tetrahedron(tetrahedron, tetra_p_not_inside))   # Point is NOT on tetrahedron
-        self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_on_surface))    # Point is on a simplex(counts as inside)
+        self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_inside))          # Point is on the tetrahedron
+        self.assertFalse(g.in_tetrahedron(tetrahedron, tetra_p_not_inside))     # Point is NOT on tetrahedron
+        self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_on_surface))  # Point is on a simplex(counts as inside)
 
-        self.assertTrue(g.interior(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
-        self.assertFalse(g.interior(tetrahedron, tetra_p_not_inside))  # Point is NOT on tetrahedron
+        self.assertTrue(g.interior(tetrahedron, tetra_p_inside))                # Point is on the tetrahedron
+        self.assertFalse(g.interior(tetrahedron, tetra_p_not_inside))           # Point is NOT on tetrahedron
         self.assertTrue(g.interior(tetrahedron, tetra_p_on_surface))
 
     def test_in_triangle(self):
@@ -307,13 +309,13 @@ class TestGamut(unittest.TestCase):
         # plt.plot(sphere[:,0],sphere[:,2])
         # plt.show()
 
-        fig = plt.figure()  # Creates a figure
+        fig = plt.figure()                          # Creates a figure
         ax = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
 
         c_data = data.Data(space.srgb, sphere)
         g = gamut.Gamut(space.srgb, c_data)
 
-        sp = g.space  # specifies the color space
+        sp = g.space            # specifies the color space
         g.plot_surface(ax, sp)  # Calls the plot function
 
     def test_true_shape(self):
@@ -366,7 +368,8 @@ class TestGamut(unittest.TestCase):
         # c_data = data.Data(space.srgb, cube)
         # g = gamut.Gamut(space.srgb, c_data)
 
-        test_points = np.array([[0, 0, 0],           # 0  vertices  # Array with just the vertices used for comparison.
+        # Array with just the vertices used for comparison.
+        test_points = np.array([[0, 0, 0],           # 0  vertices
                                 [10, 0, 0],          # 1  vertices
                                 [10, 10, 0],         # 2  vertices
                                 [0, 10, 0],          # 3  vertices
@@ -442,18 +445,19 @@ class TestGamut(unittest.TestCase):
         print("Nearest point:", a)
 
     def test_clip_nearest(self):
-       c_data = data.Data(space.srgb, cube)
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
 
-       g = gamut.Gamut(space.srgb, c_data)
-       points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])  # points to map
-       mod_points = np.array([[5, 5, 10], [5, 5, 10], [5, 5, 10]])  # wanted result
+        points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])         # points to map
+        mod_points = np.array([[5, 5, 10], [5, 5, 10], [5, 5, 10]])     # wanted result
 
-       c_data = data.Data(space.srgb, points)  # data.Data object
-       re_data = g.clip_nearest(space.srgb, c_data)  # data.Data object returned
+        c_data = data.Data(space.srgb, points)          # data.Data object
+        re_data = g.clip_nearest(space.srgb, c_data)    # data.Data object returned
 
-       self.assertTrue(
-        np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
-       print("Nearest point in 3D:", re_data.data)
+        self.assertTrue(
+            np.allclose(re_data.get_linear(space.srgb), mod_points))    # assert that the points are changed
+
+        print("Nearest point in 3D:", re_data.data)
 
     def test_get_clip_nearest(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
@@ -463,8 +467,8 @@ class TestGamut(unittest.TestCase):
         d_clip = g.get_clip_nearest(d, sp)
 
     def test_compress(self):
-        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
-        g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
 
         col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
         re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)

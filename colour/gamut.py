@@ -727,16 +727,26 @@ class Gamut:
 
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
-    def get_clip_nearest(self, sp, d):
-        new_points = self.data.get_linear(sp)               # Converts gamut to new space
+    def get_clip_nearest(self, sp, p_outside):
+        """
+        Finds the nearst point in 3D
+        :param sp: Space
+            The colour space for computing the gamut.
+        :param p_outside: ndarray
+            The start point.
+        :return: ndarray
+            Returns the nearest point.
+        """
+        gam = self.data.get_linear(sp)                      # Converts gamut to new space
         new_dis = 9001                                      # High value for use in the if
         point = None
+
         for i in self.vertices:                             # Goes through all the vertices to find the closest
-            distance = np.linalg.norm(d - new_points[i])    # Finds the distance for the vertices
+            distance = np.linalg.norm(p_outside - gam[i])   # Finds the distance for the vertices
             if distance < new_dis:                          # If distance is shorter than previous distance
                 new_dis = distance                          # Adds value for new distance
                 point_index = i                             # Index for the point
-                point = new_points[i]                       # Coordinates for the new point
+                point = gam[i]                              # Coordinates for the new point
 
         neighbors = []                                      # List for all the neighbors
         for j in self.simplices:                            # Goes through all the simplices
@@ -745,25 +755,15 @@ class Gamut:
                 neighbors.append(self.get_coordinates(j))
 
         a = -9001
-        normal = None
-        simplex_id = None
-        for k in neighbors:                                 # Goes through all the neighbors
-             n = self.find_plane(k)                          # Finds normal and distance
+        for simplex in neighbors:                           # Goes through all the neighbors
+            n = self.find_plane(simplex)                    # Finds normal and distance
+            a_new = -n[3] + np.dot(p_outside, n[:3])        # Finds new alpha value
+            if np.absolute(a) > np.absolute(a_new):         # If the alpha value is less than the old value
+                point_on_plane = (p_outside - a_new * n[:3])    # we find the intersection point
+                if self.in_triangle(simplex, point_on_plane):   # If the point is in triangle we return the point
+                    return point_on_plane
 
-             a_new = n[3] + np.dot(d, n[:3])
-             if a < a_new:                  # bytte fortegn med største verdi
-                 a = a_new
-                 simplex_id = k
-                 normal = n
-
-        nearest_point = (np.array(d) - a * np.array(normal[:3])) * np.array(normal[:3])
-        print("nearest", simplex_id)
-        print(self.in_triangle(simplex_id, nearest_point))
-        if self.in_triangle(simplex_id, nearest_point):  # If it's in triangle
-            return nearest_point             # Return the points as a colour.data.Data object.
-        else:                                               # If not returns the vertex point
-            return point                     # Return the points as a colour.data.Data object.
-
+        return point                                    # If we found no points that is in triangle we return the vertex
 
     def compress_axis(self, sp, c_data, ax):
         """ Stuff
