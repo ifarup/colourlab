@@ -148,7 +148,22 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 ```
 
 ## Examples
-**Examples for all methods coming soon, a ninja stole them**
+```
+plot_surface function.
+- Generating a gamut(g)                                # For convex hull
+- The user sendes with 2 parameters(axis and space)    # Axis and colourspace
+- Example: g.plot_surface(axis, space)
+- The function will visualize a gamut figure.
+```
+
+```
+get_nearest_point_on_line function.
+- Generating a gamut(g) in a colour space.                                # For convex hull
+- The user sendes with parameters(STARTING-POINT, CENTER-POINT, SPACE)    # A point outside(start-point) and inside(end-point) the gamut
+- Example: g.get_nearest_point_on_line(d, center, sp)
+    - d and center is a point[x, y, z] and sp are colour space.
+- The function will return nearest point along a line.
+```
 
 
 ## Attributes
@@ -170,13 +185,15 @@ https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.ht
 
 * **is_inside()**
 * **plot_surface()**
-* **intersectionpoint_on_line()**
+* **get_nearest_point_on_line()**
+* **get_clip_nearest()**
 
 Method      	                              | Description
---------------------------------------------  | -----------------------------------------------------------
+----------------------------------------------| --------------------------------------------------------------------
 `is_inside(sp, c_data)`                       | Returns a boolean array containing T/F for all points in the array.        
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.
-`get_nearest_point_on_line(self, d, center, sp)`    | Return the nearest point on a gamut serface for the given point.
+`get_nearest_point_on_line(d, center, sp)`    | Return the nearest point on a gamut surface for the given point.
+`get_clip_nearest(sp, p_outside)`             | Return the nearest point on a gamut in 3D.
 
 test_colour
 ===========
