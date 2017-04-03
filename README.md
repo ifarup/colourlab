@@ -148,16 +148,17 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 ```
 
 ## Examples
+
+#### plot_surface function.
 ```
-plot_surface function.
 - Generating a gamut(g)                                # For convex hull
 - The user sendes with 2 parameters(axis and space)    # Axis and colourspace
 - Example: g.plot_surface(axis, space)
 - The function will visualize a gamut figure.
 ```
 
+#### get_nearest_point_on_line function.
 ```
-get_nearest_point_on_line function.
 - Generating a gamut(g) in a colour space.                                # For convex hull
 - The user sendes with parameters(STARTING-POINT, CENTER-POINT, SPACE)    # A point outside(start-point) and inside(end-point) the gamut
 - Example: g.get_nearest_point_on_line(d, center, sp)
