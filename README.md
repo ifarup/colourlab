@@ -151,7 +151,7 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 
 #### plot_surface function.
 ```
-- Generating a gamut(g)                                # For convex hull
+- Generating a gamut(g) in a colour space.             # For convex hull
 - The user sendes with 2 parameters(axis and space)    # Axis and colourspace
 - Example: g.plot_surface(axis, space)
 - The function will visualize a gamut figure.
@@ -166,6 +166,14 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 - The function will return nearest point along a line.
 ```
 
+#### get_clip_nearest function.
+```
+- Generating a gamut(g) in a colour space.                       # For convex hull
+- The user sendes with parameters(sp, p_outside)                 # A point outside the gamut and colourspace
+- Example: g.g.get_clip_nearest(sp, p_outside)
+    - p_outside is a point[x, y, z] and sp is a colour space.
+- The function will return nearest point in 3D.
+```
 
 ## Attributes
 
