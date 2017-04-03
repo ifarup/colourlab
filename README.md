@@ -149,6 +149,14 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 
 ## Examples
 
+#### is_inside function.
+```
+- Generating a gamut(g) in a colour space.                                    # For convex hull/modified-convex hull
+- The user sendes with 2 parameters(space and colour data)                    # Colour space and data object with the colour points
+- Example: g.is_inside(sp, c_data)
+- The function returns true/false if the points is inside/outside a gamut.    #
+```
+
 #### plot_surface function.
 ```
 - Generating a gamut(g) in a colour space.             # For convex hull
