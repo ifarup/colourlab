@@ -176,7 +176,7 @@ Method      	                              | Description
 --------------------------------------------  | -----------------------------------------------------------
 `is_inside(sp, c_data)`                       | Returns a boolean array containing T/F for all points in the array.        
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.
-`intersectionpoint_on_line(d, center, sp)`    | Return the nearest point on a gamut serface for the given point.
+`get_nearest_point_on_line(self, d, center, sp)`    | Return the nearest point on a gamut serface for the given point.
 
 test_colour
 ===========
