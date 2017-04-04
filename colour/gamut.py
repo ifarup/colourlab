@@ -753,8 +753,7 @@ class Gamut:
             # If the simplex has the vertieces as a side
             if point_index == j[0] or point_index == j[1] or point_index == j[2]:
                 neighbors.append(self.get_coordinates(j))
-        return_point_on_plane = None
-        found = False
+
         dist = 0
         dist_old = 9001
         a = -9001
@@ -765,12 +764,8 @@ class Gamut:
                 point_on_plane = (p_outside - a_new * n[:3])    # we find the intersection point
                 # If the point is in triangle we return the point
                 if self.in_triangle(simplex, point_on_plane) and dist < dist_old:
-                    return_point_on_plane = point_on_plane
-                    found = True
+                    point = point_on_plane
                     dist = np.linalg.norm((point_on_plane-p_outside))   # Find the shortes distance.
-
-        if found:
-            return return_point_on_plane                # Return the point on a simplex.
 
         return point                                    # If we found no points that is in triangle we return the vertex
 
