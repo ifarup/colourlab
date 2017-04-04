@@ -148,45 +148,42 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 ```
 
 ## Examples
+In all examples foresees we that colour Data object are generate and a gamut object is made.
+```
+c_data = data.Data(space.srgb, cube)                  # Generating the colour Data object
+g = gamut.Gamut(space.srgb, c_data)                   # Creates a new gamut
+```
 
 #### is_inside function.
-First generate the colour Data object to use, then create a new gamut object. The function receives two parameters colourspace and colour data. Afterwards call the method and send with the two parameters. The function checks if points are inn the convex hull and return boolean-array
+The function receives two parameters colourspace and colour data. We call the method and send with the two parameters. The function checks if points are inn the convex hull and return boolean-array
 ```
-c_data = data.Data(space.srgb, cube)    # Generating the colour Data object
-g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut
 a = g.is_inside(space.srgb, c_data)     # Call the method and send with parameters
 ```
 #### plot_surface function.
-First create a 3D plot ax and generate the colour Data object to use. Afterwards create a new gamut object. Call the method and send with two parameters axis and colourspace. The function will visualize a gamut figure in 3D.
+The function receives two parameters axis and space. We call the method and send with two parameters. The function will visualize a gamut figure in 3D.
 ```
 fig = plt.figure()                                    # Creates a figure
-ax = fig.add_subplot(111, projection='3d')            # Creates a 3D plot ax
-c_data = data.Data(space.srgb, polyhedron)            # Generating the colour Data object
-g = gamut.Gamut(space.srgb, c_data)                   # Creates a new gamut
-sp = g.space                                          # Specifies the color space
-g.plot_surface(ax, sp)                                # Call the method
+axis = fig.add_subplot(111, projection='3d')          # Creates a 3D plot ax
+space = g.space                                       # Specifies the color space
+g.plot_surface(axis, space)                           # Call the method
 
 ```
 
 #### get_nearest_point_on_line function.
-First generate the colour Data object to use, then create a new gamut object. Call the method and send with three parameters d, center and sp. center and d is a colour data object and sp is colourspace. The function will return nearest point along a line.
+The function receives three parameters. Points outside/inside are colour data object and are represented as numpy arrays of dimensions Nx...xMx3. The function will return nearest point along a line.
 ```
-c_data = data.Data(space.srgb, cube)                  # Generating the colour Data object
-g = gamut.Gamut(space.srgb, c_data)                   # Creates a new gamut
-d = [5, 5, 15]                                        # A point outside the gamut object
-center = [5, 5, 5]                                    # A point inside the gamut object
-sp = g.space                                          # Specifies the color space
-a = g.get_nearest_point_on_line(d, center, sp)        # Call the method
+p_outside = [5, 5, 15]                                             # A point outside the gamut object
+p_inside = [5, 5, 5]                                               # A point inside the gamut object
+space = g.space                                                    # Specifies the color space
+a = g.get_nearest_point_on_line(p_outside, p_inside, space)        # Call the method
 ```
 
 #### get_clip_nearest function.
-First generate the colour Data object to use, then create a new gamut object. Call the method and send with two parameters sp, p_outside. p_outside is a colour data object and sp is a colourspace. The function will return nearest point in 3D.
+The function receives two parameters.Points outside are colour data object and are represented as numpy arrays of dimensions Nx...xMx3. The function will return nearest point in 3D.
 ```
-c_data = data.Data(space.srgb, cube)                  # Generating the colour Data object
-g = gamut.Gamut(space.srgb, c_data)                   # Creates a new gamut
-d = [12, 12, 12]                                      # A point outside the gamut object
-sp = g.space                                          # Specifies the color space
-d_clip = g.get_clip_nearest(d, sp)                    # Call the method
+p_outside = [12, 12, 12]                                           # A point outside the gamut object
+space = g.space                                                    # Specifies the color space
+d_clip = g.get_clip_nearest(p_outside, space)                      # Call the method
 ```
 
 ## Attributes
