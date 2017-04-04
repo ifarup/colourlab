@@ -150,37 +150,43 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 ## Examples
 
 #### is_inside function.
+First generate the colour Data object to use, then create a new gamut object. The function receives two parameters colourspace and colour data. Afterwards call the method and send with the two parameters. The function checks if points are inn the convex hull and return boolean-array
 ```
-- Generating a gamut(g) in a colour space.                                    # For convex hull/modified-convex hull
-- The user sendes with 2 parameters(space and colour data)                    # Colour space and data object with the colour points
-- Example: g.is_inside(sp, c_data)
-- The function returns true/false if the points is inside/outside a gamut.
+c_data = data.Data(space.srgb, cube)    # Generating the colour Data object
+g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut
+a = g.is_inside(space.srgb, c_data)     # Call the method and send with parameters
 ```
-
 #### plot_surface function.
+First create a 3D plot ax and generate the colour Data object to use. Afterwards create a new gamut object. Call the method and send with two parameters axis and colourspace. The function will visualize a gamut figure in 3D.
 ```
-- Generating a gamut(g) in a colour space.             # For convex hull
-- The user sendes with 2 parameters(axis and space)    # Axis and colourspace
-- Example: g.plot_surface(axis, space)
-- The function will visualize a gamut figure.
+fig = plt.figure()                                    # Creates a figure
+ax = fig.add_subplot(111, projection='3d')            # Creates a 3D plot ax
+c_data = data.Data(space.srgb, polyhedron)            # Generating the colour Data object
+g = gamut.Gamut(space.srgb, c_data)                   # Creates a new gamut
+sp = g.space                                          # Specifies the color space
+g.plot_surface(ax, sp)                                # Call the method
+
 ```
 
 #### get_nearest_point_on_line function.
+First generate the colour Data object to use, then create a new gamut object. Call the method and send with three parameters d, center and sp. center and d is a colour data object and sp is colourspace. The function will return nearest point along a line.
 ```
-- Generating a gamut(g) in a colour space.                                # For convex hull
-- The user sendes with parameters(STARTING-POINT, CENTER-POINT, SPACE)    # A point outside(start-point) and inside(end-point) the gamut
-- Example: g.get_nearest_point_on_line(d, center, sp)
-    - d and center is a point[x, y, z] and sp are colour space.
-- The function will return nearest point along a line.
+c_data = data.Data(space.srgb, cube)                  # Generating the colour Data object
+g = gamut.Gamut(space.srgb, c_data)                   # Creates a new gamut
+d = [5, 5, 15]                                        # A point outside the gamut object
+center = [5, 5, 5]                                    # A point inside the gamut object
+sp = g.space                                          # Specifies the color space
+a = g.get_nearest_point_on_line(d, center, sp)        # Call the method
 ```
 
 #### get_clip_nearest function.
+First generate the colour Data object to use, then create a new gamut object. Call the method and send with two parameters sp, p_outside. p_outside is a colour data object and sp is a colourspace. The function will return nearest point in 3D.
 ```
-- Generating a gamut(g) in a colour space.                       # For convex hull
-- The user sendes with parameters(sp, p_outside)                 # A point outside the gamut and colourspace
-- Example: g.g.get_clip_nearest(sp, p_outside)
-    - p_outside is a point[x, y, z] and sp is a colour space.
-- The function will return nearest point in 3D.
+c_data = data.Data(space.srgb, cube)                  # Generating the colour Data object
+g = gamut.Gamut(space.srgb, c_data)                   # Creates a new gamut
+d = [12, 12, 12]                                      # A point outside the gamut object
+sp = g.space                                          # Specifies the color space
+d_clip = g.get_clip_nearest(d, sp)                    # Call the method
 ```
 
 ## Attributes
