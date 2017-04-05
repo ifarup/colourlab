@@ -118,7 +118,7 @@ class Gamut:
             nd_data = c_data.get(sp)                            # Get the data points as ndarray
 
             if nd_data.ndim == 1:                               # If only one point was sent.
-                return np.array([self.new_feito_torres(nd_data)])   # Returns 1d boolean-array
+                return np.array([self.feito_torres(nd_data)])   # Returns 1d boolean-array
 
             else:
                 indices = np.ones(nd_data.ndim - 1,
@@ -132,6 +132,7 @@ class Gamut:
             # Get the shape of c_data
             shape = c_data.get(sp).shape[:-1]
 
+            # TODO refactor unused variables
             # Flatten
             l_data = c_data.get_linear(sp)
 
@@ -148,9 +149,7 @@ class Gamut:
 
             # Do feito
             for i in range(0, bool_array.shape[0]):
-                bool_array[i] = self.new_feito_torres(l_data[i])
-
-            # bool_array = self.feito_torres(lin_data)
+                bool_array[i] = self.feito_torres(l_data[i])
 
             # Reshape (without last dimension)
             bool_array = bool_array.reshape(shape)
@@ -182,25 +181,21 @@ class Gamut:
             indices[curr_dim] = -1                          # should reset the indices array when the call dies
 
         else:                                               # We have reached a leaf node
-            bool_array[(tuple(indices))] = self.new_feito_torres(nda)  # Set the boolean array to returned boolean.
+            bool_array[(tuple(indices))] = self.feito_torres(nda)  # Set the boolean array to returned boolean.
 
-    def new_feito_torres(self, q):
-        """ Tests if a point P is inside a convexHull(polyhedron)
+    def feito_torres(self, q):
+        """ Tests if a point P is inside a convexHull(polyhedra)
 
             :param q: ndarray
                 Point to be tested for inclusion.
             :return: bool
-                True if P is included in the convexHull(polyhedron)
+                True if q is included in the convexHull(polyhedron)
             """
         inclusion = 0
         v_plus = []     # a list of vertices who's original edge contains P, and it's face is POSITIVE oriented
         v_minus = []    # a list of vertices who's original edge contains P, and it's face is NEGATIVE oriented
 
         for face in self.simplices:
-            # a = self.get_coordinates(face[0])
-            # b = self.get_coordinates(np.array(face[1]))
-            # c = self.get_coordinates(np.array(face[2]))
-
             facet = self.get_coordinates(face)
             a = facet[0]
             b = facet[1]
@@ -231,7 +226,7 @@ class Gamut:
                 if signs[i] == 0:
                     zeros += 1
 
-            if signs[0] == 0:               # If true point is inside the tetrahedron.
+            if signs[0] == 0:                 # If true point is inside the tetrahedron.
                 return True
 
             elif zeros == 0:                  # Tetrahedra
@@ -270,7 +265,8 @@ class Gamut:
         else:
             return False
 
-    def feito_torres(self, P):
+    # The following method is deprecated and only present for performance testing. 28.03.2017
+    def deprecated_feito_torres(self, P):
         """ Tests if a point P is inside a convexHull(polyhedron)
 
         :param P: ndarray
@@ -467,15 +463,13 @@ class Gamut:
         if np.linalg.norm(p) > np.linalg.norm(b):
             return False
 
-        return True
-
     def in_triangle(self, triangle, P, true_interior=False):
         """Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
             This function utilizes the baycentric technique explained here
             https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
 
         :param triangle: ndarray
-            An ndarray with shape: (3,3), with points A, C and C being triangle[0]..[2]
+            An ndarray with shape: (3,3), with points A, B and C being triangle[0]..[2]
         :param P: ndarray
             An ndarray with shape: (3,), the point to be tested for inclusion in the triangle.
         :param true_interior: bool
@@ -544,7 +538,6 @@ class Gamut:
 
         return np.dot(d, np.cross(b, c)) == 0   # Coplanar if the cross product vector or two vectors dotted with the
                                                 # last vector is 0.
-
     @staticmethod
     def center_of_mass(points):
         """Finds the center of mass of the points given. To find the "geometric center" of a gamut
@@ -806,7 +799,7 @@ class Gamut:
         return nearest_point
 
     def compress_axis(self, sp, c_data, ax):
-        """ Stuff
+        """ Compresses the points linearly in the desired axel and colour space.
 
         :param sp: colour.space
             The colour space to work in.
@@ -847,4 +840,5 @@ class Gamut:
         for i in range(0, points.shape[0]):
             points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
 
-        return data.Data(sp, points)  # Return the points as a coulour.data.Data object.
+        # TODO reshape til original
+        return data.Data(sp, points)  # Return the points as a colour.data.Data object.
