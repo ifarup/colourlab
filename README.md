@@ -220,7 +220,7 @@ https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.ht
 * **compress_axis()**
 
 Method      	                              | Description                                                                   | Return
-----------------------------------------------| ------------------------------------------------------------------------------|----------
+----------------------------------------------| ------------------------------------------------------------------------------|-------------------------------
 `is_inside(sp, c_data, t=false)`                       | Returns a boolean array containing T/F for all points in the array.  | boolean array
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.                                                   | -
 `intersectionpoint_on_line(sp, c_data, center=None):`    | Returns the nearest point on a gamut surface for the given point.  | np.array
