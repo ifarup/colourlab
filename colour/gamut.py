@@ -101,20 +101,20 @@ class Gamut:
         # self.hull.points =
         # self.hull.points += center
 
-    def is_inside(self, sp, c_data, b=False):
+    def is_inside(self, sp, c_data, t=False):
         """For the given data points checks if points are inn the convex hull
 
         :param sp : colour.Space
             The colour space for computing the gamut.
         :param c_data : colour.Data
             Data object with the colour points for the gamut.
-        :param b : boolean
+        :param t : boolean
             True if use the traverse method, false if use the flatten method.
         :return ndarray
             A array shape(c_data.get()-1) which contains True for each point included in the convexHull, else False.
         """
 
-        if b:
+        if t:
             nd_data = c_data.get(sp)                            # Get the data points as ndarray
 
             if nd_data.ndim == 1:                               # If only one point was sent.
@@ -726,8 +726,8 @@ class Gamut:
 
     def intersectionpoint_on_line(self, sp, c_data, center=None):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
-            in the c_data object. Cell number i in the returned array correspondes to cell number i from the
-            'c_data' parameter. Handels input on the format Nx...xMx3
+            in the c_data object. Cell number i in the returned array corresponding to cell number i from the
+            'c_data' parameter. Handles input on the format Nx...xMx3.
 
         :param sp: colour.space
             The Colour.space
