@@ -92,7 +92,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, self.generate_sphere(15, 100))
         self.gam = gamut.Gamut(space.srgb, c_data)
 
-        self.test_data = self.generate_sphere(14.9, 100000)
+        self.test_data = self.generate_sphere(14.9, 7000000)
         self.c_data = data.Data(space.srgb, self.test_data)
 
     def test_speed_traverse(self):
@@ -173,7 +173,7 @@ class TestGamut(unittest.TestCase):
     #     g = gamut.Gamut(space.srgb, c_data)         # Creates a new gamut
     #
     #     sp = g.space                                 # specifies the color space
-    #     g.plot_surface(ax, sp)                       # Calls the plot function
+    #     g.plot_surface(sp, ax)                       # Calls the plot function
     #
     # def test_in_line(self):
     #     c_data = data.Data(space.srgb, cube)
@@ -437,17 +437,25 @@ class TestGamut(unittest.TestCase):
     #     sp = g.space
     #     a = g.get_nearest_point_on_line(d, center, sp)
     #     print("Nearest point:", a)
-    #
-    # def test_compress(self):
-    #     c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
-    #     g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
-    #
-    #     col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
-    #     re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
-    #     fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
-    #
-    #     self.assertTrue(np.allclose(fasit_data, re_data))
-    #
+
+    def test_compress(self):
+        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
+
+        # col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
+        # re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
+
+        re_data = g.compress_axis(space.srgb, self.c_data, 2)
+        print("Done")
+
+        # fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
+
+        # plt.plot([15, 8, 5, 1, -5], [15, 8, 5, 1, -5], 'ro')
+        # plt.plot([15, 8, 5, 1, -5], [10, 6, 5, 3, 0], 'bo')
+        # plt.show()
+
+        # self.assertTrue(np.allclose(fasit_data, re_data))
+
     # def test_intersectionpoint_on_line(self):
     #     c_data = data.Data(space.srgb, cube)
     #     g = gamut.Gamut(space.srgb, c_data)

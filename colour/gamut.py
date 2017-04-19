@@ -538,6 +538,7 @@ class Gamut:
 
         return np.dot(d, np.cross(b, c)) == 0   # Coplanar if the cross product vector or two vectors dotted with the
                                                 # last vector is 0.
+
     @staticmethod
     def center_of_mass(points):
         """Finds the center of mass of the points given. To find the "geometric center" of a gamut
@@ -571,7 +572,7 @@ class Gamut:
 
         return np.array(point_list)          # Returns ndarray.
 
-    def plot_surface(self, ax, sp):
+    def plot_surface(self, sp, ax):
         """Plot all the vertices points on the received axel
 
         :param ax: Axel
@@ -815,7 +816,7 @@ class Gamut:
         p_min = 9001
         p_max = 0
 
-        for p in points:    # Finding the minimum and maximum values along given axis of the points to be compressed.
+        for p in points:            # Finding the min and max values along given axis of the points to be compressed.
             if p[ax] > p_max:
                 p_max = p[ax]
             if p[ax] < p_min:
@@ -825,7 +826,7 @@ class Gamut:
         g_min = 9001
         g_max = 0
 
-        for p in g_points:    # Finding the minimum and maximum values along given axis of the points in the gamut.
+        for p in g_points:          # Finding the min and max values along given axis of the points in the gamut.
             if p[ax] > g_max:
                 g_max = p[ax]
             if p[ax] < g_min:
@@ -835,9 +836,9 @@ class Gamut:
         delta_g = g_max - g_min
 
         b = delta_g / delta_p       # The slope of the line bx + a
-        a = g_min - b * p_min
+        a = g_min - b * p_min       # Finding start value for the line
 
-        for i in range(0, points.shape[0]):
+        for i in range(0, points.shape[0]):          # For every point.
             points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
 
         # TODO reshape til original
