@@ -89,7 +89,7 @@ class Gamut:
         """
         # Move all points so that 'center' is origin
         n_data = self.data.get_linear(self.space)
-        n_data_backup = n_data                          # Save a copy of the points, unmodifed.
+        n_data_backup = n_data                          # Save a copy of the points, unmodified.
 
         if center is None:
             self.center = self.center_of_mass(n_data)   # If a center was provided, use it.
@@ -101,10 +101,10 @@ class Gamut:
         n_data = shifted * (r ** gamma / r)                     # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
-        self.hull = spatial.ConvexHull(n_data)      # Set indexes from modifed points.
-        self.vertices = self.hull.vertices          # Set indexes from modifed points.
-        self.simplices = self.hull.simplices        # Set indexes from modifed points.
-        self.neighbors = self.hull.neighbors        # Set indexes from modifed points.
+        self.hull = spatial.ConvexHull(n_data)      # Set indexes from modified points.
+        self.vertices = self.hull.vertices          # Set indexes from modified points.
+        self.simplices = self.hull.simplices        # Set indexes from modified points.
+        self.neighbors = self.hull.neighbors        # Set indexes from modified points.
         self.center = center
         self.hull.points = n_data_backup
 
@@ -298,16 +298,7 @@ class Gamut:
         :return: ndarray
             shape(N, 3)
         """
-        coordinates = np.ndarray(shape=(indices.shape[0], 3))
-
-        counter = 0
-        for index in indices:
-            coordinates[counter] = self.hull.points[index]  # Get the coordinates.
-            counter += 1
-
-        # coordinates = self.hull.points[indices]
-
-        return coordinates
+        return self.hull.points[indices]
 
     def in_tetrahedron(self, t, p, true_interior=False):
         """Checks if the point P, pointed to by vector p, is inside(including the surface) the tetrahedron
@@ -334,7 +325,8 @@ class Gamut:
         hull = spatial.Delaunay(t)    # Generate a convexHull representation of the points
         return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
-    def in_line(self, line, point, true_interior=False):
+    @staticmethod
+    def in_line(line, point, true_interior=False):
         """Checks if a point P is on the line segment AB.
 
         :param line: ndarray
@@ -347,7 +339,7 @@ class Gamut:
         :return: Bool
             True is P in in the line segment from A to P.
         """
-        if true_interior and (tuple(point) == tuple(line[0]) or tuple(point) == tuple(line[1])):  #
+        if true_interior and (tuple(point) == tuple(line[0]) or tuple(point) == tuple(line[1])):
             return False
 
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
@@ -367,14 +359,14 @@ class Gamut:
         if np.linalg.norm(p) > np.linalg.norm(b):
             return False
 
-    def in_triangle(self, triangle, P, true_interior=False):
+    def in_triangle(self, triangle, q, true_interior=False):
         """Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
             This function utilizes the baycentric technique explained here
             https://blogs.msdn.microsoft.com/rezanour/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests/
 
         :param triangle: ndarray
             An ndarray with shape: (3,3), with points A, B and C being triangle[0]..[2]
-        :param P: ndarray
+        :param q: ndarray
             An ndarray with shape: (3,), the point to be tested for inclusion in the triangle.
         :param true_interior: bool
             If true_interior is set to True, returns False if 'P' is on one of the triangles edges.
@@ -383,16 +375,16 @@ class Gamut:
             True if 'w' is within the triangle ABC.
         """
 
-        # If the true interior option is activated, return False if 'P' is on one of the triangles edges.
-        if true_interior and (self.in_line(triangle[0:2], P) or
-                              self.in_line(triangle[1:3], P) or
-                              self.in_line(np.array([triangle[0], triangle[2]]), P)):
+        # If the true interior option is activated, return False if 'q' is on one of the triangles edges.
+        if true_interior and (self.in_line(triangle[0:2], q) or
+                              self.in_line(triangle[1:3], q) or
+                              self.in_line(np.array([triangle[0], triangle[2]]), q)):
             return False
 
         # Make 'A' the local origin for the points.
         b = triangle[1] - triangle[0]  # 'b' is the vector from A to B
         c = triangle[2] - triangle[0]  # 'c' is the vector from A to C
-        p = P - triangle[0]            # 'p' is now the vector from A to the point being tested for inclusion
+        p = q - triangle[0]            # 'p' is now the vector from A to the point being tested for inclusion
 
         # If triangle is actually a line. It is treated as a line.
         if np.array_equal(triangle[0], triangle[1]):
@@ -440,8 +432,8 @@ class Gamut:
         c = p[2] - p[0]
         d = p[3] - p[0]
 
-        return np.dot(d, np.cross(b, c)) == 0   # Coplanar if the cross product vector or two vectors dotted with the
-                                                # last vector is 0.
+        # Coplanar if the cross product vector or two vectors dotted with the  last vector is 0.
+        return np.dot(d, np.cross(b, c)) == 0
 
     @staticmethod
     def center_of_mass(points):
@@ -518,20 +510,19 @@ class Gamut:
         for arr in points:
             if not any(np.array_equal(arr, unique_arr) for unique_arr in uniques):
                 uniques.append(arr)
-        uniques = np.array(uniques)  # Convert back to ndarray.
+        uniques = np.array(uniques)              # Convert back to ndarray.
 
-        if uniques.shape[0] < 3:  # one or two unique points are garaunteed a point or line.
+        if uniques.shape[0] < 3:                 # one or two unique points are garaunteed a point or line.
             return uniques
 
-        # If we have 3 points, they are either a triangle or a line.
-        if uniques.shape[0] == 3:
+        if uniques.shape[0] == 3:                # If we have 3 points, they are either a triangle or a line.
             i = 0
             while i < 3:
                 a = np.delete(uniques, i, 0)
                 if self.in_line(a, uniques[i]):  # If a point is on the line segment between two other points
-                    return a           # Return that line segment.
+                    return a                     # Return that line segment.
                 i += 1
-            return uniques  # Guaranteed to be a triangle.
+            return uniques                       # Guaranteed to be a triangle.
 
         i = 0
         while i < 4:
@@ -540,12 +531,12 @@ class Gamut:
                 return b                         # other points
             i += 1
 
-        return uniques  # return a convex polygon with 4 vertices
+        return uniques                           # return a convex polygon with 4 vertices
 
-    def in_polygon(self, pts, q, true_interior=False):
+    def in_polygon(self, points, q, true_interior=False):
         """Checks if q is in the polygon formed by pts
 
-        :param pts: ndarray
+        :param points: ndarray
             shape(4, 3). Points on a polygon. Must be coplanar.
         :param q: ndarray
             Point to be tested for inclusion
@@ -556,19 +547,19 @@ class Gamut:
         if true_interior:
             # Divide into two triangles and check their true_interior, and their common edge with is in the true
             # interior or the polygon
-            return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q, true_interior=True) or
-                    self.in_line(np.array([pts[1], pts[2]]), q, true_interior=True) or
-                    self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q, true_interior=True))
+            return (self.in_triangle(np.array([points[0], points[1], points[2]]), q, true_interior=True) or
+                    self.in_line(np.array([points[1], points[2]]), q, true_interior=True) or
+                    self.in_triangle(np.array([points[1], points[2], points[3]]), q, true_interior=True))
         else:
             # Divide in two triangles and see is q is in either.
-            return (self.in_triangle(np.array([pts[0], pts[1], pts[2]]), q) or
-                    self.in_triangle(np.array([pts[1], pts[2], pts[3]]), q))
+            return (self.in_triangle(np.array([points[0], points[1], points[2]]), q) or
+                    self.in_triangle(np.array([points[1], points[2], points[3]]), q))
 
-    def interior(self, pts, q, true_interior=False):
-        """ Finds the vertices of pts convex shape, and calls the appropriate function
-            to test for inclusion.
-            Is not designed to work with more than 4 points.
-        :param pts: ndarray
+    def interior(self, points, q, true_interior=False):
+        """ Finds the vertices of pts convex shape, and calls the appropriate function to test for inclusion. 
+        Is not designed to work with more than 4 points.
+        
+        :param points: ndarray
             Shape(n, 3). 0 < n < 5.
         :param q: ndarray
             Point to be tested for inclusion in pts true shape.
@@ -578,8 +569,8 @@ class Gamut:
         :return: boolean
             True if the point was inside.
         """
-        if self.is_coplanar(pts):
-            true_shape = self.true_shape(pts)
+        if self.is_coplanar(points):
+            true_shape = self.true_shape(points)
             if true_shape.shape[0] == 1:
                 return np.allclose(true_shape, q)
             elif true_shape.shape[0] == 2:
@@ -592,12 +583,13 @@ class Gamut:
                 print("Error: interior received to many points, retuning False")
                 return False
         else:
-            return self.in_tetrahedron(pts, q, true_interior=true_interior)
+            return self.in_tetrahedron(points, q, true_interior=true_interior)
 
-    def get_alpha(self, d, center, n):
+    @staticmethod
+    def get_alpha(q, center, n):
         """Get the Alpha value by computing.
 
-        :param d: ndarray
+        :param q: ndarray
             The start point.
         :param center: ndarray
             The center is a end point in the color space.
@@ -607,11 +599,12 @@ class Gamut:
             Returns alpha value.
         """
         x = (n[3] - center[0] * n[0] - center[1] * n[1] - center[2] * n[2]) / \
-            (d[0] * n[0] - center[0] * n[0] + d[1] * n[1] - center[1] * n[1] + d[2] * n[2] - center[2] * n[2])
+            (q[0] * n[0] - center[0] * n[0] + q[1] * n[1] - center[1] * n[1] + q[2] * n[2] - center[2] * n[2])
 
         return x
 
-    def find_plane(self, points):
+    @staticmethod
+    def find_plane(points):
         """Find normal point to a plane(simplices) and the distance from p to the cross point.
 
         :param points: ndarray
@@ -623,11 +616,10 @@ class Gamut:
         v1 = points[2] - points[0]
         v2 = points[1] - points[0]
         n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
-        nnorm = np.linalg.norm(n2)                     # Find normal point.
-        n3 = n2 / nnorm                                # Find the distance.
-        n = np.hstack([n3, np.dot(points[1], n3)])     # Add the distance to numpy array.
+        norm = np.linalg.norm(n2)                      # Find normal point.
+        n3 = n2 / norm                                 # Find the distance.
 
-        return n
+        return np.hstack([n3, np.dot(points[1], n3)])  # Add the distance to numpy array, and return it.
 
     def intersectionpoint_on_line(self, sp, c_data, center=None):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
@@ -644,27 +636,25 @@ class Gamut:
             Shape(3,) containing the nearest point on the gamuts surface.
         """
 
-        if not center:  # If no center is defined, use geometric center.
+        if center is None:                          # If no center is defined, use geometric center.
             center = self.center
 
-        # Get linearised colour data
-        re_data = c_data.get_linear(sp)
+        re_data = c_data.get_linear(sp)             # Get linearised colour data
 
-        # Do get_nearest_point_on_line
-        for i in range(0, re_data.shape[0]):
-            re_data[i] = self.get_nearest_point_on_line(re_data[i], center, sp)
+        for i in range(0, re_data.shape[0]):        # Do get_nearest_point_on_line
+            re_data[i] = self.get_nearest_point_on_line(sp, re_data[i], center)
 
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
-    def get_nearest_point_on_line(self, d, center, sp):
+    def get_nearest_point_on_line(self, sp, q, center):
         """Finding the Nearest point along a line.
 
-        :param d: ndarray
+        :param sp: Space
+            The colour space for computing the gamut.
+        :param q: ndarray
             The start point.
         :param center: ndarray
             The center is a end point in the color space.
-        :param sp: Space
-            The colour space for computing the gamut.
         :return: ndarray
             Returns the nearest point.
         """
@@ -677,31 +667,30 @@ class Gamut:
                 points.append(new_points[m])
             point = np.array(points)                   # converts to numpy array
             n = self.find_plane(point)                 # Find the normal and distance
-            x = self.get_alpha(d, center, n)           # Finds the alpha value
+            x = self.get_alpha(q, center, n)           # Finds the alpha value
             if 0 <= x <= 1:                            # If alpha between 0 and 1 it gets added to the alpha list
-                if self.in_triangle(point, self.line_alpha(x, d, center)):  # And if its in the triangle to
+                if self.in_triangle(point, self.line_alpha(x, q, center)):  # And if its in the triangle to
                     alpha.append(x)
         a = np.array(alpha)
         np.sort(a, axis=0)
 
-        nearest_point = self.line_alpha(a[0], d, center)
+        nearest_point = self.line_alpha(a[0], q, center)
         return nearest_point
 
-    def line_alpha(self, alpha, d, center):
-        """Equation for calculating the nearest point
+    @staticmethod
+    def line_alpha(alpha, q, center):
+        """Equation for calculating the nearest point.
 
         :param alpha: float
             The highest given alpha value
-        :param d: ndarray
+        :param q: ndarray
             The start point.
         :param center: ndarray
             The center is a end point in the color space.
         :return: ndarray
             Return the nearest point.
         """
-        nearest_point = alpha * np.array(d) + center \
-            - alpha * np.array(center)     # finds the coordinates for the nearest point
-        return nearest_point
+        return alpha * np.array(q) + center - alpha * np.array(center)  # finds the coordinates for the nearest point
 
     def compress_axis(self, sp, c_data, ax):
         """ Compresses the points linearly in the desired axel and colour space.
@@ -710,7 +699,7 @@ class Gamut:
             The colour space to work in.
         :param c_data: colour.data.Data
             The points to be compressed.
-       :param ax: int
+        :param ax: int
             Integer representing which axis to do the compressing.
         :return: colour.data.Data
             Returns a colour.data.Data object with the new points.
@@ -721,27 +710,27 @@ class Gamut:
         p_min = 9001
         p_max = 0
 
-        for p in points:            # Finding the min and max values along given axis of the points to be compressed.
+        for p in points:               # Finding the min and max values along given axis of the points to be compressed.
             if p[ax] > p_max:
                 p_max = p[ax]
-            if p[ax] < p_min:
+            elif p[ax] < p_min:
                 p_min = p[ax]
 
         g_points = self.get_coordinates(self.vertices)  # Using only vertices to find min and max points of the gamut.
         g_min = 9001
         g_max = 0
 
-        for p in g_points:          # Finding the min and max values along given axis of the points in the gamut.
+        for p in g_points:              # Finding the min and max values along given axis of the points in the gamut.
             if p[ax] > g_max:
                 g_max = p[ax]
             if p[ax] < g_min:
                 g_min = p[ax]
 
-        delta_p = p_max - p_min     # Calculating the delta values.
+        delta_p = p_max - p_min         # Calculating the delta values.
         delta_g = g_max - g_min
 
-        b = delta_g / delta_p       # The slope of the line bx + a
-        a = g_min - b * p_min       # Finding start value for the line
+        b = delta_g / delta_p           # The slope of the line bx + a
+        a = g_min - b * p_min           # Finding start value for the line
 
         for i in range(0, points.shape[0]):          # For every point.
             points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
