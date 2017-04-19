@@ -122,91 +122,79 @@ class Gamut:
         """
 
         if t:
-            nd_data = c_data.get(sp)                            # Get the data points as ndarray
+            nd_data = c_data.get(sp)                            # Get the data points as ndarray.
 
             if nd_data.ndim == 1:                               # If only one point was sent.
-                return np.array([self.feito_torres(nd_data)])   # Returns 1d boolean-array
+                return np.array([self.feito_torres(nd_data)])   # Returns 1d boolean-array.
 
             else:
-                indices = np.ones(nd_data.ndim - 1,
-                                  int) * -1  # Important that indices is initialized with negative numb.
-                bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool-array with the same shape as the
-                self.traverse_ndarray(nd_data, indices, bool_array)  # nd_data(minus the last dimension)
+                indices = np.ones(nd_data.ndim - 1, int) * -1        # Initialize with negative numbers.
+                bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool-array with the same shape as the.
+                self.traverse_ndarray(nd_data, indices, bool_array)  # nd_data(minus the last dimension).
 
-                return bool_array  # Returns the boolean array
+                return bool_array                               # Returns the boolean array.
         else:
-            # Get the shape of c_data
-            shape = c_data.get(sp).shape[:-1]
-
-            bool_array = np.zeros(shape)
+            shape = c_data.get(sp).shape[:-1]                   # Nx...xMx3 color data needs Nx..xM bool array.
+            bool_array = np.zeros(shape)                        # Create a bool array for storing the results.
             bool_array.flatten()
 
-            # Get the shape of c_data
-            shape = c_data.get(sp).shape[:-1]      # Nx...xMx3 color data needs Nx..xM bool array
+            n_data = c_data.get_linear(sp)
 
-            l_data = c_data.get_linear(sp)
+            for i in range(0, bool_array.shape[0]):  # Call feito
+                bool_array[i] = self.feito_torres(n_data[i])
 
-            bool_array = np.zeros(shape, bool)
-            bool_array = bool_array.flatten()
-
-            # Do feito
-            for i in range(0, bool_array.shape[0]):
-                bool_array[i] = self.feito_torres(l_data[i])
-
-            # Reshape (without last dimension)
-            bool_array = bool_array.reshape(shape)
-
+            bool_array = bool_array.reshape(shape)    # Reshape (without last dimension)
             return bool_array
 
-    def traverse_ndarray(self, nda, indices, bool_array):
-        """For the given data points checks if points are inn the convexhull
+    def traverse_ndarray(self, n_data, indices, bool_array):
+        """For the given data points recursively traverse the dimensions to check if points are inn the convexhull.
 
-        :param nda : ndarray
+        :param n_data : ndarray
             An n-dimensional array containing the remaining dimensions to iterate.
         :param indices : array
             The dimensional path to the coordinate.
             Needs to be as long as the (amount of dimensions)-1 in nda and filled with -1's
         :param bool_array : ndarray
-            Array shape(nda-1) containing true/false in last dimension.
+            Array containing true/false in last dimension.
         """
-        if np.ndim(nda) != 1:                               # Not yet reached a leaf node
+        if np.ndim(n_data) != 1:                            # Not yet reached a leaf node
             curr_dim = 0
             for index in np.nditer(indices):                # calculate the dimension number witch we are currently in
                 if index != -1:                             # If a dimension is previously iterated the cell will
                     curr_dim += 1                           # have been changed to a non-negative number.
 
             numb_of_iterations = 0
-            for nda_minus_one in nda:                       # Iterate over the length of the current dimension
+            for nda_minus_one in n_data:                       # Iterate over the length of the current dimension
                 indices[curr_dim] = numb_of_iterations      # Update the path in indices before next recursive call
                 self.traverse_ndarray(nda_minus_one, indices, bool_array)
                 numb_of_iterations += 1
             indices[curr_dim] = -1                          # should reset the indices array when the call dies
 
         else:                                               # We have reached a leaf node
-            bool_array[(tuple(indices))] = self.feito_torres(nda)  # Set the boolean array to returned boolean.
+            bool_array[(tuple(indices))] = self.feito_torres(n_data)  # Set the boolean array to returned boolean.
 
     def feito_torres(self, q):
-        """ Tests if a point P is inside a convexHull(polyhedra)
+        """ Tests if a point q is inside the Gamut(general polyhedra)
 
             :param q: ndarray
                 Point to be tested for inclusion.
             :return: bool
-                True if q is included in the convexHull(polyhedron)
+                True if q is included in the Gamut.
             """
         inclusion = 0
         v_plus = []     # a list of vertices who's original edge contains P, and it's face is POSITIVE oriented
         v_minus = []    # a list of vertices who's original edge contains P, and it's face is NEGATIVE oriented
+        origin = np.array([0., 0., 0.])
 
-        for face in self.simplices:
+        for face in self.simplices:                         # Iterate through all the Gamuts facets.
             facet = self.get_coordinates(face)
             a = facet[0]
             b = facet[1]
             c = facet[2]
 
-            origin = np.array([0., 0., 0.])
-            s_t = self.sign(np.array([origin, a, b, c]))  # sign of the face's original tetrahedron
+            s_t = self.sign(np.array([origin, a, b, c]))    # sign of the face's original tetrahedron
             s_nt = s_t*-1
-            signs = np.zeros(4)     # array for indexing the sign values
+            signs = np.zeros(4)                             # array for indexing the sign values
             zeros = 0
 
             # Check if q sees the same side of the tetrahedron's facets as origin does. If this is not true,
@@ -228,7 +216,7 @@ class Gamut:
                 if signs[i] == 0:
                     zeros += 1
 
-            if signs[0] == 0:                 # If true point is inside the tetrahedron.
+            if signs[0] == 0:                 # True if q is on the current facet.
                 return True
 
             elif zeros == 0:                  # Tetrahedra
