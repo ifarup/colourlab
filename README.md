@@ -148,8 +148,53 @@ g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along th
 ```
 
 ## Examples
-**Examples for all methods coming soon, a ninja stole them**
+For all examples:
+* **space:** a colour.space.Space object
+* **c_data:** a colour.data.Data object
+* **p_in/p_out:** a point inside/outside the gamut
 
+All examples presupposes that you have created a colour Data object(c_data) and a gamut(g) object.
+```
+c_data = data.Data(space, gamut_points)  # Generating the colour Data object
+g = gamut.Gamut(space, c_data)           # Creates a new gamut
+```
+
+#### is_inside()
+The function receives two parameters, colourspace and a colour data object(c_data). The function checks if points are inn the convex hull and return boolean-array containing true/false in the last dimension.
+```
+a = g.is_inside(space, c_data)                # Call the method
+```
+#### plot_surface()
+The function receives two parameters axis and space. The function will visualize a gamut figure in 3D.
+```
+fig = plt.figure()                            # Creates a figure
+axis = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
+space = g.space                               # Specifies the color space
+g.plot_surface(axis, space)                   # Call the method
+```
+
+#### intersectionpoint_on_line():
+The function receives three parameters. The colour space, the points in the c_data format, and center(if no center is defined, it will use the default gamut center). The function will return nearest point along a line between the point and the given center.
+```
+p_out = [5, 5, 15]                                          # A point outside the gamut object
+p_in = [5, 5, 5]                                            # A point inside the gamut object
+space = g.space                                             # Specifies the color space
+a = g.intersectionpoint_on_line(space, c_data, center=None) # Call the method
+```
+
+#### get_clip_nearest() ??? mulig bug!
+The function receives two parameters. Points outside are colour data object and are represented as numpy arrays of dimensions Nx...xMx3. The function will return nearest point in 3D.
+```
+p_out = [12, 12, 12]                        # A point outside the gamut object
+space = g.space                             # Specifies the color space
+d_clip = g.get_clip_nearest(p_out, space)   # Call the method
+```
+
+#### compress_axis()
+The function receives three parameters. The color space, pints in the c_data format, and the axis to compress as integer. The axis range is [0,1,2] where 0==X, 1==Y and 2==Z.
+```
+c = g.compress_axis(space, c_data, axis)    # call method
+```
 
 ## Attributes
 
@@ -170,13 +215,17 @@ https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.ht
 
 * **is_inside()**
 * **plot_surface()**
-* **intersectionpoint_on_line()**
+* **intersectionpoint_on_line():**
+* **get_clip_nearest()**
+* **compress_axis()**
 
-Method      	                              | Description
---------------------------------------------  | -----------------------------------------------------------
-`is_inside(sp, c_data)`                       | Returns a boolean array containing T/F for all points in the array.        
-`plot_surface(ax, sp)`                        | Plot the gamut's simplices.
-`intersectionpoint_on_line(d, center, sp)`    | Return the nearest point on a gamut serface for the given point.
+Method      	                              | Description                                                                   | Return
+----------------------------------------------| ------------------------------------------------------------------------------|-------------------------------
+`is_inside(sp, c_data, t=false)`                       | Returns a boolean array containing T/F for all points in the array.  | boolean array
+`plot_surface(ax, sp)`                        | Plot the gamut's simplices.                                                   | -
+`intersectionpoint_on_line(sp, c_data, center=None):`    | Returns the nearest point on a gamut surface for the given point.  | np.array
+`get_clip_nearest(sp, p_out, side)`             | Returns the nearest point on a gamut in 3D.                                 | np.array
+`compress_axis(sp, c_data, ax):`        | Compresses the points linearly in the desired axel and colour space.                | colour.data.Data object
 
 test_colour
 ===========
@@ -185,5 +234,5 @@ of each major function in the correlating module. All tests are automatically ru
 Each unit test can be run separately. If you are using pycharm, navigate to the module containing the test you want 
 to run, right-click the test function and select 'run unittest XXX'
 
-####Tests currently exists for the following modules:
+Tests currently exists for the following modules:
 * Gamut (v3.6)

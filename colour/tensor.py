@@ -27,6 +27,24 @@ from . import data, space
 # Colour metric tensors
 # =============================================================================
 
+def construct_tensor(sp, dat, tensor_ndata):
+    """
+    Construct the TensorData object with correct dimensions
+
+    The tensors_ndata has shape N x 3 x 3. Construct TensorData object
+    with shape correspoinding to the data points in dat.
+
+    Parameters
+    ----------
+    sp: Space
+        The colour space of the tensor_ndata
+    dat: Data
+        Colour data points
+    tensor_ndata: ndarray
+        N x 3 x 3 ndarray of tensor data.
+    """
+    sh = np.hstack((np.array(dat.sh), 3))
+    return data.TensorData(sp, dat, np.reshape(tensor_ndata, sh))
 
 def euclidean(sp, dat):
     """
@@ -49,14 +67,14 @@ def euclidean(sp, dat):
     g = sp.empty_matrix(dat.linear_XYZ)
     for i in range(np.shape(g)[0]):
         g[i] = np.eye(3)
-    return data.TensorData(sp, dat, g)
+    return construct_tensor(sp, dat, g)
 
 
 def dE_ab(dat):
     """
     Compute the DEab metric as TensorData for the given data points.
 
-    Parameters
+    |eters
     ----------
     dat : Data
         The colour points for which to compute the metric.
@@ -215,7 +233,7 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
     g[:, 2, 2] = C**2 * (k_h * S_h)**(-2)
     g[:, 1, 2] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
     g[:, 2, 1] = .5 * C * R_T / (k_C * S_C * k_h * S_h)
-    return data.TensorData(space.ciede00lch, dat, g)
+    return construct_tensor(space.ciede00lch, dat, g)
 
 
 def poincare_disk(sp, dat):
@@ -241,7 +259,7 @@ def poincare_disk(sp, dat):
         g[i, 0, 0] = 1
         g[i, 1, 1] = sp.R**2 * 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
         g[i, 2, 2] = sp.R**2 * 4. / (1 - d[i, 1]**2 - d[i, 2]**2)**2
-    return data.TensorData(sp, dat, g)
+    return construct_tensor(sp, dat, g)
 
 # TODO:
 #
