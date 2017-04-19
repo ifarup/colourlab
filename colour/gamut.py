@@ -213,19 +213,19 @@ class Gamut:
                 continue
 
             for i in range(0, 3):
-                if signs[i] == 0:
-                    zeros += 1
+                if signs[i] == 0:             # If sign[i] is zero, q is on the corresponding face of the facet's
+                    zeros += 1                # original tetrahedron.
 
             if signs[0] == 0:                 # True if q is on the current facet.
                 return True
 
-            elif zeros == 0:                  # Tetrahedra
+            elif zeros == 0:                  # Tetrahedra.
                 inclusion += s_t
 
-            elif zeros == 1:                  # Triangle
+            elif zeros == 1:                  # Triangle.
                 inclusion += 0.5*s_t
 
-            elif zeros == 2:                  # Line
+            elif zeros == 2:                  # Line.
                 inclusion += 0.5*s_t
 
                 if signs[1] == 0 and signs[2] == 0:         # Intersection point is on line is between A and O
@@ -255,94 +255,15 @@ class Gamut:
         else:
             return False
 
-    # The following method is deprecated and only present for performance testing. 28.03.2017
-    def deprecated_feito_torres(self, P):
-        """ Tests if a point P is inside a convexHull(polyhedron)
-
-        :param P: ndarray
-            Point to be tested for inclusion.
-        :return: bool
-            True if P is included in the convexHull(polyhedron)
-        """
-        inclusion = 0   # Will be greater than 0 if P is inside.
-        v_plus = []     # a list of vertices who's original edge contains P, and it's face is POSITIVE oriented
-        v_minus = []    # a list of vertices who's original edge contains P, and it's face is NEGATIVE oriented
-        origin = np.array([0., 0., 0.])
-
-        for el in self.simplices:
-            facet = self.get_coordinates(el)    # Get the coordinates for the current facet
-            if self.interior(facet, P, True):      # Check if P is on the current facet.
-                return True
-
-            o_v1 = np.array([origin, facet[0]])   # Line from origo to the first vertex in the facet.
-            o_vn = np.array([origin, facet[-1]])  # Line from origo to the last vertex in the facet.
-            o_face = np.array([origin, facet[0], facet[1], facet[2]])  # original tetrahedra from face to origo.
-            sign_face = self.sign(o_face)         # Sign of the current original tetrahedron
-
-            # Check if P is on the original edge of the facets first vertex.
-            if(self.interior(o_v1, P)) and \
-                    ((sign_face > 0 and not (np.in1d(el[0], v_plus))) or  # and that the vertex is not already
-                        (sign_face < 0 and not (np.in1d(el[0], v_minus)))):  # in v_plus/minus
-                inclusion += sign_face
-
-                if sign_face < 0:               # add vertex to neg. oriented facets or pos. oriented facets
-                    v_minus.append(el[0])
-                else:
-                    v_plus.append(el[0])
-
-            # Check if P is on the original edge of the facets last vertex.
-            if(self.interior(o_vn, P)) and \
-                    ((sign_face > 0 and not (np.in1d(el[-1], v_plus))) or  # and that the vertex is not already
-                        (sign_face < 0 and not (np.in1d(el[-1], v_minus)))):  # in v_plus/minus
-                inclusion += sign_face
-
-                if sign_face < 0:           # add vertex to neg. oriented facets or pos. oriented facets
-                    v_minus.append(el[-1])
-                else:
-                    v_plus.append(el[-1])
-
-            j = 1
-            for vertex in facet[1:-1]:  # For the remaining vertices
-                tetra = np.array([[0., 0., 0.], facet[0], facet[j], facet[j+1]])  # original tetrahedron
-                sign_tetra = self.sign(tetra)  # The sign of the original tetrahedron
-
-                # See if P is on any of the facets original triangles.
-                if self.interior(np.array([origin, facet[0], facet[j]]), P, True) or \
-                    self.interior(np.array([origin, facet[j], facet[j+1]]), P, True) or \
-                        self.interior(np.array([origin, facet[j+1], facet[0]]), P, True):
-                    inclusion += 0.5*sign_tetra
-
-                # See if P is the original edge of vertex j
-                elif self.interior(np.array([origin, facet[j]]), P) and \
-                        ((sign_tetra > 0 and not (np.in1d(vertex[j], v_plus))) or
-                            (sign_tetra < 0 and not (np.in1d(vertex[j], v_minus)))):
-                    inclusion += sign_tetra
-
-                    if sign_tetra < 0:  # add vertex to neg. oriented facets or pos. oriented facets
-                        v_minus.append(vertex[j])
-                    else:
-                        v_plus.append(vertex[j])
-
-                # See if P is in the original tetrahedron of the current facet.
-                elif self.interior(tetra, P, True):
-                    inclusion += sign_tetra
-
-                j += 1
-
-        if inclusion > 0:
-            return True
-        else:
-            return False
-
     def fix_orientation(self):
-        """Fixes the orientation of the facets in the hull.
+        """Fixes the orientation of the facets in the hull, so their normal vector points outwards.
         """
 
         c = self.center_of_mass(self.get_coordinates(self.vertices))
 
         for simplex in self.simplices:
             facet = self.get_coordinates(simplex)
-            normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector
+            normal = np.cross((facet[1] - facet[0]), facet[2] - facet[0])  # Calculate the facets normal vector.
             if np.dot((facet[0]-c), normal) < 0:            # If the dot product of 'normal' and a vector from the
                                                             # center of the gamut to the facet is negative, the
                                                             # orientation of the facet needs to be fixed.
@@ -369,15 +290,6 @@ class Gamut:
                            [1, 1, 1, 1]])
         return int(np.sign(sci.linalg.det(matrix)))*-1  # Calculates the signed volume and returns its sign.
 
-        # Above code works as it should, but there must be a way to do this without multiplying with '-1'
-        # The below code SHOULD WORK, but.. it doesn't.
-        # matrix = np.array([[t[0, 0], t[0, 1], t[0, 2], 1],
-        #                    [t[1, 0], t[1, 1], t[1, 2], 1],
-        #                    [t[2, 0], t[2, 1], t[2, 2], 1],
-        #                    [t[3, 0], t[3, 1], t[3, 2], 1]])
-        #
-        # return int(np.sign(sci.linalg.det(matrix)))
-
     def get_coordinates(self, indices):
         """Return the coordinates of the points correlating to the the indices provided.
 
@@ -392,6 +304,8 @@ class Gamut:
         for index in indices:
             coordinates[counter] = self.hull.points[index]  # Get the coordinates.
             counter += 1
+
+        # coordinates = self.hull.points[indices]
 
         return coordinates
 
