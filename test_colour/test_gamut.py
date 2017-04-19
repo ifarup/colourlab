@@ -448,6 +448,16 @@ class TestGamut(unittest.TestCase):
         fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
         self.assertTrue(np.allclose(fasit_data, re_data))
 
+        def test_find_plane(self):
+            p_data = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+            c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
+            g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
+
+            d = g.find_plane(p_data)
+            r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
+            np.alltrue(d == r)
+            print("find plane:", d)  # Normal vector xyz and distance.
+
     # def test_intersectionpoint_on_line(self):
     #     c_data = data.Data(space.srgb, cube)
     #     g = gamut.Gamut(space.srgb, c_data)
@@ -487,6 +497,59 @@ class TestGamut(unittest.TestCase):
     #
     #
     #     print(original_tetrahedron)
+    def test_nearest_point_on_line(self):
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
+        d = [5, 5, 15]
+        center = [5, 5, 5]
+
+        sp = g.space
+        a = g.get_nearest_point_on_line(d, center, sp)
+        print("Nearest point:", a)
+
+    def test_clip_nearest(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])         # points to map
+        mod_points = np.array([[5, 5, 10], [5, 5, 10], [5, 5, 10]])     # wanted result
+
+        c_data = data.Data(space.srgb, points)          # data.Data object
+        re_data = g.clip_nearest(space.srgb, c_data)    # data.Data object returned
+
+        self.assertTrue(
+            np.allclose(re_data.get_linear(space.srgb), mod_points))    # assert that the points are changed
+
+        print("Nearest point in 3D:", re_data.data)
+
+    def test_get_clip_nearest(self):
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
+        d = [12, 12, 12]
+        sp = g.space
+        d_clip = g.get_clip_nearest(d, sp)
+
+    def test_compress(self):
+        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
+
+        col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
+        re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
+        fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
+
+        self.assertTrue(np.allclose(fasit_data, re_data))
+
+    def test_intersectionpoint_on_line(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # points to map
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])         # wanted result
+
+        c_data = data.Data(space.srgb, points)                              # data.Data object
+        re_data = g.intersectionpoint_on_line(space.srgb, c_data)           # data.Data object returned
+
+        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
 if __name__ == '__main__':
     unittest.main(exit=False)
