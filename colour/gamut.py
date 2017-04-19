@@ -718,6 +718,14 @@ class Gamut:
         return nearest_point
 
     def clip_nearest(self, sp, c_data):
+        """ For each point in c_data return the nearest point on the gamut surface.
+        
+        :param sp: colour.Space
+            A colour space
+        :param c_data: colour.Data
+            A colour.Data object with the points to use.
+        :return:  colour.Data
+        """
         # Get linearised colour data
         re_data = c_data.get_linear(sp)
 
@@ -728,9 +736,9 @@ class Gamut:
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
     def get_clip_nearest(self, sp, p_outside):
-        """
-        Finds the nearst point in 3D
-        :param sp: Space
+        """ Finds the nearst point in 3D
+        
+        :param sp: colour.Space
             The colour space for computing the gamut.
         :param p_outside: ndarray
             The start point.
@@ -750,7 +758,7 @@ class Gamut:
 
         neighbors = []                                      # List for all the neighbors
         for j in self.simplices:                            # Goes through all the simplices
-            # If the simplex has the vertieces as a side
+                                                            # If the simplex has the vertices as a side
             if point_index == j[0] or point_index == j[1] or point_index == j[2]:
                 neighbors.append(self.get_coordinates(j))
 
