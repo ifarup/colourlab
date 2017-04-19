@@ -60,7 +60,7 @@ class Gamut:
             self.initialize_modified_convex_hull(gamma, center)
         self.fix_orientation()
 
-    def _initialize_convex_hull(self):
+    def initialize_convex_hull(self):
         """Initializes the gamuts convex hull in the desired colour space
 
         :param sp : Space
@@ -89,12 +89,12 @@ class Gamut:
         """
         # Move all points so that 'center' is origin
         n_data = self.data.get_linear(self.space)
-        n_data_backup = n_data      # Save a copy of the points, unmodifed.
+        n_data_backup = n_data                          # Save a copy of the points, unmodifed.
 
-        if center == None:
-            self.center = self.center_of_mass(n_data) # If a center was provided, use it.
+        if center is None:
+            self.center = self.center_of_mass(n_data)   # If a center was provided, use it.
         else:
-            self.center = center    # If not, use the geometric center as a default.
+            self.center = center                        # If not, use the geometric center as a default.
 
         shifted = n_data - center                               # Make center the local origin
         r = np.linalg.norm(shifted, axis=1, keepdims=True)      # Get the radius of all points
@@ -135,13 +135,8 @@ class Gamut:
 
                 return bool_array  # Returns the boolean array
         else:
-
             # Get the shape of c_data
             shape = c_data.get(sp).shape[:-1]
-
-            # TODO refactor unused variables
-            # Flatten
-            l_data = c_data.get_linear(sp)
 
             bool_array = np.zeros(shape)
             bool_array.flatten()
@@ -819,6 +814,7 @@ class Gamut:
             Returns a colour.data.Data object with the new points.
         """
 
+        shape = c_data.get(sp).shape   # Save the original shape of the points.
         points = c_data.get_linear(sp)
         p_min = 9001
         p_max = 0
@@ -848,5 +844,4 @@ class Gamut:
         for i in range(0, points.shape[0]):          # For every point.
             points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
 
-        # TODO reshape til original
-        return data.Data(sp, points)  # Return the points as a colour.data.Data object.
+        return data.Data(sp, points.reshape(shape))  # Return the points as a colour.data.Data object.
