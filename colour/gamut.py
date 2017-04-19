@@ -142,7 +142,7 @@ class Gamut:
             bool_array.flatten()
 
             # Get the shape of c_data
-            shape = c_data.get(sp).shape[:-1]
+            shape = c_data.get(sp).shape[:-1]      # Nx...xMx3 color data needs Nx..xM bool array
 
             l_data = c_data.get_linear(sp)
 
