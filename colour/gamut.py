@@ -624,33 +624,6 @@ class Gamut:
 
     def intersectionpoint_on_line(self, sp, c_data, center=None):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
-            in the c_data object. Cell number i in the returned array correspondes to cell number i from the
-            'c_data' parameter. Handels input on the format Nx...xMx3
-
-        :param sp: colour.space
-            The Colour.space
-        :param c_data: colour.data.Data
-            Colour.data.Data object containing all points.
-        :param center : ndarray
-            Center point to use when computing the nearest point.
-        :return: ndarray
-            Shape(3,) containing the nearest point on the gamuts surface.
-        """
-
-        if not center:  # If no center is defined, use geometric center.
-            center = self.center
-
-        # Get linearised colour data
-        re_data = c_data.get_linear(sp)
-
-        # Do get_nearest_point_on_line
-        for i in range(0, re_data.shape[0]):
-            re_data[i] = self.get_nearest_point_on_line(re_data[i], center, sp)
-
-        return data.Data(sp, np.reshape(re_data, c_data.sh))
-
-    def intersectionpoint_on_line(self, sp, c_data, center=None):
-        """ Returns an array containing the nearest point on the gamuts surface, for every point
             in the c_data object. Cell number i in the returned array corresponding to cell number i from the
             'c_data' parameter. Handles input on the format Nx...xMx3.
 
@@ -815,47 +788,3 @@ class Gamut:
                     point = point_on_plane
 
         return point                                    # If we found no points that is in triangle we return the vertex
-
-    def compress_axis(self, sp, c_data, ax):
-        """ Stuff
-
-        :param sp: colour.space
-            The colour space to work in.
-        :param c_data: colour.data.Data
-            The points to be compressed.
-       :param ax: int
-            Integer representing which axis to do the compressing.
-        :return: colour.data.Data
-            Returns a colour.data.Data object with the new points.
-        """
-
-        points = c_data.get_linear(sp)
-        p_min = 9001
-        p_max = 0
-
-        for p in points:    # Finding the minimum and maximum values along given axis of the points to be compressed.
-            if p[ax] > p_max:
-                p_max = p[ax]
-            if p[ax] < p_min:
-                p_min = p[ax]
-
-        g_points = self.get_coordinates(self.vertices)  # Using only vertices to find min and max points of the gamut.
-        g_min = 9001
-        g_max = 0
-
-        for p in g_points:    # Finding the minimum and maximum values along given axis of the points in the gamut.
-            if p[ax] > g_max:
-                g_max = p[ax]
-            if p[ax] < g_min:
-                g_min = p[ax]
-
-        delta_p = p_max - p_min     # Calculating the delta values.
-        delta_g = g_max - g_min
-
-        b = delta_g / delta_p       # The slope of the line bx + a
-        a = g_min - b * p_min
-
-        for i in range(0, points.shape[0]):
-            points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
-
-        return data.Data(sp, points)  # Return the points as a coulour.data.Data object.
