@@ -132,10 +132,10 @@ class Gamut:
                 bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool-array with the same shape as the.
                 self.traverse_ndarray(nd_data, indices, bool_array)  # nd_data(minus the last dimension).
 
-                return bool_array                               # Returns the boolean array.
+                return bool_array                              # Returns the boolean array.
         else:
             shape = c_data.get(sp).shape[:-1]                   # Nx...xMx3 color data needs Nx..xM bool array.
-            bool_array = np.zeros(shape)                        # Create a bool array for storing the results.
+            bool_array = np.zeros(shape, bool)                        # Create a bool array for storing the results.
             bool_array.flatten()
 
             n_data = c_data.get_linear(sp)
