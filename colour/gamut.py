@@ -464,7 +464,7 @@ class Gamut:
         point_list = []                     # Array list for the vertices.
 
         for i in self.hull.vertices:        # For loop that goes through all the vertices
-            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinents to the list.
+            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinate to the list.
 
         return np.array(point_list)          # Returns ndarray.
 
