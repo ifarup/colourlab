@@ -40,6 +40,10 @@ class Gamut:
             The colour space for computing the gamut.
         :param points : colour.Data
             The colour points for the gamut.
+        :param gamma : float
+            Decides how much the points are expanded when using modified convex hull initializing.
+        :param center : ndarray
+            The gamut center. If one is note provided, the geometric center of the points is used.
         """
 
         self.data = points       # The data points are stored in the original format. Use hull.points for actual points.
@@ -56,7 +60,7 @@ class Gamut:
             self.initialize_modified_convex_hull(gamma, center)
         self.fix_orientation()
 
-    def initialize_convex_hull(self):
+    def _initialize_convex_hull(self):
         """Initializes the gamuts convex hull in the desired colour space
 
         :param sp : Space
@@ -85,21 +89,24 @@ class Gamut:
         """
         # Move all points so that 'center' is origin
         n_data = self.data.get_linear(self.space)
+        n_data_backup = n_data      # Save a copy of the points, unmodifed.
+
+        if center == None:
+            self.center = self.center_of_mass(n_data) # If a center was provided, use it.
+        else:
+            self.center = center    # If not, use the geometric center as a default.
 
         shifted = n_data - center                               # Make center the local origin
         r = np.linalg.norm(shifted, axis=1, keepdims=True)      # Get the radius of all points
         n_data = shifted * (r ** gamma / r)                     # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
-        self.hull = spatial.ConvexHull(n_data)
-        self.vertices = self.hull.vertices
-        self.simplices = self.hull.simplices
-        self.neighbors = self.hull.neighbors
+        self.hull = spatial.ConvexHull(n_data)      # Set indexes from modifed points.
+        self.vertices = self.hull.vertices          # Set indexes from modifed points.
+        self.simplices = self.hull.simplices        # Set indexes from modifed points.
+        self.neighbors = self.hull.neighbors        # Set indexes from modifed points.
         self.center = center
-
-        # TODO fikse points
-        # self.hull.points =
-        # self.hull.points += center
+        self.hull.points = n_data_backup
 
     def is_inside(self, sp, c_data, t=False):
         """For the given data points checks if points are inn the convex hull
