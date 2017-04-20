@@ -342,7 +342,7 @@ class TestGamut(unittest.TestCase):
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
 
-    # # Test out of commision. Try again later.
+    # # Test out of commission. Try again later.
     # def test_nearest_point_on_line(self):
     #     c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
     #     g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
