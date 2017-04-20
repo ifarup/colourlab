@@ -140,8 +140,8 @@ class Gamut:
 
             n_data = c_data.get_linear(sp)
 
-            for i in range(0, bool_array.shape[1]):  # Call feito
-                bool_array[(0, i)] = self.feito_torres(n_data[i])
+            for i in range(0, bool_array.shape[0]):  # Call feito
+                bool_array[i] = self.feito_torres(n_data[i])
 
             bool_array = bool_array.reshape(shape)    # Reshape (without last dimension)
             return bool_array

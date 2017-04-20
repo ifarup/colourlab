@@ -118,19 +118,19 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
 
         c_data = data.Data(space.srgb, points_3d)
-        a = g.is_inside(space.srgb, c_data)
+        a = g.is_inside(space.srgb, c_data, t=False)
         self.assertEqual(a.shape, points_3d.shape[:-1])     # Asserts if shape is reduced by 1dim
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_3d))            # Asserts that the returned values are correct
 
         c_data = data.Data(space.srgb, points_2d)
-        a = g.is_inside(space.srgb, c_data, t=True)
+        a = g.is_inside(space.srgb, c_data, t=False)
         self.assertEqual(a.shape, points_2d.shape[:-1])     # Asserts if shape is reduced by 1dim
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_2d))            # Asserts that the returned values are correct
 
         c_data = data.Data(space.srgb, points_1d)
-        a = g.is_inside(space.srgb, c_data)
+        a = g.is_inside(space.srgb, c_data, t=False)
         self.assertEqual(1, a.size)                         # When only one point is sent, still returned a array
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_1d))            # Asserts that the returned values are correct
