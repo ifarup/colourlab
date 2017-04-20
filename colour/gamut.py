@@ -131,11 +131,11 @@ class Gamut:
                 bool_array = np.zeros(np.shape(nd_data)[:-1], bool)  # Create a bool-array with the same shape as the.
                 self.traverse_ndarray(nd_data, indices, bool_array)  # nd_data(minus the last dimension).
 
-                return bool_array                               # Returns the boolean array.
+                return bool_array                              # Returns the boolean array.
         else:
             shape = c_data.get(sp).shape[:-1]                   # Nx...xMx3 color data needs Nx..xM bool array.
-            bool_array = np.zeros(shape)                        # Create a bool array for storing the results.
-            bool_array.flatten()
+            bool_array = np.zeros(shape, bool)                  # Create a bool array for storing the results.
+            bool_array = bool_array.flatten()
 
             n_data = c_data.get_linear(sp)
 
@@ -325,12 +325,12 @@ class Gamut:
         return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
     @staticmethod
-    def in_line(line, point, true_interior=False):
+    def in_line(line, q, true_interior=False):
         """Checks if a point P is on the line segment AB.
 
         :param line: ndarray
             line segment from point A to point B
-        :param point: ndarray
+        :param q: ndarray
             Vector from A to P
         :return: Bool
         :param true_interior: bool
@@ -338,11 +338,11 @@ class Gamut:
         :return: Bool
             True is P in in the line segment from A to P.
         """
-        if true_interior and (tuple(point) == tuple(line[0]) or tuple(point) == tuple(line[1])):
+        if true_interior and (tuple(q) == tuple(line[0]) or tuple(q) == tuple(line[1])):
             return False
 
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
-        p = point - line[0]     # Make the same adjustments to the points. Copy to not change the original point
+        p = q - line[0]         # Make the same adjustments to the points. Copy to not change the original q
 
         # Check if the cross b x p is 0, if not the vectors are not collinear.
         matrix = np.array([[1, 1, 1], b, p, ])
@@ -465,7 +465,7 @@ class Gamut:
         point_list = []                     # Array list for the vertices.
 
         for i in self.hull.vertices:        # For loop that goes through all the vertices
-            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinents to the list.
+            point_list.append(nd_data[i])   # and for each goes to the points and adds the coordinate to the list.
 
         return np.array(point_list)          # Returns ndarray.
 
