@@ -135,13 +135,13 @@ class Gamut:
                 return bool_array                              # Returns the boolean array.
         else:
             shape = c_data.get(sp).shape[:-1]                   # Nx...xMx3 color data needs Nx..xM bool array.
-            bool_array = np.zeros(shape, bool)                        # Create a bool array for storing the results.
+            bool_array = np.zeros(shape, bool)                  # Create a bool array for storing the results.
             bool_array.flatten()
 
             n_data = c_data.get_linear(sp)
 
-            for i in range(0, bool_array.shape[0]):  # Call feito
-                bool_array[i] = self.feito_torres(n_data[i])
+            for i in range(0, bool_array.shape[1]):  # Call feito
+                bool_array[(0, i)] = self.feito_torres(n_data[i])
 
             bool_array = bool_array.reshape(shape)    # Reshape (without last dimension)
             return bool_array
@@ -326,12 +326,12 @@ class Gamut:
         return hull.find_simplex(p) >= 0        # return True if 'p' is a vertex.
 
     @staticmethod
-    def in_line(line, point, true_interior=False):
+    def in_line(line, q, true_interior=False):
         """Checks if a point P is on the line segment AB.
 
         :param line: ndarray
             line segment from point A to point B
-        :param point: ndarray
+        :param q: ndarray
             Vector from A to P
         :return: Bool
         :param true_interior: bool
@@ -339,11 +339,11 @@ class Gamut:
         :return: Bool
             True is P in in the line segment from A to P.
         """
-        if true_interior and (tuple(point) == tuple(line[0]) or tuple(point) == tuple(line[1])):
+        if true_interior and (tuple(q) == tuple(line[0]) or tuple(q) == tuple(line[1])):
             return False
 
         b = line[1] - line[0]   # Move the line so that A is (0,0,0). 'b' is the vector from A to B.
-        p = point - line[0]     # Make the same adjustments to the points. Copy to not change the original point
+        p = q - line[0]         # Make the same adjustments to the points. Copy to not change the original q
 
         # Check if the cross b x p is 0, if not the vectors are not collinear.
         matrix = np.array([[1, 1, 1], b, p, ])
@@ -358,6 +358,8 @@ class Gamut:
         # Finally check that p-vector is than shorter b-vector
         if np.linalg.norm(p) > np.linalg.norm(b):
             return False
+
+        return True
 
     def in_triangle(self, triangle, q, true_interior=False):
         """Takes three points of a triangle in 3d, and determines if the point w is within that triangle.
