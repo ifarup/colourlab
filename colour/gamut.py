@@ -136,7 +136,7 @@ class Gamut:
         else:
             shape = c_data.get(sp).shape[:-1]                   # Nx...xMx3 color data needs Nx..xM bool array.
             bool_array = np.zeros(shape, bool)                  # Create a bool array for storing the results.
-            bool_array.flatten()
+            bool_array = bool_array.flatten()
 
             n_data = c_data.get_linear(sp)
 
