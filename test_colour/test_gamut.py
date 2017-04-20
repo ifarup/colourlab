@@ -85,7 +85,6 @@ polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 
                        [37., 28., 38.], [38., 12., 37.]])
 
 
-
 class TestGamut(unittest.TestCase):
     @staticmethod
     def generate_sphere(r, n):
@@ -232,7 +231,7 @@ class TestGamut(unittest.TestCase):
         # The tetrahedron should have a positive signed volume.
         self.assertEqual(1, g.sign(np.array([[-2, 0, 0], [0, -2, 0], [0, 0, 0], [0, 0, 2]])))
         # The tetrahedron should have no volume.
-        self.assertEqual(0, g.sign(np.array([[0, 0, 0],[2, 0, 0],[0, 2, 0],[0.5, 0.5, 0]])))
+        self.assertEqual(0, g.sign(np.array([[0, 0, 0], [2, 0, 0], [0, 2, 0], [0.5, 0.5, 0]])))
         # The tetrahedron should have a negative signed volume.
         self.assertEqual(-1, g.sign(np.array([[10, 10, 10], [0, 10, 10], [10, 0, 10], [10, 10, 0]])))
 
@@ -305,12 +304,6 @@ class TestGamut(unittest.TestCase):
         print(g.vertices.shape[0])
 
         self.assertTrue(g.vertices.shape[0] == 9)
-
-
-    def test_linalg_det(self):
-        matrix = np.array([[1, 1, 1], [3, 3, 3], [4, 4, 4]])
-        a = np.linalg.det(matrix)
-        print(a)
 
     @staticmethod
     def generate_sphere(r, n):
