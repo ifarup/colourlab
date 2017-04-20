@@ -301,8 +301,6 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, test_points)
         g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=np.array([5, 5, 5]))
 
-        print(g.vertices.shape[0])
-
         self.assertTrue(g.vertices.shape[0] == 9)
 
     @staticmethod
@@ -334,7 +332,6 @@ class TestGamut(unittest.TestCase):
         center = [10, 11, 14]
         n = [5, 3, 2, 9]
         a = g.get_alpha(d, center, n)
-        print("Alpha value:", a)
 
     def test_find_plane(self):
         p_data = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -344,7 +341,6 @@ class TestGamut(unittest.TestCase):
         d = g.find_plane(p_data)
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
-        print("find plane:", d)                 # Normal vector xyz and distance.
 
     # # Test out of commision. Try again later.
     # def test_nearest_point_on_line(self):
