@@ -28,7 +28,6 @@ from mpl_toolkits.mplot3d import art3d
 import scipy as sci
 import colour.data as data
 
-
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
@@ -492,9 +491,9 @@ class Gamut:
             tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
-        ax.set_xlim([x[0] - 5, x[-1] + 5])              # Set the limits for the plot by calculating.
-        ax.set_ylim([y[0] - 5, y[-1] + 5])
-        ax.set_zlim([z[0] - 5, z[-1] + 5])
+        ax.set_xlim([x[0] - (x[0] * 0.20), x[-1] + x[-1] * 0.20])  # Set the limits for the plot by calculating.
+        ax.set_ylim([y[0] - (y[0] * 0.20), y[-1] + y[-1] * 0.20])
+        ax.set_zlim([z[0] - (z[0] * 0.20), z[-1] + z[-1] * 0.20])
         plt.show()
 
     def true_shape(self, points):
@@ -661,7 +660,7 @@ class Gamut:
             Returns the nearest point.
         """
 
-        new_points = self.data.get(sp)                 # Converts gamut to new space
+        new_points = self.data.get_linear(sp)          # Converts gamut to new space
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
             points = []                                # A list for all the points coordinates
@@ -676,7 +675,9 @@ class Gamut:
         a = np.array(alpha)
         np.sort(a, axis=0)
 
-        nearest_point = self.line_alpha(a[0], q, center)
+        a.sort()
+        nearest_point = self.line_alpha(a[-1], q, center)
+
         return nearest_point
 
     @staticmethod
@@ -738,3 +739,60 @@ class Gamut:
             points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
 
         return data.Data(sp, points.reshape(shape))  # Return the points as a colour.data.Data object.
+
+    def clip_nearest(self, sp, c_data):
+        """ For each point in c_data return the nearest point on the gamut surface.
+        
+        :param sp: colour.Space
+            A colour space
+        :param c_data: colour.Data
+            A colour.Data object with the points to use.
+        :return:  colour.Data
+        """
+        # Get linearised colour data
+        re_data = c_data.get_linear(sp)
+
+        # Do get_nearest_point_on_line
+        for i in range(0, re_data.shape[0]):
+            re_data[i] = self.get_clip_nearest(sp, re_data[i])
+
+        return data.Data(sp, np.reshape(re_data, c_data.sh))
+
+    def get_clip_nearest(self, sp, p_outside):
+        """ Finds the nearst point in 3D
+        
+        :param sp: colour.Space
+            The colour space for computing the gamut.
+        :param p_outside: ndarray
+            The start point.
+        :return: ndarray
+            Returns the nearest point.
+        """
+        gam = self.data.get_linear(sp)                      # Converts gamut to new space
+        new_dis = 9001                                      # High value for use in the if
+        point = None
+
+        for i in self.vertices:                             # Goes through all the vertices to find the closest
+            distance = np.linalg.norm(p_outside - gam[i])   # Finds the distance for the vertices
+            if distance < new_dis:                          # If distance is shorter than previous distance
+                new_dis = distance                          # Adds value for new distance
+                point_index = i                             # Index for the point
+                point = gam[i]                              # Coordinates for the new point
+
+        neighbors = []                                      # List for all the neighbors
+        for j in self.simplices:                            # Goes through all the simplices
+                                                            # If the simplex has the vertices as a side
+            if point_index == j[0] or point_index == j[1] or point_index == j[2]:
+                neighbors.append(self.get_coordinates(j))
+
+        a = -9001
+        for simplex in neighbors:                           # Goes through all the neighbors
+            n = self.find_plane(simplex)                    # Finds normal and distance
+            a_new = -n[3] + np.dot(p_outside, n[:3])        # Finds new alpha value
+            if np.absolute(a) > np.absolute(a_new):         # If the alpha value is less than the old value
+                point_on_plane = (p_outside - a_new * n[:3])    # we find the intersection point
+                # If the point is in triangle we return the point
+                if self.in_triangle(simplex, point_on_plane):
+                    point = point_on_plane
+
+        return point                                    # If we found no points that is in triangle we return the vertex
