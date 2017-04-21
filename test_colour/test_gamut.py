@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import numpy as np
+import matplotlib.pyplot as plt                 # Used for test_plot, which is commented out.
 from colour import data, gamut, space
-import matplotlib.pyplot as plt
 
 # Global variables.
 cube = np.array([[0., 0., 0.],      # 0  vertices
