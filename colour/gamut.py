@@ -796,3 +796,37 @@ class Gamut:
                     point = point_on_plane
 
         return point                                    # If we found no points that is in triangle we return the vertex
+
+    def _nearest_point_on_plane(self, sp, q, axis):
+        """ Find the closes point on the gamuts surface that is also on the plane defined by q and axis.
+        
+        :param sp: colour.Space
+            The colour space to work in.
+        :param q: ndarray
+            The point for which to fin the closest point on plane.
+        :param axis: ndarray
+            The two points vertexes defining the axis.
+        :return: ndarray
+            coordinate for the closest point on plane.
+        """
+
+        d = 9001
+        nearest = None
+
+        # for all simplex in gamut:
+            # check that we are in the right half of the gamut
+            # if simplex is closer then d
+                # check if plane intersects the simplex
+                    # find the line segment
+                    # find closest point on this line segment
+                    # update nearest
+        for simplex in self.simplices:
+            vertecis = self.get_coordinates(simplex)
+            conti = False
+            for p in vertecis:
+                if np.linalg.norm(p-q) < d: # find lengh of the vector.
+                    conti = True
+                    break
+            if not conti and np.dot(q, vertecis[0]) < 0:    # Check if not on same side of the gamut as q
+                continue
+            
