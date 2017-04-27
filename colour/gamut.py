@@ -796,3 +796,27 @@ class Gamut:
                     point = point_on_plane
 
         return point                                    # If we found no points that is in triangle we return the vertex
+
+    def minDE(self, c_data):
+        """
+
+        :param c_data: colour.data.Data
+            Colour.data.Data object containing all points.
+        :return: ndarray
+            Returns the nearest point.
+        """
+        # Colour data in cielab.
+        sp = data.space.cielab
+
+        # Get linearised colour data
+        re_data = c_data.get_linear(sp)
+
+        # Returns true/fals for points inside/outside as bool array.
+        check_data = self.is_inside(sp, c_data)
+
+        # Do get_nearest_point_on_line
+        for i, value in np.ndenumerate(check_data):
+            if (check_data[i] == False):
+                re_data[i] = self.get_clip_nearest(sp, re_data[i])
+
+        return data.Data(sp, re_data)

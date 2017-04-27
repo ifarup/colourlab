@@ -374,5 +374,17 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
+    def test_minDE(self):
+        sphere = self.generate_sphere(6, 10)
+        sphere = sphere + np.array([5, 5, 5])
+        print(sphere)
+        c_sphere = data.Data(space.cielab, sphere)
+
+        g_cube = data.Data(space.cielab, cube)
+        g = gamut.Gamut(space.cielab, g_cube)
+
+        mapped_im = g.minDE(c_sphere)
+        print("mapped", mapped_im.get(space.cielab))
+
 if __name__ == '__main__':
     unittest.main(exit=False)
