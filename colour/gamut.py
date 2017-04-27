@@ -799,6 +799,8 @@ class Gamut:
 
     def _nearest_point_on_plane(self, sp, q, axis):
         """ Find the closes point on the gamuts surface that is also on the plane defined by q and axis.
+
+        Thanks to Dan Sunday from http://geomalgorithms.com/index.html
         
         :param sp: colour.Space
             The colour space to work in.
@@ -810,23 +812,72 @@ class Gamut:
             coordinate for the closest point on plane.
         """
 
-        d = 9001
+        distance_nearest = 9001
         nearest = None
 
-        # for all simplex in gamut:
-            # check that we are in the right half of the gamut
-            # if simplex is closer then d
-                # check if plane intersects the simplex
-                    # find the line segment
-                    # find closest point on this line segment
-                    # update nearest
+        pl = self.find_plane(np.array([q, axis[0], axis[1]]))  # Get the normal vector and distance to the plane.
+        point_on_plane = np.array([pl[3] * pl[0], pl[3] * pl[1], pl[3] * pl[2]])  # A point on the plane.
+        n = np.array([pl[0], pl[1], pl[2]])                                       # Normal vector of the plane.
+
         for simplex in self.simplices:
             vertecis = self.get_coordinates(simplex)
-            conti = False
-            for p in vertecis:
-                if np.linalg.norm(p-q) < d: # find lengh of the vector.
-                    conti = True
-                    break
-            if not conti and np.dot(q, vertecis[0]) < 0:    # Check if not on same side of the gamut as q
-                continue
-            
+
+            if np.dot(q, vertecis[0]) < 0:  # Make sure the simplex is in roughly the right direction.
+                continue                    # If the angle between q and simplex is over 90, skip this simplex.
+
+            # Check that one of the vertecis is cloeser than our current closest point.
+            #TODO: check if distance_nearest is set to closest vertex, gives more accurate results. but nearest is still the current nearest point.
+            if np.linalg.norm(vertecis[0] - q) < distance_nearest     \
+                or np.linalg.norm(vertecis[1] - q) < distance_nearest \
+                or np.linalg.norm(vertecis[2] - q) < distance_nearest:
+
+                above = []                                       # List for vertices above the plane. (or on)
+                below = []                                       # List for vertices below the plane.
+                for vertex in vertecis:
+                    dot_value = np.dot(vertex - point_on_plane, n)
+                    if  dot_value >= 0:
+                        above.append(vertex)
+                    else:
+                        below.append(vertex)
+
+                if not above or not below:   # If the simplex does not have vertices on both side of the plane,
+                    continue                 # it does not intersect the plane. Skip this simplex.
+
+                # We now know the simplex intersects the plane, and is close enough that it might contain the nearest
+                # point. Lets find the line segment for intersection.
+
+                a = None    # One end point of the line segment of intersection of the simplex and plane.
+                b = None    # The other end point of the line segment of intersection of the simplex and plane.
+
+                # If there are two point above, a and b are found between the below point and each point above.
+                if len(above) == 2:
+                    t = np.dot(n, (point_on_plane - below[0])) / np.dot(n, above[0] - below[0])
+                    a = below[0] + t*(above[0]-below[0])
+
+                    t = np.dot(n, (point_on_plane - below[0])) / np.dot(n, above[1] - below[0])
+                    b = below[0] + t*(above[1]-below[0])
+                # If there are two point below, a and b are found between the above point and each point below.
+                else:
+                    t = np.dot(n, (point_on_plane - above[0])) / np.dot(n, below[0] - above[0])
+                    a = above[0] + t*(below[0]-above[0])
+
+                    t = np.dot(n, (point_on_plane - above[0])) / np.dot(n, below[1] - above[0])
+                    b = above[0] + t*(below[1]-above[0])
+
+                # Find closest point to q on the line segment from a to b.
+
+
+
+
+                # # Calculate the signed distances from the simplex's vertecis to the plane.
+                # d0 = n[0]*(vertecis[(0,0)]-point_on_plane[0]) + n[1]*(vertecis[(0,1)] - point_on_plane[1]) + n[2]*(vertecis[(0,2)] - point_on_plane[2]) + n[3]
+                # d1 = n[0]*(vertecis[(1,0)]-point_on_plane[0]) + n[1]*(vertecis[(1,1)] - point_on_plane[1]) + n[2]*(vertecis[(1,2)] - point_on_plane[2]) + n[3]
+                # d2 = n[0]*(vertecis[(2,0)]-point_on_plane[0]) + n[1]*(vertecis[(2,1)] - point_on_plane[1]) + n[2]*(vertecis[(2,2)] - point_on_plane[2]) + n[3]
+                #
+                # if (d0 > 0  and d1 > 0 and d2 > 0) or (d0 < 0  and d1 < 0 and d2 < 0):
+                #     continue  # All vertices on the same side of plane, skip simplex.
+
+
+
+
+
