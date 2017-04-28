@@ -382,7 +382,10 @@ class TestGamut(unittest.TestCase):
         cube2 = cube * np.array([2, 2, 2])
         c_cube2 = data.Data(space.srgb, cube2)
 
-        print(g.nearest_points_on_plane(space.srgb, c_cube2, np.array([[0, 0, 0],[0, 0, 10]])))
+        print(g.nearest_points_on_plane(space.srgb, c_cube2, np.array([[0, 0, 0], [0, 0, 10]])))
+
+    def test_HPminDE(self):
+        print("all good")
 
 if __name__ == '__main__':
     unittest.main(exit=False)

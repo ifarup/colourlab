@@ -28,6 +28,7 @@ from mpl_toolkits.mplot3d import art3d
 import scipy as sci
 import colour.data as data
 
+
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
@@ -891,9 +892,8 @@ class Gamut:
         return nearest
 
     def nearest_points_on_plane(self, sp, c_data, axis):
-        """
-        For all points in c_data, this method finds the nearest point on the gamut, constrained to the
-        plane defined by axis and each point.
+        """ For all points in c_data, this method finds the nearest point on the gamut, constrained to the
+            plane defined by axis and each point.
 
         OBS: Make sure all points in c_data are outside the gamut. This method maps all points to
         the gamuts surface.
@@ -916,4 +916,14 @@ class Gamut:
             n_data[tuple(i)] = self._nearest_point_on_plane(sp, n_data[tuple(i)], axis)
         print(n_data)
 
-
+    def HPminDE(self, c_data):
+        """ A general implementation of the gamut mapping algorithm HPminDE. Maps all points that lie outside of..
+            the gamut to the nearest point on the plane formed by the point and the L axe in the CIELAB colour space.
+        
+        :param c_data: colour.data.Data
+            The colour points.
+        :return: colour.data.Data
+            The mapped points.
+        """
+        # Call method to do the clipping, perform clipping in CIELAB, and use the L[axe 0] axe.
+        return self.clip_nearest(data.space.cielab, c_data, 0)
