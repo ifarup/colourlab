@@ -375,17 +375,17 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
-    def test_nearest_points_on_plane(self):
-        c_data = data.Data(space.srgb, cube)
-        g = gamut.Gamut(space.srgb, c_data)
-
-        cube2 = cube * np.array([2, 2, 2])
-        c_cube2 = data.Data(space.srgb, cube2)
-
-        print(g.nearest_points_on_plane(space.srgb, c_cube2, np.array([[0, 0, 0], [0, 0, 10]])))
-
     def test_HPminDE(self):
-        print("all good")
+        c_data = data.Data(space.cielab, cube + np.array([0, -5, -5]))
+        g = gamut.Gamut(space.cielab, c_data)
+
+        points = np.array([[0, 8, 8],[4, 0, 9], [4, 4, 3],[0, 10, 0], [15, 0, 0]])
+        fasit = np.array([[0, 5, 5],[4, 0, 5], [4, 4, 3], [0, 5, 0], [10, 0, 0]])
+        c_data = data.Data(space.cielab, points)
+        print("This test should produce an error message for the last point")
+        re_data = g.HPminDE(c_data).get(space.cielab)
+
+        self.assertTrue(np.allclose(fasit, re_data))
 
 if __name__ == '__main__':
     unittest.main(exit=False)
