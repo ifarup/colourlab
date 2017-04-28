@@ -888,15 +888,32 @@ class Gamut:
                     distance_nearest = dist_cn
                     nearest = candidate_nearest
 
-            return nearest
+        return nearest
+
+    def nearest_points_on_plane(self, sp, c_data, axis):
+        """
+        For all points in c_data, this method finds the nearest point on the gamut, constrained to the
+        plane defined by axis and each point.
+
+        OBS: Make sure all points in c_data are outside the gamut. This method maps all points to
+        the gamuts surface.
+
+        :param sp: colour.space.Space
+            The color space to work in, usually cielab for this method.
+        :param c_data: colour.data.Data
+            A set of colour points.
+        :param axis: ndarray
+            Shape(2,), two arbetrery points along the axis you want to use.
+        :return: colour.data.Data
+            The nearest points.
+        """
+
+        n_data = c_data.get_linear(sp)
+
+        # n_data = [self._nearest_point_on_plane(sp, i, axis) for i in range(n_data)]
+
+        for i in n_data:
+            n_data[tuple(i)] = self._nearest_point_on_plane(sp, n_data[tuple(i)], axis)
+        print(n_data)
 
 
-
-
-                # # Calculate the signed distances from the simplex's vertecis to the plane.
-                # d0 = n[0]*(vertecis[(0,0)]-point_on_plane[0]) + n[1]*(vertecis[(0,1)] - point_on_plane[1]) + n[2]*(vertecis[(0,2)] - point_on_plane[2]) + n[3]
-                # d1 = n[0]*(vertecis[(1,0)]-point_on_plane[0]) + n[1]*(vertecis[(1,1)] - point_on_plane[1]) + n[2]*(vertecis[(1,2)] - point_on_plane[2]) + n[3]
-                # d2 = n[0]*(vertecis[(2,0)]-point_on_plane[0]) + n[1]*(vertecis[(2,1)] - point_on_plane[1]) + n[2]*(vertecis[(2,2)] - point_on_plane[2]) + n[3]
-                #
-                # if (d0 > 0  and d1 > 0 and d2 > 0) or (d0 < 0  and d1 < 0 and d2 < 0):
-                #     continue  # All vertices on the same side of plane, skip simplex.

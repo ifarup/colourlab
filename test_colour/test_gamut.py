@@ -375,5 +375,14 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
+    def test_nearest_points_on_plane(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        cube2 = cube * np.array([2, 2, 2])
+        c_cube2 = data.Data(space.srgb, cube2)
+
+        print(g.nearest_points_on_plane(space.srgb, c_cube2, np.array([[0, 0, 0],[0, 0, 10]])))
+
 if __name__ == '__main__':
     unittest.main(exit=False)
