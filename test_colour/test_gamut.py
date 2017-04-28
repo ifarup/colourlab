@@ -360,6 +360,7 @@ class TestGamut(unittest.TestCase):
         re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
 
         fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
+
         self.assertTrue(np.allclose(fasit_data, re_data))
 
     def test_intersectionpoint_on_line(self):

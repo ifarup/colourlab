@@ -310,7 +310,7 @@ class Gamut:
         :param true_interior: bool
             Activate to exclude the surface of the tetrahedron from the search.
         :return: Bool
-            True if q is inside or on the surface of the tetrahedron.
+            True if q is inside, or on the surface of the tetrahedron.
         """
 
         # If the surface is to be excluded, return False if p is on the surface.
@@ -790,17 +790,21 @@ class Gamut:
             n = self.find_plane(simplex)                    # Finds normal and distance
             a_new = -n[3] + np.dot(p_outside, n[:3])        # Finds new alpha value
             if np.absolute(a) > np.absolute(a_new):         # If the alpha value is less than the old value
-                point_on_plane = (p_outside - a_new * n[:3])    # we find the intersection point
-                # If the point is in triangle we return the point
-                if self.in_triangle(simplex, point_on_plane):
+                point_on_plane = (p_outside - a_new * n[:3])   # we find the intersection point
+
+                if self.in_triangle(simplex, point_on_plane):  # If the point is in triangle we return the point
                     point = point_on_plane
 
         return point                                    # If we found no points that is in triangle we return the vertex
 
     def _nearest_point_on_plane(self, sp, q, axis):
         """ Find the closes point on the gamuts surface that is also on the plane defined by q and axis.
-
-        Thanks to Dan Sunday from http://geomalgorithms.com/index.html
+        
+        Thanks to: Grumdrig
+        http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+        
+        Thanks to: Dan Sunday 
+        http://geomalgorithms.com/index.html
         
         :param sp: colour.Space
             The colour space to work in.
@@ -829,13 +833,13 @@ class Gamut:
             #TODO: check if distance_nearest is set to closest vertex, gives more accurate results. but nearest is still the current nearest point.
             if np.linalg.norm(vertecis[0] - q) < distance_nearest     \
                 or np.linalg.norm(vertecis[1] - q) < distance_nearest \
-                or np.linalg.norm(vertecis[2] - q) < distance_nearest:
+                    or np.linalg.norm(vertecis[2] - q) < distance_nearest:
 
                 above = []                                       # List for vertices above the plane. (or on)
                 below = []                                       # List for vertices below the plane.
                 for vertex in vertecis:
                     dot_value = np.dot(vertex - point_on_plane, n)
-                    if  dot_value >= 0:
+                    if dot_value >= 0:
                         above.append(vertex)
                     else:
                         below.append(vertex)
@@ -866,6 +870,26 @@ class Gamut:
 
                 # Find closest point to q on the line segment from a to b.
 
+                candidate_nearest = None
+
+                if np.linalg.norm(b-a) == 0:                # Special case where simplex only intersects in one point.
+                    candidate_nearest = a
+                else:
+                    t = np.dot(q-a, b-a) / np.linalg.norm(b-a)
+                    if t <= 0:
+                        candidate_nearest = a
+                    elif t >= 0:
+                        candidate_nearest = b
+                    else:
+                        candidate_nearest = a + t*(b-a)     # Find the nearest point on the line.
+
+                dist_cn = np.linalg.norm(candidate_nearest - q)
+                if dist_cn < distance_nearest:
+                    distance_nearest = dist_cn
+                    nearest = candidate_nearest
+
+            return nearest
+
 
 
 
@@ -876,8 +900,3 @@ class Gamut:
                 #
                 # if (d0 > 0  and d1 > 0 and d2 > 0) or (d0 < 0  and d1 < 0 and d2 < 0):
                 #     continue  # All vertices on the same side of plane, skip simplex.
-
-
-
-
-
