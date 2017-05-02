@@ -253,12 +253,6 @@ class TestGamut(unittest.TestCase):
         cp = np.array([5., 5., 5.])                            # Point in center of cube.
         self.assertEqual(cp.all(), cm.all())                   # Assert true that the points are the same.
 
-    # TODO: Write a real test.
-    # def test_fix_orientation(self):
-    #     c_data = data.Data(space.srgb, cube)
-    #     g = gamut.Gamut(space.srgb, c_data)
-    #     g.fix_orientation()
-
     def test_true_shape(self):
 
         c_data = data.Data(space.srgb, cube)
