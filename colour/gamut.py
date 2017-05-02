@@ -28,6 +28,7 @@ from mpl_toolkits.mplot3d import art3d
 import scipy as sci
 import colour.data as data
 
+
 class Gamut:
     """Class for representing colour gamuts computed in various colour spaces.
     """
@@ -310,7 +311,7 @@ class Gamut:
         :param true_interior: bool
             Activate to exclude the surface of the tetrahedron from the search.
         :return: Bool
-            True if q is inside or on the surface of the tetrahedron.
+            True if q is inside, or on the surface of the tetrahedron.
         """
 
         # If the surface is to be excluded, return False if p is on the surface.
@@ -790,12 +791,157 @@ class Gamut:
             n = self.find_plane(simplex)                    # Finds normal and distance
             a_new = -n[3] + np.dot(p_outside, n[:3])        # Finds new alpha value
             if np.absolute(a) > np.absolute(a_new):         # If the alpha value is less than the old value
-                point_on_plane = (p_outside - a_new * n[:3])    # we find the intersection point
-                # If the point is in triangle we return the point
-                if self.in_triangle(simplex, point_on_plane):
+                point_on_plane = (p_outside - a_new * n[:3])   # we find the intersection point
+
+                if self.in_triangle(simplex, point_on_plane):  # If the point is in triangle we return the point
                     point = point_on_plane
 
         return point                                    # If we found no points that is in triangle we return the vertex
+
+    def _nearest_point_on_plane(self, sp, q, axis):
+        """ Find the closes point on the gamuts surface that is also on the plane defined by q and axis.
+        
+        Thanks to: Grumdrig
+        http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+        
+        Thanks to: Dan Sunday 
+        http://geomalgorithms.com/index.html
+        
+        :param sp: colour.Space
+            The colour space to work in.
+        :param q: ndarray
+            The point for which to fin the closest point on plane.
+        :param axis: int
+            0, 1, 2 indicating with axis to use.
+        :return: ndarray
+            coordinate for the closest point on plane.
+        """
+
+        distance_nearest = 9001
+        nearest = None
+
+        # Make a line to define the axis
+        if axis == 0:
+            axis = np.array([[-10, 0, 0], [10, 0, 0]])
+        elif axis == 1:
+            axis = np.array([[0, -10, 0], [0, 10, 0]])
+        else:
+            axis = np.array([[0, 0, -10], [0, 0, 10]])
+
+        pl = self.find_plane(np.array([q, axis[0], axis[1]]))  # Get the normal vector and distance to the plane.
+        point_on_plane = np.array([pl[3] * pl[0], pl[3] * pl[1], pl[3] * pl[2]])  # A point on the plane.
+        n = np.array([pl[0], pl[1], pl[2]])                                       # Normal vector of the plane.
+
+        if np.allclose(np.cross(axis[1], q), np.array([0, 0, 0])):
+            print("Error, axis and q does not define a plane. Q:", q, "Clipping to nearest point")
+            return self.get_clip_nearest(sp, q)
+
+        for simplex in self.simplices:
+            vertecis = self.get_coordinates(simplex)
+
+            if np.dot(q, vertecis[0]) < 0:  # Make sure the simplex is in roughly the right direction.
+                continue                    # If the angle between q and simplex is over 90, skip this simplex.
+
+            # # Check that one of the vertecis is cloeser than our current closest point.
+            # #TODO: check if distance_nearest is set to closest vertex, gives more accurate results....
+            #  TODO: but nearest is still the current nearest point.
+            # if np.linalg.norm(vertecis[0] - q) < distance_nearest     \
+            #     or np.linalg.norm(vertecis[1] - q) < distance_nearest \
+            #         or np.linalg.norm(vertecis[2] - q) < distance_nearest:
+            above = []  # List for vertices above the plane. (or on)
+            below = []  # List for vertices below the plane.
+            for vertex in vertecis:
+                dot_value = np.dot(vertex - point_on_plane, n)
+                if dot_value >= 0:
+                    above.append(vertex)
+                else:
+                    below.append(vertex)
+
+            if not above or not below:  # If the simplex does not have vertices on both side of the plane,
+                continue  # it does not intersect the plane. Skip this simplex.
+
+            # We now know the simplex intersects the plane, and is close enough that it might contain the nearest
+            # point. Lets find the line segment for intersection.
+
+            v = None  # One end point of the line segment of intersection of the simplex and plane.
+            w = None  # The other end point of the line segment of intersection of the simplex and plane.
+
+            # If there are two point above, a and b are found between the below point and each point above.
+            if len(above) == 2:
+                t = np.dot(n, (point_on_plane - below[0])) / np.dot(n, above[0] - below[0])
+                v = below[0] + t * (above[0] - below[0])
+
+                t = np.dot(n, (point_on_plane - below[0])) / np.dot(n, above[1] - below[0])
+                w = below[0] + t * (above[1] - below[0])
+            # If there are two point below, a and b are found between the above point and each point below.
+            else:
+                t = np.dot(n, (point_on_plane - above[0])) / np.dot(n, below[0] - above[0])
+                v = above[0] + t * (below[0] - above[0])
+
+                t = np.dot(n, (point_on_plane - above[0])) / np.dot(n, below[1] - above[0])
+                w = above[0] + t * (below[1] - above[0])
+
+            # Find closest point to q on the line segment from a to b.
+
+            candidate_nearest = None
+
+            if np.linalg.norm(w - v) == 0:  # Special case where simplex only intersects in one point.
+                candidate_nearest = v
+            else:
+                t = np.dot(q - v, w - v) / np.linalg.norm(w - v) ** 2
+                if t <= 0:
+                    candidate_nearest = v
+                elif t >= 1:
+                    candidate_nearest = w
+                else:
+                    candidate_nearest = v + t * (w - v)  # Find the nearest point on the line.
+
+            dist_cn = np.linalg.norm(candidate_nearest - q)
+            if dist_cn < distance_nearest:
+                distance_nearest = dist_cn
+                nearest = candidate_nearest
+
+        return nearest
+
+    def clip_constant_angle(self, sp, c_data, axis):
+        """ For all points in c_data, this method finds the nearest point on the gamut, constrained to the
+        plane defined by axis and each point.
+
+        OBS: Make sure all points in c_data are outside the gamut. This method maps all points to
+        the gamuts surface.
+
+        :param sp: colour.space.Space
+            The color space to work in, usually cielab for this method.
+        :param c_data: colour.data.Data
+            A set of colour points.
+        :param axis: int
+            0, 1, 2 indicating with axis to use.
+        :return: colour.data.Data
+            The nearest points.
+        """
+        n_data = c_data.get(sp)
+
+        inside = self.is_inside(sp, c_data)
+
+        for i, value in np.ndenumerate(inside):
+            if not value:
+                print(n_data[i])
+                print(self._nearest_point_on_plane(sp, n_data[i], axis))
+                n_data[i] = self._nearest_point_on_plane(sp, n_data[i], axis)
+
+        return data.Data(sp, n_data)
+
+    def HPminDE(self, c_data):
+        """ A general implementation of the gamut mapping algorithm HPminDE. Maps all points that lie outside of..
+            the gamut to the nearest point on the plane formed by the point and the L axe in the CIELAB colour space.
+
+        :param c_data: colour.data.Data
+            The colour points.
+        :return: colour.data.Data
+            The mapped points.
+        """
+        # Call method to do the clipping, perform clipping in CIELAB, and use the L[axe 0] axe.
+        return self.clip_constant_angle(data.space.cielab, c_data, 0)
 
     def minDE(self, c_data):
         """
