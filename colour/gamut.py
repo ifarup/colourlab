@@ -942,3 +942,27 @@ class Gamut:
         """
         # Call method to do the clipping, perform clipping in CIELAB, and use the L[axe 0] axe.
         return self.clip_constant_angle(data.space.cielab, c_data, 0)
+
+    def minDE(self, c_data):
+        """
+
+        :param c_data: colour.data.Data
+            Colour.data.Data object containing all points.
+        :return: ndarray
+            Returns the nearest point.
+        """
+        # Colour data in cielab.
+        sp = data.space.cielab
+
+        # Get linearised colour data
+        re_data = c_data.get_linear(sp)
+
+        # Returns true/fals for points inside/outside as bool array.
+        check_data = self.is_inside(sp, c_data)
+
+        # Do get_nearest_point_on_line
+        for i, value in np.ndenumerate(check_data):
+            if not check_data[i]:
+                re_data[i] = self.get_clip_nearest(sp, re_data[i])
+
+        return data.Data(sp, re_data)
