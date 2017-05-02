@@ -223,7 +223,7 @@ Method      	                              | Description                        
 ----------------------------------------------| ------------------------------------------------------------------------------|-------------------------------
 `is_inside(sp, c_data, t=false)`                       | Returns a boolean array containing T/F for all points in the array.  | boolean array
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.                                                   | -
-`intersectionpoint_on_line(sp, c_data, center=None):`    | Returns the nearest point on a gamut surface for the given point.  | np.array
+`intersectionpoint_on_line(sp, c_data, center=None):`    | Returns the nearest point in a line on a gamut surface from the given point to the given center.  | np.array
 `get_clip_nearest(sp, p_out, side)`             | Returns the nearest point on a gamut in 3D.                                 | np.array
 `compress_axis(sp, c_data, ax):`        | Compresses the points linearly in the desired axel and colour space.                | colour.data.Data object
 
