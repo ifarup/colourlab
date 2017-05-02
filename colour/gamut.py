@@ -816,7 +816,7 @@ class Gamut:
 
         # Do get_nearest_point_on_line
         for i, value in np.ndenumerate(check_data):
-            if (check_data[i] == False):
+            if not check_data[i]:
                 re_data[i] = self.get_clip_nearest(sp, re_data[i])
 
         return data.Data(sp, re_data)
