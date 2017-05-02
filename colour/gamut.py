@@ -925,8 +925,6 @@ class Gamut:
 
         for i, value in np.ndenumerate(inside):
             if not value:
-                print(n_data[i])
-                print(self._nearest_point_on_plane(sp, n_data[i], axis))
                 n_data[i] = self._nearest_point_on_plane(sp, n_data[i], axis)
 
         return data.Data(sp, n_data)
