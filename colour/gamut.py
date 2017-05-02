@@ -822,11 +822,11 @@ class Gamut:
 
         # Make a line to define the axis
         if axis == 0:
-            axis = np.array([[-10,0,0],[10,0,0]])
+            axis = np.array([[-10, 0, 0], [10, 0, 0]])
         elif axis == 1:
-            axis = np.array([[0,-10,0],[0,10,0]])
+            axis = np.array([[0, -10, 0], [0, 10, 0]])
         else:
-            axis = np.array([[0,0,-10],[0,0,10]])
+            axis = np.array([[0, 0, -10], [0, 0, 10]])
 
         pl = self.find_plane(np.array([q, axis[0], axis[1]]))  # Get the normal vector and distance to the plane.
         point_on_plane = np.array([pl[3] * pl[0], pl[3] * pl[1], pl[3] * pl[2]])  # A point on the plane.
@@ -836,7 +836,6 @@ class Gamut:
             print("Error, axis and q does not define a plane. Q:", q, "Clipping to nearest point")
             return self.get_clip_nearest(sp, q)
 
-
         for simplex in self.simplices:
             vertecis = self.get_coordinates(simplex)
 
@@ -844,7 +843,8 @@ class Gamut:
                 continue                    # If the angle between q and simplex is over 90, skip this simplex.
 
             # # Check that one of the vertecis is cloeser than our current closest point.
-            # #TODO: check if distance_nearest is set to closest vertex, gives more accurate results. but nearest is still the current nearest point.
+            # #TODO: check if distance_nearest is set to closest vertex, gives more accurate results....
+            #  TODO: but nearest is still the current nearest point.
             # if np.linalg.norm(vertecis[0] - q) < distance_nearest     \
             #     or np.linalg.norm(vertecis[1] - q) < distance_nearest \
             #         or np.linalg.norm(vertecis[2] - q) < distance_nearest:
