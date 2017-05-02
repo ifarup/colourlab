@@ -390,7 +390,6 @@ class TestGamut(unittest.TestCase):
     def test_minDE(self):
         sphere = self.generate_sphere(6, 10)
         sphere = sphere + np.array([5, 5, 5])
-        print(sphere)
         c_sphere = data.Data(space.cielab, sphere)
 
         g_cube = data.Data(space.cielab, cube)
