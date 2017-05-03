@@ -839,7 +839,7 @@ class Gamut:
         for simplex in self.simplices:
             vertecis = self.get_coordinates(simplex)
 
-            if np.dot(q, vertecis[0]) < 0:  # Make sure the simplex is in roughly the right direction.
+            if np.dot(q-self.center, vertecis[0]-self.center) < 0:  # Make sure the simplex is in roughly the right direction.
                 continue                    # If the angle between q and simplex is over 90, skip this simplex.
 
             # # Check that one of the vertecis is cloeser than our current closest point.
