@@ -953,7 +953,7 @@ class Gamut:
         sp = data.space.cielab
 
         # Get linearised colour data
-        re_data = c_data.get_linear(sp)
+        re_data = c_data.get(sp)
 
         # Returns true/fals for points inside/outside as bool array.
         check_data = self.is_inside(sp, c_data)
