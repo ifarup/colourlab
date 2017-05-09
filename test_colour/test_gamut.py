@@ -390,7 +390,15 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.cielab, g_cube)
 
         mapped_im = g.minDE(c_sphere)
-        print("mapped", mapped_im.get(space.cielab))
+
+        b = all(i >= 10 for i in mapped_im.get_linear(space.cielab))
+        result = True
+
+        for value in b:
+            if value is False:
+                result = False
+        self.assertTrue(b)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
