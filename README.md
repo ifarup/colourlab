@@ -173,21 +173,21 @@ space = g.space                               # Specifies the color space
 g.plot_surface(axis, space)                   # Call the method
 ```
 
-#### intersectionpoint_on_line():
+#### intersection_on_line():
 The function receives three parameters. The colour space, the points in the c_data format, and center(if no center is defined, it will use the default gamut center). The function will return nearest point along a line between the point and the given center.
 ```
 p_out = [5, 5, 15]                                          # A point outside the gamut object
 p_in = [5, 5, 5]                                            # A point inside the gamut object
 space = g.space                                             # Specifies the color space
-a = g.intersectionpoint_on_line(space, c_data, center=None) # Call the method
+a = g.intersection_on_line(space, c_data, center=None) # Call the method
 ```
 
-#### get_clip_nearest() ??? mulig bug!
+#### _clip_nearest() ??? mulig bug!
 The function receives two parameters. Points outside are colour data object and are represented as numpy arrays of dimensions Nx...xMx3. The function will return nearest point in 3D.
 ```
 p_out = [12, 12, 12]                        # A point outside the gamut object
 space = g.space                             # Specifies the color space
-d_clip = g.get_clip_nearest(p_out, space)   # Call the method
+d_clip = g._clip_nearest(p_out, space)   # Call the method
 ```
 
 #### compress_axis()
@@ -215,16 +215,16 @@ https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.ht
 
 * **is_inside()**
 * **plot_surface()**
-* **intersectionpoint_on_line():**
-* **get_clip_nearest()**
+* **intersection_on_line():**
+* **_clip_nearest()**
 * **compress_axis()**
 
 Method      	                              | Description                                                                   | Return
 ----------------------------------------------| ------------------------------------------------------------------------------|-------------------------------
 `is_inside(sp, c_data, t=false)`                       | Returns a boolean array containing T/F for all points in the array.  | boolean array
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.                                                   | -
-`intersectionpoint_on_line(sp, c_data, center=None):`    | Returns the nearest point in a line on a gamut surface from the given point to the given center.  | np.array
-`get_clip_nearest(sp, p_out, side)`             | Returns the nearest point on a gamut in 3D.                                 | np.array
+`intersection_on_line(sp, c_data, center=None):`    | Returns the nearest point in a line on a gamut surface from the given point to the given center.  | np.array
+`_clip_nearest(sp, p_out, side)`             | Returns the nearest point on a gamut in 3D.                                 | np.array
 `compress_axis(sp, c_data, ax):`        | Compresses the points linearly in the desired axel and colour space.                | colour.data.Data object
 
 test_colour

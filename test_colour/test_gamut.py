@@ -343,7 +343,7 @@ class TestGamut(unittest.TestCase):
     #     d = [5., 5., 15.]
     #     center = [5., 5., 5.]
     #     sp = g.space
-    #     a = g.get_nearest_point_on_line(d, center, sp)
+    #     a = g._intersection_on_line(d, center, sp)
     #     print("Nearest point:", a)
 
     def test_compress(self):
@@ -365,7 +365,7 @@ class TestGamut(unittest.TestCase):
         mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])         # wanted result
 
         c_data = data.Data(space.srgb, points)                              # data.Data object
-        re_data = g.intersectionpoint_on_line(space.srgb, c_data)           # data.Data object returned
+        re_data = g.intersection_on_line(space.srgb, c_data)           # data.Data object returned
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 

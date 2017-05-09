@@ -125,7 +125,7 @@ class Gamut:
             nd_data = c_data.get(sp)                            # Get the data points as ndarray.
 
             if nd_data.ndim == 1:                               # If only one point was sent.
-                return np.array([self.feito_torres(nd_data)])   # Returns 1d boolean-array.
+                return np.array([self._is_inside(nd_data)])   # Returns 1d boolean-array.
 
             else:
                 indices = np.ones(nd_data.ndim - 1, int) * -1        # Initialize with negative numbers.
@@ -141,7 +141,7 @@ class Gamut:
             n_data = c_data.get_linear(sp)
 
             for i in range(0, bool_array.shape[0]):  # Call feito
-                bool_array[i] = self.feito_torres(n_data[i])
+                bool_array[i] = self._is_inside(n_data[i])
 
             bool_array = bool_array.reshape(shape)    # Reshape (without last dimension)
             return bool_array
@@ -171,9 +171,9 @@ class Gamut:
             indices[curr_dim] = -1                          # should reset the indices array when the call dies
 
         else:                                               # We have reached a leaf node
-            bool_array[(tuple(indices))] = self.feito_torres(n_data)  # Set the boolean array to returned boolean.
+            bool_array[(tuple(indices))] = self._is_inside(n_data)  # Set the boolean array to returned boolean.
 
-    def feito_torres(self, q):
+    def _is_inside(self, q):
         """ Tests if a point q is inside the Gamut(general polyhedra)
 
             :param q: ndarray
@@ -623,7 +623,7 @@ class Gamut:
 
         return np.hstack([n3, np.dot(points[1], n3)])  # Add the distance to numpy array, and return it.
 
-    def intersectionpoint_on_line(self, sp, c_data, center=None):
+    def intersection_on_line(self, sp, c_data, center=None):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
             in the c_data object. Cell number i in the returned array corresponding to cell number i from the
             'c_data' parameter. Handles input on the format Nx...xMx3.
@@ -643,12 +643,12 @@ class Gamut:
 
         re_data = c_data.get_linear(sp)             # Get linearised colour data
 
-        for i in range(0, re_data.shape[0]):        # Do get_nearest_point_on_line
-            re_data[i] = self.get_nearest_point_on_line(sp, re_data[i], center)
+        for i in range(0, re_data.shape[0]):        # Do _intersection_on_line
+            re_data[i] = self._intersection_on_line(sp, re_data[i], center)
 
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
-    def get_nearest_point_on_line(self, sp, q, center):
+    def _intersection_on_line(self, sp, q, center):
         """Finding the Nearest point along a line.
 
         :param sp: Space
@@ -753,13 +753,13 @@ class Gamut:
         # Get linearised colour data
         re_data = c_data.get_linear(sp)
 
-        # Do get_nearest_point_on_line
+        # Do _intersection_on_line
         for i in range(0, re_data.shape[0]):
-            re_data[i] = self.get_clip_nearest(sp, re_data[i])
+            re_data[i] = self._clip_nearest(sp, re_data[i])
 
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
-    def get_clip_nearest(self, sp, p_outside):
+    def _clip_nearest(self, sp, p_outside):
         """ Finds the nearst point in 3D
         
         :param sp: colour.Space
@@ -798,7 +798,33 @@ class Gamut:
 
         return point                                    # If we found no points that is in triangle we return the vertex
 
-    def _nearest_point_on_plane(self, sp, q, axis):
+    def clip_constant_angle(self, sp, c_data, axis):
+        """ For all points in c_data, this method finds the nearest point on the gamut, constrained to the
+        plane defined by axis and each point.
+
+        OBS: Make sure all points in c_data are outside the gamut. This method maps all points to
+        the gamuts surface.
+
+        :param sp: colour.space.Space
+            The color space to work in, usually cielab for this method.
+        :param c_data: colour.data.Data
+            A set of colour points.
+        :param axis: int
+            0, 1, 2 indicating with axis to use.
+        :return: colour.data.Data
+            The nearest points.
+        """
+        n_data = c_data.get(sp)
+
+        inside = self.is_inside(sp, c_data)
+
+        for i, value in np.ndenumerate(inside):
+            if not value:
+                n_data[i] = self._clip_constant_angle(sp, n_data[i], axis)
+
+        return data.Data(sp, n_data)
+
+    def _clip_constant_angle(self, sp, q, axis):
         """ Find the closes point on the gamuts surface that is also on the plane defined by q and axis.
         
         Thanks to: Grumdrig
@@ -834,7 +860,7 @@ class Gamut:
 
         if np.allclose(np.cross(axis[1], q), np.array([0, 0, 0])):
             print("Error, axis and q does not define a plane. Q:", q, "Clipping to nearest point")
-            return self.get_clip_nearest(sp, q)
+            return self._clip_nearest(sp, q)
 
         for simplex in self.simplices:
             vertecis = self.get_coordinates(simplex)
@@ -851,7 +877,7 @@ class Gamut:
             above = []  # List for vertices above the plane. (or on)
             below = []  # List for vertices below the plane.
             for vertex in vertecis:
-                dot_value = np.dot(vertex - point_on_plane, n)
+                dot_value = np.dot(vertex, n)
                 if dot_value >= 0:
                     above.append(vertex)
                 else:
@@ -903,32 +929,6 @@ class Gamut:
 
         return nearest
 
-    def clip_constant_angle(self, sp, c_data, axis):
-        """ For all points in c_data, this method finds the nearest point on the gamut, constrained to the
-        plane defined by axis and each point.
-
-        OBS: Make sure all points in c_data are outside the gamut. This method maps all points to
-        the gamuts surface.
-
-        :param sp: colour.space.Space
-            The color space to work in, usually cielab for this method.
-        :param c_data: colour.data.Data
-            A set of colour points.
-        :param axis: int
-            0, 1, 2 indicating with axis to use.
-        :return: colour.data.Data
-            The nearest points.
-        """
-        n_data = c_data.get(sp)
-
-        inside = self.is_inside(sp, c_data)
-
-        for i, value in np.ndenumerate(inside):
-            if not value:
-                n_data[i] = self._nearest_point_on_plane(sp, n_data[i], axis)
-
-        return data.Data(sp, n_data)
-
     def HPminDE(self, c_data):
         """ A general implementation of the gamut mapping algorithm HPminDE. Maps all points that lie outside of..
             the gamut to the nearest point on the plane formed by the point and the L axe in the CIELAB colour space.
@@ -942,7 +942,9 @@ class Gamut:
         return self.clip_constant_angle(data.space.cielab, c_data, 0)
 
     def minDE(self, c_data):
-        """
+        """ A general implementation of the gamut mapping algorithm minDE. Maps all points that lie outside of..
+            the gamut to the nearest point on the gamut in CIELAB colour space.
+
 
         :param c_data: colour.data.Data
             Colour.data.Data object containing all points.
@@ -958,9 +960,9 @@ class Gamut:
         # Returns true/fals for points inside/outside as bool array.
         check_data = self.is_inside(sp, c_data)
 
-        # Do get_nearest_point_on_line
+        # Do _intersection_on_line
         for i, value in np.ndenumerate(check_data):
             if not check_data[i]:
-                re_data[i] = self.get_clip_nearest(sp, re_data[i])
+                re_data[i] = self._clip_nearest(sp, re_data[i])
 
         return data.Data(sp, re_data)
