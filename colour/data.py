@@ -793,9 +793,8 @@ def g_MacAdam():
     MacAdam : TensorData
         The metric tensors corresponding to the MacAdam ellipsoids.
     """
-    import scipy.io
-    rawdata = scipy.io.loadmat(
-        resource_path('tensor_data/macdata(xyabtheta).mat'))
+    from scipy.io import loadmat
+    rawdata = loadmat(resource_path('tensor_data/macdata(xyabtheta).mat'))
     rawdata = rawdata['unnamed']
     xyY = rawdata[:, 0:3].copy()
     xyY[:, 2] = 0.4             # arbitrary!
