@@ -25,6 +25,8 @@ import unittest
 import numpy as np
 from colour import data, space
 
+# Global constants for use in the tests
+
 col1 = np.array([.5, .5, .5])
 col2 = np.array([[.5, .5, .5]])
 col3 = np.array([[1e-10, 1e-10, 1e-10],
@@ -70,3 +72,20 @@ class TestData(unittest.TestCase):
         self.assertTrue(np.max(np.abs(col2 - dd2.get(space.xyz))) < 1e-11)
         self.assertTrue(np.max(np.abs(col3 - dd3.get(space.xyz))) < 1e-11)
         self.assertTrue(np.max(np.abs(col4 - dd4.get(space.xyz))) < 1e-11)
+
+    def test_read_data_files(self):
+        for func in [data.d_XYZ_31, data.d_XYZ_64, data.d_Melgosa]:
+            d = func()
+            self.assertIsInstance(d, data.Data)
+        for arg in ['all', 'real', '1929']:
+            d, n, l = data.d_Munsell(arg)
+            self.assertIsInstance(n, list)
+            self.assertIsInstance(l, np.ndarray)
+            self.assertIsInstance(d, data.Data)
+
+    def test_d_regular(self):
+        d = data.d_regular(space.xyz, np.linspace(0, 1, 10),
+                           np.linspace(0, 1, 10), np.linspace(0, 1, 10))
+        self.assertIsInstance(d, data.Data)
+        dd = d.get(space.xyz)
+        self.assertEqual(dd.shape, (1000, 3))

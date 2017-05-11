@@ -429,7 +429,7 @@ class TransformxyY(Transform):
             Colour data in the base colour space
         """
         xyz = np.zeros(np.shape(ndata))
-        xyz[:, 0] = ndata[:, 0]*ndata[:, 2]/ndata[:, 1]
+        xyz[:, 0] = ndata[:, 0]*ndata[:, 2] / ndata[:, 1]
         xyz[:, 1] = ndata[:, 2]
         xyz[:, 2] = (1 - ndata[:, 0] - ndata[:, 1]) * ndata[:, 2] / ndata[:, 1]
         return xyz

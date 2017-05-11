@@ -582,6 +582,7 @@ def read_csv_file(filename, pad=-np.inf):
     """
     f = open(resource_path(filename))
     data = f.readlines()
+    f.close()
     for i in range(len(data)):
         data[i] = data[i].split(',')
         for j in range(len(data[i])):
@@ -689,6 +690,7 @@ def d_Munsell(dataset='real'):
         return
     infile = open(resource_path(fname), 'r')
     data = infile.readlines()
+    infile.close()
     data = data[1:]
     for i in range(len(data)):
         data[i] = data[i].split()
@@ -702,6 +704,7 @@ def d_Munsell(dataset='real'):
             data[i][j] = float(data[i][j])
     data = np.array(data)
     data[:, 2] = data[:, 2] / 100.
+    data[data == 0] = 1e-16
     hue_list = ['10RP',
                 '2.5R', '5R', '7.5R', '10R',
                 '2.5YR', '5YR', '7.5YR', '10YR',
@@ -1052,51 +1055,6 @@ def test():
     """
     Test entire module, and print report.
     """
-    col1 = np.array([.5, .5, .5])
-
-    col2 = np.array([[.5, .5, .5]])
-    col3 = np.array([[1e-10, 1e-10, 1e-10],
-                     [.95, 1., 1.08],
-                     [.5, .5, .5]])
-    col4 = np.array([[[1e-10, 1e-10, 1e-10],
-                      [.95, 1., 1.08],
-                      [.5, .5, .5]],
-                     [[1e-10, 1e-10, 1e-10],
-                      [.95, 1., 1.08],
-                      [.5, .5, .5]]])
-    d1 = Data(space.xyz, col1)
-    d2 = Data(space.xyz, col2)
-    d3 = Data(space.xyz, col3)
-    d4 = Data(space.xyz, col4)
-    print('Data shapes (all should be True):')
-    print(np.shape(d1.get(space.xyz)) == (3, ))
-    print(np.shape(d1.get_linear(space.xyz)) == (1, 3))
-    print(np.shape(d2.get(space.xyz)) == (1, 3))
-    print(np.shape(d2.get_linear(space.xyz)) == (1, 3))
-    print(np.shape(d3.get(space.xyz)) == (3, 3))
-    print(np.shape(d3.get_linear(space.xyz)) == (3, 3))
-    print(np.shape(d4.get(space.xyz)) == (2, 3, 3))
-    print(np.shape(d4.get_linear(space.xyz)) == (6, 3))
-    lab1 = d1.get(space.cielab)
-    lab2 = d2.get(space.cielab)
-    lab3 = d3.get(space.cielab)
-    lab4 = d4.get(space.cielab)
-    dd1 = Data(space.cielab, lab1)
-    dd2 = Data(space.cielab, lab2)
-    dd3 = Data(space.cielab, lab3)
-    dd4 = Data(space.cielab, lab4)
-    print('\nData conversion (all should be < 1e-11):')
-    print(np.max(np.abs(col1 - dd1.get(space.xyz))))
-    print(np.max(np.abs(col2 - dd2.get(space.xyz))))
-    print(np.max(np.abs(col3 - dd3.get(space.xyz))))
-    print(np.max(np.abs(col4 - dd4.get(space.xyz))))
-    print('\nReading data files...')
-    d_XYZ_31()
-    d_XYZ_64()
-    d_Melgosa()
-    d_regular(space.xyz, np.linspace(0, 1, 10),
-              np.linspace(0, 1, 10), np.linspace(0, 1, 10))
-    print('ok')
     print('\nTensor data, and reading tensor data files...')
     g_MacAdam()
     g_three_observer()
