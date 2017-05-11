@@ -73,7 +73,16 @@ class TestData(unittest.TestCase):
         self.assertTrue(np.max(np.abs(col3 - dd3.get(space.xyz))) < 1e-11)
         self.assertTrue(np.max(np.abs(col4 - dd4.get(space.xyz))) < 1e-11)
 
-    def test_read_data_files(self):
+
+# class TestVectorData(unittest.TestCase):
+
+
+# class TestTensorData(unittest.TestCase):
+
+
+class TestFunctions(unittest.TestCase):
+
+    def test_d_functions(self):
         for func in [data.d_XYZ_31, data.d_XYZ_64, data.d_Melgosa]:
             d = func()
             self.assertIsInstance(d, data.Data)
@@ -89,3 +98,16 @@ class TestData(unittest.TestCase):
         self.assertIsInstance(d, data.Data)
         dd = d.get(space.xyz)
         self.assertEqual(dd.shape, (1000, 3))
+
+    def test_g_functions(self):
+        for func in [data.g_MacAdam, data.g_three_observer,
+                     data.g_Melgosa_Lab, data.g_Melgosa_xyY]:
+            g = func()
+            self.assertIsInstance(g, data.TensorData)
+        for arg in ['P', 'A', '2']:
+            g = data.g_BFD(arg)
+            self.assertIsInstance(g, data.TensorData)
+
+    def test_m_functions(self):
+        r = data.m_rit_dupont()
+        self.assertIsInstance(r, dict)

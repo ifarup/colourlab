@@ -832,6 +832,7 @@ def g_three_observer():
     """
     f = open(resource_path('tensor_data/3 observer.txt'))
     rawdata = f.readlines()[:-1]
+    f.close()
     for line in range(len(rawdata)):
         rawdata[line] = rawdata[line].split('\t')
         for item in range(len(rawdata[line])):
@@ -970,6 +971,7 @@ def g_BFD(dataset='P'):
         file_name = resource_path('tensor_data/BFD (2).txt')
     f = open(file_name, 'r')
     rawdata = f.readlines()
+    f.close()
     for line in range(len(rawdata)):
         rawdata[line] = re.sub(r'\s+', ' ', rawdata[line]).strip()
         rawdata[line] = rawdata[line].split(' ')
@@ -1044,23 +1046,3 @@ def m_rit_dupont_T50():
 # Metric data sets, as needed (instances of TensorData):
 #     BrownMacAdam
 #     +++
-
-
-# =============================================================================
-# Test module
-# =============================================================================
-
-
-def test():
-    """
-    Test entire module, and print report.
-    """
-    print('\nTensor data, and reading tensor data files...')
-    g_MacAdam()
-    g_three_observer()
-    g_Melgosa_Lab()
-    g_Melgosa_xyY()
-    g_BFD()
-    print('\nMetric data, reading csv files and more...')
-    m_rit_dupont()
-    print('ok')
