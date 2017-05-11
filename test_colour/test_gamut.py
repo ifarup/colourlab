@@ -388,16 +388,13 @@ class TestGamut(unittest.TestCase):
 
         g_cube = data.Data(space.cielab, cube)
         g = gamut.Gamut(space.cielab, g_cube)
-
         mapped_im = g.minDE(c_sphere)
 
-        b = all(i >= 10 for i in mapped_im.get_linear(space.cielab))
         result = True
-
-        for value in b:
-            if value is False:
+        for index, value in np.ndenumerate(mapped_im.get_linear(space.cielab)):
+            if value > 10:
                 result = False
-        self.assertTrue(b)
+        self.assertTrue(result)
 
 
 if __name__ == '__main__':

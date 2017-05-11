@@ -865,7 +865,7 @@ class Gamut:
         for simplex in self.simplices:
             vertecis = self.get_coordinates(simplex)
 
-            if np.dot(q-self.center, vertecis[0]-self.center) < 0:  # Make sure the simplex is in roughly the right direction.
+            if np.dot(q-self.center, vertecis[0]-self.center) < 0:  # Make sure the simplex is in roughly the right dir
                 continue                    # If the angle between q and simplex is over 90, skip this simplex.
 
             # # Check that one of the vertecis is cloeser than our current closest point.
@@ -945,7 +945,6 @@ class Gamut:
         """ A general implementation of the gamut mapping algorithm minDE. Maps all points that lie outside of..
             the gamut to the nearest point on the gamut in CIELAB colour space.
 
-
         :param c_data: colour.data.Data
             Colour.data.Data object containing all points.
         :return: ndarray
@@ -957,7 +956,7 @@ class Gamut:
         # Get linearised colour data
         re_data = c_data.get(sp)
 
-        # Returns true/fals for points inside/outside as bool array.
+        # Returns true/false for points inside/outside as bool array.
         check_data = self.is_inside(sp, c_data)
 
         # Do _intersection_on_line
