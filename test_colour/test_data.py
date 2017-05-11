@@ -4,7 +4,7 @@
 """
 test_data: Unittests for all functions in the data module.
 
-Copyright (C) 2013-2016 Ivar Farup, Lars Niebuhr,
+Copyright (C) 2013-2017 Ivar Farup, Lars Niebuhr,
 Sahand Lahafdoozian, Nawar Behenam, Jakob Voigt
 
 This program is free software: you can redistribute it and/or modify
@@ -56,16 +56,16 @@ class TestData(unittest.TestCase):
             self.assertEqual(d3.get_linear(space.xyz).shape, (3, 3))
             self.assertEqual(d4.get_linear(space.xyz).shape, (6, 3))
 
-    # lab1 = d1.get(space.cielab)
-    # lab2 = d2.get(space.cielab)
-    # lab3 = d3.get(space.cielab)
-    # lab4 = d4.get(space.cielab)
-    # dd1 = Data(space.cielab, lab1)
-    # dd2 = Data(space.cielab, lab2)
-    # dd3 = Data(space.cielab, lab3)
-    # dd4 = Data(space.cielab, lab4)
-    # print('\nData conversion (all should be < 1e-11):')
-    # print(np.max(np.abs(col1 - dd1.get(space.xyz))))
-    # print(np.max(np.abs(col2 - dd2.get(space.xyz))))
-    # print(np.max(np.abs(col3 - dd3.get(space.xyz))))
-    # print(np.max(np.abs(col4 - dd4.get(space.xyz))))
+    def test_implicit_convert(self):
+        lab1 = d1.get(space.cielab)
+        lab2 = d2.get(space.cielab)
+        lab3 = d3.get(space.cielab)
+        lab4 = d4.get(space.cielab)
+        dd1 = data.Data(space.cielab, lab1)
+        dd2 = data.Data(space.cielab, lab2)
+        dd3 = data.Data(space.cielab, lab3)
+        dd4 = data.Data(space.cielab, lab4)
+        self.assertTrue(np.max(np.abs(col1 - dd1.get(space.xyz))) < 1e-11)
+        self.assertTrue(np.max(np.abs(col2 - dd2.get(space.xyz))) < 1e-11)
+        self.assertTrue(np.max(np.abs(col3 - dd3.get(space.xyz))) < 1e-11)
+        self.assertTrue(np.max(np.abs(col4 - dd4.get(space.xyz))) < 1e-11)
