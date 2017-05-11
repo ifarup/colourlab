@@ -25,35 +25,37 @@ import unittest
 import numpy as np
 from colour import data, space
 
+col1 = np.array([.5, .5, .5])
+col2 = np.array([[.5, .5, .5]])
+col3 = np.array([[1e-10, 1e-10, 1e-10],
+                 [.95, 1., 1.08],
+                 [.5, .5, .5]])
+col4 = np.array([[[1e-10, 1e-10, 1e-10],
+                  [.95, 1., 1.08],
+                  [.5, .5, .5]],
+                 [[1e-10, 1e-10, 1e-10],
+                  [.95, 1., 1.08],
+                  [.5, .5, .5]]])
+
+d1 = data.Data(space.xyz, col1)
+d2 = data.Data(space.xyz, col2)
+d3 = data.Data(space.xyz, col3)
+d4 = data.Data(space.xyz, col4)
+
 class TestData(unittest.TestCase):
 
-    def test_constructor(self):
-            col1 = np.array([.5, .5, .5])
-
-            col2 = np.array([[.5, .5, .5]])
-            col3 = np.array([[1e-10, 1e-10, 1e-10],
-                             [.95, 1., 1.08],
-                             [.5, .5, .5]])
-            col4 = np.array([[[1e-10, 1e-10, 1e-10],
-                              [.95, 1., 1.08],
-                              [.5, .5, .5]],
-                             [[1e-10, 1e-10, 1e-10],
-                              [.95, 1., 1.08],
-                              [.5, .5, .5]]])
-            d1 = data.Data(space.xyz, col1)
-            d2 = data.Data(space.xyz, col2)
-            d3 = data.Data(space.xyz, col3)
-            d4 = data.Data(space.xyz, col4)
-
+    def test_get(self):
             self.assertEqual(d1.get(space.xyz).shape, (3, ))
+            self.assertEqual(d2.get(space.xyz).shape, (1, 3))
+            self.assertEqual(d3.get(space.xyz).shape, (3, 3))
+            self.assertEqual(d4.get(space.xyz).shape, (2, 3, 3))
+
+    def test_get_linear(self):
             self.assertEqual(d1.get_linear(space.xyz).shape, (1, 3))
-    # print(np.shape(d1.get_linear(space.xyz)) == (1, 3))
-    # print(np.shape(d2.get(space.xyz)) == (1, 3))
-    # print(np.shape(d2.get_linear(space.xyz)) == (1, 3))
-    # print(np.shape(d3.get(space.xyz)) == (3, 3))
-    # print(np.shape(d3.get_linear(space.xyz)) == (3, 3))
-    # print(np.shape(d4.get(space.xyz)) == (2, 3, 3))
-    # print(np.shape(d4.get_linear(space.xyz)) == (6, 3))
+            self.assertEqual(d2.get_linear(space.xyz).shape, (1, 3))
+            self.assertEqual(d3.get_linear(space.xyz).shape, (3, 3))
+            self.assertEqual(d4.get_linear(space.xyz).shape, (6, 3))
+
     # lab1 = d1.get(space.cielab)
     # lab2 = d2.get(space.cielab)
     # lab3 = d3.get(space.cielab)
