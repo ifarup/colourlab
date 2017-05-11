@@ -8,6 +8,6 @@ python:
   - "3.5"
   - "3.6"
 install:
-  - pip install numpy==$NUMPY_VERSION scipy==$SCIYY_VERSION matplotlib
+  - pip install numpy==$NUMPY_VERSION scipy==$SCIPY_VERSION matplotlib
 script:
   - python -m unittest test_colour/test_data.py
