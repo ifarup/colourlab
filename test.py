@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-test: Test various features of the colour package (continuously updated)
+test: Play with various features of the colour package (continuously updated)
 
-Copyright (C) 2016 Ivar Farup
+Copyright (C) 2012-2017 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
