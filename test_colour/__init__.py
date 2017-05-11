@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Main file. Just import the other files.
 import os
-from test_colour import test_space, test_data, test_tensor,\
+from test_colour import test_space, test_data, test_tensor, \
     test_metric, test_statistics, test_misc, test_image, test_gamut
 
 
