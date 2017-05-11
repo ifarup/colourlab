@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-test: Play with various features of the colour package (continuously updated)
+sandbox: Play with various features of the colour package (continuously updated)
 
 Copyright (C) 2012-2017 Ivar Farup
 
