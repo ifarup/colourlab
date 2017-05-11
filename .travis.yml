@@ -3,4 +3,3 @@ python:
   - "3.6"
 install:
   - pip install numpy scipy matplotlib
- 
