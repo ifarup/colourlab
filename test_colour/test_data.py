@@ -89,3 +89,7 @@ class TestData(unittest.TestCase):
         self.assertIsInstance(d, data.Data)
         dd = d.get(space.xyz)
         self.assertEqual(dd.shape, (1000, 3))
+
+
+if __name__ == '__main__':
+    unittest.main()
