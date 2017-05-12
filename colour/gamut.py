@@ -947,8 +947,8 @@ class Gamut:
 
         :param c_data: colour.data.Data
             Colour.data.Data object containing all points.
-        :return: ndarray
-            Returns the nearest point.
+        :return: colour.data.Data
+            Returns the nearest points.
         """
         # Colour data in cielab.
         sp = data.space.cielab

@@ -346,7 +346,8 @@ class TestGamut(unittest.TestCase):
         fasit = np.array([[0, 5, 5], [4, 0, 5], [4, 4, 3], [0, 5, 0], [10, 0, 0]])
         c_data = data.Data(space.cielab, points)
         print("This test should produce an error message for the last point")
-        re_data = g.HPminDE(c_data).get(space.cielab)
+        re_data = g.HPminDE(c_data)
+        re_data = re_data.get_linear(space.cielab)
 
         self.assertTrue(np.allclose(fasit, re_data))
 
