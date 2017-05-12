@@ -176,26 +176,38 @@ g.plot_surface(axis, space)                   # Call the method
 #### intersection_on_line():
 The function receives three parameters. The colour space, the points in the c_data format, and center(if no center is defined, it will use the default gamut center). The function will return nearest point along a line between the point and the given center.
 ```
-p_out = [5, 5, 15]                                          # A point outside the gamut object
-p_in = [5, 5, 5]                                            # A point inside the gamut object
-space = g.space                                             # Specifies the color space
-a = g.intersection_on_line(space, c_data, center=None) # Call the method
+points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # Points outside the gamut object
+c_data = data.Data(space.srgb, points)                              # data.Data object
+re_data = g.intersection_on_line(space.srgb, c_data)                # Call the method
 ```
 
-#### _clip_nearest() ??? mulig bug!
+#### clip_nearest()
 The function receives two parameters. Points outside are colour data object and are represented as numpy arrays of dimensions Nx...xMx3. The function will return nearest point in 3D.
 ```
-p_out = [12, 12, 12]                        # A point outside the gamut object
-space = g.space                             # Specifies the color space
-d_clip = g._clip_nearest(p_out, space)   # Call the method
+points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])                   # Points outside the gamut object
+c_data = data.Data(space.srgb, points)                                    # data.Data object
+re_data = g.clip_nearest(space.srgb, c_data)                              # Call the method
 ```
 
 #### compress_axis()
 The function receives three parameters. The color space, pints in the c_data format, and the axis to compress as integer. The axis range is [0,1,2] where 0==X, 1==Y and 2==Z.
 ```
-c = g.compress_axis(space, c_data, axis)    # call method
+c = g.compress_axis(space, c_data, axis)    # Call the method
 ```
 
+#### HPminDE()
+The function receives one parameters. The points in the c_data format, Maps all points that lie outside of the gamut to the nearest point on the plane formed by the point and the L axe in the CIELAB colour space. Returns coordinate for the closest point on plane.
+```
+points = np.array([[0, 8, 8], [4, 0, 9], [4, 4, 3], [0, 10, 0], [15, 0, 0]])    # Points outside the gamut object
+c_data = data.Data(space.cielab, points)                                        # data.Data object
+re_data = g.HPminDE(c_data).get(space.cielab)                                   # Call the method
+```
+
+#### minDE()
+The function receives one parameters. The points in the c_data format, and maps all points that lie outside of the gamut to the nearest point on the gamut in CIELAB colour space. Returns the nearest point. The c_sphere is a generated  sphere or points.
+```
+mapped_im = g.minDE(c_sphere)               # Call the method
+```
 ## Attributes
 
 | Attribute      | Description                    
@@ -216,8 +228,10 @@ https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.ht
 * **is_inside()**
 * **plot_surface()**
 * **intersection_on_line():**
-* **_clip_nearest()**
+* **clip_nearest()**
 * **compress_axis()**
+* **HPminDE()**
+* **minDE()**
 
 Method      	                              | Description                                                                   | Return
 ----------------------------------------------| ------------------------------------------------------------------------------|-------------------------------
