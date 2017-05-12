@@ -26,7 +26,7 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import scipy as sci
-import colour.data as data
+from . import data
 
 
 class Gamut:
@@ -53,6 +53,7 @@ class Gamut:
         self.simplices = None    # Initialized by initialize_(modified)convex_hull
         self.neighbors = None    # Initialized by initialize_(modified)convex_hull
         self.center = None       # Initialized by initialize_(modified)convex_hull
+        self.points = None       # Initialized by initialize_(modified)convex_hull
 
         if gamma == 1:
             self.initialize_convex_hull()
@@ -73,6 +74,7 @@ class Gamut:
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
+        self.points = self.hull.points
         self.center = self.center_of_mass(self.get_coordinates(self.vertices))
 
     def initialize_modified_convex_hull(self, gamma, center):
@@ -89,15 +91,15 @@ class Gamut:
         """
         # Move all points so that 'center' is origin
         n_data = self.data.get_linear(self.space)
-        n_data_backup = n_data                          # Save a copy of the points, unmodified.
+        self.points = n_data.copy() # Save a copy of the points, unmodified.
 
         if center is None:
-            self.center = self.center_of_mass(n_data)   # If a center was provided, use it.
+            self.center = self.center_of_mass(n_data) # If a center was provided, use it.
         else:
-            self.center = center                        # If not, use the geometric center as a default.
-
-        shifted = n_data - center                               # Make center the local origin
+            self.center = center # If not, use the geometric center as a default.
+        shifted = n_data - self.center # Make center the local origin
         r = np.linalg.norm(shifted, axis=1, keepdims=True)      # Get the radius of all points
+        r[r == 0] = 1                       # does the trick
         n_data = shifted * (r ** gamma / r)                     # Modify the radius.
 
         # Calculate the convex hull, with the modified radius's
@@ -106,7 +108,6 @@ class Gamut:
         self.simplices = self.hull.simplices        # Set indexes from modified points.
         self.neighbors = self.hull.neighbors        # Set indexes from modified points.
         self.center = center
-        self.hull.points = n_data_backup
 
     def is_inside(self, sp, c_data, t=False):
         """For the given data points checks if points are inn the convex hull
@@ -298,7 +299,7 @@ class Gamut:
         :return: ndarray
             shape(N, 3)
         """
-        return self.hull.points[indices]
+        return self.points[indices]
 
     def in_tetrahedron(self, t, p, true_interior=False):
         """Checks if the point P, pointed to by vector p, is inside(including the surface) the tetrahedron
@@ -346,10 +347,8 @@ class Gamut:
         p = q - line[0]         # Make the same adjustments to the points. Copy to not change the original q
 
         # Check if the cross b x p is 0, if not the vectors are not collinear.
-        matrix = np.array([[1, 1, 1], b, p, ])
-        if np.linalg.det(matrix) != 0:
+        if np.linalg.norm(np.cross(b, p)) > 0:
             return False
-
         # Check if b and p have opposite directions
         dot_b_p = np.dot(p, b)
         if dot_b_p < 0:
@@ -489,7 +488,7 @@ class Gamut:
         z.sort()
 
         for i in range(self.hull.simplices.shape[0]):   # Iterates and draws all the vertices points
-            tri = art3d.Poly3DCollection([self.hull.points[self.hull.simplices[i]]])
+            tri = art3d.Poly3DCollection([self.points[self.hull.simplices[i]]])
             ax.add_collection(tri)                      # Adds created points to the ax
 
         ax.set_xlim([x[0] - (x[0] * 0.20), x[-1] + x[-1] * 0.20])  # Set the limits for the plot by calculating.
@@ -623,7 +622,7 @@ class Gamut:
 
         return np.hstack([n3, np.dot(points[1], n3)])  # Add the distance to numpy array, and return it.
 
-    def intersection_on_line(self, sp, c_data, center=None):
+    def intersection_in_line(self, sp, c_data, center=None):
         """ Returns an array containing the nearest point on the gamuts surface, for every point
             in the c_data object. Cell number i in the returned array corresponding to cell number i from the
             'c_data' parameter. Handles input on the format Nx...xMx3.
@@ -643,12 +642,12 @@ class Gamut:
 
         re_data = c_data.get_linear(sp)             # Get linearised colour data
 
-        for i in range(0, re_data.shape[0]):        # Do _intersection_on_line
-            re_data[i] = self._intersection_on_line(sp, re_data[i], center)
+        for i in range(0, re_data.shape[0]):        # Do _intersection_in_line
+            re_data[i] = self._intersection_in_line(sp, re_data[i], center)
 
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
-    def _intersection_on_line(self, sp, q, center):
+    def _intersection_in_line(self, sp, q, center):
         """Finding the Nearest point along a line.
 
         :param sp: Space
@@ -753,7 +752,7 @@ class Gamut:
         # Get linearised colour data
         re_data = c_data.get_linear(sp)
 
-        # Do _intersection_on_line
+        # Do _intersection_in_line
         for i in range(0, re_data.shape[0]):
             re_data[i] = self._clip_nearest(sp, re_data[i])
 
@@ -959,7 +958,7 @@ class Gamut:
         # Returns true/false for points inside/outside as bool array.
         check_data = self.is_inside(sp, c_data)
 
-        # Do _intersection_on_line
+        # Do _intersection_in_line
         for i, value in np.ndenumerate(check_data):
             if not check_data[i]:
                 re_data[i] = self._clip_nearest(sp, re_data[i])

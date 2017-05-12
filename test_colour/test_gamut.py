@@ -14,7 +14,7 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
@@ -40,9 +40,9 @@ cube = np.array([[0., 0., 0.],      # 0  vertices
                 [0., 10., 10.]])    # 10 vertices
 cube_vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])  # Vertices for the cube above.
 
-line = np.array([[0, 0, 0], [3, 3, 3]])             # Line used in testing.
-point_on_line = np.array([1, 1, 1])                 # Point inside the line to be tested.
-point_not_paralell_to_line = np.array([2, 3, 2])    # Point outside the line to be tested.
+line = np.array([[0, 0, 0], [3, 3, 3]]) # Line used in testing.
+point_in_line = np.array([1, 1, 1]) # Point inside the line to be tested.
+point_not_in_line = np.array([2, 3, 2]) # Point outside the line to be tested.
 point_opposite_direction_than_line = np.array([-1, -1, -1])
 point_further_away_than_line = np.array([4, 4, 4])
 
@@ -181,16 +181,16 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertTrue(g.in_line(np.array([[2, 2, 2], [2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
-        self.assertFalse(g.in_line(line, point_not_paralell_to_line))            # Point in NOT parallel to line
+        self.assertFalse(g.in_line(line, point_not_in_line))            # Point in NOT on line
         self.assertFalse(g.in_line(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.in_line(line, point_further_away_than_line))          # Point is is further then line
-        self.assertTrue(g.in_line(line, point_on_line))                          # Point is on line
+        self.assertTrue(g.in_line(line, point_in_line))                          # Point is on line
         self.assertFalse(g.in_line(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
-        self.assertFalse(g.interior(line, point_not_paralell_to_line))            # Point in NOT parallel to line
+        self.assertFalse(g.interior(line, point_not_in_line))            # Point in NOT on line
         self.assertFalse(g.interior(line, point_opposite_direction_than_line))    # Point opposite dir then line
         self.assertFalse(g.interior(line, point_further_away_than_line))          # Point is is further then line
-        self.assertTrue(g.interior(line, point_on_line))                          # Point is on line
+        self.assertTrue(g.interior(line, point_in_line))                          # Point is on line
         self.assertFalse(g.interior(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
     def test_in_tetrahedron(self):
@@ -326,7 +326,7 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(np.allclose(fasit_data, re_data))
 
-    def test_intersectionpoint_on_line(self):
+    def test_intersectionpoint_in_line(self):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
@@ -334,7 +334,7 @@ class TestGamut(unittest.TestCase):
         mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])               # wanted result
 
         c_data = data.Data(space.srgb, points)                                    # data.Data object
-        re_data = g.intersection_on_line(space.srgb, c_data)                      # data.Data object returned
+        re_data = g.intersection_in_line(space.srgb, c_data)                      # data.Data object returned
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
