@@ -238,9 +238,10 @@ Method      	                              | Description                        
 `is_inside(sp, c_data, t=false)`                       | Returns a boolean array containing T/F for all points in the array.  | boolean array
 `plot_surface(ax, sp)`                        | Plot the gamut's simplices.                                                   | -
 `intersection_on_line(sp, c_data, center=None):`    | Returns the nearest point in a line on a gamut surface from the given point to the given center.  | np.array
-`_clip_nearest(sp, p_out, side)`             | Returns the nearest point on a gamut in 3D.                                 | np.array
-`compress_axis(sp, c_data, ax):`        | Compresses the points linearly in the desired axel and colour space.                | colour.data.Data object
-
+`_clip_nearest(sp, p_out, side)`              | Returns the nearest point on a gamut in 3D.                                   | np.array
+`compress_axis(sp, c_data, ax):`              | Compresses the points linearly in the desired axel and colour space.          | colour.data.Data object
+`HPminDE(c_data):`                            | Get coordinate for the closest point on plane and return mapped points        | colour.data.Data object
+`minDE(c_data):`                              | Get nearest point and return mapped points.                                   | colour.data.Data object
 test_colour
 ===========
 This is a test package containing one test module for each module in colour. The test modules does unittesting 
