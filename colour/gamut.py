@@ -55,12 +55,12 @@ class Gamut:
         self.center = None       # Initialized by initialize_(modified)convex_hull
 
         if gamma == 1:
-            self.initialize_convex_hull()
+            self.initialize_convex_hull(center)
         else:
             self.initialize_modified_convex_hull(gamma, center)
         self.fix_orientation()
 
-    def initialize_convex_hull(self):
+    def initialize_convex_hull(self, center):
         """Initializes the gamuts convex hull in the desired colour space
 
         :param sp : Space
@@ -73,7 +73,12 @@ class Gamut:
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
         self.neighbors = self.hull.neighbors
-        self.center = self.center_of_mass(self.get_coordinates(self.vertices))
+        if center is None:
+            self.center = self.center_of_mass(self.get_coordinates(self.vertices))   # If a center was provided, use it.
+        else:
+            self.center = center
+
+
 
     def initialize_modified_convex_hull(self, gamma, center):
         """Initializes the gamut with the modified convex hull method.
