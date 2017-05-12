@@ -760,7 +760,7 @@ class Gamut:
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
     def _clip_nearest(self, sp, p_outside):
-        """ Finds the nearst point in 3D
+        """ Finds the nearest point in 3D
         
         :param sp: colour.Space
             The colour space for computing the gamut.

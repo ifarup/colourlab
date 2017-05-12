@@ -38,7 +38,7 @@ cube = np.array([[0., 0., 0.],      # 0  vertices
                 [10., 0., 10.],     # 8  vertices
                 [0., 0., 10.],      # 9  vertices
                 [0., 10., 10.]])    # 10 vertices
-cube_vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])      # Vertices for the cube above.
+cube_vertices = np.array([0, 1, 2, 3, 6, 8, 9, 10])  # Vertices for the cube above.
 
 line = np.array([[0, 0, 0], [3, 3, 3]])             # Line used in testing.
 point_on_line = np.array([1, 1, 1])                 # Point inside the line to be tested.
@@ -86,6 +86,7 @@ polyhedron = np.array([[38., 28., 30.], [31., 3., 43.],  [50., 12., 38.], [34., 
 
 
 class TestGamut(unittest.TestCase):
+
     @staticmethod
     def generate_sphere(r, n):
         """Generates a sphere or points. Used in tests to generate gamut, and inclusion points.
@@ -297,28 +298,6 @@ class TestGamut(unittest.TestCase):
 
         self.assertTrue(g.vertices.shape[0] == 9)
 
-    @staticmethod
-    def generate_sphere(r, n):
-        """Generates a sphere or points. Used in tests to generate gamut, and inclusion points.
-
-        :param r: int
-            The radius to the points.
-        :param n: int
-            Number of points to be generated.
-        :return: ndarray
-            Numpy array dim(n,3) with the points of the sphere.
-        """
-        theta = np.random.uniform(0, 2*np.pi, n)
-        phi = np.random.uniform(0, np.pi, n)
-
-        x = r * (np.sin(phi) * np.cos(theta))
-        y = r * (np.sin(phi) * np.sin(theta))
-        z = r * (np.cos(phi))
-
-        sphere = np.vstack((x, y, z)).T
-
-        return sphere
-
     def test_get_alpha(self):
         c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
@@ -336,16 +315,6 @@ class TestGamut(unittest.TestCase):
         r = np.array([-0.57735027, -0.57735027, -0.57735027, -0.57735027])
         np.alltrue(d == r)
 
-    # # Test out of commission. Try again later.
-    # def test_nearest_point_on_line(self):
-    #     c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
-    #     g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
-    #     d = [5., 5., 15.]
-    #     center = [5., 5., 5.]
-    #     sp = g.space
-    #     a = g._intersection_on_line(d, center, sp)
-    #     print("Nearest point:", a)
-
     def test_compress(self):
         c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
         g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
@@ -361,11 +330,11 @@ class TestGamut(unittest.TestCase):
         c_data = data.Data(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # points to map
-        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])         # wanted result
+        points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])                   # points to map
+        mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])               # wanted result
 
-        c_data = data.Data(space.srgb, points)                              # data.Data object
-        re_data = g.intersection_on_line(space.srgb, c_data)           # data.Data object returned
+        c_data = data.Data(space.srgb, points)                                    # data.Data object
+        re_data = g.intersection_on_line(space.srgb, c_data)                      # data.Data object returned
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
@@ -395,6 +364,18 @@ class TestGamut(unittest.TestCase):
             if value > 10:
                 result = False
         self.assertTrue(result)
+
+    def test_clip_nearest(self):
+        c_data = data.Data(space.srgb, cube)
+        g = gamut.Gamut(space.srgb, c_data)
+
+        points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])                   # points to map
+        mod_points = np.array([[5, 5, 10], [5, 5, 10], [5, 5, 10]])               # wanted result
+
+        c_data = data.Data(space.srgb, points)                                    # data.Data object
+        re_data = g.clip_nearest(space.srgb, c_data)                              # data.Data object returned
+
+        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
 
 if __name__ == '__main__':
