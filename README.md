@@ -196,17 +196,17 @@ c = g.compress_axis(space, c_data, axis)    # Call the method
 ```
 
 #### HPminDE()
-The function receives one parameters. The points in the c_data format, Maps all points that lie outside of the gamut to the nearest point on the plane formed by the point and the L axe in the CIELAB colour space. Returns coordinate for the closest point on plane.
+The function receives one parameter. The points in the c_data format, Maps all points that lie outside of the gamut to the nearest point on the plane formed by the point and the L axe in the CIELAB colour space. Returns coordinate for the closest point on plane in the colour.data.Data format.
 ```
 points = np.array([[0, 8, 8], [4, 0, 9], [4, 4, 3], [0, 10, 0], [15, 0, 0]])    # Points outside the gamut object
 c_data = data.Data(space.cielab, points)                                        # data.Data object
-re_data = g.HPminDE(c_data).get(space.cielab)                                   # Call the method
+re_data = g.HPminDE(c_data)                                                     # Call the method
 ```
 
 #### minDE()
-The function receives one parameters. The points in the c_data format, and maps all points that lie outside of the gamut to the nearest point on the gamut in CIELAB colour space. Returns the nearest point. The c_sphere is a generated  sphere or points.
+The function receives one parameter. The points in the c_data format, and maps all points that lie outside of the gamut to the nearest point on the gamut in CIELAB colour space. Returns the nearest point in the colour.data.Data format.
 ```
-mapped_im = g.minDE(c_sphere)               # Call the method
+mapped_im = g.minDE(c_data)               # Call the method
 ```
 ## Attributes
 
