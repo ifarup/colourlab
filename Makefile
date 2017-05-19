@@ -1,4 +1,4 @@
-all: test
+all: test dist
 
 test:
 	coverage run --source=colour -m unittest
