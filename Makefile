@@ -1,8 +1,8 @@
-all: test dist
+all: test sdist
 
 test:
 	coverage run --source=colour -m unittest
 	coverage html
 
-dist:
+sdist:
 	python3 setup.py sdist
