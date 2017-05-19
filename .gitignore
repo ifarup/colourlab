@@ -1,4 +1,8 @@
 *.py[cod]
+*.egg-info
 .idea/
+dist/
+.coverage
+htmlcov/
 ideas/
 test.py

@@ -1,0 +1,3 @@
+include colour/colour_data/*
+include colour/metric_data/*
+include colour/tensor_data/*
