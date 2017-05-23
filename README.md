@@ -137,17 +137,17 @@ Common white points are available as the following Data objects:
 
 ### Constructing Gamut 
 To construct a new Gamut we need to provide a colour space in the format provided by colour.space, 
-and data/colour points in the format given the colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do it as follows
+and data/colour points in the format given the colour.data.Data class. If we want to construct the new Gamut in the colourspace RGB and the fictive points my_points, we would do the following:
 
 #### For convex hull
 ```python
-c_data = data.Data(space.srgb, my_points)    # First generate the Data objekt to use
+c_data = data.Data(space.srgb, my_points)    # First generate the Data object to use
 g = gamut.Gamut(space.srgb, c_data)          # Pass along the colourspace and c_data
 ```
 #### For modified-convex hull
-When using the modified constructor, we have to choose an exponent for modifying the gamut radius(gamma), and define a center for expansion.
+When using the modified constructor, we have to choose an exponent for modifying the gamut radius(gamma), and define the center for expansion.
 ```python
-c_data = data.Data(space.srgb, my_points)                        # First generate the Data objekt to use
+c_data = data.Data(space.srgb, my_points)                        # First generate the Data object to use
 g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=my_center) # Pass along the colourspace, c_data, gamma and center 
 ```
 
@@ -164,12 +164,12 @@ g = gamut.Gamut(space, c_data)           # Creates a new gamut
 ```
 
 #### is_inside()
-The function receives two parameters, colourspace and a colour data object(c_data). The function checks if points are inn the convex hull and return boolean-array containing true/false in the last dimension.
+The function receives two parameters, colourspace and a colour data object(c_data). The function checks if points are inn the gamout boundry and returns an boolean-array containing true/false in the last dimension.
 ```
 a = g.is_inside(space, c_data)                # Call the method
 ```
 #### plot_surface()
-The function receives two parameters axis and space. The function will visualize a gamut figure in 3D.
+The function receives two parameters axis and space. The function visualizes a gamut figure in 3D.
 ```
 fig = plt.figure()                            # Creates a figure
 axis = fig.add_subplot(111, projection='3d')  # Creates a 3D plot ax
@@ -178,7 +178,7 @@ g.plot_surface(axis, space)                   # Call the method
 ```
 
 #### intersection_on_line():
-The function receives three parameters. The colour space, the points in the c_data format, and center(if no center is defined, it will use the default gamut center). The function will return nearest point along a line between the point and the given center.
+The function receives three parameters. The colourspace, the points in the c_data format, and center(if no center is defined, it will use the default gamut center). The function will return nearest point along a line between the point and the given center.
 ```
 points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])             # Points outside the gamut object
 c_data = data.Data(space.srgb, points)                              # data.Data object
@@ -186,7 +186,7 @@ re_data = g.intersection_on_line(space.srgb, c_data)                # Call the m
 ```
 
 #### clip_nearest()
-The function receives two parameters. Points outside are colour data object and are represented as numpy arrays of dimensions Nx...xMx3. The function will return nearest point in 3D.
+The function receives two parameters, colourspace and colour data.outside are colour data object and are represented as numpy arrays of dimensions Nx...xMx3. The function will return nearest point in 3D.
 ```
 points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])                   # Points outside the gamut object
 c_data = data.Data(space.srgb, points)                                    # data.Data object
