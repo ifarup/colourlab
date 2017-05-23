@@ -602,8 +602,14 @@ class Gamut:
         :return x: float
             Returns alpha value.
         """
-        x = (n[3] - center[0] * n[0] - center[1] * n[1] - center[2] * n[2]) / \
-            (q[0] * n[0] - center[0] * n[0] + q[1] * n[1] - center[1] * n[1] + q[2] * n[2] - center[2] * n[2])
+        denom = (q[0] * n[0] -
+                 center[0] * n[0] + q[1] * n[1] -
+                 center[1] * n[1] + q[2] * n[2] -
+                 center[2] * n[2])
+        if denom == 0:
+            denom = 1e-15
+        x = (n[3] - center[0] * n[0] -
+             center[1] * n[1] - center[2] * n[2]) / denom
 
         return x
 
@@ -619,9 +625,12 @@ class Gamut:
 
         v1 = points[2] - points[0]
         v2 = points[1] - points[0]
-        n2 = np.cross(v1, v2)                          # Find cross product of 2 points.
-        norm = np.linalg.norm(n2)                      # Find normal point.
-        n3 = n2 / norm                                 # Find the distance.
+        n2 = np.cross(v1, v2)     # Find cross product of 2 points.
+        norm = np.linalg.norm(n2) # Find normal point.
+        if norm == 0:      # Find the distance.
+            n3 = 0
+        else:
+            n3 = n2 / norm
 
         return np.hstack([n3, np.dot(points[1], n3)])  # Add the distance to numpy array, and return it.
 
@@ -861,7 +870,7 @@ class Gamut:
         n = np.array([pl[0], pl[1], pl[2]])                                       # Normal vector of the plane.
 
         if np.allclose(np.cross(axis[1], q), np.array([0, 0, 0])):
-            print("Error, axis and q does not define a plane. Q:", q, "Clipping to nearest point")
+            raise UserWarning('Error, axis and q does not define a plane. Q: ' + str(q) + '. Clipping to nearest point')
             return self._clip_nearest(sp, q)
 
         for simplex in self.simplices:
