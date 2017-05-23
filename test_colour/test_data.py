@@ -73,6 +73,12 @@ class TestData(unittest.TestCase):
         self.assertTrue(np.max(np.abs(col3 - dd3.get(space.xyz))) < 1e-11)
         self.assertTrue(np.max(np.abs(col4 - dd4.get(space.xyz))) < 1e-11)
 
+    def test_new_white_point(self):
+        self.assertTrue(np.allclose(data.white_D50.get(space.cielab),
+                                    data.white_D65.new_white_point(space.xyz,
+                                                                   data.white_D65,
+                                                                   data.white_D50).get(space.cielab)))
+
 
 # class TestVectorData(unittest.TestCase):
 
