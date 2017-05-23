@@ -109,6 +109,19 @@ class TestGamut(unittest.TestCase):
 
         return sphere
 
+    def test_constructor(self):
+        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), gamma=1)
+        self.assertTrue(isinstance(g, gamut.Gamut))
+
+        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), gamma=.2)
+        self.assertTrue(isinstance(g, gamut.Gamut))
+
+        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), center=[.5, .5, .5], gamma=1)
+        self.assertTrue(isinstance(g, gamut.Gamut))
+
+        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), center=[.5, .5, .5], gamma=.2)
+        self.assertTrue(isinstance(g, gamut.Gamut))
+
     def test_gamut_initialize(self):
         c_data = data.Data(space.srgb, cube)                # Generating the colour Data object
         g = gamut.Gamut(space.srgb, c_data)
