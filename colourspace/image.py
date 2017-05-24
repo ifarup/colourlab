@@ -20,7 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from . import data, space, tensor, misc
+from . import data, space, tensor, misc, image_core
 
 class Image(data.Points):
     """
@@ -243,3 +243,34 @@ class Image(data.Points):
             grey_image[grey_image > 1] = 1
 
         return grey_image
+
+    def stress(self, sp_in, sp_out=None, ns=3, nit=5, R=0):
+        """
+        Compute STRESS in the given colour space.
+
+        Parameters
+        ----------
+        sp_in : space.Space
+            The input colour space.
+        sp_out : space.Space
+            The colour space for the interpretation of the result. If
+            None, it is taken to be the same as sp_in.
+        ns : int
+            Number of sample points.
+        nit : int
+            Number of iterations.
+        R : int
+            Radius in pixels. If R=0, the diagonal of the image is used.
+
+        Returns
+        -------
+        image.Image
+            The resulting STRESS image.
+        """
+        if sp_out is None:
+            sp_out = sp_in
+        im_in = self.get(sp_in)
+        im_out = im_in.copy()
+        for c in range(3):
+            im_out[..., c], _ = image_core.stress(im_in[..., c], ns, nit, R)
+        return Image(sp_out, im_out)
