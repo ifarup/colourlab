@@ -5,7 +5,7 @@ python:
   - "3.6"
 
 install:
-  - pip install numpy scipy matplotlib codecov
+  - pip install numpy scipy matplotlib codecov numba
 
 script:
   - coverage run --source=colour -m unittest
