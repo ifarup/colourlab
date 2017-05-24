@@ -3,11 +3,11 @@ from setuptools import setup
 setup(
     name="colourspace",
     version="1.1.0.dev",
-    packages=['colour'],
+    packages=['colourspace'],
     include_package_data=True,
-    package_data={'colour': ['colour_data/*',
-                             'tensor_data/*',
-                             'metric_data/*']},
+    package_data={'colourspace': ['colour_data/*',
+                                  'tensor_data/*',
+                                  'metric_data/*']},
     install_requires=[
         'numpy',
         'scipy',

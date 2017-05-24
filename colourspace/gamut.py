@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-gamut: Colour gamut operaions. Part of the colour package.
+gamut: Colour gamut operaions. Part of the colourspace package.
 
-Copyright (C) 2013-2016 Ivar Farup, Lars Niebuhr, Sahand Lahafdoozian,
+Copyright (C) 2013-2017 Ivar Farup, Lars Niebuhr, Sahand Lahafdoozian,
 Nawar Behenam, Jakob Voigt
 
 This program is free software: you can redistribute it and/or modify
@@ -805,10 +804,10 @@ class Gamut:
 
         Parameters
         ----------
-        sp : colour.space
-            The Colour.space
-        c_data : colour.data.Data
-            Colour.data.Data object containing all points.
+        sp : space.Space
+            The colour space
+        c_data : data.Data
+            All the points.
         center : ndarray
             Center point to use when computing the nearest point.
 
@@ -937,7 +936,7 @@ class Gamut:
         for i in range(0, points.shape[0]):          # For every point.
             points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
 
-        return data.Data(sp, points.reshape(shape))  # Return the points as a colour.data.Data object.
+        return data.Data(sp, points.reshape(shape))  # Return the points as a data.Data object.
 
     def clip_nearest(self, sp, c_data):
         """
@@ -948,7 +947,7 @@ class Gamut:
         sp: space.Space
             A colour space
         c_data: data.Data
-            A colour.Data object with the points to use.
+            A data.Data object with the points to use.
 
         Returns
         -------
@@ -1194,7 +1193,7 @@ class Gamut:
         Parameters
         ----------
         c_data : data.Data
-            Colour.data.Data object containing all points.
+            All the points.
 
         Returns
         -------

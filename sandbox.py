@@ -20,20 +20,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-import colour
+import colourspace as col
 import matplotlib.pyplot as plt
 
 # im_rgb = plt.imread('lena.png')
-# im = colour.image.Image(colour.space.srgb, im_rgb)
-# img = im.get(colour.space.cielab)[..., 0] / 100
-# d11, d12, d22 = im.diffusion_tensor(colour.space.cielab)
+# im = col.image.Image(col.space.srgb, im_rgb)
+# img = im.get(col.space.cielab)[..., 0] / 100
+# d11, d12, d22 = im.diffusion_tensor(col.space.cielab)
 
 # for i in range(100):
 #     print(i)
-#     gi = colour.misc.dip(img)
-#     gj = colour.misc.djp(img)
-#     gii = colour.misc.dim(d11 * gi + d12 * gj)
-#     gjj = colour.misc.djm(d12 * gi + d22 * gj)
+#     gi = col.misc.dip(img)
+#     gj = col.misc.djp(img)
+#     gii = col.misc.dim(d11 * gi + d12 * gj)
+#     gjj = col.misc.djm(d12 * gi + d22 * gj)
 #     tv = gii + gjj
 #     img += .25 * tv
 
@@ -42,4 +42,4 @@ import matplotlib.pyplot as plt
 
 l = np.array([[0, 0, 0], [3, 3, 3]])
 p = np.array([1, 1, 2])
-print(colour.gamut.Gamut.in_line(l, p))
+print(col.gamut.Gamut.in_line(l, p))

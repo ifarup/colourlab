@@ -1,7 +1,7 @@
 all: test sdist
 
 test:
-	coverage run --source=colour -m unittest
+	coverage run --source=colourspace -m unittest
 	coverage html
 
 sdist:

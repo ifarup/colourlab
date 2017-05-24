@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-metric: Colour metric functions. Part of the colour package.
+metric: Colour metric functions. Part of the colourspace package.
 
-Copyright (C) 2013-2016 Ivar Farup
+Copyright (C) 2013-2017 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
