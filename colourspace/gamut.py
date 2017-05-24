@@ -726,8 +726,7 @@ class Gamut:
             elif true_shape.shape[0] == 4:
                 return self.in_polygon(true_shape, q, true_interior=true_interior)
             else:
-                print("Error: interior received to many points, retuning False")
-                return False
+                raise RuntimeError('Interior received to many points')
         else:
             return self.in_tetrahedron(points, q, true_interior=true_interior)
 

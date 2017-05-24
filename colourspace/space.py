@@ -858,7 +858,7 @@ class TransformCIEDE00(Transform):
         col : ndarray
             Colour data in the base colour space
         """
-        print('No conversion of CIEDE00 Lab to CIELAB implemented (yet).')
+        raise RuntimeError('No conversion of CIEDE00 Lab to CIELAB implemented (yet).')
 
     def from_base(self, ndata):
         """

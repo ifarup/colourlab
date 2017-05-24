@@ -689,8 +689,7 @@ def d_Munsell(dataset='real'):
     if dataset == 'all' or dataset == 'real' or dataset == '1929':
         fname = 'colour_data/' + dataset + '.dat'
     else:
-        print('Non-existing Munsell data set.')
-        return
+        raise RuntimeError('Non-existing Munsell data set.')
     infile = open(resource_path(fname), 'r')
     data = infile.readlines()
     infile.close()
