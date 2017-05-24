@@ -8,3 +8,6 @@ ideas/
 test.py
 sandbox.py
 lena.png
+_build/
+_static/
+_templates/

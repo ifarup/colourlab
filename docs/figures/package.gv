@@ -1,0 +1,11 @@
+digraph package {
+    rankdir = BT
+    data -> { space misc }
+    gamut
+    image -> { data space tensor misc }
+    metric -> { data space }
+    misc
+    space -> misc
+    statistics
+    tensor -> { data space }
+}

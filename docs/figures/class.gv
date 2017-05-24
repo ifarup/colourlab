@@ -1,0 +1,25 @@
+digraph class {
+    rankdir = RL
+    Points
+    Vectors
+    Tensors
+    Gamut
+    Image -> Points
+    Space
+    XYZ -> Space
+    Transform -> Space
+    TransformxyY -> Transform
+    TransformCIELAB ->Transform
+    TransformCIELUV ->Transform
+    TransformCIEDE00 ->Transform
+    TransformSRGB ->Transform
+    TransformLinear ->Transform
+    TransformGamma ->Transform
+    TransformPolar ->Transform
+    TransformCartesian ->Transform
+    TransformLGJOSA ->Transform
+    TransformLGJE ->Transform
+    TransformLogCompressL ->Transform
+    TransformLogCompressC ->Transform
+    TransformPoincareDisk ->Transform
+}
