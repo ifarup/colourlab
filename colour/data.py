@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-data: Colour data, part of the colour package
+"""data: Colour data, part of the colourspace package
 
-Copyright (C) 2013-2016 Ivar Farup
+Copyright (C) 2013-2017 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import os
@@ -196,6 +195,7 @@ class VectorData:
             The colour points for the given vector data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
+
         """
         self.points = None
         self.vectors = None
@@ -208,10 +208,11 @@ class VectorData:
         """
         Shape the data so that is becomes an PxC matrix or C vector.
 
-        The data should be of the shape M x ... x N x C, where C is the
-        number of colour channels. Returns the shaped data as a P x C
-        matrix where P = M x ... x N, as well as the shape of the input
-        data. Get back to original shape by reshape(data, shape).
+        The data should be of the shape M x ... x N x C, where C is
+        the number of colour channels. Returns the shaped data as a P
+        x C matrix where P = M x ... x N, as well as the shape of the
+        input data. Get back to original shape by reshape(data,
+        shape).
 
         Parameters
         ----------
@@ -222,6 +223,7 @@ class VectorData:
         -------
         ndata : ndarray
             P x C array of colour data, P = M * ... * N
+
         """
         sh = np.shape(ndata)
         sh_array = np.array(sh)
@@ -246,6 +248,7 @@ class VectorData:
             The colour points for the given tensor data.
         vectors_ndata : ndarray
             The vector data in the given colour space at the given points.
+
         """
 
         self.points = points_data

@@ -30,12 +30,14 @@ from . import data
 
 
 class Gamut:
-    """Class for representing colour gamuts.
+    """
+    Class for representing colour gamuts.
 
     The gamuts can be computed in various colour spaces.
     """
     def __init__(self, sp, points, gamma=1, center=None):
-        """Construct new gamut instance and compute the gamut.
+        """
+        Construct new gamut instance and compute the gamut.
 
         To initialize the hull with the convex hull method, set gamma
         != 1, and provide the center for expansion.
@@ -72,7 +74,8 @@ class Gamut:
         self.fix_orientation()
 
     def initialize_convex_hull(self, center):
-        """Initializes the gamuts convex hull in the desired colour space.
+        """
+        Initializes the gamuts convex hull in the desired colour space.
 
         Parameters
         ----------
@@ -96,7 +99,8 @@ class Gamut:
             self.center = center
 
     def initialize_modified_convex_hull(self, gamma, center):
-        """Initializes the gamut with the modified convex hull method.
+        """
+        Initializes the gamut with the modified convex hull method.
 
         Thanks to Divakar from stackoverflow.
         http://stackoverflow.com/questions/42763615/proper-python-way-to-
@@ -131,7 +135,8 @@ class Gamut:
         self.center = center
 
     def is_inside(self, sp, c_data, t=False):
-        """For the given data points checks if points are inn the convex hull.
+        """
+        For the given data points checks if points are inn the convex hull.
 
         Parameters
         ----------
@@ -175,7 +180,8 @@ class Gamut:
             return bool_array
 
     def traverse_ndarray(self, n_data, indices, bool_array):
-        """Check if the points are in the convex hull.
+        """
+        Check if the points are in the convex hull.
 
         For the given data points recursively traverse the dimensions
         to check if points are inn the convexhull.
@@ -210,7 +216,8 @@ class Gamut:
             bool_array[(tuple(indices))] = self._is_inside(n_data)  # Set the boolean array to returned boolean.
 
     def _is_inside(self, q):
-        """ Tests if a point q is inside the Gamut(general polyhedra)
+        """
+        Tests if a point q is inside the Gamut(general polyhedra)
 
         Parameters
         ----------
@@ -298,7 +305,8 @@ class Gamut:
             return False
 
     def fix_orientation(self):
-        """Fixes the orientation of the facets.
+        """
+        Fixes the orientation of the facets.
         
         Fixes the orientation of the facets in the hull, so their
         normal vector points outwards.
@@ -318,7 +326,8 @@ class Gamut:
 
     @staticmethod
     def sign(t):
-        """ Calculates the orientation of the tetrahedron.
+        """
+        Calculates the orientation of the tetrahedron.
 
         Parameters
         ----------
@@ -343,7 +352,8 @@ class Gamut:
         return int(np.sign(sci.linalg.det(matrix)))*-1  # Calculates the signed volume and returns its sign.
 
     def get_coordinates(self, indices):
-        """Return the coordinates of the points correlating to the the indices provided.
+        """
+        Return the coordinates of the points correlating to the the indices provided.
 
         Parameters
         ----------
@@ -359,7 +369,8 @@ class Gamut:
         return self.points[indices]
 
     def in_tetrahedron(self, t, p, true_interior=False):
-        """Checks if the point p, is inside the tetrahedron.
+        """
+        Checks if the point p, is inside the tetrahedron.
 
         Checks if the point p (including the surface) is inside the
         tetrahedron. If 'p' is not guaranteed a true tetrahedron, use
@@ -394,7 +405,8 @@ class Gamut:
 
     @staticmethod
     def in_line(line, q, true_interior=False):
-        """Checks if a point P is on the line segment AB.
+        """
+        Checks if a point P is on the line segment AB.
 
         Parametres
         ----------
@@ -433,7 +445,8 @@ class Gamut:
         return True
 
     def in_triangle(self, triangle, q, true_interior=False):
-        """Check if the point q is in the given triangle.
+        """
+        Check if the point q is in the given triangle.
 
         Takes three points of a triangle in 3d, and determines if the
         point w is within that triangle. This function utilizes the
@@ -500,7 +513,8 @@ class Gamut:
 
     @staticmethod
     def is_coplanar(p):
-        """Checks if the points provided are coplanar.
+        """
+        Checks if the points provided are coplanar.
 
         Does not handle more than 4 points.
 
@@ -528,7 +542,8 @@ class Gamut:
 
     @staticmethod
     def center_of_mass(points):
-        """Finds the center of mass of the points given.
+        """
+        Finds the center of mass of the points given.
 
         To find the "geometric center" of a gamut lets points be only
         the vertices of the gamut.
@@ -552,7 +567,8 @@ class Gamut:
         return cm
 
     def get_vertices(self, nd_data):
-        """Get all hull vertices and save them in a array list.
+        """
+        Get all hull vertices and save them in a array list.
 
         Parameters
         ----------
@@ -575,7 +591,8 @@ class Gamut:
         return np.array(point_list)          # Returns ndarray.
 
     def plot_surface(self, sp, ax):
-        """Plot all the vertices points on the received axel
+        """
+        Plot all the vertices points on the received axel
 
         Parameters
         ----------
@@ -604,7 +621,8 @@ class Gamut:
         plt.show()
 
     def true_shape(self, points):
-        """Removes all points that do not belong to it's convex polygon.
+        """
+        Removes all points that do not belong to it's convex polygon.
 
         Works with 4 or less coplanar points.
 
@@ -649,7 +667,8 @@ class Gamut:
         return uniques                           # return a convex polygon with 4 vertices
 
     def in_polygon(self, points, q, true_interior=False):
-        """Checks if q is in the polygon formed by pts
+        """
+        Checks if q is in the polygon formed by pts
 
         Parameters
         ----------
@@ -673,7 +692,8 @@ class Gamut:
                     self.in_triangle(np.array([points[1], points[2], points[3]]), q))
 
     def interior(self, points, q, true_interior=False):
-        """Check if the point is interior to the convex shape.
+        """
+        Check if the point is interior to the convex shape.
 
         Finds the vertices of pts convex shape, and calls the
         appropriate function to test for inclusion. Is not designed to
@@ -714,7 +734,8 @@ class Gamut:
 
     @staticmethod
     def get_alpha(q, center, n):
-        """Get the Alpha value by computing.
+        """
+        Get the Alpha value by computing.
 
         Parameters
         ----------
@@ -744,7 +765,8 @@ class Gamut:
 
     @staticmethod
     def find_plane(points):
-        """Compute the parameters of the plane.
+        """
+        Compute the parameters of the plane.
 
         Find the normal point to a plane(simplices) and the distance
         from p to the cross point.
@@ -773,7 +795,8 @@ class Gamut:
         return np.hstack([n3, np.dot(points[1], n3)])  # Add the distance to numpy array, and return it.
 
     def intersection_in_line(self, sp, c_data, center=None):
-        """Returns an array containing the nearest point on the gamuts surface.
+        """
+        Returns an array containing the nearest point on the gamuts surface.
 
         Returns an array containing the nearest point on the gamuts
         surface, for every point in the c_data object. Cell number i
@@ -806,7 +829,8 @@ class Gamut:
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
     def _intersection_in_line(self, sp, q, center):
-        """Finding the Nearest point along a line.
+        """
+        Finding the Nearest point along a line.
 
         Parameters
         ----------
@@ -845,7 +869,8 @@ class Gamut:
 
     @staticmethod
     def line_alpha(alpha, q, center):
-        """Equation for calculating the nearest point.
+        """
+        Equation for calculating the nearest point.
 
         Parameters
         ----------
@@ -864,7 +889,8 @@ class Gamut:
         return alpha * np.array(q) + center - alpha * np.array(center)  # finds the coordinates for the nearest point
 
     def compress_axis(self, sp, c_data, ax):
-        """ Compress the points linearly in the given axis and colour space.
+        """
+        Compress the points linearly in the given axis and colour space.
 
         Parameters
         ----------
@@ -914,7 +940,8 @@ class Gamut:
         return data.Data(sp, points.reshape(shape))  # Return the points as a colour.data.Data object.
 
     def clip_nearest(self, sp, c_data):
-        """ Return the nearest points on the gamut surface.
+        """
+        Return the nearest points on the gamut surface.
 
         Parameters
         ----------
@@ -939,7 +966,8 @@ class Gamut:
         return data.Data(sp, np.reshape(re_data, c_data.sh))
 
     def _clip_nearest(self, sp, p_outside):
-        """ Finds the nearest point in 3D.
+        """
+        Finds the nearest point in 3D.
 
         Parameters
         ----------
@@ -984,7 +1012,8 @@ class Gamut:
         return point                                    # If we found no points that is in triangle we return the vertex
 
     def clip_constant_angle(self, sp, c_data, axis):
-        """Find the nearest point with the same angle.
+        """
+        Find the nearest point with the same angle.
 
         For all points in c_data, this method finds the nearest point
         on the gamut, constrained to the plane defined by axis and
@@ -1018,7 +1047,8 @@ class Gamut:
         return data.Data(sp, n_data)
 
     def _clip_constant_angle(self, sp, q, axis):
-        """Find the closest points with the same angle.
+        """
+        Find the closest points with the same angle.
 
         Find the closest point on the gamuts surface that is also on
         the plane defined by q and axis.
@@ -1131,7 +1161,8 @@ class Gamut:
         return nearest
 
     def HPminDE(self, c_data):
-        """The HPminDE gamut mapping algorithm.
+        """
+        The HPminDE gamut mapping algorithm.
 
         A general implementation of the gamut mapping algorithm
         HPminDE. Maps all points that lie outside of.. the gamut to
@@ -1153,7 +1184,8 @@ class Gamut:
         return self.clip_constant_angle(data.space.cielab, c_data, 0)
 
     def minDE(self, c_data):
-        """Minimum Delta E clipping.
+        """
+        Minimum Delta E clipping.
 
         A general implementation of the gamut mapping algorithm minDE.
         Maps all points that lie outside of.. the gamut to the nearest
