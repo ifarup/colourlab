@@ -43,7 +43,7 @@ class Data:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the given instanisiation data.
         ndata : ndarray
             The colour data in the given space.
@@ -88,7 +88,7 @@ class Data:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the given instanisiation data.
         ndata : ndarray
             The colour data in the given space.
@@ -114,7 +114,7 @@ class Data:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the returned data.
 
         Returns
@@ -140,7 +140,7 @@ class Data:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the returned data.
 
         Returns
@@ -159,16 +159,16 @@ class Data:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the von Kries transformation.
-        from_white : Data
+        from_white : data.Data
             The white point of the current data set.
-        to_white : Data
+        to_white : data.Data
             The white point of the new data set.
 
         Returns
         -------
-        data : Data
+        data : data.Data
             The new colour data with changed white point.
         """
         wh_in = from_white.get(sp)
@@ -190,9 +190,9 @@ class VectorData:
 
         Parameters
         ----------
-        sp: Space
+        sp: space.Space
            The colour space for the given vector data
-        points_data : Data
+        points_data : space.Data
             The colour points for the given vector data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
@@ -240,9 +240,9 @@ class VectorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the given tensor data.
-        points_data : Data
+        points_data : data.Data
             The colour points for the given tensor data.
         vectors_ndata : ndarray
             The vector data in the given colour space at the given points.
@@ -270,7 +270,7 @@ class VectorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the returned data.
 
         Returns
@@ -296,7 +296,7 @@ class VectorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the returned data.
 
         Returns
@@ -329,9 +329,9 @@ class TensorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the given tensor data.
-        points_data : Data
+        points_data : data.Data
             The colour points for the given tensor data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
@@ -374,13 +374,13 @@ class TensorData:
         The points_data are taken care already of the type Data. A new
         dictionary is constructed, and the metrics_ndata are added in
         the provided colour space, as well as in the XYZ colour space
-        (using the SpaceXYZ class).
+        (using thespace.SpaceXYZ class).
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the given tensor data.
-        points_data : Data
+        points_data : data.Data
             The colour points for the given tensor data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
@@ -406,7 +406,7 @@ class TensorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space in which to return the tensor data.
 
         Returns
@@ -432,7 +432,7 @@ class TensorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The colour space for the returned data.
 
         Returns
@@ -452,7 +452,7 @@ class TensorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The space in which to give the ellipse parameters.
         plane : slice
             The principal plan for the ellipsoid cross sections.
@@ -494,7 +494,7 @@ class TensorData:
 
         Parameters
         ----------
-        sp : Space
+        sp : space.Space
             The space in which to give the ellipse parameters.
         plane : slice
             The principal plan for the ellipsoid cross sections.
@@ -526,7 +526,7 @@ class TensorData:
 
         Paramters
         ---------
-        sp : Space
+        sp : space.Space
             The space in which to compute the inner product
         vec1: VectorData
             The first vector
@@ -613,7 +613,7 @@ def d_XYZ_31():
 
     Returns
     -------
-    xyz_31 : Data
+    xyz_31 : data.Data
         The XYZ 1931 colour matching functions.
     """
     xyz_ = read_csv_file('colour_data/ciexyz31_1.csv')
@@ -626,7 +626,7 @@ def d_XYZ_64():
 
     Returns
     -------
-    xyz_64 : Data
+    xyz_64 : data.Data
         The XYZ 1964 colour matching functions.
     """
     xyz_ = read_csv_file('colour_data/ciexyz64_1.csv')
@@ -642,7 +642,7 @@ def d_Melgosa():
 
     Returns
     -------
-    d_Melgosa : Data
+    d_Melgosa : data.Data
         The centre points of Melgosa's RIT-DuPont ellipsoids.
     """
     m_a = np.array([-1.403, -16.374, -0.782, -27.549, 12.606, 12.153,
@@ -674,7 +674,7 @@ def d_Munsell(dataset='real'):
 
     Returns
     -------
-    d_Munsell : Data
+    d_Munsell : data.Data
         The Munsell colours.
     munsell_names : list
         The standard Munsell value names (H, V, C).
@@ -740,7 +740,7 @@ def d_regular(sp, x_val, y_val, z_val):
 
     Parameters
     ----------
-    sp : Space
+    sp : space.Space
         The given colour space.
     x_val : ndarray
         Array of x values.
@@ -751,7 +751,7 @@ def d_regular(sp, x_val, y_val, z_val):
 
     Returns
     -------
-    data : Data
+    data : data.Data
         Regular structure of colour data in the given colour space.
     """
     x_len = np.shape(x_val)[0]
