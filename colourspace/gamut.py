@@ -45,7 +45,7 @@ class Gamut:
         ----------
         sp : space.Space
             The colour space for computing the gamut. Type:
-        points : data.Data
+        points : data.Points
             The colour points for the gamut.
         gamma : float
             Decides how much the points are expanded when using
@@ -79,7 +79,7 @@ class Gamut:
         Parameters
         ----------
         sp : space.Space
-        points : data.Data
+        points : data.Points
             The colour points for the gamut.
         """
 
@@ -141,8 +141,8 @@ class Gamut:
         ----------
         sp : space.Space
             The colour space for computing the gamut.
-        c_data : data.Data
-            Data object with the colour points for the gamut.
+        c_data : data.Points
+            Points object with the colour points for the gamut.
         t : boolean
             True if use the traverse method, false if use the flatten method.
 
@@ -806,7 +806,7 @@ class Gamut:
         ----------
         sp : space.Space
             The colour space
-        c_data : data.Data
+        c_data : data.Points
             All the points.
         center : ndarray
             Center point to use when computing the nearest point.
@@ -825,7 +825,7 @@ class Gamut:
         for i in range(0, re_data.shape[0]):        # Do _intersection_in_line
             re_data[i] = self._intersection_in_line(sp, re_data[i], center)
 
-        return data.Data(sp, np.reshape(re_data, c_data.sh))
+        return data.Points(sp, np.reshape(re_data, c_data.sh))
 
     def _intersection_in_line(self, sp, q, center):
         """
@@ -895,15 +895,15 @@ class Gamut:
         ----------
         sp: space.Space
             The colour space to work in.
-        c_data: data.Data
+        c_data: data.Points
             The points to be compressed.
         ax : int
             Integer representing which axis to do the compressing.
 
         Returns
         -------
-        data.Data
-            Returns a data.Data object with the new points.
+        data.Points
+            Returns a data.Points object with the new points.
         """
 
         shape = c_data.get(sp).shape   # Save the original shape of the points.
@@ -936,7 +936,7 @@ class Gamut:
         for i in range(0, points.shape[0]):          # For every point.
             points[(i, ax)] = b*points[(i, ax)] + a  # Compress the coordinates along the given axis.
 
-        return data.Data(sp, points.reshape(shape))  # Return the points as a data.Data object.
+        return data.Points(sp, points.reshape(shape))  # Return the points as a data.Points object.
 
     def clip_nearest(self, sp, c_data):
         """
@@ -946,12 +946,12 @@ class Gamut:
         ----------
         sp: space.Space
             A colour space
-        c_data: data.Data
-            A data.Data object with the points to use.
+        c_data: data.Points
+            A data.Points object with the points to use.
 
         Returns
         -------
-        data.Data
+        data.Points
             The clipped data points.
         """
 
@@ -962,7 +962,7 @@ class Gamut:
         for i in range(0, re_data.shape[0]):
             re_data[i] = self._clip_nearest(sp, re_data[i])
 
-        return data.Data(sp, np.reshape(re_data, c_data.sh))
+        return data.Points(sp, np.reshape(re_data, c_data.sh))
 
     def _clip_nearest(self, sp, p_outside):
         """
@@ -1024,14 +1024,14 @@ class Gamut:
         sp : space.Space
             The color space to work in, usually cielab for this
             method.
-        c_data : data.Data
+        c_data : data.Points
             A set of colour points.
         axis : int
             0, 1, 2 indicating with axis to use.
 
         Returns
         -------
-        data.Data
+        data.Points
             The nearest points.
         """
 
@@ -1043,7 +1043,7 @@ class Gamut:
             if not value:
                 n_data[i] = self._clip_constant_angle(sp, n_data[i], axis)
 
-        return data.Data(sp, n_data)
+        return data.Points(sp, n_data)
 
     def _clip_constant_angle(self, sp, q, axis):
         """
@@ -1170,12 +1170,12 @@ class Gamut:
 
         Parameters
         ----------
-        c_data : data.Data
+        c_data : data.Points
             The colour points.
         
         Returns
         -------
-        data.Data
+        data.Points
             The mapped points.
         """
 
@@ -1192,12 +1192,12 @@ class Gamut:
 
         Parameters
         ----------
-        c_data : data.Data
+        c_data : data.Points
             All the points.
 
         Returns
         -------
-        data.Data
+        data.Points
             Returns the nearest points.
         """
         
@@ -1215,4 +1215,4 @@ class Gamut:
             if not check_data[i]:
                 re_data[i] = self._clip_nearest(sp, re_data[i])
 
-        return data.Data(sp, re_data)
+        return data.Points(sp, re_data)

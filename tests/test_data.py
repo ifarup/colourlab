@@ -38,13 +38,13 @@ col4 = np.array([[[1e-10, 1e-10, 1e-10],
                   [.95, 1., 1.08],
                   [.5, .5, .5]]])
 
-d1 = data.Data(space.xyz, col1)
-d2 = data.Data(space.xyz, col2)
-d3 = data.Data(space.xyz, col3)
-d4 = data.Data(space.xyz, col4)
+d1 = data.Points(space.xyz, col1)
+d2 = data.Points(space.xyz, col2)
+d3 = data.Points(space.xyz, col3)
+d4 = data.Points(space.xyz, col4)
 
 
-class TestData(unittest.TestCase):
+class TestPoints(unittest.TestCase):
 
     def test_get(self):
         self.assertEqual(d1.get(space.xyz).shape, (3, ))
@@ -63,10 +63,10 @@ class TestData(unittest.TestCase):
         lab2 = d2.get(space.cielab)
         lab3 = d3.get(space.cielab)
         lab4 = d4.get(space.cielab)
-        dd1 = data.Data(space.cielab, lab1)
-        dd2 = data.Data(space.cielab, lab2)
-        dd3 = data.Data(space.cielab, lab3)
-        dd4 = data.Data(space.cielab, lab4)
+        dd1 = data.Points(space.cielab, lab1)
+        dd2 = data.Points(space.cielab, lab2)
+        dd3 = data.Points(space.cielab, lab3)
+        dd4 = data.Points(space.cielab, lab4)
         self.assertTrue(np.allclose(col1, dd1.get(space.xyz)))
         self.assertTrue(np.allclose(col2, dd2.get(space.xyz)))
         self.assertTrue(np.allclose(col3, dd3.get(space.xyz)))
@@ -82,10 +82,10 @@ class TestData(unittest.TestCase):
                     data.white_D50).get(space.cielab)))
 
 
-# class TestVectorData(unittest.TestCase):
+# class TestVectors(unittest.TestCase):
 
 
-# class TestTensorData(unittest.TestCase):
+# class TestTensors(unittest.TestCase):
 
 
 class TestFunctions(unittest.TestCase):
@@ -93,17 +93,17 @@ class TestFunctions(unittest.TestCase):
     def test_d_functions(self):
         for func in [data.d_XYZ_31, data.d_XYZ_64, data.d_Melgosa]:
             d = func()
-            self.assertIsInstance(d, data.Data)
+            self.assertIsInstance(d, data.Points)
         for arg in ['all', 'real', '1929']:
             d, n, l = data.d_Munsell(arg)
             self.assertIsInstance(n, list)
             self.assertIsInstance(l, np.ndarray)
-            self.assertIsInstance(d, data.Data)
+            self.assertIsInstance(d, data.Points)
 
     def test_d_regular(self):
         d = data.d_regular(space.xyz, np.linspace(0, 1, 10),
                            np.linspace(0, 1, 10), np.linspace(0, 1, 10))
-        self.assertIsInstance(d, data.Data)
+        self.assertIsInstance(d, data.Points)
         dd = d.get(space.xyz)
         self.assertEqual(dd.shape, (1000, 3))
 
@@ -111,10 +111,10 @@ class TestFunctions(unittest.TestCase):
         for func in [data.g_MacAdam, data.g_three_observer,
                      data.g_Melgosa_Lab, data.g_Melgosa_xyY]:
             g = func()
-            self.assertIsInstance(g, data.TensorData)
+            self.assertIsInstance(g, data.Tensors)
         for arg in ['P', 'A', '2']:
             g = data.g_BFD(arg)
-            self.assertIsInstance(g, data.TensorData)
+            self.assertIsInstance(g, data.Tensors)
 
     def test_m_functions(self):
         r = data.m_rit_dupont()

@@ -109,70 +109,70 @@ class TestGamut(unittest.TestCase):
         return sphere
 
     def test_constructor(self):
-        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), gamma=1)
+        g = gamut.Gamut(space.srgb, data.Points(space.srgb, cube), gamma=1)
         self.assertTrue(isinstance(g, gamut.Gamut))
 
-        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), gamma=.2)
+        g = gamut.Gamut(space.srgb, data.Points(space.srgb, cube), gamma=.2)
         self.assertTrue(isinstance(g, gamut.Gamut))
 
-        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), center=[.5, .5, .5], gamma=1)
+        g = gamut.Gamut(space.srgb, data.Points(space.srgb, cube), center=[.5, .5, .5], gamma=1)
         self.assertTrue(isinstance(g, gamut.Gamut))
 
-        g = gamut.Gamut(space.srgb, data.Data(space.srgb, cube), center=[.5, .5, .5], gamma=.2)
+        g = gamut.Gamut(space.srgb, data.Points(space.srgb, cube), center=[.5, .5, .5], gamma=.2)
         self.assertTrue(isinstance(g, gamut.Gamut))
 
     def test_gamut_initialize(self):
-        c_data = data.Data(space.srgb, cube)                # Generating the colour Data object
+        c_data = data.Points(space.srgb, cube)                # Generating the colour Points object
         g = gamut.Gamut(space.srgb, c_data)
         self.assertTrue(np.allclose(cube_vertices, g.vertices))  # Check that the gamut's vertices are correct.
 
     def test_is_inside(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
-        c_data = data.Data(space.srgb, points_3d)
+        c_data = data.Points(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data, t=True)
         self.assertEqual(a.shape, points_3d.shape[:-1])     # Asserts if shape is reduced by 1dim
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_3d))            # Asserts that the returned values are co
 
-        c_data = data.Data(space.srgb, points_3d)
+        c_data = data.Points(space.srgb, points_3d)
         a = g.is_inside(space.srgb, c_data, t=False)
         self.assertEqual(a.shape, points_3d.shape[:-1])     # Asserts if shape is reduced by 1dim
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_3d))            # Asserts that the returned values are correct
 
-        c_data = data.Data(space.srgb, points_2d)
+        c_data = data.Points(space.srgb, points_2d)
         a = g.is_inside(space.srgb, c_data, t=False)
         self.assertEqual(a.shape, points_2d.shape[:-1])     # Asserts if shape is reduced by 1dim
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_2d))            # Asserts that the returned values are correct
 
-        c_data = data.Data(space.srgb, points_1d)
+        c_data = data.Points(space.srgb, points_1d)
         a = g.is_inside(space.srgb, c_data, t=False)
         self.assertEqual(1, a.size)                         # When only one point is sent, still returned a array
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_1d))            # Asserts that the returned values are co
 
-        c_data = data.Data(space.srgb, points_1d)
+        c_data = data.Points(space.srgb, points_1d)
         a = g.is_inside(space.srgb, c_data, t=True)
         self.assertEqual(1, a.size)                         # When only one point is sent, still returned a array
         self.assertEqual(a.dtype, bool)                     # Asserts is data type in the array is boolean
         self.assertTrue(np.allclose(a, bool_1d))            # Asserts that the returned values are correct
 
-        c_data = data.Data(space.srgb, self.generate_sphere(15, 100))
+        c_data = data.Points(space.srgb, self.generate_sphere(15, 100))
         g = gamut.Gamut(space.srgb, c_data)
 
-        c_data = data.Data(space.srgb, self.generate_sphere(10, 15))   # Points lie within the sphere(inclusion = true)
+        c_data = data.Points(space.srgb, self.generate_sphere(10, 15))   # Points lie within the sphere(inclusion = true)
         a = g.is_inside(space.srgb, c_data)
         self.assertTrue(np.allclose(a, np.ones(a.shape)))              # Assert that all points lie within the gamut
 
-        c_data = data.Data(space.srgb, self.generate_sphere(20, 15))   # Points lie outside the sphere(inclusion = true)
+        c_data = data.Points(space.srgb, self.generate_sphere(20, 15))   # Points lie outside the sphere(inclusion = true)
         a = g.is_inside(space.srgb, c_data)
         self.assertTrue(np.allclose(a, np.zeros(a.shape)))             # Assert that all points lie without the gamut
 
     def test_get_vertices(self):
-        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object
+        c_data = data.Points(space.srgb, cube)  # Generating the colour Points object
         g = gamut.Gamut(space.srgb, c_data)
         n1_data = np.array([[0, 0, 0],      # 0  vertices     Array with just the vertices used for comparison.
                            [10, 0, 0],      # 1  vertices
@@ -194,14 +194,14 @@ class TestGamut(unittest.TestCase):
     #     fig = plt.figure()                            # Creates a figure
     #     ax = fig.add_subplot(111, projection='3d')    # Creates a 3D plot ax
     #
-    #     c_data = data.Data(space.srgb, polyhedron)    # Generating the colour Data object
+    #     c_data = data.Points(space.srgb, polyhedron)    # Generating the colour Points object
     #     g = gamut.Gamut(space.srgb, c_data)           # Creates a new gamut
     #
     #     sp = g.space                                  # Specifies the color space
     #     g.plot_surface(sp, ax)                        # Calls the plot function
 
     def test_in_line(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertTrue(g.in_line(np.array([[2, 2, 2], [2, 2, 2]]), np.array([2, 2, 2])))  # All points equal.
@@ -218,7 +218,7 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(g.interior(np.array([[3, 3, 3], [4, 4, 4]]), np.array([5, 5, 5])))  # Point is on line
 
     def test_in_tetrahedron(self):
-        c_data = data.Data(space.srgb, tetrahedron)
+        c_data = data.Points(space.srgb, tetrahedron)
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertTrue(g.in_tetrahedron(tetrahedron, tetra_p_inside))        # Point is on the tetrahedron
@@ -230,7 +230,7 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(g.interior(tetrahedron, tetra_p_on_surface))
 
     def test_in_triangle(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         self.assertFalse(g.in_triangle(triangle, triangle_point_not_coplanar))
@@ -250,7 +250,7 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(g.interior(triangle2, triangle2_point_inside))
 
     def test_sign(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         # The tetrahedron should have a positive signed volume.
@@ -261,7 +261,7 @@ class TestGamut(unittest.TestCase):
         self.assertEqual(-1, g.sign(np.array([[10, 10, 10], [0, 10, 10], [10, 0, 10], [10, 10, 0]])))
 
     def test_is_coplanar(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         points = np.array([[0, 0, 0], [2, 2, 0], [3, 3, 0], [1, 1, 0]])  # coplanar points
@@ -271,7 +271,7 @@ class TestGamut(unittest.TestCase):
         self.assertFalse(False, g.is_coplanar(points))
 
     def test_center_of_mass(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         cm = g.center_of_mass(g.get_vertices(g.hull.points))   # Get coordinate for center of the cube
@@ -280,7 +280,7 @@ class TestGamut(unittest.TestCase):
 
     def test_true_shape(self):
 
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         a = np.array([[0, 0, 0], [2, 2, 2], [2, 2, 2]])
@@ -304,7 +304,7 @@ class TestGamut(unittest.TestCase):
 
     def test_modified_convex_hull(self):
 
-        # c_data = data.Data(space.srgb, cube)
+        # c_data = data.Points(space.srgb, cube)
         # g = gamut.Gamut(space.srgb, c_data)
 
         test_points = np.array([[0, 0, 0],           # 0  vertices  # Array with just the vertices used for comparison.
@@ -317,13 +317,13 @@ class TestGamut(unittest.TestCase):
                                 [0, 10, 10],         # 10 vertices
                                 [4.999, 4.999, 0]])  # Only a vertex in modified hull
 
-        c_data = data.Data(space.srgb, test_points)
+        c_data = data.Points(space.srgb, test_points)
         g = gamut.Gamut(space.srgb, c_data, gamma=0.2, center=np.array([5, 5, 5]))
 
         self.assertTrue(g.vertices.shape[0] == 9)
 
     def test_get_alpha(self):
-        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        c_data = data.Points(space.srgb, cube)    # Generating the colour Points object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
         d = [0.001, 0.2, 0.2]
         center = [10, 11, 14]
@@ -332,7 +332,7 @@ class TestGamut(unittest.TestCase):
 
     def test_find_plane(self):
         p_data = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        c_data = data.Data(space.srgb, cube)    # Generating the colour Data object.
+        c_data = data.Points(space.srgb, cube)    # Generating the colour Points object.
         g = gamut.Gamut(space.srgb, c_data)     # Creates a new gamut.
 
         d = g.find_plane(p_data)
@@ -340,10 +340,10 @@ class TestGamut(unittest.TestCase):
         np.alltrue(d == r)
 
     def test_compress(self):
-        c_data = data.Data(space.srgb, cube)  # Generating the colour Data object.
+        c_data = data.Points(space.srgb, cube)  # Generating the colour Points object.
         g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
 
-        col_data = data.Data(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
+        col_data = data.Points(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
         re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
 
         fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
@@ -351,24 +351,24 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(np.allclose(fasit_data, re_data))
 
     def test_intersectionpoint_in_line(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         points = np.array([[15, 5, 5], [5, 15, 5], [5, 5, 15]])                   # points to map
         mod_points = np.array([[10, 5, 5], [5, 10, 5], [5, 5, 10]])               # wanted result
 
-        c_data = data.Data(space.srgb, points)                                    # data.Data object
-        re_data = g.intersection_in_line(space.srgb, c_data)                      # data.Data object returned
+        c_data = data.Points(space.srgb, points)                                    # data.Points object
+        re_data = g.intersection_in_line(space.srgb, c_data)                      # data.Points object returned
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 
     def test_HPminDE(self):
-        c_data = data.Data(space.cielab, cube + np.array([0, -5, -5]))
+        c_data = data.Points(space.cielab, cube + np.array([0, -5, -5]))
         g = gamut.Gamut(space.cielab, c_data)
 
         points = np.array([[0, 8, 8], [4, 0, 9], [4, 4, 3], [0, 10, 0], [15, 1, 0]])
         fasit = np.array([[0, 5, 5], [4, 0, 5], [4, 4, 3], [0, 5, 0], [10, 1, 0]])
-        c_data = data.Data(space.cielab, points)
+        c_data = data.Points(space.cielab, points)
         re_data = g.HPminDE(c_data)
         re_data = re_data.get_linear(space.cielab)
         self.assertTrue(np.allclose(fasit, re_data))
@@ -376,9 +376,9 @@ class TestGamut(unittest.TestCase):
     def test_minDE(self):
         sphere = self.generate_sphere(6, 10)
         sphere = sphere + np.array([5, 5, 5])
-        c_sphere = data.Data(space.cielab, sphere)
+        c_sphere = data.Points(space.cielab, sphere)
 
-        g_cube = data.Data(space.cielab, cube)
+        g_cube = data.Points(space.cielab, cube)
         g = gamut.Gamut(space.cielab, g_cube)
         mapped_im = g.minDE(c_sphere)
 
@@ -389,14 +389,14 @@ class TestGamut(unittest.TestCase):
         self.assertTrue(result)
 
     def test_clip_nearest(self):
-        c_data = data.Data(space.srgb, cube)
+        c_data = data.Points(space.srgb, cube)
         g = gamut.Gamut(space.srgb, c_data)
 
         points = np.array([[5, 5, 15], [5, 5, 15], [5, 5, 15]])                   # points to map
         mod_points = np.array([[5, 5, 10], [5, 5, 10], [5, 5, 10]])               # wanted result
 
-        c_data = data.Data(space.srgb, points)                                    # data.Data object
-        re_data = g.clip_nearest(space.srgb, c_data)                              # data.Data object returned
+        c_data = data.Points(space.srgb, points)                                    # data.Points object
+        re_data = g.clip_nearest(space.srgb, c_data)                              # data.Points object returned
 
         self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
 

@@ -29,39 +29,39 @@ from . import data, space
 
 def construct_tensor(sp, dat, tensor_ndata):
     """
-    Construct the TensorData object with correct dimensions
+    Construct the Tensors object with correct dimensions
 
-    The tensors_ndata has shape N x 3 x 3. Construct TensorData object
+    The tensors_ndata has shape N x 3 x 3. Construct Tensors object
     with shape correspoinding to the data points in dat.
 
     Parameters
     ----------
     sp: space.Space
         The colour space of the tensor_ndata
-    dat: data.Data
+    dat: data.Points
         Colour data points
     tensor_ndata: ndarray
         N x 3 x 3 ndarray of tensor data.
     """
     sh = np.hstack((np.array(dat.sh), 3))
-    return data.TensorData(sp, dat, np.reshape(tensor_ndata, sh))
+    return data.Tensors(sp, dat, np.reshape(tensor_ndata, sh))
 
 def euclidean(sp, dat):
     """
     Compute the general Euclidean metric in the given colour space.
 
-    Returns TensorData.
+    Returns Tensors.
 
     Parameters
     ----------
     sp : space.Space
         The colour space in which the metric tensor is Euclidean.
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    Euclidean : TensorData
+    Euclidean : Tensors
         The metric tensors.
     """
     g = sp.empty_matrix(dat.linear_XYZ)
@@ -72,16 +72,16 @@ def euclidean(sp, dat):
 
 def dE_ab(dat):
     """
-    Compute the DEab metric as TensorData for the given data points.
+    Compute the DEab metric as Tensors for the given data points.
 
     |eters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    DEab : TensorData
+    DEab : Tensors
         The metric tensors.
     """
     return euclidean(space.cielab, dat)
@@ -89,16 +89,16 @@ def dE_ab(dat):
 
 def dE_uv(dat):
     """
-    Compute the DEuv metric as TensorData for the given data points.
+    Compute the DEuv metric as Tensors for the given data points.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    DEuv : TensorData
+    DEuv : Tensors
         The metric tensors.
     """
     return euclidean(space.cieluv, dat)
@@ -106,16 +106,16 @@ def dE_uv(dat):
 
 def dE_E(dat):
     """
-    Compute the DEE metric as TensorData for the given data points.
+    Compute the DEE metric as Tensors for the given data points.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    DEE : TensorData
+    DEE : Tensors
         The metric tensors.
     """
     return euclidean(space.lgj_e, dat)
@@ -123,16 +123,16 @@ def dE_E(dat):
 
 def dE_DIN99(dat):
     """
-    Compute the DIN99 metric as TensorData for the given data points.
+    Compute the DIN99 metric as Tensors for the given data points.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    DIN99 : TensorData
+    DIN99 : Tensors
         The metric tensors.
     """
     return euclidean(space.din99, dat)
@@ -140,16 +140,16 @@ def dE_DIN99(dat):
 
 def dE_DIN99b(dat):
     """
-    Compute the DIN99b metric as TensorData for the given data points.
+    Compute the DIN99b metric as Tensors for the given data points.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    DIN99b : TensorData
+    DIN99b : Tensors
         The metric tensors.
     """
     return euclidean(space.din99b, dat)
@@ -157,16 +157,16 @@ def dE_DIN99b(dat):
 
 def dE_DIN99c(dat):
     """
-    Compute the DIN99c metric as TensorData for the given data points.
+    Compute the DIN99c metric as Tensors for the given data points.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    DIN99c : TensorData
+    DIN99c : Tensors
         The metric tensors.
     """
     return euclidean(space.din99c, dat)
@@ -174,16 +174,16 @@ def dE_DIN99c(dat):
 
 def dE_DIN99d(dat):
     """
-    Compute the DIN99d metric as TensorData for the given data points.
+    Compute the DIN99d metric as Tensors for the given data points.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    DIN99d : TensorData
+    DIN99d : Tensors
         The metric tensors.
     """
     return euclidean(space.din99d, dat)
@@ -193,11 +193,11 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
     """
     Compute the Riemannised CIEDE00 metric for the given data points.
 
-    Returns TensorData. Be aware that the tensor is singluar at C = 0.
+    Returns Tensors. Be aware that the tensor is singluar at C = 0.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
     k_L : float
         Parameter of the CIEDE00 metric
@@ -208,7 +208,7 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
 
     Returns
     -------
-    DE00 : TensorData
+    DE00 : Tensors
         The metric tensors.
     """
     lch = dat.get_linear(space.ciede00lch)
@@ -240,17 +240,17 @@ def poincare_disk(sp, dat):
     """
     Compute the general Poincare Disk metric in the given colour space.
 
-    Returns TensorData. Assumes that sp is a Poincare Disk of some
+    Returns Tensors. Assumes that sp is a Poincare Disk of some
     kind, and thus has a radius of curvature as sp.R.
 
     Parameters
     ----------
-    dat : data.Data
+    dat : data.Points
         The colour points for which to compute the metric.
 
     Returns
     -------
-    Poincare : TensorData
+    Poincare : Tensors
         The metric tensors.
     """
     d = dat.get_linear(sp)
@@ -263,7 +263,7 @@ def poincare_disk(sp, dat):
 
 # TODO:
 #
-# Functions (returning TensorData):
+# Functions (returning Tensors):
 #     stiles
 #     helmholz
 #     schrodinger

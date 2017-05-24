@@ -22,9 +22,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 from . import data, space, tensor, misc
 
-class Image(data.Data):
+class Image(data.Points):
     """
-    Subclass of data.Data specifically for image shaped data.
+    Subclass of data.Points specifically for image shaped data.
     """
 
     def __init__(self, sp, ndata):
@@ -38,28 +38,28 @@ class Image(data.Data):
         ndata : ndarray
             The colour data in the given space.
         """
-        data.Data.__init__(self, sp, ndata)
+        data.Points.__init__(self, sp, ndata)
 
     def diff(self, sp, dat):
-        return data.VectorData(sp, self, self.get(sp) - dat.get(sp))
+        return data.Vectors(sp, self, self.get(sp) - dat.get(sp))
 
     def dip(self, sp):
-        return data.VectorData(sp, self, misc.dip(self.get(sp)))
+        return data.Vectors(sp, self, misc.dip(self.get(sp)))
 
     def dim(self, sp):
-        return data.VectorData(sp, self, misc.dim(self.get(sp)))
+        return data.Vectors(sp, self, misc.dim(self.get(sp)))
 
     def dic(self, sp):
-        return data.VectorData(sp, self, misc.dic(self.get(sp)))
+        return data.Vectors(sp, self, misc.dic(self.get(sp)))
 
     def djp(self, sp):
-        return data.VectorData(sp, self, misc.djp(self.get(sp)))
+        return data.Vectors(sp, self, misc.djp(self.get(sp)))
 
     def djm(self, sp):
-        return data.VectorData(sp, self, misc.djm(self.get(sp)))
+        return data.Vectors(sp, self, misc.djm(self.get(sp)))
 
     def djc(self, sp):
-        return data.VectorData(sp, self, misc.djc(self.get(sp)))
+        return data.Vectors(sp, self, misc.djc(self.get(sp)))
 
     def structure_tensor(self, sp, g=None, dir='p'):
         """
@@ -72,7 +72,7 @@ class Image(data.Data):
         ----------
         sp : Space
             The space in which to perform the computations
-        g : TensorData
+        g : Tensors
             The metric tensor to use. If not given, uses Euclidean in the current space
         dir : str
             The direction for the finite differences, p (plus), m (minus), c (centered)
@@ -176,7 +176,7 @@ class Image(data.Data):
             The space in which to perform the computations
         param : float
             The parameter for the nonlinear diffusion function
-        g: TensorData
+        g: Tensors
             The colour metric tensor. If not given, use Euclidean
         type : str
             The type of diffusion function, invsq (inverse square) or
@@ -203,7 +203,7 @@ class Image(data.Data):
         ----------
         sp : Space
             Colour space in which to perform the numerical computations
-        g : TensorData
+        g : Tensors
             The colour metric tensor. If not given, use Euclidean
         nit : int
             Number of iterations to compute

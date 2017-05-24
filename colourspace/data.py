@@ -31,7 +31,7 @@ from . import space, misc
 # =============================================================================
 
 
-class Data:
+class Points:
     """
     Class for keeping colour data in various colour spaces and shapes.
     """
@@ -160,14 +160,14 @@ class Data:
         ----------
         sp : space.Space
             The colour space for the von Kries transformation.
-        from_white : data.Data
+        from_white : data.Points
             The white point of the current data set.
-        to_white : data.Data
+        to_white : data.Points
             The white point of the new data set.
 
         Returns
         -------
-        data : data.Data
+        data : data.Points
             The new colour data with changed white point.
         """
         wh_in = from_white.get(sp)
@@ -175,10 +175,10 @@ class Data:
         von_kries_mat = np.array([[wh_out[0] / wh_in[0], 0, 0],
                                   [0, wh_out[1] / wh_in[1], 0],
                                   [0, 0, wh_out[2] / wh_in[2]]])
-        return Data(sp, self.get(space.TransformLinear(sp, von_kries_mat)))
+        return Points(sp, self.get(space.TransformLinear(sp, von_kries_mat)))
 
 
-class VectorData:
+class Vectors:
     """
     Class for keeping contravariant vector data in various colour spaces.
     """
@@ -191,7 +191,7 @@ class VectorData:
         ----------
         sp: space.Space
            The colour space for the given vector data
-        points_data : space.Data
+        points_data : space.Points
             The colour points for the given vector data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
@@ -235,7 +235,7 @@ class VectorData:
         """
         Set colour sp, points, and vectorss data.
 
-        The points_data are taken care already of the type Data. A new
+        The points_data are taken care already of the type Points. A new
         dictionary is constructed, and the vectors_ndata are added in
         the provided colour space, as well as in the XYZ colour space
         (using the SpaceXYZ class).
@@ -244,7 +244,7 @@ class VectorData:
         ----------
         sp : space.Space
             The colour space for the given tensor data.
-        points_data : data.Data
+        points_data : data.Points
             The colour points for the given tensor data.
         vectors_ndata : ndarray
             The vector data in the given colour space at the given points.
@@ -310,7 +310,7 @@ class VectorData:
         return self.linearise(self.get(sp))
 
 
-class TensorData:
+class Tensors:
     """
     Class for keeping colour metric data in various colour spaces.
     """
@@ -334,7 +334,7 @@ class TensorData:
         ----------
         sp : space.Space
             The colour space for the given tensor data.
-        points_data : data.Data
+        points_data : data.Points
             The colour points for the given tensor data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
@@ -374,7 +374,7 @@ class TensorData:
         """
         Set colour sp, points, and metrics data.
 
-        The points_data are taken care already of the type Data. A new
+        The points_data are taken care already of the type Points. A new
         dictionary is constructed, and the metrics_ndata are added in
         the provided colour space, as well as in the XYZ colour space
         (using thespace.SpaceXYZ class).
@@ -383,7 +383,7 @@ class TensorData:
         ----------
         sp : space.Space
             The colour space for the given tensor data.
-        points_data : data.Data
+        points_data : data.Points
             The colour points for the given tensor data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
@@ -531,9 +531,9 @@ class TensorData:
         ---------
         sp : space.Space
             The space in which to compute the inner product
-        vec1: VectorData
+        vec1: Vectors
             The first vector
-        vec2: VectorData
+        vec2: Vectors
             The second vector
 
         Returns
@@ -597,17 +597,17 @@ def read_csv_file(filename, pad=-np.inf):
 
 # White points:
 
-white_A = Data(space.xyz, space.Space.white_A)
-white_B = Data(space.xyz, space.Space.white_B)
-white_C = Data(space.xyz, space.Space.white_C)
-white_D50 = Data(space.xyz, space.Space.white_D50)
-white_D55 = Data(space.xyz, space.Space.white_D55)
-white_D65 = Data(space.xyz, space.Space.white_D65)
-white_D75 = Data(space.xyz, space.Space.white_D75)
-white_E = Data(space.xyz, space.Space.white_E)
-white_F2 = Data(space.xyz, space.Space.white_F2)
-white_F7 = Data(space.xyz, space.Space.white_F7)
-white_F11 = Data(space.xyz, space.Space.white_F11)
+white_A = Points(space.xyz, space.Space.white_A)
+white_B = Points(space.xyz, space.Space.white_B)
+white_C = Points(space.xyz, space.Space.white_C)
+white_D50 = Points(space.xyz, space.Space.white_D50)
+white_D55 = Points(space.xyz, space.Space.white_D55)
+white_D65 = Points(space.xyz, space.Space.white_D65)
+white_D75 = Points(space.xyz, space.Space.white_D75)
+white_E = Points(space.xyz, space.Space.white_E)
+white_F2 = Points(space.xyz, space.Space.white_F2)
+white_F7 = Points(space.xyz, space.Space.white_F7)
+white_F11 = Points(space.xyz, space.Space.white_F11)
 
 
 def d_XYZ_31():
@@ -616,11 +616,11 @@ def d_XYZ_31():
 
     Returns
     -------
-    xyz_31 : data.Data
+    xyz_31 : data.Points
         The XYZ 1931 colour matching functions.
     """
     xyz_ = read_csv_file('colour_data/ciexyz31_1.csv')
-    return Data(space.xyz, xyz_[:, 1:])
+    return Points(space.xyz, xyz_[:, 1:])
 
 
 def d_XYZ_64():
@@ -629,11 +629,11 @@ def d_XYZ_64():
 
     Returns
     -------
-    xyz_64 : data.Data
+    xyz_64 : data.Points
         The XYZ 1964 colour matching functions.
     """
     xyz_ = read_csv_file('colour_data/ciexyz64_1.csv')
-    return Data(space.xyz, xyz_[:, 1:])
+    return Points(space.xyz, xyz_[:, 1:])
 
 
 def d_Melgosa():
@@ -641,11 +641,11 @@ def d_Melgosa():
     The data points for the Melgosa Ellipsoids (RIT-DuPont).
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
-    in CIELAB and returns TensorData.
+    in CIELAB and returns Tensors.
 
     Returns
     -------
-    d_Melgosa : data.Data
+    d_Melgosa : data.Points
         The centre points of Melgosa's RIT-DuPont ellipsoids.
     """
     m_a = np.array([-1.403, -16.374, -0.782, -27.549, 12.606, 12.153,
@@ -661,7 +661,7 @@ def d_Melgosa():
                     31.683, 59.904, 17.357, 58.109, 30.186, 83.481,
                     76.057])
     m_Lab = np.concatenate(([m_L], [m_a], [m_b]), axis=0).T
-    return Data(space.cielab, m_Lab)
+    return Points(space.cielab, m_Lab)
 
 
 def d_Munsell(dataset='real'):
@@ -677,7 +677,7 @@ def d_Munsell(dataset='real'):
 
     Returns
     -------
-    d_Munsell : data.Data
+    d_Munsell : data.Points
         The Munsell colours.
     munsell_names : list
         The standard Munsell value names (H, V, C).
@@ -732,7 +732,7 @@ def d_Munsell(dataset='real'):
     munsell_lab[:, 0] = munsell_hlc[:, 1]
     munsell_lab[:, 1] = munsell_hlc[:, 2] * np.cos(munsell_hlc[:, 0])
     munsell_lab[:, 2] = munsell_hlc[:, 2] * np.sin(munsell_hlc[:, 0])
-    return Data(space.xyY, data), munsell_names, munsell_lab
+    return Points(space.xyY, data), munsell_names, munsell_lab
 
 
 def d_regular(sp, x_val, y_val, z_val):
@@ -754,7 +754,7 @@ def d_regular(sp, x_val, y_val, z_val):
 
     Returns
     -------
-    data : data.Data
+    data : data.Points
         Regular structure of colour data in the given colour space.
     """
     x_len = np.shape(x_val)[0]
@@ -770,11 +770,11 @@ def d_regular(sp, x_val, y_val, z_val):
                 ndata[l, 1] = y_val[j]
                 ndata[l, 2] = z_val[k]
                 l = l + 1
-    return Data(sp, ndata)
+    return Points(sp, ndata)
 
 # TODO:
 #
-# Colour data sets, as needed (instances of Data):
+# Colour data sets, as needed (instances of Points):
 #     patches_Munsell ++
 #     patches_OSA ++ ???
 #     patches_Colour Checker ++
@@ -793,7 +793,7 @@ def g_MacAdam():
 
     Returns
     -------
-    MacAdam : TensorData
+    MacAdam : Tensors
         The metric tensors corresponding to the MacAdam ellipsoids.
     """
     from scipy.io import loadmat
@@ -801,7 +801,7 @@ def g_MacAdam():
     rawdata = rawdata['unnamed']
     xyY = rawdata[:, 0:3].copy()
     xyY[:, 2] = 0.4             # arbitrary!
-    points = Data(space.xyY, xyY)
+    points = Points(space.xyY, xyY)
     a = rawdata[:, 2]/1e3
     b = rawdata[:, 3]/1e3
     theta = rawdata[:, 4]*np.pi/180.
@@ -814,7 +814,7 @@ def g_MacAdam():
     g[:, 2, 2] = 1e3            # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return TensorData(space.xyY, points, g)
+    return Tensors(space.xyY, points, g)
 
 
 def g_three_observer():
@@ -829,7 +829,7 @@ def g_three_observer():
 
     Returns
     -------
-    threeObserver : TensorData
+    threeObserver : Tensors
         The metric tensors corresponding to the three observer ellipsoids.
     """
     f = open(resource_path('tensor_data/3 observer.txt'))
@@ -842,7 +842,7 @@ def g_three_observer():
     rawdata = np.array(rawdata)
     xyY = rawdata[:, 1:4].copy()
     xyY[:, 2] = 0.4             # arbitrary!
-    points = Data(space.xyY, xyY)
+    points = Points(space.xyY, xyY)
     a = rawdata[:, 4] / 1e3     # correct?
     b = rawdata[:, 5] / 1e3     # corect?
     theta = rawdata[:, 3] * np.pi / 180.
@@ -855,7 +855,7 @@ def g_three_observer():
     g[:, 2, 2] = 1e3            # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return TensorData(space.xyY, points, g)
+    return Tensors(space.xyY, points, g)
 
 
 def g_Melgosa_Lab():
@@ -863,11 +863,11 @@ def g_Melgosa_Lab():
     Melgosa's CIELAB-fitted ellipsoids for the RIT-DuPont data.
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
-    in CIELAB and returns TensorData.
+    in CIELAB and returns Tensors.
 
     Returns
     -------
-    Melgosa : TensorData
+    Melgosa : Tensors
         The metric tensors corresponding to Melgosa's ellipsoids.
     """
     m_gaa = np.array([0.6609, 0.3920, 1.3017, 0.1742, 0.5967, 0.5374,
@@ -903,7 +903,7 @@ def g_Melgosa_Lab():
     m_Lab_metric[:, 2, 0] = m_gLb
     m_Lab_metric[:, 1, 2] = m_gab
     m_Lab_metric[:, 2, 1] = m_gab
-    return TensorData(space.cielab, d_Melgosa(), m_Lab_metric)
+    return Tensors(space.cielab, d_Melgosa(), m_Lab_metric)
 
 
 def g_Melgosa_xyY():
@@ -911,11 +911,11 @@ def g_Melgosa_xyY():
     Melgosa's xyY-fitted ellipsoids for the RIT-DuPont data.
 
     Copied verbatim from pdf of CRA paper. Uses the ellipsoids fitted
-    in xyY and returns TensorData.
+    in xyY and returns Tensors.
 
     Returns
     -------
-    Melgosa : TensorData
+    Melgosa : Tensors
         The metric tensors corresponding to Melgosa's ellipsoids.
     """
     m_g11 = np.array([10.074, 5.604, 18.738, 3.718, 5.013, 7.462, 1.229,
@@ -947,7 +947,7 @@ def g_Melgosa_xyY():
     m_xyY_metric[:, 1, 2] = m_g23
     m_xyY_metric[:, 2, 1] = m_g23
     m_xyY_metric = 1e4*m_xyY_metric
-    return TensorData(space.xyY, d_Melgosa(), m_xyY_metric)
+    return Tensors(space.xyY, d_Melgosa(), m_xyY_metric)
 
 
 def g_BFD(dataset='P'):
@@ -962,7 +962,7 @@ def g_BFD(dataset='P'):
 
     Returns
     -------
-    bfd : TensorData
+    bfd : Tensors
         The BDF data set of the required type
     """
     if dataset == 'P':
@@ -982,7 +982,7 @@ def g_BFD(dataset='P'):
     rawdata = np.array(rawdata)
     xyY = rawdata[:, 0:3].copy()
     xyY[:, 2] = xyY[:, 2] / 100
-    points = Data(space.xyY, xyY)
+    points = Points(space.xyY, xyY)
     a = rawdata[:, 3] / 1e4     # correct?
     b = a / rawdata[:, 4]       # corect?
     theta = rawdata[:, 5] * np.pi / 180.
@@ -995,7 +995,7 @@ def g_BFD(dataset='P'):
     g[:, 2, 2] = 1e3            # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return TensorData(space.xyY, points, g)
+    return Tensors(space.xyY, points, g)
 
 
 # =============================================================================
@@ -1017,8 +1017,8 @@ def m_rit_dupont():
     lab1 = dat[:, 0:3]
     lab2 = dat[:, 3:6]
     rit_dupont = dict()
-    rit_dupont['data1'] = Data(space.cielab, lab1)
-    rit_dupont['data2'] = Data(space.cielab, lab2)
+    rit_dupont['data1'] = Points(space.cielab, lab1)
+    rit_dupont['data2'] = Points(space.cielab, lab2)
     rit_dupont['dE_ab'] = dat[:, 6].copy()
     rit_dupont['dE_00'] = dat[:, 7].copy()
     rit_dupont['dE_94'] = dat[:, 8].copy()
@@ -1036,15 +1036,15 @@ def m_rit_dupont_T50():
     rit_dupont : dict
         Dictionary with two datasets and dV.
     """
-    dat = read_csv_file('metric_data/Data_RIT-DuPont.csv')
+    dat = read_csv_file('metric_data/Points_RIT-DuPont.csv')
     rit_dupont = dict()
-    rit_dupont['data1'] = Data(space.cielab, dat[:, 0:3].copy())
-    rit_dupont['data2'] = Data(space.cielab, dat[:, 3:6].copy())
+    rit_dupont['data1'] = Points(space.cielab, dat[:, 0:3].copy())
+    rit_dupont['data2'] = Points(space.cielab, dat[:, 3:6].copy())
     rit_dupont['dV'] = dat[:, 6].copy()
     return rit_dupont
 
 # TODO:
 #
-# Metric data sets, as needed (instances of TensorData):
+# Metric data sets, as needed (instances of Tensors):
 #     BrownMacAdam
 #     +++

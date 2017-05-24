@@ -136,9 +136,9 @@ def pant_R_values(space, tdata1, tdata2, optimise=True, plane=None):
     ----------
     space : Space
         The colour space in which to compute the R values.
-    tdata1 : TensorData
+    tdata1 : Tensors
         The first set of colour metric tensors.
-    tdata2 : TensorData
+    tdata2 : Tensors
         The second set of colour metric tensors.
     optimise : bool
         Whether or not to optimise the scaling of the ellipse set.
@@ -285,7 +285,7 @@ def test():
                         np.linspace(0, 100, 10),
                         np.linspace(-100, 100, 21),
                         np.linspace(-100, 100, 21))
-    d2 = data.Data(space.cielab,
+    d2 = data.Points(space.cielab,
                    d1.get(space.cielab) + 1)
     diff = metric.dE_ab(d1, d2)
     print('Various tests (should be True):')
@@ -295,12 +295,12 @@ def test():
                         np.linspace(0, 100, 3),
                         np.linspace(-100, 100, 3),
                         np.linspace(-100, 100, 3))
-    d2 = data.Data(space.cielab,
-                   d1.get(space.cielab) + 1)
+    d2 = data.Points(space.cielab,
+                     d1.get(space.cielab) + 1)
     t1 = tensor.dE_ab(d1)
-    t2 = data.TensorData(space.cielab,
-                         t1.points,
-                         t1.get(space.cielab) * 2)
+    t2 = data.Tensors(space.cielab,
+                      t1.points,
+                      t1.get(space.cielab) * 2)
     print('\nOptimising Pant R values (takes some time)...')
     R, scale = pant_R_values(space.cielab, t1, t2)
     print(np.max(np.abs(1 - R)) < 1e-4)

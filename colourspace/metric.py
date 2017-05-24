@@ -68,9 +68,9 @@ def linear(sp, dat1, dat2, metric_tensor_function):
     ----------
     sp : Space
         The colour space in which to compute the linearised metric.
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
     metric_tensor_function : function
         Function giving the metric tensors at given colour data points.
@@ -84,7 +84,7 @@ def linear(sp, dat1, dat2, metric_tensor_function):
     d2 = dat2.get_linear(sp)
     midp = (d1 + d2) * .5
     diff = d1 - d2
-    g = metric_tensor_function(data.Data(sp, midp))
+    g = metric_tensor_function(data.Points(sp, midp))
     g = g.get(sp)
     m = np.zeros(np.shape(diff)[0])
     for i in range(np.shape(m)[0]):
@@ -100,9 +100,9 @@ def euclidean(sp, dat1, dat2):
     ----------
     sp : Space
         Colour space
-    dat1 : Data
+    dat1 : Points
         Colour data set 1
-    dat2 : Data
+    dat2 : Points
         Colour data set 2
 
     Returns
@@ -129,9 +129,9 @@ def poincare_disk(sp, dat1, dat2):
     ----------
     sp : Space
         Colour space (should be of Poincare Disk type)
-    dat1: Data
+    dat1: Points
         Colour data set 1
-    dat2: Data
+    dat2: Points
         Colour data set 2
 
     Returns
@@ -156,9 +156,9 @@ def dE_ab(dat1, dat2):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
 
     Returns
@@ -175,9 +175,9 @@ def dE_uv(dat1, dat2):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
 
     Returns
@@ -194,9 +194,9 @@ def dE_E(dat1, dat2):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
 
     Returns
@@ -213,9 +213,9 @@ def dE_DIN99(dat1, dat2):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
 
     Returns
@@ -232,9 +232,9 @@ def dE_DIN99b(dat1, dat2):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
 
     Returns
@@ -251,9 +251,9 @@ def dE_DIN99c(dat1, dat2):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
 
     Returns
@@ -270,9 +270,9 @@ def dE_DIN99d(dat1, dat2):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
 
     Returns
@@ -289,9 +289,9 @@ def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
 
     Parameters
     ----------
-    dat1 : Data
+    dat1 : Points
         The colour data of the first data set.
-    dat2 : Data
+    dat2 : Points
         The colour data of the second data set.
     k_L : float
         Parameter of the CIEDE00 metric
@@ -345,7 +345,7 @@ def test():
                         np.linspace(20, 80, 10),
                         np.linspace(-50, 50, 11),
                         np.linspace(-50, 50, 11))
-    d2 = data.Data(space.cielab,
+    d2 = data.Points(space.cielab,
                    d1.get(space.cielab) + 1 / np.sqrt(3))
     for met in [dE_ab, dE_uv, dE_00, dE_DIN99,
                 dE_DIN99b, dE_DIN99c, dE_DIN99d]:

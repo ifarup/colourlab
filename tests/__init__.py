@@ -24,29 +24,3 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import os
 from tests import test_space, test_data, test_tensor, \
     test_metric, test_statistics, test_misc, test_image, test_gamut
-
-
-# if __name__ == "__main__":
-#     print("Running test_gamut")
-#     os.system('python test_gamut.py')
-
-#     print("Running test_space")
-#     os.system('python test_space.py')
-
-#     print("Running test_data")
-#     os.system('python test_data.py')
-
-#     print("Running test_tensor")
-#     os.system('python test_tensor.py')
-
-#     print("Running test_metric")
-#     os.system('python test_metric.py')
-
-#     print("Running test_statistics")
-#     os.system('python test_statistics.py')
-
-#     print("Running test_misc")
-#     os.system('python test_misc.py')
-
-#     print("Running test_image")
-#     os.system('python test_image.py')

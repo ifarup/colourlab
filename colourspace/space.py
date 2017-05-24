@@ -27,7 +27,7 @@ from . import misc
 # Colour space classes
 #
 # Throughout the code, the name ndata is used for numerical data (numpy
-# arrays), and data is used for objects of the type Data.
+# arrays), and data is used for objects of the type Points.
 # =============================================================================
 
 
@@ -69,11 +69,11 @@ class Space(object):
         Return the Jacobian to XYZ, dx^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class) by inverting the inverse Jacobian.
+        Points class) by inverting the inverse Jacobian.
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -88,11 +88,11 @@ class Space(object):
         Return the inverse Jacobian to XYZ, dXYZ^i/dx^j.
 
         The inverse Jacobian is calculated at the given data points
-        (of the Data class) by inverting the Jacobian.
+        (of the Points class) by inverting the Jacobian.
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -108,7 +108,7 @@ class Space(object):
 
         Parameters
         ----------
-        points_data : Data
+        points_data : Points
             The colour data points.
         vectors_ndata : ndarray
             Array of colour metric tensors in current colour space.
@@ -127,7 +127,7 @@ class Space(object):
 
         Parameters
         ----------
-        points_data : Data
+        points_data : Points
             The colour data points.
         vectors_ndata : ndarray
             Array of colour metric tensors in XYZ.
@@ -146,7 +146,7 @@ class Space(object):
 
         Parameters
         ----------
-        points_data : Data
+        points_data : Points
             The colour data points.
         metrics_ndata : ndarray
             Array of colour metric tensors in current colour space.
@@ -165,7 +165,7 @@ class Space(object):
 
         Parameters
         ----------
-        points_data : Data
+        points_data : Points
             The colour data points.
         metrics_ndata : ndarray
             Array of colour metric tensors in XYZ.
@@ -225,11 +225,11 @@ class XYZ(Space):
         Return the Jacobian to XYZ, dx^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -246,11 +246,11 @@ class XYZ(Space):
         Return the inverse Jacobian to XYZ, dXYZ^i/dx^j.
 
         The inverse Jacobian is calculated at the given data points
-        (of the Data class).
+        (of the Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -319,11 +319,11 @@ class Transform(Space):
         Return the Jacobian to base, dx^i/dbase^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class) by inverting the inverse Jacobian.
+        Points class) by inverting the inverse Jacobian.
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -338,11 +338,11 @@ class Transform(Space):
         Return the inverse Jacobian to base, dbase^i/dx^j.
 
         The inverse Jacobian is calculated at the given data points
-        (of the Data class) by inverting the Jacobian.
+        (of the Points class) by inverting the Jacobian.
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -357,12 +357,12 @@ class Transform(Space):
         Return the Jacobian to XYZ, dx^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class) using the jacobian to the base and the Jacobian
+        Points class) using the jacobian to the base and the Jacobian
         of the base space.
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -380,12 +380,12 @@ class Transform(Space):
         Return the inverse Jacobian to XYZ, dXYZ^i/dx^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class) using the inverse jacobian to the base and the
+        Points class) using the inverse jacobian to the base and the
         inverse Jacobian of the base space.
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -461,11 +461,11 @@ class TransformxyY(Transform):
         Return the Jacobian to XYZ, dxyY^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -496,11 +496,11 @@ class TransformxyY(Transform):
         Return the Jacobian from XYZ, dXYZ^i/dxyY^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -539,7 +539,7 @@ class TransformCIELAB(Transform):
         ----------
         base : Space
             The base colour space.
-        white_point : ndarray or Data
+        white_point : ndarray or Points
             The white point
         """
         super(TransformCIELAB, self).__init__(base)
@@ -628,11 +628,11 @@ class TransformCIELAB(Transform):
         Return the Jacobian to XYZ (base), dCIELAB^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -671,7 +671,7 @@ class TransformCIELUV(Transform):
         ----------
         base : Space
             The base colour space.
-        white_point : ndarray or Data
+        white_point : ndarray or Points
             The white point
         """
         super(TransformCIELUV, self).__init__(base)
@@ -772,11 +772,11 @@ class TransformCIELUV(Transform):
         Return the Jacobian to XYZ (base), dCIELUV^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -886,11 +886,11 @@ class TransformCIEDE00(Transform):
         Return the Jacobian to CIELAB (base), dCIEDE00^i/dCIELAB^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -964,11 +964,11 @@ class TransformSRGB(Transform):
         Return the Jacobian to linear RGB (base), dsRGB^i/dRGB^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1073,11 +1073,11 @@ class TransformLinear(Transform):
         Return the Jacobian to XYZ (base), dlinear^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1095,11 +1095,11 @@ class TransformLinear(Transform):
         Return the Jacobian from XYZ (base), dXYZ^i/dlinear^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1173,11 +1173,11 @@ class TransformGamma(Transform):
         Return the Jacobian to XYZ (base), dgamma^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1264,11 +1264,11 @@ class TransformPolar(Transform):
         Return the Jacobian from CIELAB (base), dCIELAB^i/dCIELCH^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1359,11 +1359,11 @@ class TransformCartesian(Transform):
         Return the Jacobian from CIELCh (base), dCIELAB^i/dCIELCH^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1480,11 +1480,11 @@ class TransformLGJOSA(Transform):
         Return the Jacobian from XYZ (base), dLGJOSA^i/dXYZ^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class). Like the colour space, a terrible mess...
+        Points class). Like the colour space, a terrible mess...
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1649,11 +1649,11 @@ class TransformLGJE(Transform):
         Return the Jacobian from LGJOSA (base), dLGJE^i/dLGJOSA^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1748,11 +1748,11 @@ class TransformLogCompressL(Transform):
         Return the Jacobian from Lab (base), dL'ab^i/dLab^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1844,11 +1844,11 @@ class TransformLogCompressC(Transform):
         Return the Jacobian from Lab (base), dLa'b'^i/dLab^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -1957,11 +1957,11 @@ class TransformPoincareDisk(Transform):
         Return the Jacobian from CIELAB (base), dLxy^i/dCIELAB^j.
 
         The Jacobian is calculated at the given data points (of the
-        Data class).
+        Points class).
 
         Parameters
         ----------
-        data : Data
+        data : Points
             Colour data points for the jacobians to be computed.
 
         Returns
@@ -2158,7 +2158,7 @@ def test():
             print(sp, ': OK')
     print('\nJacobians:')
     from . import data
-    col_data = data.Data(xyz, col)
+    col_data = data.Points(xyz, col)
     test_spaces = [xyz, xyY, cielab, cieluv, cielch, ipt, ciede00lab,
                    din99, din99b, din99c, din99d,
                    _test_space_cartesian, _test_space_poincare_disk,
