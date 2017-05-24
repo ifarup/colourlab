@@ -6,3 +6,5 @@ dist/
 htmlcov/
 ideas/
 test.py
+sandbox.py
+lena.png
