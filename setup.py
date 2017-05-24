@@ -11,7 +11,9 @@ setup(
     install_requires=[
         'numpy',
         'scipy',
-        'matplotlib'],
+        'matplotlib',
+        'sphinxcontrib-napoleon'
+    ],
     author="Ivar Farup et al.",
     author_email="ivar.farup@ntnu.no",
     description="Module for colour science and colour imaging",
