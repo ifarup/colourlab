@@ -35,6 +35,24 @@ RADIUS_PRIME = 29537       # for LUTs, to be true to the original implementation
 def stress(im, ns=3, nit=5, R=0):
     """
     Compute the stress image and range.
+
+    Parameters
+    ----------
+    im : ndarray
+        Greyscale image
+    ns : int
+        Number of sample points
+    nit : int
+        Number of iterations
+    R : int
+        Maximum radius. If R=0, the diagonal of the image is used.
+
+    Returns
+    -------
+    stress_im : ndarray
+        The result of stress
+    range_im : ndarray
+        The range image (see paper)
     """
     theta = np.random.rand(ANGLE_PRIME) * 2 * np.pi # create LUTs
     lut_cos = np.cos(theta)
