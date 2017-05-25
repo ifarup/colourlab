@@ -1,5 +1,32 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+image_core: Colour image core operations, part of the colourspace package
+
+Copyright (C) 2017 Ivar Farup
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import numpy as np
-from numba import jit
+try:                            # Hack to use numba only when installed
+    from numba import jit       # (mainly to avoid trouble with Travis)
+except ImportError:
+    def jit(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return wrapper
 
 ANGLE_PRIME = 95273        # for LUTs, to be true to the original implementation
 RADIUS_PRIME = 29537       # for LUTs, to be true to the original implementation
