@@ -12,6 +12,7 @@ setup(
         'numpy',
         'scipy',
         'matplotlib',
+        'llvmlite'
         'numba',
         'sphinxcontrib-napoleon'
     ],

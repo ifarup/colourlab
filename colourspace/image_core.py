@@ -1,10 +1,10 @@
 import numpy as np
-# from numba import jit
+from numba import jit
 
 ANGLE_PRIME = 95273        # for LUTs, to be true to the original implementation
 RADIUS_PRIME = 29537       # for LUTs, to be true to the original implementation
 
-# @jit
+@jit
 def stress(im, ns=3, nit=5, R=0):
     """
     Compute the stress image and range.
