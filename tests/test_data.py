@@ -112,6 +112,20 @@ class TestVectors(unittest.TestCase):
         self.assertEqual(v4.get_flattened(space.xyz).shape, (6, 3))
 
 
+    def test_implicit_convert(self):
+        lab1 = v1.get(space.cielab)
+        lab2 = v2.get(space.cielab)
+        lab3 = v3.get(space.cielab)
+        lab4 = v4.get(space.cielab)
+        vv1 = data.Vectors(space.cielab, d1, lab1)
+        vv2 = data.Vectors(space.cielab, d2, lab2)
+        vv3 = data.Vectors(space.cielab, d3, lab3)
+        vv4 = data.Vectors(space.cielab, d4, lab4)
+        self.assertTrue(np.allclose(vec1, vv1.get(space.xyz)))
+        self.assertTrue(np.allclose(vec2, vv2.get(space.xyz)))
+        self.assertTrue(np.allclose(vec3, vv3.get(space.xyz)))
+        self.assertTrue(np.allclose(vec4, vv4.get(space.xyz)))
+
 # class TestTensors(unittest.TestCase):
 
 
