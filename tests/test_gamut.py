@@ -344,7 +344,7 @@ class TestGamut(unittest.TestCase):
         g = gamut.Gamut(space.srgb, c_data)  # Creates a new gamut.
 
         col_data = data.Points(space.srgb, np.array([[15, 15, 15], [8, 8, 8], [5, 5, 5], [1, 1, 1], [-5, -5, -5]]))
-        re_data = g.compress_axis(space.srgb, col_data, 2).get_linear(space.srgb)
+        re_data = g.compress_axis(space.srgb, col_data, 2).get_flattened(space.srgb)
 
         fasit_data = np.array([[15, 15, 10], [8, 8, 6], [5, 5, 5], [1, 1, 3], [-5, -5, 0]])
 
@@ -360,7 +360,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Points(space.srgb, points)                                    # data.Points object
         re_data = g.intersection_in_line(space.srgb, c_data)                      # data.Points object returned
 
-        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
+        self.assertTrue(np.allclose(re_data.get_flattened(space.srgb), mod_points))  # assert that the points are changed
 
     def test_HPminDE(self):
         c_data = data.Points(space.cielab, cube + np.array([0, -5, -5]))
@@ -370,7 +370,7 @@ class TestGamut(unittest.TestCase):
         fasit = np.array([[0, 5, 5], [4, 0, 5], [4, 4, 3], [0, 5, 0], [10, 1, 0]])
         c_data = data.Points(space.cielab, points)
         re_data = g.HPminDE(c_data)
-        re_data = re_data.get_linear(space.cielab)
+        re_data = re_data.get_flattened(space.cielab)
         self.assertTrue(np.allclose(fasit, re_data))
 
     def test_minDE(self):
@@ -383,7 +383,7 @@ class TestGamut(unittest.TestCase):
         mapped_im = g.minDE(c_sphere)
 
         result = True
-        for index, value in np.ndenumerate(mapped_im.get_linear(space.cielab)):
+        for index, value in np.ndenumerate(mapped_im.get_flattened(space.cielab)):
             if value > 10:
                 result = False
         self.assertTrue(result)
@@ -398,7 +398,7 @@ class TestGamut(unittest.TestCase):
         c_data = data.Points(space.srgb, points)                                    # data.Points object
         re_data = g.clip_nearest(space.srgb, c_data)                              # data.Points object returned
 
-        self.assertTrue(np.allclose(re_data.get_linear(space.srgb), mod_points))  # assert that the points are changed
+        self.assertTrue(np.allclose(re_data.get_flattened(space.srgb), mod_points))  # assert that the points are changed
 
 
 

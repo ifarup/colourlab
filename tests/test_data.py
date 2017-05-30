@@ -52,11 +52,11 @@ class TestPoints(unittest.TestCase):
         self.assertEqual(d3.get(space.xyz).shape, (3, 3))
         self.assertEqual(d4.get(space.xyz).shape, (2, 3, 3))
 
-    def test_get_linear(self):
-        self.assertEqual(d1.get_linear(space.xyz).shape, (1, 3))
-        self.assertEqual(d2.get_linear(space.xyz).shape, (1, 3))
-        self.assertEqual(d3.get_linear(space.xyz).shape, (3, 3))
-        self.assertEqual(d4.get_linear(space.xyz).shape, (6, 3))
+    def test_get_flattened(self):
+        self.assertEqual(d1.get_flattened(space.xyz).shape, (1, 3))
+        self.assertEqual(d2.get_flattened(space.xyz).shape, (1, 3))
+        self.assertEqual(d3.get_flattened(space.xyz).shape, (3, 3))
+        self.assertEqual(d4.get_flattened(space.xyz).shape, (6, 3))
 
     def test_implicit_convert(self):
         lab1 = d1.get(space.cielab)

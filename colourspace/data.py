@@ -49,10 +49,10 @@ class Points:
         """
         self.data = None
         self.sh = None
-        self.linear_XYZ = None
+        self.flattened_XYZ = None
         self.set(sp, ndata)
 
-    def linearise(self, ndata):
+    def flatten(self, ndata):
         """
         Shape the data so that is becomes an PxC matrix or C vector.
 
@@ -96,12 +96,12 @@ class Points:
         self.data = dict()
         self.data[sp] = ndata
         self.sh = ndata.shape
-        linear_data = self.linearise(ndata)
+        flattened_data = self.flatten(ndata)
         if sp == space.xyz:
-            self.linear_XYZ = linear_data
+            self.flattened_XYZ = flattened_data
         else:
-            self.linear_XYZ = sp.to_XYZ(linear_data)
-            self.data[space.xyz] = np.reshape(self.linear_XYZ, self.sh)
+            self.flattened_XYZ = sp.to_XYZ(flattened_data)
+            self.data[space.xyz] = np.reshape(self.flattened_XYZ, self.sh)
 
     def get(self, sp):
         """
@@ -124,12 +124,12 @@ class Points:
         if sp in self.data:
             return self.data[sp]
         else:
-            linear_data = sp.from_XYZ(self.linear_XYZ)
-            ndata = np.reshape(linear_data, self.sh)
+            flattened_data = sp.from_XYZ(self.flattened_XYZ)
+            ndata = np.reshape(flattened_data, self.sh)
             self.data[sp] = ndata
             return ndata
 
-    def get_linear(self, sp):
+    def get_flattened(self, sp):
         """
         Return colour data in required colour space in PxC format.
 
@@ -145,9 +145,9 @@ class Points:
         Returns
         -------
         ndata : ndarray
-            The linearised colour data in the given colour space.
+            The flattend colour data in the given colour space.
         """
-        return self.linearise(self.get(sp))
+        return self.flatten(self.get(sp))
 
     def new_white_point(self, sp, from_white, to_white):
         """
@@ -200,10 +200,10 @@ class Vectors:
         self.points = None
         self.vectors = None
         self.sh = None
-        self.linear_XYZ = None
+        self.flattened_XYZ = None
         self.set(sp, points_data, vectors_ndata)
 
-    def linearise(self, ndata):
+    def flatten(self, ndata):
         # type: (object) -> object
         """
         Shape the data so that is becomes an PxC matrix or C vector.
@@ -256,12 +256,12 @@ class Vectors:
         vectors_ndata = np.array(vectors_ndata)
         self.vectors[sp] = vectors_ndata
         self.sh = vectors_ndata.shape
-        linear_data = self.linearise(vectors_ndata)
+        flattened_data = self.flatten(vectors_ndata)
         if sp == space.xyz:
-            self.linear_XYZ = linear_data
+            self.flattened_XYZ = flattened_data
         else:
-            self.linear_XYZ = sp.vectors_to_XYZ(self.points, linear_data)
-            self.vectors[space.xyz] = np.reshape(self.linear_XYZ, self.sh)
+            self.flattened_XYZ = sp.vectors_to_XYZ(self.points, flattened_data)
+            self.vectors[space.xyz] = np.reshape(self.flattened_XYZ, self.sh)
 
     def get(self, sp):
         """
@@ -284,12 +284,12 @@ class Vectors:
         if sp in self.vectors:
             return self.vectors[sp]
         else:
-            linear_data = sp.vectors_from_XYZ(self.points, self.linear_XYZ)
-            ndata = np.reshape(linear_data, self.sh)
+            flattened_data = sp.vectors_from_XYZ(self.points, self.flattened_XYZ)
+            ndata = np.reshape(flattened_data, self.sh)
             self.vectors[sp] = ndata
             return ndata
 
-    def get_linear(self, sp):
+    def get_flattened(self, sp):
         """
         Return colour vector data in required colour space in PxC format.
 
@@ -305,9 +305,9 @@ class Vectors:
         Returns
         -------
         ndata : ndarray
-            The linearised colour vector data in the given colour space.
+            The flattend colour vector data in the given colour space.
         """
-        return self.linearise(self.get(sp))
+        return self.flatten(self.get(sp))
 
 
 class Tensors:
@@ -342,10 +342,10 @@ class Tensors:
         self.points = None
         self.metrics = None
         self.sh = None
-        self.linear_XYZ = None
+        self.flattened_XYZ = None
         self.set(sp, points_data, metrics_ndata)
 
-    def linearise(self, ndata):
+    def flatten(self, ndata):
         """
         Shape the data so that is becomes an PxCxC matrix or CxC matrix
 
@@ -392,12 +392,12 @@ class Tensors:
         self.metrics = dict()
         self.sh = metrics_ndata.shape
         self.metrics[sp] = metrics_ndata
-        linear_data = self.linearise(metrics_ndata)
+        flattened_data = self.flatten(metrics_ndata)
         if sp == space.xyz:
-            self.linear_XYZ = linear_data
+            self.flattened_XYZ = flattened_data
         else:
-            self.linear_XYZ = sp.metrics_to_XYZ(points_data, linear_data)
-            self.metrics[space.xyz] = np.reshape(self.linear_XYZ, self.sh)
+            self.flattened_XYZ = sp.metrics_to_XYZ(points_data, flattened_data)
+            self.metrics[space.xyz] = np.reshape(self.flattened_XYZ, self.sh)
 
     def get(self, sp):
         """
@@ -420,12 +420,12 @@ class Tensors:
         if sp in self.metrics:
             return self.metrics[sp]
         else:
-            linear_metrics = sp.metrics_from_XYZ(self.points, self.linear_XYZ)
-            metrics_ndata = np.reshape(linear_metrics, self.sh)
+            flattened_metrics = sp.metrics_from_XYZ(self.points, self.flattened_XYZ)
+            metrics_ndata = np.reshape(flattened_metrics, self.sh)
             self.metrics[sp] = metrics_ndata
             return metrics_ndata
 
-    def get_linear(self, sp):
+    def get_flattened(self, sp):
         """
         Return colour data in required colour space in PxC format.
 
@@ -441,9 +441,9 @@ class Tensors:
         Returns
         -------
         ndata : ndarray
-            The linearised colour data in the given colour space.
+            The flattend colour data in the given colour space.
         """
-        return self.linearise(self.get(sp))
+        return self.flatten(self.get(sp))
 
     def get_ellipse_parameters(self, sp, plane=plane_xy, scale=1):
         """
@@ -468,7 +468,7 @@ class Tensors:
             N x 3 array of a, b, theta ellipse parameters.
         """
         metrics = self.get(sp).copy()
-        points = self.points.get_linear(sp).copy()
+        points = self.points.get_flattened(sp).copy()
         a_b_theta = np.zeros(np.shape(points))
         metrics = metrics[:, plane, plane]
         points = points[:, plane]
@@ -510,7 +510,7 @@ class Tensors:
             List of Ellipse objects.
         """
         a_b_theta = self.get_ellipse_parameters(sp, plane, scale)
-        points = self.points.get_linear(sp).copy()
+        points = self.points.get_flattened(sp).copy()
         points = points[:, plane]
         ells = []
         for i in range(np.shape(a_b_theta)[0]):

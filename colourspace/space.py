@@ -237,7 +237,7 @@ class XYZ(Space):
         jacobian : ndarray
             The list of Jacobians to XYZ.
         """
-        jac = self.empty_matrix(data.linear_XYZ)
+        jac = self.empty_matrix(data.flattened_XYZ)
         jac[:] = np.eye(3)
         return jac
 
@@ -258,7 +258,7 @@ class XYZ(Space):
         jacobian : ndarray
             The list of Jacobians from XYZ.
         """
-        ijac = self.empty_matrix(data.linear_XYZ)
+        ijac = self.empty_matrix(data.flattened_XYZ)
         ijac[:] = np.eye(3)
         return ijac
 
@@ -473,7 +473,7 @@ class TransformxyY(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyzdata = data.get_linear(self.base)
+        xyzdata = data.get_flattened(self.base)
         jac = self.empty_matrix(xyzdata)
         for i in range(np.shape(jac)[0]):
             jac[i, 0, 0] = (xyzdata[i, 1] + xyzdata[i, 2]) / \
@@ -508,7 +508,7 @@ class TransformxyY(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyYdata = data.get_linear(self)
+        xyYdata = data.get_flattened(self)
         jac = self.empty_matrix(xyYdata)
         for i in range(np.shape(jac)[0]):
             jac[i, 0, 0] = xyYdata[i, 2] / xyYdata[i, 1]
@@ -640,7 +640,7 @@ class TransformCIELAB(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        d = data.get_linear(self.base)
+        d = data.get_flattened(self.base)
         dr = d.copy()
         for i in range(3):
             dr[:, i] = dr[:, i] / self.white_point[i]
@@ -784,8 +784,8 @@ class TransformCIELUV(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyz_ = data.get_linear(xyz)
-        luv = data.get_linear(cieluv)
+        xyz_ = data.get_flattened(xyz)
+        luv = data.get_flattened(cieluv)
         df = self.dfdx(xyz_)
         jac = self.empty_matrix(xyz_)
         # dL/dY:
@@ -898,8 +898,8 @@ class TransformCIEDE00(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        lab = data.get_linear(cielab)
-        lch = data.get_linear(cielch)
+        lab = data.get_flattened(cielab)
+        lch = data.get_flattened(cielch)
         a = lab[:, 1]
         b = lab[:, 2]
         C = lch[:, 1]
@@ -976,7 +976,7 @@ class TransformSRGB(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        rgb = data.get_linear(self.base)
+        rgb = data.get_flattened(self.base)
         r = rgb[:, 0]
         g = rgb[:, 1]
         b = rgb[:, 2]
@@ -1085,7 +1085,7 @@ class TransformLinear(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyzdata = data.get_linear(xyz)
+        xyzdata = data.get_flattened(xyz)
         jac = self.empty_matrix(xyzdata)
         jac[:] = self.M
         return jac
@@ -1107,7 +1107,7 @@ class TransformLinear(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        xyzdata = data.get_linear(xyz)
+        xyzdata = data.get_flattened(xyz)
         jac = self.empty_matrix(xyzdata)
         jac[:] = self.M_inv
         return jac
@@ -1185,7 +1185,7 @@ class TransformGamma(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        basedata = data.get_linear(self.base)
+        basedata = data.get_flattened(self.base)
         jac = self.empty_matrix(basedata)
         for i in range(np.shape(basedata)[0]):
             jac[i, 0, 0] = self.gamma * \
@@ -1276,7 +1276,7 @@ class TransformPolar(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        LCh = data.get_linear(self)
+        LCh = data.get_flattened(self)
         C = LCh[:, 1]
         h = LCh[:, 2]
         jac = self.empty_matrix(LCh)
@@ -1371,7 +1371,7 @@ class TransformCartesian(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        LCh = data.get_linear(self.base)
+        LCh = data.get_flattened(self.base)
         C = LCh[:, 1]
         h = LCh[:, 2]
         jac = self.empty_matrix(LCh)
@@ -1492,8 +1492,8 @@ class TransformLGJOSA(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        ABC = data.get_linear(self.space_ABC)
-        xyY = data.get_linear(self.space_xyY)
+        ABC = data.get_flattened(self.space_ABC)
+        xyY = data.get_flattened(self.space_xyY)
         x = xyY[:, 0]
         y = xyY[:, 1]
         Y = xyY[:, 2]
@@ -1970,7 +1970,7 @@ class TransformPoincareDisk(Transform):
             The list of Jacobians to the base colour space.
         """
         # TODO: bugfix!!!
-        Lab = data.get_linear(self.base)
+        Lab = data.get_flattened(self.base)
         a = Lab[:, 1]
         b = Lab[:, 2]
         C = np.sqrt(a**2 + b**2)

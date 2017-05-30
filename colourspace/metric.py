@@ -80,8 +80,8 @@ def linear(sp, dat1, dat2, metric_tensor_function):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    d1 = dat1.get_linear(sp)
-    d2 = dat2.get_linear(sp)
+    d1 = dat1.get_flattened(sp)
+    d2 = dat2.get_flattened(sp)
     midp = (d1 + d2) * .5
     diff = d1 - d2
     g = metric_tensor_function(data.Points(sp, midp))
@@ -110,8 +110,8 @@ def euclidean(sp, dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    d1 = dat1.get_linear(sp)
-    d2 = dat2.get_linear(sp)
+    d1 = dat1.get_flattened(sp)
+    d2 = dat2.get_flattened(sp)
     diff = d1 - d2
     m = np.sqrt(diff[:, 0]**2 + diff[:, 1]**2 + diff[:, 2]**2)
     return reshape_diff(m, dat1.sh)
@@ -139,8 +139,8 @@ def poincare_disk(sp, dat1, dat2):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    d1 = dat1.get_linear(sp)
-    d2 = dat2.get_linear(sp)
+    d1 = dat1.get_flattened(sp)
+    d2 = dat2.get_flattened(sp)
     diff = d1 - d2
     delta = 2 * ((diff[:, 1]**2 + diff[:, 2]**2) /
                  ((1 - d1[:, 1]**2 - d1[:, 2]**2) *
@@ -305,8 +305,8 @@ def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
     distance : ndarray
         Array of the difference or distances between the two data sets.
     """
-    lch1 = dat1.get_linear(space.ciede00lch)
-    lch2 = dat2.get_linear(space.ciede00lch)
+    lch1 = dat1.get_flattened(space.ciede00lch)
+    lch2 = dat2.get_flattened(space.ciede00lch)
     avg_lch = .5 * (lch1 + lch2)
     d_lch = lch1 - lch2
 

@@ -64,7 +64,7 @@ def euclidean(sp, dat):
     Euclidean : Tensors
         The metric tensors.
     """
-    g = sp.empty_matrix(dat.linear_XYZ)
+    g = sp.empty_matrix(dat.flattened_XYZ)
     for i in range(np.shape(g)[0]):
         g[i] = np.eye(3)
     return construct_tensor(sp, dat, g)
@@ -211,7 +211,7 @@ def dE_00(dat, k_L=1, k_C=1, k_h=1):
     DE00 : Tensors
         The metric tensors.
     """
-    lch = dat.get_linear(space.ciede00lch)
+    lch = dat.get_flattened(space.ciede00lch)
     L = lch[:, 0]
     C = lch[:, 1]
     h = lch[:, 2]
@@ -253,7 +253,7 @@ def poincare_disk(sp, dat):
     Poincare : Tensors
         The metric tensors.
     """
-    d = dat.get_linear(sp)
+    d = dat.get_flattened(sp)
     g = sp.empty_matrix(d)
     for i in range(np.shape(g)[0]):
         g[i, 0, 0] = 1
@@ -286,7 +286,7 @@ def test():
                        np.linspace(1, 100, 10),
                        np.linspace(-100, 100, 21),
                        np.linspace(-100, 100, 21))
-    ndat = np.shape(d.get_linear(space.cielab))[0]
+    ndat = np.shape(d.get_flattened(space.cielab))[0]
     gab = dE_ab(d)
     guv = dE_uv(d)
     g00 = dE_00(d)

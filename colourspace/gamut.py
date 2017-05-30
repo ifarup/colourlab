@@ -85,7 +85,7 @@ class Gamut:
 
         # Calculate the convex hull
         self.hull = spatial.ConvexHull(
-            self.data.get_linear(self.space),
+            self.data.get_flattened(self.space),
             qhull_options='QJ')
         self.vertices = self.hull.vertices
         self.simplices = self.hull.simplices
@@ -114,7 +114,7 @@ class Gamut:
         """
 
         # Move all points so that 'center' is origin
-        n_data = self.data.get_linear(self.space)
+        n_data = self.data.get_flattened(self.space)
         self.points = n_data.copy() # Save a copy of the points, unmodified.
 
         if center is None:
@@ -170,7 +170,7 @@ class Gamut:
             bool_array = np.zeros(shape, bool)                  # Create a bool array for storing the results.
             bool_array = bool_array.flatten()
 
-            n_data = c_data.get_linear(sp)
+            n_data = c_data.get_flattened(sp)
 
             for i in range(0, bool_array.shape[0]):  # Call feito
                 bool_array[i] = self._is_inside(n_data[i])
@@ -600,7 +600,7 @@ class Gamut:
         sp : space.Space
             The colour space for computing the gamut.
         """
-        nd_data = self.data.get_linear(sp)              # Creates a new ndarray with points
+        nd_data = self.data.get_flattened(sp)              # Creates a new ndarray with points
         points = self.get_vertices(nd_data)             # ndarray with all the vertices
         x = points[:, 0]
         y = points[:, 1]
@@ -819,7 +819,7 @@ class Gamut:
         if center is None:                          # If no center is defined, use geometric center.
             center = self.center
 
-        re_data = c_data.get_linear(sp)             # Get linearised colour data
+        re_data = c_data.get_flattened(sp)             # Get flattened colour data
 
         for i in range(0, re_data.shape[0]):        # Do _intersection_in_line
             re_data[i] = self._intersection_in_line(sp, re_data[i], center)
@@ -845,7 +845,7 @@ class Gamut:
             Returns the nearest point.
         """
 
-        new_points = self.data.get_linear(sp)          # Converts gamut to new space
+        new_points = self.data.get_flattened(sp)          # Converts gamut to new space
         alpha = []                                     # a list for all the alpha variables we get
         for i in self.hull.simplices:                  # Loops for all the simplexes
             points = []                                # A list for all the points coordinates
@@ -906,7 +906,7 @@ class Gamut:
         """
 
         shape = c_data.get(sp).shape   # Save the original shape of the points.
-        points = c_data.get_linear(sp)
+        points = c_data.get_flattened(sp)
         p_min = 9001
         p_max = 0
 
@@ -954,8 +954,8 @@ class Gamut:
             The clipped data points.
         """
 
-        # Get linearised colour data
-        re_data = c_data.get_linear(sp)
+        # Get flattened colour data
+        re_data = c_data.get_flattened(sp)
 
         # Do _intersection_in_line
         for i in range(0, re_data.shape[0]):
@@ -980,7 +980,7 @@ class Gamut:
             The nearest point.
         """
 
-        gam = self.data.get_linear(sp)                      # Converts gamut to new space
+        gam = self.data.get_flattened(sp)                      # Converts gamut to new space
         new_dis = 9001                                      # High value for use in the if
         point = None
 
@@ -1203,7 +1203,7 @@ class Gamut:
         # Colour data in cielab.
         sp = data.space.cielab
 
-        # Get linearised colour data
+        # Get flattened colour data
         re_data = c_data.get(sp)
 
         # Returns true/false for points inside/outside as bool array.
