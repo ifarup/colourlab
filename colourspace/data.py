@@ -195,7 +195,6 @@ class Vectors:
             The colour points for the given vector data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
-
         """
         self.points = None
         self.vectors = None
@@ -223,7 +222,6 @@ class Vectors:
         -------
         ndata : ndarray
             P x C array of colour data, P = M * ... * N
-
         """
         sh = np.shape(ndata)
         sh_array = np.array(sh)
@@ -248,7 +246,6 @@ class Vectors:
             The colour points for the given tensor data.
         vectors_ndata : ndarray
             The vector data in the given colour space at the given points.
-
         """
 
         self.points = points_data

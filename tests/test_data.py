@@ -38,10 +38,24 @@ col4 = np.array([[[1e-10, 1e-10, 1e-10],
                   [.95, 1., 1.08],
                   [.5, .5, .5]]])
 
+vec1 = np.random.rand(col1.shape[0])
+vec2 = np.random.rand(col2.shape[0],
+                      col2.shape[1])
+vec3 = np.random.rand(col3.shape[0],
+                      col3.shape[1])
+vec4 =  np.random.rand(col4.shape[0],
+                       col4.shape[1],
+                       col4.shape[2])
+
 d1 = data.Points(space.xyz, col1)
 d2 = data.Points(space.xyz, col2)
 d3 = data.Points(space.xyz, col3)
 d4 = data.Points(space.xyz, col4)
+
+v1 = data.Vectors(space.xyz, d1, vec1)
+v2 = data.Vectors(space.xyz, d2, vec2)
+v3 = data.Vectors(space.xyz, d3, vec3)
+v4 = data.Vectors(space.xyz, d4, vec4)
 
 
 class TestPoints(unittest.TestCase):
@@ -82,7 +96,20 @@ class TestPoints(unittest.TestCase):
                     data.white_D50).get(space.cielab)))
 
 
-# class TestVectors(unittest.TestCase):
+class TestVectors(unittest.TestCase):
+
+    def test_get(self):
+        self.assertEqual(v1.get(space.xyz).shape, (3, ))
+        self.assertEqual(v2.get(space.xyz).shape, (1, 3))
+        self.assertEqual(v3.get(space.xyz).shape, (3, 3))
+        self.assertEqual(v4.get(space.xyz).shape, (2, 3, 3))
+        
+
+    def test_get_flattened(self):
+        self.assertEqual(v1.get_flattened(space.xyz).shape, (1, 3))
+        self.assertEqual(v2.get_flattened(space.xyz).shape, (1, 3))
+        self.assertEqual(v3.get_flattened(space.xyz).shape, (3, 3))
+        self.assertEqual(v4.get_flattened(space.xyz).shape, (6, 3))
 
 
 # class TestTensors(unittest.TestCase):
