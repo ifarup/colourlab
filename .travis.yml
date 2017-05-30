@@ -8,7 +8,7 @@ install:
   - pip install numpy scipy matplotlib codecov
 
 script:
-  - coverage run --source=colour -m unittest
+  - coverage run --source=colourspace -m unittest
 
 after_success:
   - codecov
