@@ -1032,7 +1032,7 @@ def m_rit_dupont_T50():
     rit_dupont : dict
         Dictionary with two datasets and dV.
     """
-    dat = read_csv_file('metric_data/Points_RIT-DuPont.csv')
+    dat = read_csv_file('metric_data/Data_RIT-DuPont.csv')
     rit_dupont = dict()
     rit_dupont['data1'] = Points(space.cielab, dat[:, 0:3].copy())
     rit_dupont['data2'] = Points(space.cielab, dat[:, 3:6].copy())

@@ -160,3 +160,5 @@ class TestFunctions(unittest.TestCase):
     def test_m_functions(self):
         r = data.m_rit_dupont()
         self.assertIsInstance(r, dict)
+        r = data.m_rit_dupont_T50()
+        self.assertIsInstance(r, dict)
