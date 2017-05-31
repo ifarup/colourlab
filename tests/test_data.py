@@ -124,14 +124,12 @@ class TestVectors(unittest.TestCase):
         self.assertEqual(v2.get(space.xyz).shape, (1, 3))
         self.assertEqual(v3.get(space.xyz).shape, (3, 3))
         self.assertEqual(v4.get(space.xyz).shape, (2, 3, 3))
-        
 
     def test_get_flattened(self):
         self.assertEqual(v1.get_flattened(space.xyz).shape, (1, 3))
         self.assertEqual(v2.get_flattened(space.xyz).shape, (1, 3))
         self.assertEqual(v3.get_flattened(space.xyz).shape, (3, 3))
         self.assertEqual(v4.get_flattened(space.xyz).shape, (6, 3))
-
 
     def test_implicit_convert(self):
         lab1 = v1.get(space.cielab)
@@ -155,6 +153,11 @@ class TestTensors(unittest.TestCase):
         self.assertEqual(t3.get(space.xyz).shape, (3, 3, 3))
         self.assertEqual(t4.get(space.xyz).shape, (2, 3, 3, 3))
 
+    def test_get_flattened(self):
+        self.assertEqual(t1.get_flattened(space.xyz).shape, (1, 3, 3))
+        self.assertEqual(t2.get_flattened(space.xyz).shape, (1, 3, 3))
+        self.assertEqual(t3.get_flattened(space.xyz).shape, (3, 3, 3))
+        self.assertEqual(t4.get_flattened(space.xyz).shape, (6, 3, 3))
 
 class TestFunctions(unittest.TestCase):
 
