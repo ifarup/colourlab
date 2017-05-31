@@ -26,6 +26,8 @@ from colourspace import data, space
 
 # Global constants for use in the tests
 
+# ndarray data
+
 col1 = np.array([.5, .5, .5])
 col2 = np.array([[.5, .5, .5]])
 col3 = np.array([[1e-10, 1e-10, 1e-10],
@@ -47,6 +49,18 @@ vec4 =  np.random.rand(col4.shape[0],
                        col4.shape[1],
                        col4.shape[2])
 
+tens1 = np.random.rand(col1.shape[0], 3)
+tens2 = np.random.rand(col2.shape[0],
+                       col2.shape[1], 3)
+tens3 = np.random.rand(col3.shape[0],
+                       col3.shape[1], 3)
+tens4 =  np.random.rand(col4.shape[0],
+                       col4.shape[1],
+                        col4.shape[2], 3)
+
+
+# data.XXX objects
+
 d1 = data.Points(space.xyz, col1)
 d2 = data.Points(space.xyz, col2)
 d3 = data.Points(space.xyz, col3)
@@ -57,6 +71,13 @@ v2 = data.Vectors(space.xyz, d2, vec2)
 v3 = data.Vectors(space.xyz, d3, vec3)
 v4 = data.Vectors(space.xyz, d4, vec4)
 
+t1 = data.Tensors(space.xyz, d1, tens1)
+t2 = data.Tensors(space.xyz, d2, tens2)
+t3 = data.Tensors(space.xyz, d3, tens3)
+t4 = data.Tensors(space.xyz, d4, tens4)
+
+
+# Tests
 
 class TestPoints(unittest.TestCase):
 
@@ -126,7 +147,13 @@ class TestVectors(unittest.TestCase):
         self.assertTrue(np.allclose(vec3, vv3.get(space.xyz)))
         self.assertTrue(np.allclose(vec4, vv4.get(space.xyz)))
 
-# class TestTensors(unittest.TestCase):
+class TestTensors(unittest.TestCase):
+
+    def test_get(self):
+        self.assertEqual(t1.get(space.xyz).shape, (3, 3))
+        self.assertEqual(t2.get(space.xyz).shape, (1, 3, 3))
+        self.assertEqual(t3.get(space.xyz).shape, (3, 3, 3))
+        self.assertEqual(t4.get(space.xyz).shape, (2, 3, 3, 3))
 
 
 class TestFunctions(unittest.TestCase):
