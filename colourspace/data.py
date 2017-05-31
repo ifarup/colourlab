@@ -183,7 +183,7 @@ class Vectors:
     Class for keeping contravariant vector data in various colour spaces.
     """
 
-    def __init__(self, sp, points_data, vectors_ndata):
+    def __init__(self, sp, vectors_ndata, points_data):
         """
         Construct new instance and set colour space and data.
 
@@ -191,16 +191,16 @@ class Vectors:
         ----------
         sp: space.Space
            The colour space for the given vector data
-        points_data : space.Points
-            The colour points for the given vector data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
+        points_data : space.Points
+            The colour points for the given vector data.
         """
         self.points = None
         self.vectors = None
         self.sh = None
         self.flattened_XYZ = None
-        self.set(sp, points_data, vectors_ndata)
+        self.set(sp, vectors_ndata, points_data)
 
     def flatten(self, ndata):
         # type: (object) -> object
@@ -229,7 +229,7 @@ class Vectors:
         C_data = sh[len(sh) - 1]
         return np.reshape(ndata, [P_data, C_data])
 
-    def set(self, sp, points_data, vectors_ndata):
+    def set(self, sp, vectors_ndata, points_data):
         """
         Set colour sp, points, and vectorss data.
 
@@ -242,10 +242,10 @@ class Vectors:
         ----------
         sp : space.Space
             The colour space for the given tensor data.
-        points_data : data.Points
-            The colour points for the given tensor data.
         vectors_ndata : ndarray
             The vector data in the given colour space at the given points.
+        points_data : data.Points
+            The colour points for the given tensor data.
         """
 
         self.points = points_data
@@ -323,7 +323,7 @@ class Tensors:
     plane_aL = plane_10
     plane_bL = plane_20
 
-    def __init__(self, sp, points_data, metrics_ndata):
+    def __init__(self, sp, metrics_ndata, points_data):
         """
         Construct new instance and set colour space and data.
 
@@ -331,16 +331,16 @@ class Tensors:
         ----------
         sp : space.Space
             The colour space for the given tensor data.
-        points_data : data.Points
-            The colour points for the given tensor data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
+        points_data : data.Points
+            The colour points for the given tensor data.
         """
         self.points = None
         self.metrics = None
         self.sh = None
         self.flattened_XYZ = None
-        self.set(sp, points_data, metrics_ndata)
+        self.set(sp, metrics_ndata, points_data)
 
     def flatten(self, ndata):
         """
@@ -367,7 +367,7 @@ class Tensors:
         C_data = sh[len(sh) - 2:]
         return np.reshape(ndata, [P_data, C_data[0], C_data[1]])
 
-    def set(self, sp, points_data, metrics_ndata):
+    def set(self, sp, metrics_ndata, points_data):
         """
         Set colour sp, points, and metrics data.
 
@@ -380,10 +380,10 @@ class Tensors:
         ----------
         sp : space.Space
             The colour space for the given tensor data.
-        points_data : data.Points
-            The colour points for the given tensor data.
         metrics_ndata : ndarray
             The tensor data in the given colour space at the given points.
+        points_data : data.Points
+            The colour points for the given tensor data.
         """
         self.points = points_data
         self.metrics = dict()
@@ -810,7 +810,7 @@ def g_MacAdam():
     g[:, 2, 2] = 1e3            # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return Tensors(space.xyY, points, g)
+    return Tensors(space.xyY, g, points)
 
 
 def g_three_observer():
@@ -851,7 +851,7 @@ def g_three_observer():
     g[:, 2, 2] = 1e3            # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return Tensors(space.xyY, points, g)
+    return Tensors(space.xyY, g, points)
 
 
 def g_Melgosa_Lab():
@@ -899,7 +899,7 @@ def g_Melgosa_Lab():
     m_Lab_metric[:, 2, 0] = m_gLb
     m_Lab_metric[:, 1, 2] = m_gab
     m_Lab_metric[:, 2, 1] = m_gab
-    return Tensors(space.cielab, d_Melgosa(), m_Lab_metric)
+    return Tensors(space.cielab, m_Lab_metric, d_Melgosa())
 
 
 def g_Melgosa_xyY():
@@ -943,7 +943,7 @@ def g_Melgosa_xyY():
     m_xyY_metric[:, 1, 2] = m_g23
     m_xyY_metric[:, 2, 1] = m_g23
     m_xyY_metric = 1e4*m_xyY_metric
-    return Tensors(space.xyY, d_Melgosa(), m_xyY_metric)
+    return Tensors(space.xyY, m_xyY_metric, d_Melgosa())
 
 
 def g_BFD(dataset='P'):
@@ -991,7 +991,7 @@ def g_BFD(dataset='P'):
     g[:, 2, 2] = 1e3            # arbitrary!
     g[:, 0, 1] = g12
     g[:, 1, 0] = g12
-    return Tensors(space.xyY, points, g)
+    return Tensors(space.xyY, g, points)
 
 
 # =============================================================================

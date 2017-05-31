@@ -24,9 +24,7 @@ import unittest
 import numpy as np
 from colourspace import data, space
 
-# Global constants for use in the tests
-
-# ndarray data
+# Test data
 
 col1 = np.array([.5, .5, .5])
 col2 = np.array([[.5, .5, .5]])
@@ -40,16 +38,16 @@ col4 = np.array([[[1e-10, 1e-10, 1e-10],
                   [.95, 1., 1.08],
                   [.5, .5, .5]]])
 
-vec1 = np.random.rand(col1.shape[0])
-vec2 = np.random.rand(col2.shape[0],
-                      col2.shape[1])
-vec3 = np.random.rand(col3.shape[0],
-                      col3.shape[1])
-vec4 =  np.random.rand(col4.shape[0],
-                       col4.shape[1],
-                       col4.shape[2])
+vec1 = .1 * np.random.rand(col1.shape[0])
+vec2 = .1 * np.random.rand(col2.shape[0],
+                           col2.shape[1])
+vec3 = .1 * np.random.rand(col3.shape[0],
+                           col3.shape[1])
+vec4 = .1 * np.random.rand(col4.shape[0],
+                           col4.shape[1],
+                           col4.shape[2])
 
-tens1 = np.random.rand(col1.shape[0], 3)
+tens1 = np.eye(3)
 tens2 = np.random.rand(col2.shape[0],
                        col2.shape[1], 3)
 tens3 = np.random.rand(col3.shape[0],
@@ -59,22 +57,20 @@ tens4 =  np.random.rand(col4.shape[0],
                         col4.shape[2], 3)
 
 
-# data.XXX objects
-
 d1 = data.Points(space.xyz, col1)
 d2 = data.Points(space.xyz, col2)
 d3 = data.Points(space.xyz, col3)
 d4 = data.Points(space.xyz, col4)
 
-v1 = data.Vectors(space.xyz, d1, vec1)
-v2 = data.Vectors(space.xyz, d2, vec2)
-v3 = data.Vectors(space.xyz, d3, vec3)
-v4 = data.Vectors(space.xyz, d4, vec4)
+v1 = data.Vectors(space.xyz, vec1, d1)
+v2 = data.Vectors(space.xyz, vec2, d2)
+v3 = data.Vectors(space.xyz, vec3, d3)
+v4 = data.Vectors(space.xyz, vec4, d4)
 
-t1 = data.Tensors(space.xyz, d1, tens1)
-t2 = data.Tensors(space.xyz, d2, tens2)
-t3 = data.Tensors(space.xyz, d3, tens3)
-t4 = data.Tensors(space.xyz, d4, tens4)
+t1 = data.Tensors(space.cielab, tens1, d1)
+t2 = data.Tensors(space.xyz, tens2, d2)
+t3 = data.Tensors(space.xyz, tens3, d3)
+t4 = data.Tensors(space.xyz, tens4, d4)
 
 
 # Tests
@@ -136,14 +132,15 @@ class TestVectors(unittest.TestCase):
         lab2 = v2.get(space.cielab)
         lab3 = v3.get(space.cielab)
         lab4 = v4.get(space.cielab)
-        vv1 = data.Vectors(space.cielab, d1, lab1)
-        vv2 = data.Vectors(space.cielab, d2, lab2)
-        vv3 = data.Vectors(space.cielab, d3, lab3)
-        vv4 = data.Vectors(space.cielab, d4, lab4)
+        vv1 = data.Vectors(space.cielab, lab1, d1)
+        vv2 = data.Vectors(space.cielab, lab2, d2)
+        vv3 = data.Vectors(space.cielab, lab3, d3)
+        vv4 = data.Vectors(space.cielab, lab4, d4)
         self.assertTrue(np.allclose(vec1, vv1.get(space.xyz)))
         self.assertTrue(np.allclose(vec2, vv2.get(space.xyz)))
         self.assertTrue(np.allclose(vec3, vv3.get(space.xyz)))
         self.assertTrue(np.allclose(vec4, vv4.get(space.xyz)))
+
 
 class TestTensors(unittest.TestCase):
 
@@ -158,6 +155,25 @@ class TestTensors(unittest.TestCase):
         self.assertEqual(t2.get_flattened(space.xyz).shape, (1, 3, 3))
         self.assertEqual(t3.get_flattened(space.xyz).shape, (3, 3, 3))
         self.assertEqual(t4.get_flattened(space.xyz).shape, (6, 3, 3))
+
+    def test_implicit_convert(self):
+        xyz1 = t1.get(space.xyz)
+        xyz2 = t2.get(space.xyz)
+        xyz3 = t3.get(space.xyz)
+        xyz4 = t4.get(space.xyz)
+        tt1 = data.Tensors(space.xyz, xyz1, d1)
+        tt2 = data.Tensors(space.xyz, xyz2, d2)
+        tt3 = data.Tensors(space.xyz, xyz3, d3)
+        tt4 = data.Tensors(space.xyz, xyz4, d4)
+        print(tens1)
+        print(tt1.get(space.cielab))
+        print(t1.get(space.cielab))
+        print(t1.points.get(space.cielab))
+        # self.assertTrue(np.allclose(tens1, tt1.get(space.cielab)))
+        # self.assertTrue(np.allclose(tens2, tt2.get(space.cielab)))
+        # self.assertTrue(np.allclose(tens3, tt3.get(space.cielab)))
+        # self.assertTrue(np.allclose(tens4, tt4.get(space.cielab)))
+
 
 class TestFunctions(unittest.TestCase):
 

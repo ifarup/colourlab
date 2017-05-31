@@ -17,7 +17,7 @@ setup(
     ],
     author="Ivar Farup et al.",
     author_email="ivar.farup@ntnu.no",
-    description="Module for colour science and colour imaging",
+    description="Package for colour science and image processing",
     license="GPL3.0",
     url="https://github.com/ifarup/colourspace"
 )
