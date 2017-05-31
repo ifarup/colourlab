@@ -140,6 +140,10 @@ class TestFunctions(unittest.TestCase):
             self.assertIsInstance(n, list)
             self.assertIsInstance(l, np.ndarray)
             self.assertIsInstance(d, data.Points)
+        try:
+            d, n, l = data.d_Munsell('dummy')
+        except Exception as e:
+            self.assertIsInstance(e, RuntimeError)
 
     def test_d_regular(self):
         d = data.d_regular(space.xyz, np.linspace(0, 1, 10),
