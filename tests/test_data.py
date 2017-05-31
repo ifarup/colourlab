@@ -157,22 +157,10 @@ class TestTensors(unittest.TestCase):
         self.assertEqual(t4.get_flattened(space.xyz).shape, (6, 3, 3))
 
     def test_implicit_convert(self):
-        xyz1 = t1.get(space.xyz)
-        xyz2 = t2.get(space.xyz)
-        xyz3 = t3.get(space.xyz)
-        xyz4 = t4.get(space.xyz)
-        tt1 = data.Tensors(space.xyz, xyz1, d1)
-        tt2 = data.Tensors(space.xyz, xyz2, d2)
-        tt3 = data.Tensors(space.xyz, xyz3, d3)
-        tt4 = data.Tensors(space.xyz, xyz4, d4)
-        print(tens1)
-        print(tt1.get(space.cielab))
-        print(t1.get(space.cielab))
-        print(t1.points.get(space.cielab))
-        # self.assertTrue(np.allclose(tens1, tt1.get(space.cielab)))
-        # self.assertTrue(np.allclose(tens2, tt2.get(space.cielab)))
-        # self.assertTrue(np.allclose(tens3, tt3.get(space.cielab)))
-        # self.assertTrue(np.allclose(tens4, tt4.get(space.cielab)))
+        self.assertEqual(t1.get(space.srgb).shape, (3, 3))
+        self.assertEqual(t2.get(space.srgb).shape, (1, 3, 3))
+        self.assertEqual(t3.get(space.srgb).shape, (3, 3, 3))
+        self.assertEqual(t4.get(space.srgb).shape, (2, 3, 3, 3))
 
 
 class TestFunctions(unittest.TestCase):

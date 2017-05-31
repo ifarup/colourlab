@@ -203,7 +203,6 @@ class Vectors:
         self.set(sp, vectors_ndata, points_data)
 
     def flatten(self, ndata):
-        # type: (object) -> object
         """
         Shape the data so that is becomes an PxC matrix or C vector.
 
