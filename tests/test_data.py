@@ -22,6 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import numpy as np
+import matplotlib
 from colourspace import data, space
 
 # Test data
@@ -48,14 +49,10 @@ vec4 = .1 * np.random.rand(col4.shape[0],
                            col4.shape[2])
 
 tens1 = np.eye(3)
-tens2 = np.random.rand(col2.shape[0],
-                       col2.shape[1], 3)
-tens3 = np.random.rand(col3.shape[0],
-                       col3.shape[1], 3)
-tens4 = np.random.rand(col4.shape[0],
-                       col4.shape[1],
-                       col4.shape[2], 3)
-
+tens2 = np.array([np.eye(3)])
+tens3 = np.array([np.eye(3), np.eye(3), np.eye(3)])
+tens4 = np.array([[np.eye(3), np.eye(3), np.eye(3)],
+                  [np.eye(3), np.eye(3), np.eye(3)]])
 
 d1 = data.Points(space.xyz, col1)
 d2 = data.Points(space.xyz, col2)
@@ -167,10 +164,24 @@ class TestTensors(unittest.TestCase):
         ell2 = t2.get_ellipse_parameters(space.xyz)
         ell3 = t3.get_ellipse_parameters(space.xyz)
         ell4 = t4.get_ellipse_parameters(space.xyz)
-        self.assertEqual(ell1.shape, (3,))
+        self.assertEqual(ell1.shape, (1, 3))
         self.assertEqual(ell2.shape, (1, 3))
         self.assertEqual(ell3.shape, (3, 3))
-        self.assertEqual(ell4.shape, (2, 3, 3))
+        self.assertEqual(ell4.shape, (6, 3))
+
+    def test_get_ellipses(self):
+        ell1 = t1.get_ellipses(space.xyz)
+        ell2 = t2.get_ellipses(space.xyz)
+        ell3 = t3.get_ellipses(space.xyz)
+        ell4 = t4.get_ellipses(space.xyz)
+        self.assertEqual(len(ell1), 1)
+        self.assertEqual(len(ell2), 1)
+        self.assertEqual(len(ell3), 3)
+        self.assertEqual(len(ell4), 6)
+        self.assertIsInstance(ell1[0], matplotlib.patches.Ellipse)
+        self.assertIsInstance(ell2[0], matplotlib.patches.Ellipse)
+        self.assertIsInstance(ell3[0], matplotlib.patches.Ellipse)
+        self.assertIsInstance(ell4[0], matplotlib.patches.Ellipse)
 
 
 class TestFunctions(unittest.TestCase):

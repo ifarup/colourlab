@@ -482,7 +482,7 @@ class Tensors:
             a_b_theta[i, 0] = a * scale
             a_b_theta[i, 1] = b * scale
             a_b_theta[i, 2] = theta
-        return np.reshape(a_b_theta, self.points.sh)
+        return a_b_theta
 
     def get_ellipses(self, sp, plane=plane_xy, scale=1):
         """
