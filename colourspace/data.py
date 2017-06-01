@@ -463,10 +463,10 @@ class Tensors:
         a_b_theta : ndarray
             N x 3 array of a, b, theta ellipse parameters.
         """
-        metrics = self.get(sp).copy()
+        metrics = self.get_flattened(sp).copy()
         points = self.points.get_flattened(sp).copy()
         a_b_theta = np.zeros(np.shape(points))
-        metrics = metrics[:, plane, plane]
+        metrics = metrics[..., plane, plane]
         points = points[:, plane]
         for i in range(np.shape(metrics)[0]):
             g11 = metrics[i, 0, 0]
@@ -482,7 +482,7 @@ class Tensors:
             a_b_theta[i, 0] = a * scale
             a_b_theta[i, 1] = b * scale
             a_b_theta[i, 2] = theta
-        return a_b_theta
+        return np.reshape(a_b_theta, self.points.sh)
 
     def get_ellipses(self, sp, plane=plane_xy, scale=1):
         """

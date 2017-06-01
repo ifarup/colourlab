@@ -52,9 +52,9 @@ tens2 = np.random.rand(col2.shape[0],
                        col2.shape[1], 3)
 tens3 = np.random.rand(col3.shape[0],
                        col3.shape[1], 3)
-tens4 =  np.random.rand(col4.shape[0],
+tens4 = np.random.rand(col4.shape[0],
                        col4.shape[1],
-                        col4.shape[2], 3)
+                       col4.shape[2], 3)
 
 
 d1 = data.Points(space.xyz, col1)
@@ -67,7 +67,7 @@ v2 = data.Vectors(space.xyz, vec2, d2)
 v3 = data.Vectors(space.xyz, vec3, d3)
 v4 = data.Vectors(space.xyz, vec4, d4)
 
-t1 = data.Tensors(space.cielab, tens1, d1)
+t1 = data.Tensors(space.xyz, tens1, d1)
 t2 = data.Tensors(space.xyz, tens2, d2)
 t3 = data.Tensors(space.xyz, tens3, d3)
 t4 = data.Tensors(space.xyz, tens4, d4)
@@ -161,6 +161,16 @@ class TestTensors(unittest.TestCase):
         self.assertEqual(t2.get(space.srgb).shape, (1, 3, 3))
         self.assertEqual(t3.get(space.srgb).shape, (3, 3, 3))
         self.assertEqual(t4.get(space.srgb).shape, (2, 3, 3, 3))
+
+    def test_get_ellipse_parameters(self):
+        ell1 = t1.get_ellipse_parameters(space.xyz)
+        ell2 = t2.get_ellipse_parameters(space.xyz)
+        ell3 = t3.get_ellipse_parameters(space.xyz)
+        ell4 = t4.get_ellipse_parameters(space.xyz)
+        self.assertEqual(ell1.shape, (3,))
+        self.assertEqual(ell2.shape, (1, 3))
+        self.assertEqual(ell3.shape, (3, 3))
+        self.assertEqual(ell4.shape, (2, 3, 3))
 
 
 class TestFunctions(unittest.TestCase):
