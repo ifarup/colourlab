@@ -30,11 +30,14 @@ d1 = data.d_regular(space.cielab,
 d2 = data.Points(space.cielab,
                  d1.get(space.cielab) + 1 / np.sqrt(3))
 
+poincare_space = space.TransformPoincareDisk(space.cielab, 100)
+
 class TestMetrics(unittest.TestCase):
     def test_metrics(self):
         for met in [metric.dE_ab, metric.dE_uv,
                     metric.dE_00, metric.dE_DIN99,
                     metric.dE_DIN99b, metric.dE_DIN99c,
-                    metric.dE_DIN99d]:
+                    metric.dE_DIN99d, metric.dE_E]:
             self.assertTrue(np.max(met(d1, d2) < 5))
-        print(np.max(metric.linear(space.cielab, d1, d2, tensor.dE_ab)) < 2)
+        self.assertTrue(np.max(metric.linear(space.cielab, d1, d2, tensor.dE_ab)) < 2)
+        self.assertTrue(np.max(metric.poincare_disk(poincare_space, d1, d2) < 2))
