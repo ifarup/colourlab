@@ -329,24 +329,3 @@ def dE_00(dat1, dat2, k_L=1, k_C=1, k_h=1):
                 (dH / (k_h * S_h))**2 +
                 R_T * d_lch[:, 1] * dH / (k_C * S_C * k_h * S_h))
     return reshape_diff(d, dat1.sh)
-
-
-# =============================================================================
-# Test module
-# =============================================================================
-
-
-def test():
-    """
-    Test module, print results.
-    """
-    print("Metric range (should be close to [1, 1]):")
-    d1 = data.d_regular(space.cielab,
-                        np.linspace(20, 80, 10),
-                        np.linspace(-50, 50, 11),
-                        np.linspace(-50, 50, 11))
-    d2 = data.Points(space.cielab,
-                   d1.get(space.cielab) + 1 / np.sqrt(3))
-    for met in [dE_ab, dE_uv, dE_00, dE_DIN99,
-                dE_DIN99b, dE_DIN99c, dE_DIN99d]:
-        print(met, np.min(met(d1, d2)), np.max(met(d1, d2)))
