@@ -21,7 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import numpy as np
-from colourlab import metric, data, space
+from colourlab import metric, data, space, tensor
 
 d1 = data.d_regular(space.cielab,
                     np.linspace(20, 80, 10),
@@ -37,3 +37,4 @@ class TestMetrics(unittest.TestCase):
                     metric.dE_DIN99b, metric.dE_DIN99c,
                     metric.dE_DIN99d]:
             self.assertTrue(np.max(met(d1, d2) < 5))
+        print(np.max(metric.linear(space.cielab, d1, d2, tensor.dE_ab)) < 2)
