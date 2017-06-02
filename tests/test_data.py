@@ -3,8 +3,7 @@
 """
 test_data: Unittests for all functions in the data module.
 
-Copyright (C) 2017 Ivar Farup, Lars Niebuhr, Sahand Lahafdoozian,
-Nawar Behenam, Jakob Voigt
+Copyright (C) 2017 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import unittest
 import numpy as np
 import matplotlib
-from colourspace import data, space
+from colourlab import data, space
 
 # Test data
 

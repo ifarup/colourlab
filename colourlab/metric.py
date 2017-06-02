@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-metric: Colour metric functions. Part of the colourspace package.
+metric: Colour metric functions. Part of the colourlab package.
 
 Copyright (C) 2013-2017 Ivar Farup
 

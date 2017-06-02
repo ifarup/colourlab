@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=colourspace
+set SPHINXPROJ=colourlab
 
 if "%1" == "" goto help
 

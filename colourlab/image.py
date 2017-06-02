@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-image: Colour image, part of the colourspace package
+image: Colour image, part of the colourlab package
 
 Copyright (C) 2017 Ivar Farup
 

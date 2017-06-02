@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-misc: Various auxilliary functions, part of the colourspace package
+misc: Various auxilliary functions, part of the colourlab package
 
 Copyright (C) 2013-2016 Ivar Farup
 

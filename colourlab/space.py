@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-space: Colour spaces, part of the colour package
+space: Colour spaces, part of the colourlab package
 
 Copyright (C) 2013-2016 Ivar Farup
 

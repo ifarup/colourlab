@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""data: Colour data, part of the colourspace package
+"""data: Colour data, part of the colourlab package
 
 Copyright (C) 2013-2017 Ivar Farup
 

@@ -1,7 +1,7 @@
-colourspace\.data module
+colourlab\.metric module
 ========================
 
-.. automodule:: colourspace.data
+.. automodule:: colourlab.metric
     :members:
     :undoc-members:
     :show-inheritance:

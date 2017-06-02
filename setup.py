@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(
-    name="colourspace",
-    version="1.1.0.dev",
-    packages=['colourspace'],
+    name="colourlab",
+    version="0.1.0.dev",
+    packages=['colourlab'],
     include_package_data=True,
-    package_data={'colourspace': ['colour_data/*',
+    package_data={'colourlab': ['colour_data/*',
                                   'tensor_data/*',
                                   'metric_data/*']},
     install_requires=[
@@ -19,5 +19,5 @@ setup(
     author_email="ivar.farup@ntnu.no",
     description="Package for colour science and image processing",
     license="GPL3.0",
-    url="https://github.com/ifarup/colourspace"
+    url="https://github.com/ifarup/colourlab"
 )

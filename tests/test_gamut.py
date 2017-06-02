@@ -4,7 +4,7 @@
 test_gamut: Unittests for all functions in the gamut module.
 
 Copyright (C) 2017 Lars Niebuhr, Sahand Lahafdoozian, Nawar Behenam,
-Jakob Voigt
+Jakob Voigt, Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import unittest
 import numpy as np
 # import matplotlib.pyplot as plt                 # Used for test_plot, which is commented out.
-from colourspace import data, gamut, space
+from colourlab import data, gamut, space
 
 # Global variables.
 cube = np.array([[0., 0., 0.],      # 0  vertices

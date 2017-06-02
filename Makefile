@@ -1,9 +1,9 @@
 test:
-	coverage run --source=colourspace -m unittest
+	coverage run --source=colourlab -m unittest
 	coverage html
 
 doc:
-	sphinx-apidoc -e -f colourspace -o docs/colourspace
+	sphinx-apidoc -e -f colourlab -o docs/colourlab
 	cd docs && make html
 
 sdist:

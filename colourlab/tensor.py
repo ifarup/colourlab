@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-tensor: Compute colour metric tensors. Part of the colourspace package.
+tensor: Compute colour metric tensors. Part of the colourlab package.
 
 Copyright (C) 2013-2017 Ivar Farup
 

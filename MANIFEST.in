@@ -1,3 +1,3 @@
-include colour/colour_data/*
-include colour/metric_data/*
-include colour/tensor_data/*
+include colourlab/colour_data/*
+include colourlab/metric_data/*
+include colourlab/tensor_data/*

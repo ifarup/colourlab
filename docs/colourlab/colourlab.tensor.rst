@@ -1,7 +1,7 @@
-colourspace\.misc module
+colourlab\.tensor module
 ========================
 
-.. automodule:: colourspace.misc
+.. automodule:: colourlab.tensor
     :members:
     :undoc-members:
     :show-inheritance:

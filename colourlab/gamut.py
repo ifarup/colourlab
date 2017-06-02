@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-gamut: Colour gamut operaions. Part of the colourspace package.
+gamut: Colour gamut operaions. Part of the colourlab package.
 
 Copyright (C) 2013-2017 Ivar Farup, Lars Niebuhr, Sahand Lahafdoozian,
 Nawar Behenam, Jakob Voigt

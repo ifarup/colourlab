@@ -3,8 +3,7 @@
 """
 test_image: Unittests for all functions in the image module.
 
-Copyright (C) 2017 Ivar Farup, Lars Niebuhr, Sahand Lahafdoozian,
-Nawar Behenam, Jakob Voigt
+Copyright (C) 2017 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

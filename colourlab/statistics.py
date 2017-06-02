@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-statistics: Colour metric statistics, part of the colour package
+statistics: Colour metric statistics, part of the colourlab package
 
 Copyright (C) 2013-2016 Ivar Farup
 
