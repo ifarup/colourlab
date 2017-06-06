@@ -45,11 +45,15 @@ col = np.array([[1e-10, 1e-10, 1e-10], [.95, 1., 1.08], [.5, .5, .5]])
 class TestSpace(unittest.TestCase):
 
     def test_predefined_space_transforms(self):
-        test_spaces = [space.xyz, space.xyY, space.cielab, space.cieluv,
-                       space.cielch, space.ipt,
-                       space.din99, space.din99b, space.din99c, space.din99d,
-                       _test_space_cartesian, _test_space_poincare_disk,
-                       _test_space_gamma]
+        test_spaces = [space.xyz, space.xyY, space.cielab,
+                       space.cieluv, space.cielch, space.ipt,
+                       space.din99, space.din99b, space.din99c,
+                       space.din99d,
+                       space.srgb,
+#                       space.lgj_osa,
+#                       space.lgj_e,
+                       _test_space_cartesian,
+                       _test_space_poincare_disk, _test_space_gamma]
         for sp in test_spaces:
             c2 = sp.to_XYZ(sp.from_XYZ(col))
             err = np.max(np.abs(col - c2))
@@ -60,7 +64,8 @@ class TestSpace(unittest.TestCase):
         test_spaces = [space.xyz, space.xyY, space.cielab,
                        space.cieluv, space.cielch, space.ipt,
                        space.ciede00lab, space.din99, space.din99b,
-                       space.din99c, space.din99d,
+                       space.din99c, space.din99d, space.srgb,
+                       space.lgj_osa, space.lgj_e,
                        _test_space_cartesian,
                        _test_space_poincare_disk, _test_space_gamma]
         for sp in test_spaces:
