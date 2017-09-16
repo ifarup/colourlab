@@ -1405,8 +1405,8 @@ class TransformLGJOSA(Transform):
         self.space_xyY = TransformxyY(self.base)
 
     def err_func(self, xyz, lgj):
-        clgj = self.from_base([xyz])
-        diff = clgj - [lgj]
+        clgj = self.from_base(np.reshape(xyz, (1, 3)))
+        diff = clgj - np.reshape(lgj, (1, 3))
         n = np.linalg.norm(diff)
         return n
 
@@ -1433,7 +1433,7 @@ class TransformLGJOSA(Transform):
         for i in range(np.shape(xyz)[0]):
             xyz_guess = xyz[i].copy()
             lgj = ndata[i].copy()
-            xyz[i] = scipy.optimize.fmin(self.err_func, xyz_guess, (lgj, ))
+            xyz[i] = scipy.optimize.fmin(self.err_func, xyz_guess, (lgj,))
         return xyz
 
     def from_base(self, ndata):

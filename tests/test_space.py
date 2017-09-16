@@ -50,8 +50,8 @@ class TestSpace(unittest.TestCase):
                        space.din99, space.din99b, space.din99c,
                        space.din99d,
                        space.srgb,
-#                       space.lgj_osa,
-#                       space.lgj_e,
+                       space.lgj_osa,
+                       space.lgj_e,
                        _test_space_cartesian,
                        _test_space_poincare_disk, _test_space_gamma]
         for sp in test_spaces:
