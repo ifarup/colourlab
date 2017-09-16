@@ -268,39 +268,3 @@ def minimal_dataset_distance(dataset, ground_truth):
     opt_data = _scale_rot_dataset(params, dataset)
     return dataset_distance(opt_data, ground_truth), \
         opt_data, params[0], params[1], params[2]
-
-
-# =============================================================================
-# Test module
-# =============================================================================
-
-
-def test():
-    """
-    Test entire module, and print report.
-    """
-    from . import data, space, metric, tensor
-
-    d1 = data.d_regular(space.cielab,
-                        np.linspace(0, 100, 10),
-                        np.linspace(-100, 100, 21),
-                        np.linspace(-100, 100, 21))
-    d2 = data.Points(space.cielab,
-                   d1.get(space.cielab) + 1)
-    diff = metric.dE_ab(d1, d2)
-    print('Various tests (should be True):')
-    print(stress(diff, diff) == 0)
-    print(stress(diff, diff + 1) < 1e-11)
-    d1 = data.d_regular(space.cielab,
-                        np.linspace(0, 100, 3),
-                        np.linspace(-100, 100, 3),
-                        np.linspace(-100, 100, 3))
-    d2 = data.Points(space.cielab,
-                     d1.get(space.cielab) + 1)
-    t1 = tensor.dE_ab(d1)
-    t2 = data.Tensors(space.cielab,
-                      t1.points,
-                      t1.get(space.cielab) * 2)
-    print('\nOptimising Pant R values (takes some time)...')
-    R, scale = pant_R_values(space.cielab, t1, t2)
-    print(np.max(np.abs(1 - R)) < 1e-4)
