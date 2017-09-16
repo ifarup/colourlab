@@ -21,3 +21,34 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import unittest
+from colourlab import space, data, tensor
+import numpy as np
+
+d = data.d_regular(space.cielab, np.linspace(1, 100, 10),
+                   np.linspace(-100, 100, 21), np.linspace(-100, 100,
+                                                           21))
+ndat = np.shape(d.get_flattened(space.cielab))[0]
+gab = tensor.dE_ab(d)
+guv = tensor.dE_uv(d)
+g00 = tensor.dE_00(d)
+gE = tensor.dE_E(d)
+gD = tensor.poincare_disk(space.TransformPoincareDisk(space.cielab, R=100), d)
+gDIN99 = tensor.dE_DIN99(d)
+gDIN99b = tensor.dE_DIN99b(d)
+gDIN99c = tensor.dE_DIN99c(d)
+gDIN99d = tensor.dE_DIN99d(d)
+
+# Tests
+
+class TestTensor(unittest.TestCase):
+
+    def testShapes(self):
+        self.assertEqual(np.shape(gab.get(space.xyz)), (ndat, 3, 3))
+        self.assertEqual(np.shape(guv.get(space.xyz)), (ndat, 3, 3))
+        self.assertEqual(np.shape(gD.get(space.xyz)),  (ndat, 3, 3))
+        self.assertEqual(np.shape(g00.get(space.xyz)), (ndat, 3, 3))
+        self.assertEqual(np.shape(gE.get(space.xyz)),  (ndat, 3, 3))
+        self.assertEqual(np.shape(gDIN99.get(space.xyz)), (ndat, 3, 3))
+        self.assertEqual(np.shape(gDIN99b.get(space.xyz)), (ndat, 3, 3))
+        self.assertEqual(np.shape(gDIN99c.get(space.xyz)), (ndat, 3, 3))
+        self.assertEqual(np.shape(gDIN99d.get(space.xyz)), (ndat, 3, 3))

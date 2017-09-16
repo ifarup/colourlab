@@ -271,38 +271,3 @@ def poincare_disk(sp, dat):
 #     SVF
 #     CIECAM02
 #     +++
-
-
-# =============================================================================
-# Test module
-# =============================================================================
-
-
-def test():
-    """
-    Test entire module, and print report.
-    """
-    d = data.d_regular(space.cielab,
-                       np.linspace(1, 100, 10),
-                       np.linspace(-100, 100, 21),
-                       np.linspace(-100, 100, 21))
-    ndat = np.shape(d.get_flattened(space.cielab))[0]
-    gab = dE_ab(d)
-    guv = dE_uv(d)
-    g00 = dE_00(d)
-    gE = dE_E(d)
-    gD = poincare_disk(space.TransformPoincareDisk(space.cielab, R=100), d)
-    gDIN99 = dE_DIN99(d)
-    gDIN99b = dE_DIN99b(d)
-    gDIN99c = dE_DIN99c(d)
-    gDIN99d = dE_DIN99d(d)
-    print('Metric shapes (all should be true):')
-    print(np.shape(gab.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(guv.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(gD.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(g00.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(gE.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(gDIN99.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(gDIN99b.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(gDIN99c.get(space.xyz)) == (ndat, 3, 3))
-    print(np.shape(gDIN99d.get(space.xyz)) == (ndat, 3, 3))
