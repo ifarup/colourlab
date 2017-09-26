@@ -75,7 +75,7 @@ class Image(data.Points):
         im = self.get(sp)
         return data.Vectors(sp, .5 * (im[:, self.rjp, :] - im[:, self.rjm, :]), self)
 
-    def structure_tensor(self, sp, g=None, dir='p'):
+    def structure_tensor(self, sp, g=None, dir='p', grey=None):
         """
         Return the structure tensor of the underlying data image point set
 
@@ -90,6 +90,8 @@ class Image(data.Points):
             The metric tensor to use. If not given, uses Euclidean in the current space
         dir : str
             The direction for the finite differences, p (plus), m (minus), c (centered)
+        grey : ndarray Grey scale image for orientation of lightness
+            gradient. If not present, use CIELAB L* channel
 
         Returns
         -------
@@ -100,15 +102,29 @@ class Image(data.Points):
         s22 : ndarray
             The s22 component of the structure tensor of the image data.
         """
+
+        # Greyscale image for orientation of the final eigenvectors
+
+        if grey is None:
+            grey = self.get(space.cielab)[..., 0]
+
+        # Gradient components
+
         if dir == 'p':
             di = self.dip(sp)
             dj = self.djp(sp)
+            gi = grey[self.rip, :] - grey
+            gj = grey[:, self.rjp] - grey
         elif dir == 'm':
             di = self.dim(sp)
             dj = self.djm(sp)
+            gi = grey - grey[self.rim, :]
+            gj = grey - grey[:, self.rjm]
         elif dir == 'c':
             di = self.dic(sp)
             dj = self.djc(sp)
+            gi = .5 * (grey[self.rip, :] - grey[self.rim, :])
+            gj = .5 * (grey[:, self.rjp] - grey[:, self.rjm])
 
         if g is None:
             g = tensor.euclidean(sp, self)
@@ -127,12 +143,20 @@ class Image(data.Points):
 
         # Eigenvectors
 
-        e1x = np.cos(theta1)
-        e1y = np.sin(theta1)
-        e2x = np.cos(theta2)
-        e2y = np.sin(theta2)
+        e1i = np.cos(theta1)
+        e1j = np.sin(theta1)
+        e2i = np.cos(theta2)
+        e2j = np.sin(theta2)
 
-        return s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y
+        # Rotate eigenvectors according to gradient of luminance image
+
+        index = ((e1i * gi + e1j * gj) < 0)
+        e1i[index] = -e1i[index]
+        e1j[index] = -e1j[index]
+        e2i[index] = -e2i[index]
+        e2j[index] = -e2j[index]
+
+        return s11, s12, s22, lambda1, lambda2, e1i, e1j, e2i, e2j
 
     def diffusion_tensor_from_structure(self, s_tuple, param=1e-4, type='invsq'):
         """
