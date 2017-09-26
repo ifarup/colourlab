@@ -537,7 +537,48 @@ class Tensors:
         inner : ndarray
             The inner products (scalars)
         """
-        return misc.inner(self.get(sp), vec1.get(sp), vec2.get(sp))
+        return np.einsum('...ij,...i,...j', self.get(sp),
+                         vec1.get(sp), vec2.get(sp))
+
+    def norm_sq(self, sp, vec):
+        """
+        Compute the squared norm of a vector data set with a given metric tensor.
+
+        The vector set and the tensor data set must have corresponding dimensions.
+
+        Paramters
+        ---------
+        sp : space.Space
+            The space in which to compute the inner product
+        vec: Vectors
+            The vectors
+
+        Returns
+        -------
+        norms: ndarray
+            Array with numerical (scalar) values of the squared norm.
+        """
+        return self.inner(sp, vec, vec)
+    
+    def norm(self, sp, vec):
+        """
+        Compute the norm of a vector data set with a given metric tensor.
+
+        The vector set and the tensor data set must have corresponding dimensions.
+
+        Paramters
+        ---------
+        sp : space.Space
+            The space in which to compute the inner product
+        vec: Vectors
+            The vectors
+
+        Returns
+        -------
+        norms: ndarray
+            Array with numerical (scalar) values of the norm.
+        """
+        return np.sqrt(self.inner(sp, vec, vec))
 
 
 # =============================================================================
