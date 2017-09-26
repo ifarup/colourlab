@@ -40,26 +40,40 @@ class Image(data.Points):
         """
         data.Points.__init__(self, sp, ndata)
 
+        # Dimensions
+        self.M = self.sh[0]
+        self.N = self.sh[1]
+        self.rip = np.r_[np.arange(1, self.M), self.M - 1]
+        self.rim = np.r_[0, np.arange(0, self.M - 1)]
+        self.rjp = np.r_[np.arange(1, self.N), self.N - 1]
+        self.rjm = np.r_[0, np.arange(0, self.N - 1)]
+
     def diff(self, sp, dat):
         return data.Vectors(sp, self, self.get(sp) - dat.get(sp))
 
     def dip(self, sp):
-        return data.Vectors(sp, self, misc.dip(self.get(sp)))
+        im = self.get(sp)
+        return data.Vectors(sp, im[self.rip, ...] - im, self)
 
     def dim(self, sp):
-        return data.Vectors(sp, self, misc.dim(self.get(sp)))
+        im = self.get(sp)
+        return data.Vectors(sp, im - im[self.rim, ...], self)
 
     def dic(self, sp):
-        return data.Vectors(sp, self, misc.dic(self.get(sp)))
+        im = self.get(sp)
+        return data.Vectors(sp, .5 * (im[self.rip, ...] - im[self.rim, ...]), self)
 
     def djp(self, sp):
-        return data.Vectors(sp, self, misc.djp(self.get(sp)))
+        im = self.get(sp)
+        return data.Vectors(sp, im[:, self.rjp, :] - im, self)
 
     def djm(self, sp):
-        return data.Vectors(sp, self, misc.djm(self.get(sp)))
+        im = self.get(sp)
+        return data.Vectors(sp, im - im[:, self.rjm, :], self)
 
     def djc(self, sp):
-        return data.Vectors(sp, self, misc.djc(self.get(sp)))
+        im = self.get(sp)
+        return data.Vectors(sp, .5 * (im[:, self.rjp, :] - im[:, self.rjm, :]), self)
 
     def structure_tensor(self, sp, g=None, dir='p'):
         """
@@ -96,7 +110,7 @@ class Image(data.Points):
             di = self.dic(sp)
             dj = self.djc(sp)
 
-        if g == None:
+        if g is None:
             g = tensor.euclidean(sp, self)
 
         s11 = g.inner(sp, di, di) # components of the structure tensor
@@ -195,7 +209,8 @@ class Image(data.Points):
         """
         return self.diffusion_tensor_from_structure(self.structure_tensor(sp, g, dir), param, type)
 
-    def c2g_anisotropic(self, sp, nit, g=None, param=1e-4, type='invsq', scale=1, dt = .24):
+    def c2g_diffusion(self, sp, nit, g=None, l_minus=True, scale=0,
+                      dt=.24, aniso=True, param=1e-4, type='invsq'):
         """
         Convert colour image to greyscale using anisotropic diffusion
 
@@ -203,17 +218,21 @@ class Image(data.Points):
         ----------
         sp : Space
             Colour space in which to perform the numerical computations
-        g : Tensors
-            The colour metric tensor. If not given, use Euclidean
         nit : int
             Number of iterations to compute
+        g : Tensors
+            The colour metric tensor. If not given, use Euclidean
+        l_minus : bool
+            Use lambda_minus in the computation of the gradient
+        scale : float
+            Distance from black to white according to metric
+        dt : float
+            Time step
         param : float
             The parameter for the nonlinear diffusion function
         type : str
             The type of diffusion function, invsq (inverse square) or
             exp (exponential), see Perona and Malik (1990)
-        scale : float
-            The distance from black to white according to the applied metric
 
         Returns
         -------
@@ -222,25 +241,48 @@ class Image(data.Points):
         """
         s_tuple = self.structure_tensor(sp, g)
         s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y = s_tuple
-        d11, d12, d22 = self.diffusion_tensor_from_structure(s_tuple, param, type)
 
-        vi = e1x * np.sqrt(lambda1 - lambda2) / scale
-        vj = e1y * np.sqrt(lambda1 - lambda2) / scale
+        if l_minus:
+            vi = e1x * np.sqrt(lambda1 - lambda2)
+            vj = e1y * np.sqrt(lambda1 - lambda2)
+        else:
+            vi = e1x * np.sqrt(lambda1)
+            vj = e1y * np.sqrt(lambda1)
+
+        if scale != 0:
+            vi /= scale
+            vj /= scale
 
         grey_image = self.get(space.cielab)[..., 0] / 100
 
-        for i in range(nit):
-            gi = misc.dip(grey_image) - vi
-            gj = misc.djp(grey_image) - vj
+        if aniso:               # anisotropic diffusion
 
-#            ti = d11 * gi + d12 * gj
-#            tj = d12 * gi + d22 * gj
+            d11, d12, d22 = self.diffusion_tensor_from_structure(s_tuple, param, type)
 
-            tv = misc.dim(gi) + misc.djm(gj)
+            for i in range(nit):
+                gi = misc.dip(grey_image) - vi
+                gj = misc.djp(grey_image) - vj
+                
+                ti = d11 * gi + d12 * gj
+                tj = d12 * gi + d22 * gj
 
-            grey_image += dt * tv
-            grey_image[grey_image < 0] = 0
-            grey_image[grey_image > 1] = 1
+                tv = misc.dim(ti) + misc.djm(tj)
+
+                grey_image += dt * tv
+                grey_image[grey_image < 0] = 0
+                grey_image[grey_image > 1] = 1
+
+        else:                   # isotropic diffusion
+
+            for i in range(nit):
+                gi = misc.dip(grey_image) - vi
+                gj = misc.djp(grey_image) - vj
+
+                tv = misc.dim(gi) + misc.djm(gj)
+
+                grey_image += dt * tv
+                grey_image[grey_image < 0] = 0
+                grey_image[grey_image > 1] = 1
 
         return grey_image
 
