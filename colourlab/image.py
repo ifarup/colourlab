@@ -158,9 +158,11 @@ class Image(data.Points):
 
         return s11, s12, s22, lambda1, lambda2, e1i, e1j, e2i, e2j
 
-    def diffusion_tensor_from_structure(self, s_tuple, param=1e-4, type='invsq'):
+    def diffusion_tensor_from_structure(self, s_tuple, param=1e-4,
+                                        type='invsq'):
         """
-        Compute the diffusion tensor coefficients from the structure tensor parameters
+        Compute the diffusion tensor coefficients from the structure
+        tensor parameters
 
         Parameters
         ----------
@@ -199,9 +201,11 @@ class Image(data.Points):
         d11 = D1 * e1x ** 2 + D2 * e2x ** 2
         d12 = D1 * e1x * e1y + D2 * e2x * e2y
         d22 = D1 * e1y ** 2 + D2 * e2y ** 2
+
         return d11, d12, d22
 
-    def diffusion_tensor(self, sp, param=1e-4, g=None, type='invsq', dir='p'):
+    def diffusion_tensor(self, sp, param=1e-4, g=None, type='invsq',
+                         dir='p', grey=None):
         """
         Compute the diffusion tensor coefficients for the underying image point set
 
@@ -231,9 +235,10 @@ class Image(data.Points):
         d22 : ndarray
             The d22 component of the structure tensor of the image data.
         """
-        return self.diffusion_tensor_from_structure(self.structure_tensor(sp, g, dir), param, type)
+        return self.diffusion_tensor_from_structure(
+            self.structure_tensor(sp, g, dir, grey), param, type)
 
-    def c2g_diffusion(self, sp, nit, g=None, l_minus=True, scale=0,
+    def c2g_diffusion(self, sp, nit, g=None, l_minus=True, scale=1,
                       dt=.24, aniso=True, param=1e-4, type='invsq'):
         """
         Convert colour image to greyscale using anisotropic diffusion
@@ -273,38 +278,40 @@ class Image(data.Points):
             vi = e1x * np.sqrt(lambda1)
             vj = e1y * np.sqrt(lambda1)
 
-        if scale != 0:
-            vi /= scale
-            vj /= scale
+        vi /= scale
+        vj /= scale
 
         grey_image = self.get(space.cielab)[..., 0] / 100
+        # grey_image = .5 * np.ones(np.shape(grey_image))
 
         if aniso:               # anisotropic diffusion
 
             d11, d12, d22 = self.diffusion_tensor_from_structure(s_tuple, param, type)
 
             for i in range(nit):
-                gi = misc.dip(grey_image) - vi
-                gj = misc.djp(grey_image) - vj
+                gi = grey_image[self.rip, :] - grey_image - vi
+                gj = grey_image[:, self.rjp] - grey_image - vj
                 
                 ti = d11 * gi + d12 * gj
                 tj = d12 * gi + d22 * gj
 
-                tv = misc.dim(ti) + misc.djm(tj)
+                tv = ti - ti[self.rim, :] + tj - tj[:, self.rjm]
 
                 grey_image += dt * tv
+
                 grey_image[grey_image < 0] = 0
                 grey_image[grey_image > 1] = 1
 
         else:                   # isotropic diffusion
 
             for i in range(nit):
-                gi = misc.dip(grey_image) - vi
-                gj = misc.djp(grey_image) - vj
-
-                tv = misc.dim(gi) + misc.djm(gj)
+                gi = grey_image[self.rip, :] - grey_image - vi
+                gj = grey_image[:, self.rjp] - grey_image - vj
+                
+                tv = gi - gi[self.rim, :] + gj - gj[:, self.rjm]
 
                 grey_image += dt * tv
+
                 grey_image[grey_image < 0] = 0
                 grey_image[grey_image > 1] = 1
 
