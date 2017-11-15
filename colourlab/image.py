@@ -281,6 +281,13 @@ class Image(data.Points):
         vi /= scale
         vj /= scale
 
+        vmax = max(np.abs(vi).max(), np.abs(vj).max())
+        print(vmax)
+        if vmax > 1:
+            vi /= vmax
+            vj /= vmax
+
+
         grey_image = self.get(space.cielab)[..., 0] / 100
         # grey_image = .5 * np.ones(np.shape(grey_image))
 
