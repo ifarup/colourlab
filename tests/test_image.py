@@ -24,6 +24,7 @@ import numpy as np
 from colourlab import image, space
 
 im = image.Image(space.srgb, np.random.rand(5, 5, 3))
+im2 = image.Image(space.srgb, np.random.rand(5, 5, 3))
 
 class TestImage(unittest.TestCase):
 
@@ -32,5 +33,17 @@ class TestImage(unittest.TestCase):
         self.assertTrue(isinstance(im_stress, image.Image))
 
     def test_c2g(self):
-        g = im.c2g_diffusion(space.srgb, 5)
-        self.assertTrue(isinstance(g, np.ndarray))
+        g1 = im.c2g_diffusion(space.srgb, 5)
+        self.assertTrue(isinstance(g1, np.ndarray))
+        g2 = im.c2g_diffusion(space.srgb, 5, l_minus=False)
+        self.assertTrue(isinstance(g2, np.ndarray))
+        g3 = im.c2g_diffusion(space.srgb, 5, aniso=False)
+        self.assertTrue(isinstance(g3, np.ndarray))
+
+    def test_diffusion_tensor(self):
+        d1 = im.diffusion_tensor(space.srgb, type='exp', dir='m')
+        self.assertTrue(isinstance(d1[0], np.ndarray))
+        self.assertEqual(len(d1), 3)
+        d2 = im.diffusion_tensor(space.srgb, type='exp', dir='c')
+        self.assertTrue(isinstance(d1[0], np.ndarray))
+        self.assertEqual(len(d1), 3)
