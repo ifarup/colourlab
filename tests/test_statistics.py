@@ -32,19 +32,24 @@ d1 = data.d_regular(space.cielab,
 d2 = data.Points(space.cielab,
                  d1.get(space.cielab) + 1)
 diff = metric.dE_ab(d1, d2)
+
 d3 = data.d_regular(space.cielab,
                     np.linspace(0, 100, 3),
                     np.linspace(-100, 100, 3),
                     np.linspace(-100, 100, 3))
 d4 = data.Points(space.cielab,
-                 d1.get(space.cielab) + 1)
+                 d3.get(space.cielab) + 1)
+
 t3 = tensor.dE_ab(d3)
 t4 = data.Tensors(space.cielab,
                   t3.get(space.cielab) * 2,
                   t3.points)
+
 R, scale = statistics.pant_R_values(space.cielab, t3, t4)
 R_plane, scale = statistics.pant_R_values(space.cielab, t3, t4, plane=t3.plane_01)
 R_nonopt, scale = statistics.pant_R_values(space.cielab, t3, t4, optimise=False)
+
+dist = statistics.minimal_dataset_distance(d1.get_flattened(space.cielab), d1.get_flattened(space.cielab))[0]
 
 # Tests
 
@@ -59,3 +64,6 @@ class TestStatistics(unittest.TestCase):
         self.assertTrue(np.max(np.abs(1 - R_plane)) < 1e-4)
         self.assertTrue(np.max(np.abs(.5 - R_nonopt)) < 1e-4)
         
+
+    def testMinimalDistance(self):
+        self.assertTrue(np.max(dist) < 1e-4)
