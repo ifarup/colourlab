@@ -37,8 +37,6 @@ d3 = data.d_regular(space.cielab,
                     np.linspace(0, 100, 3),
                     np.linspace(-100, 100, 3),
                     np.linspace(-100, 100, 3))
-d4 = data.Points(space.cielab,
-                 d3.get(space.cielab) + 1)
 
 t3 = tensor.dE_ab(d3)
 t4 = data.Tensors(space.cielab,
