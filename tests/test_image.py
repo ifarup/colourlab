@@ -30,3 +30,7 @@ class TestImage(unittest.TestCase):
     def test_stress(self):
         im_stress = im.stress(space.srgb)
         self.assertTrue(isinstance(im_stress, image.Image))
+
+    def test_c2g(self):
+        g = im.c2g_diffusion(space.srgb, 5)
+        self.assertTrue(isinstance(g, np.ndarray))
