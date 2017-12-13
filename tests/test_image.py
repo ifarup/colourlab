@@ -20,3 +20,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import unittest
+import numpy as np
+from colourlab import image, space
+
+im = image.Image(space.srgb, np.random.rand(5, 5, 3))
+
+class TestImage(unittest.TestCase):
+
+    def test_stress(self):
+        im_stress = im.stress(space.srgb)
+        self.assertTrue(isinstance(im_stress, image.Image))
