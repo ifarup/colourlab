@@ -166,7 +166,7 @@ def pant_R_values(space, tdata1, tdata2, optimise=True, plane=None):
         res = scipy.optimize.fmin(_cost_function_pant, 1, (ell1, ell2))
         return _pant_R_values(ell1, ell2, res[0]), res[0]
     else:
-        return _pant_R_values(ell1, ell2)
+        return _pant_R_values(ell1, ell2), 0
 
 
 def dataset_distance(data1, data2):

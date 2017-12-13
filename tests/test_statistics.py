@@ -43,6 +43,8 @@ t4 = data.Tensors(space.cielab,
                   t3.get(space.cielab) * 2,
                   t3.points)
 R, scale = statistics.pant_R_values(space.cielab, t3, t4)
+R_plane, scale = statistics.pant_R_values(space.cielab, t3, t4, plane=t3.plane_01)
+R_nonopt, scale = statistics.pant_R_values(space.cielab, t3, t4, optimise=False)
 
 # Tests
 
@@ -54,3 +56,6 @@ class TestStatistics(unittest.TestCase):
 
     def testPant(self):
         self.assertTrue(np.max(np.abs(1 - R)) < 1e-4)
+        self.assertTrue(np.max(np.abs(1 - R_plane)) < 1e-4)
+        self.assertTrue(np.max(np.abs(.5 - R_nonopt)) < 1e-4)
+        
