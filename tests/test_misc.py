@@ -20,3 +20,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import unittest
+import matplotlib
+import matplotlib.pyplot as plt
+from colourlab import misc, space, data
+
+t = data.g_MacAdam()
+ell = t.get_ellipses(space.xyY)
+_, ax = plt.subplots()
+misc.plot_ellipses(ell, ax)
+misc.plot_ellipses(ell)
+
+class TestPlot(unittest.TestCase):
+
+    def test_plot(self):
+        self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
