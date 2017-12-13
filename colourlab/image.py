@@ -49,7 +49,7 @@ class Image(data.Points):
         self.rjm = np.r_[0, np.arange(0, self.N - 1)]
 
     def diff(self, sp, dat):
-        return data.Vectors(sp, self, self.get(sp) - dat.get(sp))
+        return data.Vectors(sp, self.get(sp) - dat.get(sp), self)
 
     def dip(self, sp):
         im = self.get(sp)

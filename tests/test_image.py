@@ -21,7 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import numpy as np
-from colourlab import image, space
+from colourlab import image, space, data
 
 im = image.Image(space.srgb, np.random.rand(5, 5, 3))
 im2 = image.Image(space.srgb, np.random.rand(5, 5, 3))
@@ -47,3 +47,7 @@ class TestImage(unittest.TestCase):
         d2 = im.diffusion_tensor(space.srgb, type='exp', dir='c')
         self.assertTrue(isinstance(d1[0], np.ndarray))
         self.assertEqual(len(d1), 3)
+
+    def test_diff(self):
+        diff = im.diff(space.srgb, im2)
+        self.assertTrue(isinstance(diff, data.Vectors))
