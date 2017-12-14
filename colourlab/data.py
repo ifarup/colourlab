@@ -523,8 +523,8 @@ class Tensors:
 
         The result should in theory be invariant with respect to the colour space.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         sp : space.Space
             The space in which to compute the inner product
         vec1: Vectors
@@ -546,8 +546,8 @@ class Tensors:
 
         The vector set and the tensor data set must have corresponding dimensions.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         sp : space.Space
             The space in which to compute the inner product
         vec: Vectors
@@ -566,8 +566,8 @@ class Tensors:
 
         The vector set and the tensor data set must have corresponding dimensions.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         sp : space.Space
             The space in which to compute the inner product
         vec: Vectors

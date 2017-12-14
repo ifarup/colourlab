@@ -74,7 +74,7 @@ def dE_ab(dat):
     """
     Compute the DEab metric as Tensors for the given data points.
 
-    |eters
+    Parameters
     ----------
     dat : data.Points
         The colour points for which to compute the metric.

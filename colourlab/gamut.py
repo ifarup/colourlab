@@ -330,7 +330,6 @@ class Gamut:
 
         Parameters
         ----------
-
         t : ndarray
             shape(4,3) The four coordinates of the tetrahedron who's
             signed volume is to be calculated
@@ -338,8 +337,8 @@ class Gamut:
         Returns
         -------
         int
-             1 if tetrahedron is POSITIVE orientated(signed volume > 0)
-             0 if volume is 0
+            1  if tetrahedron is POSITIVE orientated(signed volume > 0)
+            0  if volume is 0
             -1 if tetrahedron is NEGATIVE orientated(signed volume < 0)
         """
 
@@ -407,7 +406,7 @@ class Gamut:
         """
         Checks if a point P is on the line segment AB.
 
-        Parametres
+        Parameters
         ----------
         line : ndarray
             line segment from point A to point B
