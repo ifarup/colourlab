@@ -12,6 +12,8 @@ colourlab
 
 .. automodule:: colourlab
 
+**This documentation is currently under construction**
+
 Overview
 ========
 
@@ -23,9 +25,6 @@ available as `Farup I. (2016) A computational framework for colour
 metrics and colour space
 transforms. <https://doi.org/10.7717/peerj-cs.48>`_ *PeerJ Computer
 Science* 2:e48
-
-Modules
--------
 
 The package consists of eight modules:
 
@@ -39,9 +38,6 @@ The package consists of eight modules:
 * :doc:`misc`
 
 All the modules are imported when importing the package.
-
-Representing and Converting Colour Data
----------------------------------------
 
 Basic numerical colour data are represented as numpy arrays of
 dimensions Nx...xMx3. In other words, colour data can be of any
