@@ -27,7 +27,7 @@ import numpy as np
 #         def wrapper(*args, **kwargs):
 #             return func(*args, **kwargs)
 #         return wrapper
-import numba
+from numba import jit
 
 ANGLE_PRIME = 95273        # for LUTs, to be true to the original implementation
 RADIUS_PRIME = 29537       # for LUTs, to be true to the original implementation
