@@ -6,8 +6,8 @@ setup(
     packages=['colourlab'],
     include_package_data=True,
     package_data={'colourlab': ['colour_data/*',
-                                  'tensor_data/*',
-                                  'metric_data/*']},
+                                'tensor_data/*',
+                                'metric_data/*']},
     install_requires=[
         'numpy',
         'scipy',

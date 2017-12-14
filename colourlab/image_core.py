@@ -23,6 +23,7 @@ import numpy as np
 try:                            # Hack to use numba only when installed
     from numba import jit       # (mainly to avoid trouble with Travis)
 except ImportError:
+    print('cannot load numba')
     def jit(func):
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
