@@ -1,5 +1,5 @@
-The colourlab.statistics module
-===============================
+colourlab.statistics
+====================
 
 .. toctree::
    :maxdepth: 2

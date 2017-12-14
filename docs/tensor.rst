@@ -1,5 +1,5 @@
-The colourlab.tensor module
-===========================
+colourlab.tensor
+================
 
 .. toctree::
    :maxdepth: 2

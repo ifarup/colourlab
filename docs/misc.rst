@@ -1,5 +1,5 @@
-The colourlab.misc module
-=========================
+colourlab.misc
+==============
 
 .. toctree::
    :maxdepth: 2

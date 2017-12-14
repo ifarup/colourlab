@@ -1,5 +1,5 @@
-The colourlab.data module
-=========================
+colourlab.data
+==============
 
 .. toctree::
    :maxdepth: 2

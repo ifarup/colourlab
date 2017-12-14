@@ -1,5 +1,5 @@
-The colourlab.image module
-==========================
+colourlab.image
+===============
 
 .. toctree::
    :maxdepth: 2
