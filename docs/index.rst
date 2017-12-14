@@ -7,14 +7,7 @@ colourlab
 =========
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 3
 
-.. automodule:: colourlab
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   colourlab/colourlab.space
+   colourlab/colourlab.data
