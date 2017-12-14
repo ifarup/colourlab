@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-colourlab: Colour spaces, colour metrics and colour data
+colourlab: python package for colour spaces, metrics, data and images
 
 Copyright (C) 2011-2017 Ivar Farup
 
@@ -21,4 +21,5 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # Main file. Just import the other files.
 
-from colourlab import space, data, tensor, metric, statistics, misc, image, gamut
+from colourlab import space, data, tensor, metric, \
+    statistics, misc, image, gamut

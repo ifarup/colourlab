@@ -12,6 +12,21 @@ colourlab
 
 .. automodule:: colourlab
 
+Overview
+========
+
+Modules
+=======
+
+* :doc:`space`
+* :doc:`data`
+* :doc:`tensor`
+* :doc:`metric`
+* :doc:`image`
+* :doc:`gamut`
+* :doc:`statistics`
+* :doc:`misc`
+                
 Indices and tables
 ==================
 

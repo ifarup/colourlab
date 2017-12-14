@@ -36,8 +36,9 @@ if 'sphinx' in sys.modules:     # Hack to make sphinx avoid using @jit
             return func(*args, **kwargs)
         return wrapper
 
-ANGLE_PRIME = 95273        # for LUTs, to be true to the original implementation
-RADIUS_PRIME = 29537       # for LUTs, to be true to the original implementation
+ANGLE_PRIME = 95273        # for LUTs, to be true to the original
+RADIUS_PRIME = 29537       # for LUTs, to be true to the original
+
 
 @jit
 def stress(im, ns=3, nit=5, R=0):
@@ -62,7 +63,7 @@ def stress(im, ns=3, nit=5, R=0):
     range_im : ndarray
         The range image (see paper)
     """
-    theta = np.random.rand(ANGLE_PRIME) * 2 * np.pi # create LUTs
+    theta = np.random.rand(ANGLE_PRIME) * 2 * np.pi  # create LUTs
     lut_cos = np.cos(theta)
     lut_sin = np.sin(theta)
     radiuses = np.random.rand(RADIUS_PRIME)
@@ -76,20 +77,22 @@ def stress(im, ns=3, nit=5, R=0):
     res_v = np.zeros(im.shape)
     res_r = np.zeros(im.shape)
 
-    for i in range(im.shape[0]): # # iterate over image
+    for i in range(im.shape[0]):  # iterate over image
         for j in range(im.shape[1]):
 
-            for it in range(nit): # # iterations
+            for it in range(nit):  # iterations
                 best_min = im[i, j]
                 best_max = best_min
 
-                for s in range(ns): # samples
-                    while True:     # "repeat"
+                for s in range(ns):  # samples
+                    while True:      # "repeat"
                         angle_no = (angle_no + 1) % ANGLE_PRIME
                         radius_no = (radius_no + 1) % RADIUS_PRIME
 
-                        u = i + int(R * radiuses[radius_no] * lut_cos[angle_no])
-                        v = j + int(R * radiuses[radius_no] * lut_sin[angle_no])
+                        u = i + int(R * radiuses[radius_no] *
+                                    lut_cos[angle_no])
+                        v = j + int(R * radiuses[radius_no] *
+                                    lut_sin[angle_no])
 
                         if ((u < im.shape[0]) and
                             (u >= 0) and
