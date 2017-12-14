@@ -12,7 +12,7 @@ setup(
         'numpy',
         'scipy',
         'matplotlib',
-        'numba',
+        # 'numba',
         'sphinxcontrib-napoleon'
     ],
     author="Ivar Farup et al.",
