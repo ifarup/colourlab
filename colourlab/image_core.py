@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
+import sys
 try:                            # Hack to use numba only when installed
     from numba import jit       # (mainly to avoid trouble with Travis)
 except ImportError:
@@ -28,10 +29,14 @@ except ImportError:
             return func(*args, **kwargs)
         return wrapper
 
-def jit(func):
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-    return wrapper
+if 'sphinx' in sys.modules:
+    print('sphinx; forcing dummy @jit')
+    def jit(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return wrapper
+else:
+    print('sphinx not present')
 
 ANGLE_PRIME = 95273        # for LUTs, to be true to the original implementation
 RADIUS_PRIME = 29537       # for LUTs, to be true to the original implementation
