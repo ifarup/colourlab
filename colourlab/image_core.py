@@ -20,19 +20,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-# try:                            # Hack to use numba only when installed
-#     from numba import jit       # (mainly to avoid trouble with Travis)
-# except ImportError:
-#     def jit(func):
-#         def wrapper(*args, **kwargs):
-#             return func(*args, **kwargs)
-#         return wrapper
-from numba import jit
+try:                            # Hack to use numba only when installed
+    from numba import jit       # (mainly to avoid trouble with Travis)
+except ImportError:
+    def jit(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return wrapper
 
 ANGLE_PRIME = 95273        # for LUTs, to be true to the original implementation
 RADIUS_PRIME = 29537       # for LUTs, to be true to the original implementation
 
-@jit
+# @jit
 def stress(im, ns=3, nit=5, R=0):
     """
     Compute the stress image and range.
