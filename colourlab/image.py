@@ -79,8 +79,9 @@ class Image(data.Points):
         """
         Return the structure tensor of the underlying data image point set
 
-        Assumes (for now) that the underlying data constitutes an image, i.e.,
-        is on the shape M x N x 3.
+        Assumes (for now) that the underlying data constitutes an
+        image, i.e., is on the shape M x N x 3. Note that the returned
+        eigenvectors are not oriented in a particular way (+- pi).
 
         Parameters
         ----------
@@ -101,6 +102,18 @@ class Image(data.Points):
             The s12 component of the structure tensor of the image data.
         s22 : ndarray
             The s22 component of the structure tensor of the image data.
+        lambda1 : ndarray
+            The first eigenvalue of the structure tensor
+        lambda2 : ndarray
+            The second eigenvalue of the structure tensor
+        e1i : ndarray
+            The first component of the first eigenvector
+        e1j : ndarray
+            The second component of the first eigenvector
+        e2i : ndarray
+            The first component of the second eigenvector
+        e2j : ndarray
+            The second component of the second eigenvector
         """
 
         # Greyscale image for orientation of the final eigenvectors
