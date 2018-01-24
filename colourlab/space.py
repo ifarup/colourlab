@@ -157,7 +157,8 @@ class Space(object):
             Array of colour metric tensors in XYZ.
         """
         jacobian = self.jacobian_XYZ(points_data)
-        return np.einsum('...ij,...jk,...lk->...ik', jacobian, metrics_ndata, jacobian)
+        return np.einsum('...ij,...ik,...kl->...jl', jacobian,
+                         metrics_ndata, jacobian)
 
     def metrics_from_XYZ(self, points_data, metrics_ndata):
         """
@@ -176,7 +177,8 @@ class Space(object):
             Array of colour metric tensors in the current colour space.
         """
         jacobian = self.inv_jacobian_XYZ(points_data)
-        return np.einsum('...ij,...jk,...lk->...ik', jacobian, metrics_ndata, jacobian)
+        return np.einsum('...ij,...ik,...kl->...jl', jacobian,
+                         metrics_ndata, jacobian)
 
 
 class XYZ(Space):
@@ -1661,12 +1663,12 @@ class TransformLGJE(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        lgj = data.get(self.base)
+        lgj = data.get_flattened(self.base)
         L = lgj[:, 0]
         G = lgj[:, 1]
         J = lgj[:, 2]
         C = np.sqrt(G**2 + J**2)
-        lgj_e = data.get(self)
+        lgj_e = data.get_flattened(self)
         C_E = np.sqrt(lgj_e[:, 1]**2 + lgj_e[:, 2]**2)
         dLE_dL = 10 / (self.aL + 10 * self.bL * L)
         dCE_dC = 10 / (self.ac + 10 * self.bc * C)
@@ -1760,7 +1762,7 @@ class TransformLogCompressL(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        lab = data.get(self.base)
+        lab = data.get_flattened(self.base)
         L = lab[:, 0]
         dLp_dL = self.aL * self.bL / (1 + self.bL * L)
         jac = self.empty_matrix(lab)
@@ -1856,8 +1858,8 @@ class TransformLogCompressC(Transform):
         jacobian : ndarray
             The list of Jacobians to the base colour space.
         """
-        lab = data.get(self.base)
-        lapbp = data.get(self)
+        lab = data.get_flattened(self.base)
+        lapbp = data.get_flattened(self)
         a = lab[:, 1]
         b = lab[:, 2]
         C = np.sqrt(a**2 + b**2)

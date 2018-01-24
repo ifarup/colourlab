@@ -61,7 +61,8 @@ class Image(data.Points):
 
     def dic(self, sp):
         im = self.get(sp)
-        return data.Vectors(sp, .5 * (im[self.rip, ...] - im[self.rim, ...]), self)
+        return data.Vectors(sp, .5 * (im[self.rip, ...] -
+                                      im[self.rim, ...]), self)
 
     def djp(self, sp):
         im = self.get(sp)
@@ -73,7 +74,8 @@ class Image(data.Points):
 
     def djc(self, sp):
         im = self.get(sp)
-        return data.Vectors(sp, .5 * (im[:, self.rjp, :] - im[:, self.rjm, :]), self)
+        return data.Vectors(sp, .5 * (im[:, self.rjp, :] -
+                                      im[:, self.rjm, :]), self)
 
     def structure_tensor(self, sp, g=None, dir='p', grey=None):
         """
@@ -88,9 +90,11 @@ class Image(data.Points):
         sp : Space
             The space in which to perform the computations
         g : Tensors
-            The metric tensor to use. If not given, uses Euclidean in the current space
+            The metric tensor to use. If not given, uses Euclidean in
+            the current space
         dir : str
-            The direction for the finite differences, p (plus), m (minus), c (centered)
+            The direction for the finite differences, p (plus), m
+            (minus), c (centered)
         grey : ndarray Grey scale image for orientation of lightness
             gradient. If not present, use CIELAB L* channel
 
@@ -220,10 +224,10 @@ class Image(data.Points):
     def diffusion_tensor(self, sp, param=1e-4, g=None, type='invsq',
                          dir='p', grey=None):
         """
-        Compute the diffusion tensor coefficients for the underying image point set
+        Compute the diffusion tensor coefficients for the image point set
 
-        Assumes (for now) that the underlying data constitutes an image, i.e.,
-        is on the shape M x N x 3.
+        Assumes (for now) that the underlying data constitutes an
+        image, i.e., is on the shape M x N x 3.
 
         Parameters
         ----------
@@ -237,7 +241,8 @@ class Image(data.Points):
             The type of diffusion function, invsq (inverse square) or
             exp (exponential), see Perona and Malik (1990)
         dir : str
-            The direction for the finite differences, p (plus), m (minus), c (centered)
+            The direction for the finite differences, p (plus), m
+            (minus), c (centered)
 
         Returns
         -------
@@ -252,7 +257,7 @@ class Image(data.Points):
             self.structure_tensor(sp, g, dir, grey), param, type)
 
     def c2g_diffusion(self, sp, nit, g=None, l_minus=True, scale=1,
-                      dt=.24, aniso=True, param=1e-4, type='invsq'):
+                      dt=.25, aniso=True, param=1e-4, type='invsq'):
         """
         Convert colour image to greyscale using anisotropic diffusion
 
@@ -294,15 +299,7 @@ class Image(data.Points):
         vi /= scale
         vj /= scale
 
-        vmax = max(np.abs(vi).max(), np.abs(vj).max())
-        print(vmax)
-        if vmax > 1:
-            vi /= vmax
-            vj /= vmax
-
-
         grey_image = self.get(space.cielab)[..., 0] / 100
-        # grey_image = .5 * np.ones(np.shape(grey_image))
 
         if aniso:               # anisotropic diffusion
 
