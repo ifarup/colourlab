@@ -11,7 +11,7 @@ install:
   - pip install numpy scipy matplotlib codecov
 
 script:
-  - xfvb-run coverage run --source=colourlab -m unittest
+  - xvfb-run coverage run --source=colourlab -m unittest
 
 after_success:
   - codecov
