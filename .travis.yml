@@ -1,5 +1,4 @@
-dist: xenial
-
+dist: bionic
 services:
   - xvfb
 
@@ -11,13 +10,8 @@ python:
 install:
   - pip install numpy scipy matplotlib codecov
 
-before_script: # configure a headless display to test plot generation
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
-
 script:
-  - coverage run --source=colourlab -m unittest
+  - xfvb-run coverage run --source=colourlab -m unittest
 
 after_success:
   - codecov
