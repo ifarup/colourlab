@@ -524,6 +524,145 @@ class TransformxyY(Transform):
         return jac
 
 
+class TransformProjective(Transform):
+    """
+    General projective transform of the XYZ to xyY type.
+    """
+
+    def __init__(self, base, M=np.array([[1, 0, 0], [0, 1, 0], [1, 1, 1], [0, 1, 0]])):
+        """
+        Construct instance.
+
+        Parameters
+        ----------
+        base : Space
+            Base colour space.
+
+        M : ndarray
+            4 x 3 array with the coefficients of the projective transforms, such that
+            x = (M[0, 0] * X + M[0, 1] * Y + M[0, 2] * Z) / denom
+            y = (M[1, 0] * X + M[1, 1] * Y + M[1, 2] * Z) / denom
+            denom = M[2, 0] * X + M[2, 1] * Y + M[2, 2] * Z
+            Y = M[3, 0] * X + M[3, 1] * Y + M[3, 2] * Z
+        """
+        self.M = M
+        super(TransformProjective, self).__init__(base)
+
+    def to_base(self, ndata):
+        """
+        Convert from xyY to XYZ.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the current colour space
+
+        Returns
+        -------
+        col : ndarray
+            Colour data in the base colour space
+        """
+        xyz = np.zeros(np.shape(ndata))
+        x = ndata[:, 0]
+        y = ndata[:, 1]
+        Y = ndata[:, 2]
+        a = self.M[0, 0]
+        b = self.M[0, 1]
+        c = self.M[0, 2]
+        d = self.M[1, 0]
+        e = self.M[1, 1]
+        f = self.M[1, 2]
+        g = self.M[2, 0]
+        h = self.M[2, 1]
+        i = self.M[2, 2]
+        j = self.M[3, 0]
+        k = self.M[3, 1]
+        l = self.M[3, 2]
+        for n in range(xyz.shape[0]):
+            A = np.array([[g * x[n] - a, h * x[n] - b, i * x[n] - c],
+                          [g * y[n] - d, h * y[n] - e, i * y[n] - f],
+                          [j, k, l]])
+            B = np.array([0, 0, Y[n]])
+            XYZ = np.dot(np.linalg.inv(A), B)
+            xyz[n, 0] = XYZ[0]
+            xyz[n, 1] = XYZ[1]
+            xyz[n, 2] = XYZ[2]
+        return xyz
+
+    def from_base(self, ndata):
+        """
+        Convert from XYZ to xyY.
+
+        Parameters
+        ----------
+        ndata : ndarray
+            Colour data in the base colour space.
+
+        Returns
+        -------
+        col : ndarray
+            Colour data in the current colour space.
+        """
+        X = ndata[:, 0]
+        Y = ndata[:, 1]
+        Z = ndata[:, 2]
+        denom = self.M[2,0] * X + self.M[2, 1] * Y + self.M[2, 2] * Z
+        xyY = np.zeros(np.shape(ndata))
+        xyY[:, 0] = (self.M[0, 0] * X + self.M[0, 1] * Y + self.M[0, 2] * Z) / denom # x
+        xyY[:, 1] = (self.M[1, 0] * X + self.M[1, 1] * Y + self.M[1, 2] * Z) / denom # y
+        xyY[:, 2] = self.M[3, 0] * X + self.M[3, 1] * Y + self.M[3, 2] * Z           # Y
+        return xyY
+
+    def jacobian_base(self, data):
+        """
+        Return the Jacobian to XYZ, dxyY^i/dXYZ^j.
+
+        The Jacobian is calculated at the given data points (of the
+        Points class).
+
+        Parameters
+        ----------
+        data : Points
+            Colour data points for the jacobians to be computed.
+
+        Returns
+        -------
+        jacobian : ndarray
+            The list of Jacobians to the base colour space.
+        """
+        a = self.M[0, 0]
+        b = self.M[0, 1]
+        c = self.M[0, 2]
+        d = self.M[1, 0]
+        e = self.M[1, 1]
+        f = self.M[1, 2]
+        g = self.M[2, 0]
+        h = self.M[2, 1]
+        i = self.M[2, 2]
+        j = self.M[3, 0]
+        k = self.M[3, 1]
+        l = self.M[3, 2]
+
+        xyzdata = data.get_flattened(self.base)
+        X = xyzdata[:, 0]
+        Y = xyzdata[:, 1]
+        Z = xyzdata[:, 2]
+        ABC = a * X + b * Y + c * Z
+        DEF = d * X + e * Y + f * Z
+        GHI = g * X + h * Y + i * Z
+        jac = self.empty_matrix(xyzdata)
+        jac[:, 0, 0] = (a * GHI - g * ABC) / GHI**2
+        jac[:, 0, 1] = (b * GHI - h * ABC) / GHI**2
+        jac[:, 0, 2] = (c * GHI - i * ABC) / GHI**2
+        jac[:, 1, 0] = (d * GHI - g * DEF) / GHI**2
+        jac[:, 1, 1] = (e * GHI - h * DEF) / GHI**2
+        jac[:, 1, 2] = (f * GHI - i * DEF) / GHI**2
+        jac[:, 2, 0] = j
+        jac[:, 2, 1] = k
+        jac[:, 2, 2] = l
+        return jac
+
+
 class TransformCIELAB(Transform):
     """
     The XYZ to CIELAB colour space transform.
