@@ -1,17 +1,15 @@
-dist: bionic
-services:
-  - xvfb
+dist: focal
 
 language: python
 
 python:
-  - "3.6"
+  - "3.8"
 
 install:
   - pip install numpy scipy matplotlib codecov
 
 script:
-  - xvfb-run coverage run --source=colourlab -m unittest
+  - coverage run --source=colourlab -m unittest
 
 after_success:
   - codecov
