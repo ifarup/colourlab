@@ -1,7 +1,7 @@
 colourlab
 ===========
 
-[![Build Status](https://travis-ci.org/ifarup/colourlab.svg?branch=master)](https://travis-ci.org/ifarup/colourlab)
+[![Build Status](https://travis-ci.com/ifarup/colourlab.svg?branch=master)](https://travis-ci.com/ifarup/colourlab)
 [![Code Coverage](https://codecov.io/gh/ifarup/colourlab/branch/master/graph/badge.svg)](https://codecov.io/gh/ifarup/colourlab)
 [![Documentation Status](https://readthedocs.org/projects/colourlab/badge/?version=latest)](http://colourlab.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/colourlab.svg)](https://badge.fury.io/py/colourlab)
