@@ -1,5 +1,5 @@
-colourlab\.statistics module
-============================
+colourlab.statistics module
+===========================
 
 .. automodule:: colourlab.statistics
     :members:

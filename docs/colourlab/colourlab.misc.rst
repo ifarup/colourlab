@@ -1,5 +1,5 @@
-colourlab\.misc module
-======================
+colourlab.misc module
+=====================
 
 .. automodule:: colourlab.misc
     :members:

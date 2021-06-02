@@ -1,5 +1,5 @@
-colourlab\.space module
-=======================
+colourlab.space module
+======================
 
 .. automodule:: colourlab.space
     :members:

@@ -1,5 +1,5 @@
-colourlab\.image module
-=======================
+colourlab.image module
+======================
 
 .. automodule:: colourlab.image
     :members:

@@ -1,5 +1,5 @@
-colourlab\.data module
-======================
+colourlab.data module
+=====================
 
 .. automodule:: colourlab.data
     :members:

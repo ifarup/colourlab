@@ -1,5 +1,5 @@
-colourlab\.tensor module
-========================
+colourlab.tensor module
+=======================
 
 .. automodule:: colourlab.tensor
     :members:

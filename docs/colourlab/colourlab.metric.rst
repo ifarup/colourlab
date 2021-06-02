@@ -1,5 +1,5 @@
-colourlab\.metric module
-========================
+colourlab.metric module
+=======================
 
 .. automodule:: colourlab.metric
     :members:

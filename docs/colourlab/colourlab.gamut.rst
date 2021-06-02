@@ -1,5 +1,5 @@
-colourlab\.gamut module
-=======================
+colourlab.gamut module
+======================
 
 .. automodule:: colourlab.gamut
     :members:
