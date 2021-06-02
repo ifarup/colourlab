@@ -43,7 +43,7 @@ RADIUS_PRIME = 29537       # for LUTs, to be true to the original
 @jit
 def stress(im, ns=3, nit=5, R=0):
     """
-    Compute the stress image and range.
+    Compute the stress image and range for a single channel image.
 
     Parameters
     ----------

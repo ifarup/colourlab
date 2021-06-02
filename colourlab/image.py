@@ -259,7 +259,7 @@ class Image(data.Points):
     def c2g_diffusion(self, sp, nit, g=None, l_minus=True, scale=1,
                       dt=.25, aniso=True, param=1e-4, type='invsq'):
         """
-        Convert colour image to greyscale using anisotropic diffusion
+        Convert colour image to greyscale using linear anisotropic diffusion
 
         Parameters
         ----------

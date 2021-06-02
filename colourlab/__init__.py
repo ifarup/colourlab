@@ -3,7 +3,7 @@
 """
 colourlab: python package for colour spaces, metrics, data and images
 
-Copyright (C) 2011-2017 Ivar Farup
+Copyright (C) 2011-2021 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
