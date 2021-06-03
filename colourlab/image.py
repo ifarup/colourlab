@@ -3,7 +3,7 @@
 """
 image: Colour image, part of the colourlab package
 
-Copyright (C) 2017 Ivar Farup
+Copyright (C) 2017-2021 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,41 +43,28 @@ class Image(data.Points):
         # Dimensions
         self.M = self.sh[0]
         self.N = self.sh[1]
-        self.rip = np.r_[np.arange(1, self.M), self.M - 1]
-        self.rim = np.r_[0, np.arange(0, self.M - 1)]
-        self.rjp = np.r_[np.arange(1, self.N), self.N - 1]
-        self.rjm = np.r_[0, np.arange(0, self.N - 1)]
 
-    def diff(self, sp, dat):
-        return data.Vectors(sp, self.get(sp) - dat.get(sp), self)
+    def gradient(self, sp, diff=image_core.diff_centered):
+        """
+        Compute the gradient components in the given colour space
 
-    def dip(self, sp):
+        Parameters
+        ----------
+        sp : colour.space.Space
+            The colour space
+        diff : tuple
+            Tuple with the two filters for the derivatives. Defaults to centered differences
+        
+        Returns
+        -------
+        image.data.Vector : The i component of the gradient as a colour vector
+        image.data.Vector : The j component of the gradient as a colour vector
+        """
         im = self.get(sp)
-        return data.Vectors(sp, im[self.rip, ...] - im, self)
+        gi, gj = image_core.gradient(im, diff)
+        return data.Vectors(sp, gi, self), data.Vectors(sp, gj, self)
 
-    def dim(self, sp):
-        im = self.get(sp)
-        return data.Vectors(sp, im - im[self.rim, ...], self)
-
-    def dic(self, sp):
-        im = self.get(sp)
-        return data.Vectors(sp, .5 * (im[self.rip, ...] -
-                                      im[self.rim, ...]), self)
-
-    def djp(self, sp):
-        im = self.get(sp)
-        return data.Vectors(sp, im[:, self.rjp, :] - im, self)
-
-    def djm(self, sp):
-        im = self.get(sp)
-        return data.Vectors(sp, im - im[:, self.rjm, :], self)
-
-    def djc(self, sp):
-        im = self.get(sp)
-        return data.Vectors(sp, .5 * (im[:, self.rjp, :] -
-                                      im[:, self.rjm, :]), self)
-
-    def structure_tensor(self, sp, g=None, dir='p', grey=None):
+    def structure_tensor(self, sp, g=None, diff=image_core.diff_centered, grey=None):
         """
         Return the structure tensor of the underlying data image point set
 
@@ -92,9 +79,8 @@ class Image(data.Points):
         g : Tensors
             The metric tensor to use. If not given, uses Euclidean in
             the current space
-        dir : str
-            The direction for the finite differences, p (plus), m
-            (minus), c (centered)
+        diff : tuple
+            Tuple with the two filters for the derivatives. Defaults to centered differences
         grey : ndarray Grey scale image for orientation of lightness
             gradient. If not present, use CIELAB L* channel
 
@@ -127,24 +113,15 @@ class Image(data.Points):
 
         # Gradient components
 
-        if dir == 'p':
-            di = self.dip(sp)
-            dj = self.djp(sp)
-            gi = grey[self.rip, :] - grey
-            gj = grey[:, self.rjp] - grey
-        elif dir == 'm':
-            di = self.dim(sp)
-            dj = self.djm(sp)
-            gi = grey - grey[self.rim, :]
-            gj = grey - grey[:, self.rjm]
-        elif dir == 'c':
-            di = self.dic(sp)
-            dj = self.djc(sp)
-            gi = .5 * (grey[self.rip, :] - grey[self.rim, :])
-            gj = .5 * (grey[:, self.rjp] - grey[:, self.rjm])
+        di, dj = self.gradient(sp, diff)
+        gi, gj = image_core.gradient(grey, diff)
+
+        # Metric tensor
 
         if g is None:
             g = tensor.euclidean(sp, self)
+        
+        # The structure tensor
 
         s11 = g.inner(sp, di, di) # components of the structure tensor
         s12 = g.inner(sp, di, dj)
@@ -175,54 +152,7 @@ class Image(data.Points):
 
         return s11, s12, s22, lambda1, lambda2, e1i, e1j, e2i, e2j
 
-    def diffusion_tensor_from_structure(self, s_tuple, param=1e-4,
-                                        type='invsq'):
-        """
-        Compute the diffusion tensor coefficients from the structure
-        tensor parameters
-
-        Parameters
-        ----------
-        s_tuple : tuple
-            The resulting tuple from a call to self.structure_tensor
-        param : float
-            The parameter for the nonlinear diffusion function
-        type : str
-            The type of diffusion function, invsq (inverse square) or
-            exp (exponential), see Perona and Malik (1990)
-
-        Returns
-        -------
-        d11 : ndarray
-            The d11 component of the structure tensor of the image data.
-        d12 : ndarray
-            The d12 component of the structure tensor of the image data.
-        d22 : ndarray
-            The d22 component of the structure tensor of the image data.
-
-        """
-        s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y = s_tuple
-
-        # Diffusion tensor
-
-        if type == 'invsq':
-            def D(lambdax):
-                return 1 / (1 + param * lambdax ** 2)
-        elif type == 'exp':
-            def D(lambdax):
-                return np.exp(-lambdax / param)
-
-        D1 = D(lambda1)
-        D2 = D(lambda2)
-
-        d11 = D1 * e1x ** 2 + D2 * e2x ** 2
-        d12 = D1 * e1x * e1y + D2 * e2x * e2y
-        d22 = D1 * e1y ** 2 + D2 * e2y ** 2
-
-        return d11, d12, d22
-
-    def diffusion_tensor(self, sp, param=1e-4, g=None, type='invsq',
-                         dir='p', grey=None):
+    def diffusion_tensor(self, sp, dpsi_dlambda1=None, dpsi_dlambda2=None, g=None, diff=image_core.diff_centered, grey=None):
         """
         Compute the diffusion tensor coefficients for the image point set
 
@@ -233,16 +163,14 @@ class Image(data.Points):
         ----------
         sp : Space
             The space in which to perform the computations
-        param : float
-            The parameter for the nonlinear diffusion function
+        dpsi_dlambda1 : func
+            The diffusion supression function for the first eigenvalue of the
+            structure tensor. If None, use Perona and Malik's inverse square with
+            kappa = 1e-2.
+        dpsi_dlambda2 : func
+            Same for the second eigenvalue. If None use dpsi_dlambda1
         g: Tensors
             The colour metric tensor. If not given, use Euclidean
-        type : str
-            The type of diffusion function, invsq (inverse square) or
-            exp (exponential), see Perona and Malik (1990)
-        dir : str
-            The direction for the finite differences, p (plus), m
-            (minus), c (centered)
 
         Returns
         -------
@@ -253,11 +181,11 @@ class Image(data.Points):
         d22 : ndarray
             The d22 component of the structure tensor of the image data.
         """
-        return self.diffusion_tensor_from_structure(
-            self.structure_tensor(sp, g, dir, grey), param, type)
+        return image_core.diffusion_tensor_from_structure(
+            self.structure_tensor(sp, g, diff, grey), dpsi_dlambda1, dpsi_dlambda2)
 
     def c2g_diffusion(self, sp, nit, g=None, l_minus=True, scale=1,
-                      dt=.25, aniso=True, param=1e-4, type='invsq'):
+                      dt=.25, dpsi_dlambda1=None, dpsi_dlambda2=None):
         """
         Convert colour image to greyscale using linear anisotropic diffusion
 
@@ -275,11 +203,12 @@ class Image(data.Points):
             Distance from black to white according to metric
         dt : float
             Time step
-        param : float
-            The parameter for the nonlinear diffusion function
-        type : str
-            The type of diffusion function, invsq (inverse square) or
-            exp (exponential), see Perona and Malik (1990)
+        dpsi_dlambda1 : func
+            The diffusion supression function for the first eigenvalue of the
+            structure tensor. If None, use Perona and Malik's inverse square with
+            kappa = 1e-2.
+        dpsi_dlambda2 : func
+            Same for the second eigenvalue. If None use dpsi_dlambda1
 
         Returns
         -------
@@ -301,38 +230,80 @@ class Image(data.Points):
 
         grey_image = self.get(space.cielab)[..., 0] / 100
 
-        if aniso:               # anisotropic diffusion
+        d11, d12, d22 = image_core.diffusion_tensor_from_structure(s_tuple, dpsi_dlambda1, dpsi_dlambda2)
 
-            d11, d12, d22 = self.diffusion_tensor_from_structure(s_tuple, param, type)
+        for i in range(nit):
+            gi, gj = image_core.gradient(grey_image)
+            gi -= vi
+            gj -= vj
+            
+            ti = d11 * gi + d12 * gj
+            tj = d12 * gi + d22 * gj
 
-            for i in range(nit):
-                gi = grey_image[self.rip, :] - grey_image - vi
-                gj = grey_image[:, self.rjp] - grey_image - vj
-                
-                ti = d11 * gi + d12 * gj
-                tj = d12 * gi + d22 * gj
+            tv = image_core.divergence(ti, tj)
 
-                tv = ti - ti[self.rim, :] + tj - tj[:, self.rjm]
+            grey_image += dt * tv
 
-                grey_image += dt * tv
-
-                grey_image[grey_image < 0] = 0
-                grey_image[grey_image > 1] = 1
-
-        else:                   # isotropic diffusion
-
-            for i in range(nit):
-                gi = grey_image[self.rip, :] - grey_image - vi
-                gj = grey_image[:, self.rjp] - grey_image - vj
-                
-                tv = gi - gi[self.rim, :] + gj - gj[:, self.rjm]
-
-                grey_image += dt * tv
-
-                grey_image[grey_image < 0] = 0
-                grey_image[grey_image > 1] = 1
+            grey_image[grey_image < 0] = 0
+            grey_image[grey_image > 1] = 1
 
         return grey_image
+
+    def anisotropic_diffusion(self, sp, nit, dpsi_dlambda1=None, dpsi_dlambda2=None, dt=.25,
+                              linear=True, g=None, christoffel=None, constraint=None):
+        """
+        Compute the anisotropic diffusion of the image.
+
+        Parameters
+        ----------
+        sp : space.Space
+            The colour space in which to perform the diffusion
+        nit : int
+            Number of iterations
+        dpsi_dlambda1 : func
+            The diffusion supression function for the first eigenvalue of the
+            structure tensor. If None, use Perona and Malik's inverse square with
+            kappa = 1e-2.
+        dpsi_dlambda2 : func
+            Same for the second eigenvalue. If None use dpsi_dlambda1
+        linear : bool
+            Linear anisotropic diffusion if true
+        g : data.Tensors # TODO: how to use?
+            The metric tensors of the image. Euclidean if none
+        christoffel : # TODO: how to represent?
+            The Christoffel symbols of the image.
+        constraint : func
+            Function returning the constrained image (e.g., gamut) in sp
+        
+        Returns
+        -------
+        space.Image : the resulting anisotropely diffused image
+        """
+        if constraint==None:
+            constraint = lambda x : x
+        im = self.get(sp).copy()
+        d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g)
+        d11 = np.stack((d11, d11, d11), 2)
+        d12 = np.stack((d12, d12, d12), 2)
+        d22 = np.stack((d22, d22, d22), 2)
+
+        for i in range(nit):
+            gi, gj = image_core.gradient(im, image_core.diff_forward)
+            ti = d11 * gi + d12 * gj
+            tj = d12 * gi + d22 * gj
+            tv = image_core.divergence(ti, tj, image_core.diff_backward)
+
+            im += dt * tv
+
+            im = constraint(im)
+
+            if not linear:
+                d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g)
+                d11 = np.stack((d11, d11, d11), 2)
+                d12 = np.stack((d12, d12, d12), 2)
+                d22 = np.stack((d22, d22, d22), 2)
+
+        return Image(sp, im)
 
     def stress(self, sp_in, sp_out=None, ns=3, nit=5, R=0):
         """
@@ -359,8 +330,6 @@ class Image(data.Points):
         """
         if sp_out is None:
             sp_out = sp_in
-        im_in = self.get(sp_in)
-        im_out = im_in.copy()
-        for c in range(3):
-            im_out[..., c], _ = image_core.stress(im_in[..., c], ns, nit, R)
-        return Image(sp_out, im_out)
+        im = self.get(sp_in)
+        stress_im, _ = image_core.stress(im, ns, nit, R)
+        return Image(sp_out, stress_im)

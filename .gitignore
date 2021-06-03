@@ -1,6 +1,7 @@
 *.py[cod]
 *.egg-info
 .idea/
+.vscode/
 dist/
 .coverage
 htmlcov/
