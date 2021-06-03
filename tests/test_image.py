@@ -56,13 +56,13 @@ class TestImage(unittest.TestCase):
         self.assertTrue(isinstance(e2j, np.ndarray))
 
     def test_diffusion_tensor(self):
-        d1 = im.diffusion_tensor(space.srgb)
+        d1 = im.diffusion_tensor(space.srgb, image_core.dpdl_perona_invsq)
         self.assertTrue(isinstance(d1[0], np.ndarray))
         self.assertEqual(len(d1), 3)
         d2 = im.diffusion_tensor(space.srgb, image_core.dpdl_perona_exp)
         self.assertTrue(isinstance(d2[0], np.ndarray))
         self.assertEqual(len(d2), 3)
-        d3 = im.diffusion_tensor(space.srgb, image_core.dpds_tv)
+        d3 = im.diffusion_tensor(space.srgb, image_core.dpdl_tv)
         self.assertTrue(isinstance(d3[0], np.ndarray))
         self.assertEqual(len(d3), 3)
 

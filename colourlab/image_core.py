@@ -111,7 +111,7 @@ def dpdl_perona_exp(lambd, kappa=1e-2):
     return np.exp(-lambd / kappa**2)
 
 
-def dpds_tv(lambd, epsilon=1e-4):
+def dpdl_tv(lambd, epsilon=1e-4):
     """
     Total variation diffusion supression
 
