@@ -90,7 +90,7 @@ def dpdl_perona_invsq(lambd, kappa=1e-2):
     return 1 / (1 + lambd / kappa**2)
 
 
-def dpdl_perona_exp(lambd, kappa=1e-2):
+def dpdl_perona_exp(lambd, kappa=5e-2):
     """
     Perona and Malik's exponential diffusion supression
 
