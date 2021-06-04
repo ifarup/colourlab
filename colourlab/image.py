@@ -64,7 +64,7 @@ class Image(data.Points):
         gi, gj = image_core.gradient(im, diff)
         return data.Vectors(sp, gi, self), data.Vectors(sp, gj, self)
 
-    def structure_tensor(self, sp, g=None, diff=image_core.diff_centered, grey=None):
+    def structure_tensor(self, sp, g_func=None, diff=image_core.diff_centered, grey=None):
         """
         Return the structure tensor of the underlying data image point set
 
@@ -76,9 +76,9 @@ class Image(data.Points):
         ----------
         sp : Space
             The space in which to perform the computations
-        g : Tensors
-            The metric tensor to use. If not given, uses Euclidean in
-            the current space
+        g_func : func
+            Function computing the metric tensor to use. If not given, uses
+            Euclidean in the given space
         diff : tuple
             Tuple with the two filters for the derivatives. Defaults to centered differences
         grey : ndarray Grey scale image for orientation of lightness
@@ -118,8 +118,10 @@ class Image(data.Points):
 
         # Metric tensor
 
-        if g is None:
+        if g_func is None:
             g = tensor.euclidean(sp, self)
+        else:
+            g = g_func(self)
         
         # The structure tensor
 
@@ -152,7 +154,7 @@ class Image(data.Points):
 
         return s11, s12, s22, lambda1, lambda2, e1i, e1j, e2i, e2j
 
-    def diffusion_tensor(self, sp, dpsi_dlambda1=None, dpsi_dlambda2=None, g=None, diff=image_core.diff_centered, grey=None):
+    def diffusion_tensor(self, sp, dpsi_dlambda1=None, dpsi_dlambda2=None, g_func=None, diff=image_core.diff_centered, grey=None):
         """
         Compute the diffusion tensor coefficients for the image point set
 
@@ -169,8 +171,9 @@ class Image(data.Points):
             kappa = 1e-2.
         dpsi_dlambda2 : func
             Same for the second eigenvalue. If None use dpsi_dlambda1
-        g: Tensors
-            The colour metric tensor. If not given, use Euclidean
+        g_func : func
+            Function computing the metric tensor to use. If not given, uses
+            Euclidean in the given space
 
         Returns
         -------
@@ -182,9 +185,9 @@ class Image(data.Points):
             The d22 component of the structure tensor of the image data.
         """
         return image_core.diffusion_tensor_from_structure(
-            self.structure_tensor(sp, g, diff, grey), dpsi_dlambda1, dpsi_dlambda2)
+            self.structure_tensor(sp, g_func, diff, grey), dpsi_dlambda1, dpsi_dlambda2)
 
-    def c2g_diffusion(self, sp, nit, g=None, l_minus=True, scale=1,
+    def c2g_diffusion(self, sp, nit, g_func=None, l_minus=True, scale=1,
                       dt=.25, dpsi_dlambda1=None, dpsi_dlambda2=None):
         """
         Convert colour image to greyscale using linear anisotropic diffusion
@@ -215,7 +218,7 @@ class Image(data.Points):
         grey_image : ndarray
             Greyscale image (range 0–1)
         """
-        s_tuple = self.structure_tensor(sp, g)
+        s_tuple = self.structure_tensor(sp, g_func)
         s11, s12, s22, lambda1, lambda2, e1x, e1y, e2x, e2y = s_tuple
 
         if l_minus:
@@ -250,7 +253,7 @@ class Image(data.Points):
         return grey_image
 
     def anisotropic_diffusion(self, sp, nit, dpsi_dlambda1=None, dpsi_dlambda2=None, dt=.25,
-                              linear=True, g=None, christoffel=None, constraint=None):
+                              linear=True, g_func=None, christoffel=None, constraint=None):
         """
         Compute the anisotropic diffusion of the image.
 
@@ -268,8 +271,9 @@ class Image(data.Points):
             Same for the second eigenvalue. If None use dpsi_dlambda1
         linear : bool
             Linear anisotropic diffusion if true
-        g : data.Tensors # TODO: how to use?
-            The metric tensors of the image. Euclidean if none
+        g_func : func
+            Function computing the metric tensor to use. If not given, uses
+            Euclidean in the given space
         christoffel : # TODO: how to represent?
             The Christoffel symbols of the image.
         constraint : func
@@ -282,7 +286,7 @@ class Image(data.Points):
         if constraint==None:
             constraint = lambda x : x
         im = self.get(sp).copy()
-        d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g)
+        d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g_func)
         d11 = np.stack((d11, d11, d11), 2)
         d12 = np.stack((d12, d12, d12), 2)
         d22 = np.stack((d22, d22, d22), 2)
@@ -298,7 +302,7 @@ class Image(data.Points):
             im = constraint(im)
 
             if not linear:
-                d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g)
+                d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g_func)
                 d11 = np.stack((d11, d11, d11), 2)
                 d12 = np.stack((d12, d12, d12), 2)
                 d22 = np.stack((d22, d22, d22), 2)
