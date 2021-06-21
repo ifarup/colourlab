@@ -37,6 +37,19 @@ gDIN99 = tensor.dE_DIN99(d)
 gDIN99b = tensor.dE_DIN99b(d)
 gDIN99c = tensor.dE_DIN99c(d)
 gDIN99d = tensor.dE_DIN99d(d)
+dat = data.Points(space.cielch, [50, 10, np.pi/4])
+Gamma = tensor.christoffel(space.cielch,
+                           lambda x : tensor.polar(space.cielch, x),
+                           dat)
+Gamma_expected = np.array([[[0, 0, 0],    
+                            [0, 0, 0],
+                            [0, 0, 0]],
+                           [[0, 0, 0],
+                            [0, 0, 0],
+                            [0, 0, -.1]],
+                           [[0, 0, 0],
+                            [0,  0, 10],
+                            [0,  .1, 0]]])
 
 # Tests
 
@@ -52,3 +65,5 @@ class TestTensor(unittest.TestCase):
         self.assertEqual(np.shape(gDIN99b.get(space.xyz)), (ndat, 3, 3))
         self.assertEqual(np.shape(gDIN99c.get(space.xyz)), (ndat, 3, 3))
         self.assertEqual(np.shape(gDIN99d.get(space.xyz)), (ndat, 3, 3))
+        print(Gamma, Gamma_expected)
+        self.assertAlmostEqual(np.linalg.norm(Gamma - Gamma_expected), 0, delta=1e-4)
