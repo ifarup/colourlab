@@ -71,7 +71,7 @@ def euclidean(sp, dat):
     return construct_tensor(sp, g, dat)
 
 
-def cylindrical(sp, dat):
+def polar(sp, dat):
     """
     Compute the general Euclidean metric in cylindrical coordinates.
 
@@ -94,7 +94,7 @@ def cylindrical(sp, dat):
     points = dat.get_flattened(sp)
     for i in range(np.shape(g)[0]):
         g[i] = np.eye(3)
-        g[i, 2, 2] = points[i, 2]**2
+        g[i, 2, 2] = points[i, 1]**2
     return construct_tensor(sp, g, dat)
 
 
@@ -306,7 +306,7 @@ def poincare_disk(sp, dat):
 # Christoffel symbols
 # =============================================================================
 
-def christoffel(sp, tensor, dat, du=1e-4):
+def christoffel(sp, tensor, dat, du=1e-8):
     """
     Compute the Christoffel symbols numerically.
 
@@ -346,10 +346,10 @@ def christoffel(sp, tensor, dat, du=1e-4):
     datpdxj = data.Points(sp, x + dxj)
     datpdxk = data.Points(sp, x + dxk)
 
-    g = tensor(sp, dat).get(sp)
-    gpdxi = tensor(sp, datpdxi).get(sp)
-    gpdxj = tensor(sp, datpdxj).get(sp)
-    gpdxk = tensor(sp, datpdxk).get(sp)
+    g = tensor(dat).get(sp)
+    gpdxi = tensor(datpdxi).get(sp)
+    gpdxj = tensor(datpdxj).get(sp)
+    gpdxk = tensor(datpdxk).get(sp)
 
     dgdx = np.zeros(np.hstack((np.array(g.shape), 3)))
     dgdx[..., 0] = (gpdxi - g) / du
