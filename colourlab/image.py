@@ -283,11 +283,12 @@ class Image(data.Points):
             Function computing the metric tensor to use. If not given, uses
             Euclidean in the given space
         constraint : func
-            Function returning the constrained image (e.g., gamut) in sp
+            Function returning the constrained image (e.g., gamut or internal
+            boundaries, e.g. CFAs or fixed domains for inpainting) in sp
         
         Returns
         -------
-        space.Image : the resulting anisotropely diffused image
+        space.Image : the resulting anisotropically diffused image
         """
         if constraint==None:
             constraint = lambda x : x
