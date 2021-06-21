@@ -46,6 +46,7 @@ def construct_tensor(sp, tensor_ndata, dat):
     sh = np.hstack((np.array(dat.sh), 3))
     return data.Tensors(sp, np.reshape(tensor_ndata, sh), dat)
 
+
 def euclidean(sp, dat):
     """
     Compute the general Euclidean metric in the given colour space.
@@ -67,6 +68,33 @@ def euclidean(sp, dat):
     g = sp.empty_matrix(dat.flattened_XYZ)
     for i in range(np.shape(g)[0]):
         g[i] = np.eye(3)
+    return construct_tensor(sp, g, dat)
+
+
+def cylindrical(sp, dat):
+    """
+    Compute the general Euclidean metric in cylindrical coordinates.
+
+    Assumes z, r, theta (LCh) order. Returns Tensors.
+
+    Parameters
+    ----------
+    sp : space.Space
+        The colour space in which the metric tensor is Euclidean, with
+        cylindrical coordinates
+    dat : data.Points
+        The colour points for which to compute the metric.
+
+    Returns
+    -------
+    Tensors
+        The metric tensors.
+    """
+    g = sp.empty_matrix(dat.flattened_XYZ)
+    points = dat.get_flattened(sp)
+    for i in range(np.shape(g)[0]):
+        g[i] = np.eye(3)
+        g[i, 2, 2] = points[i, 2]**2
     return construct_tensor(sp, g, dat)
 
 
