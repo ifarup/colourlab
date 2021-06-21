@@ -32,7 +32,7 @@ def construct_tensor(sp, tensor_ndata, dat):
     Construct the Tensors object with correct dimensions
 
     The tensors_ndata has shape N x 3 x 3. Construct Tensors object
-    with shape correspoinding to the data points in dat.
+    with shape corresponding to the data points in dat.
 
     Parameters
     ----------
@@ -270,4 +270,71 @@ def poincare_disk(sp, dat):
 #     vos
 #     SVF
 #     CIECAM02
+#     CAM16
 #     +++
+
+
+# =============================================================================
+# Christoffel symbols
+# =============================================================================
+
+def christoffel(sp, tensor, dat, du=1e-4):
+    """
+    Compute the Christoffel symbols numerically.
+
+    Compute the Christoffel symbols of the second kind for the given metric
+    tensor function in the given colour space at the given data points.
+
+    Parameters
+    ----------
+
+    sp : space.Space
+        The colour space.
+    tensor : func
+        Function returning the metric tensor of the data
+    dat : data.Points
+        The colour data points (or image)
+    du : float
+        Delta u for the computation of the numerical derivatives
+
+    Returns
+    -------
+
+    ndata :
+        The Christoffel symbols of the second kind as M x ... x N x 3 x 3 x 3
+        ndarray (for M x ... x N x 3 data points)
+    """
+    x = dat.get(sp)
+
+    dxi = np.zeros(x.shape)
+    dxj = np.zeros(x.shape)
+    dxk = np.zeros(x.shape)
+
+    dxi[..., 0] = du
+    dxj[..., 1] = du
+    dxk[..., 2] = du
+
+    datpdxi = data.Points(sp, x + dxi)
+    datpdxj = data.Points(sp, x + dxj)
+    datpdxk = data.Points(sp, x + dxk)
+
+    g = tensor(sp, dat).get(sp)
+    gpdxi = tensor(sp, datpdxi).get(sp)
+    gpdxj = tensor(sp, datpdxj).get(sp)
+    gpdxk = tensor(sp, datpdxk).get(sp)
+
+    dgdx = np.zeros(np.hstack((np.array(g.shape), 3)))
+    dgdx[..., 0] = (gpdxi - g) / du
+    dgdx[..., 1] = (gpdxj - g) / du
+    dgdx[..., 2] = (gpdxk - g) / du
+
+    Gamma = np.zeros(dgdx.shape) # first kind
+    for c in range(3):
+        for a in range(3):
+            for b in range(3):
+                Gamma[..., c, a, b] = .5 * (dgdx[..., c, a, b] +
+                                            dgdx[..., c, b, a] -
+                                            dgdx[..., a, b, c])
+
+    ginv = np.linalg.inv(g)
+    return np.einsum('...ij,...jk', ginv, Gamma) # convert to second kind
