@@ -261,7 +261,7 @@ class Image(data.Points):
 
     def anisotropic_diffusion(self, sp, nit, dpsi_dlambda1=None,
                               dpsi_dlambda2=None, dt=.25, linear=True,
-                              g_func=None, christoffel=None, constraint=None):
+                              g_func=None, constraint=None):
         """
         Compute the anisotropic diffusion of the image.
 
@@ -282,8 +282,6 @@ class Image(data.Points):
         g_func : func
             Function computing the metric tensor to use. If not given, uses
             Euclidean in the given space
-        christoffel : # TODO: how to represent?
-            The Christoffel symbols of the image.
         constraint : func
             Function returning the constrained image (e.g., gamut) in sp
         
