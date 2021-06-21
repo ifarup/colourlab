@@ -65,5 +65,4 @@ class TestTensor(unittest.TestCase):
         self.assertEqual(np.shape(gDIN99b.get(space.xyz)), (ndat, 3, 3))
         self.assertEqual(np.shape(gDIN99c.get(space.xyz)), (ndat, 3, 3))
         self.assertEqual(np.shape(gDIN99d.get(space.xyz)), (ndat, 3, 3))
-        print(Gamma, Gamma_expected)
         self.assertAlmostEqual(np.linalg.norm(Gamma - Gamma_expected), 0, delta=1e-4)
