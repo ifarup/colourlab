@@ -53,7 +53,8 @@ class Image(data.Points):
         sp : colour.space.Space
             The colour space
         diff : tuple
-            Tuple with the two filters for the derivatives. Defaults to centered differences
+            Tuple with the two filters for the derivatives. Defaults to
+            centered differences
         
         Returns
         -------
@@ -64,7 +65,8 @@ class Image(data.Points):
         gi, gj = image_core.gradient(im, diff)
         return data.Vectors(sp, gi, self), data.Vectors(sp, gj, self)
 
-    def structure_tensor(self, sp, g_func=None, diff=image_core.diff_centered, grey=None):
+    def structure_tensor(self, sp, g_func=None, diff=image_core.diff_centered,
+                         grey=None):
         """
         Return the structure tensor of the underlying data image point set
 
@@ -80,7 +82,8 @@ class Image(data.Points):
             Function computing the metric tensor to use. If not given, uses
             Euclidean in the given space
         diff : tuple
-            Tuple with the two filters for the derivatives. Defaults to centered differences
+            Tuple with the two filters for the derivatives. Defaults to
+            centered differences
         grey : ndarray Grey scale image for orientation of lightness
             gradient. If not present, use CIELAB L* channel
 
@@ -154,7 +157,9 @@ class Image(data.Points):
 
         return s11, s12, s22, lambda1, lambda2, e1i, e1j, e2i, e2j
 
-    def diffusion_tensor(self, sp, dpsi_dlambda1=None, dpsi_dlambda2=None, g_func=None, diff=image_core.diff_centered, grey=None):
+    def diffusion_tensor(self, sp, dpsi_dlambda1=None, dpsi_dlambda2=None,
+                         g_func=None, diff=image_core.diff_centered,
+                         grey=None):
         """
         Compute the diffusion tensor coefficients for the image point set
 
@@ -162,13 +167,13 @@ class Image(data.Points):
         image, i.e., is on the shape M x N x 3.
 
         Parameters
-        ----------
+        ----------100100
         sp : Space
             The space in which to perform the computations
         dpsi_dlambda1 : func
             The diffusion supression function for the first eigenvalue of the
-            structure tensor. If None, use Perona and Malik's inverse square with
-            kappa = 1e-2.
+            structure tensor. If None, use Perona and Malik's inverse square
+            with kappa = 1e-2.
         dpsi_dlambda2 : func
             Same for the second eigenvalue. If None use dpsi_dlambda1
         g_func : func
@@ -185,7 +190,8 @@ class Image(data.Points):
             The d22 component of the structure tensor of the image data.
         """
         return image_core.diffusion_tensor_from_structure(
-            self.structure_tensor(sp, g_func, diff, grey), dpsi_dlambda1, dpsi_dlambda2)
+            self.structure_tensor(sp, g_func, diff, grey), dpsi_dlambda1,
+                                                           dpsi_dlambda2)
 
     def c2g_diffusion(self, sp, nit, g_func=None, l_minus=True, scale=1,
                       dt=.25, dpsi_dlambda1=None, dpsi_dlambda2=None):
@@ -208,8 +214,8 @@ class Image(data.Points):
             Time step
         dpsi_dlambda1 : func
             The diffusion supression function for the first eigenvalue of the
-            structure tensor. If None, use Perona and Malik's inverse square with
-            kappa = 1e-2.
+            structure tensor. If None, use Perona and Malik's inverse square
+            with kappa = 1e-2.
         dpsi_dlambda2 : func
             Same for the second eigenvalue. If None use dpsi_dlambda1
 
@@ -233,7 +239,8 @@ class Image(data.Points):
 
         grey_image = self.get(space.cielab)[..., 0] / 100
 
-        d11, d12, d22 = image_core.diffusion_tensor_from_structure(s_tuple, dpsi_dlambda1, dpsi_dlambda2)
+        d11, d12, d22 = image_core.diffusion_tensor_from_structure(s_tuple,
+                                               dpsi_dlambda1, dpsi_dlambda2)
 
         for i in range(nit):
             gi, gj = image_core.gradient(grey_image)
@@ -252,8 +259,9 @@ class Image(data.Points):
 
         return grey_image
 
-    def anisotropic_diffusion(self, sp, nit, dpsi_dlambda1=None, dpsi_dlambda2=None, dt=.25,
-                              linear=True, g_func=None, christoffel=None, constraint=None):
+    def anisotropic_diffusion(self, sp, nit, dpsi_dlambda1=None,
+                              dpsi_dlambda2=None, dt=.25, linear=True,
+                              g_func=None, christoffel=None, constraint=None):
         """
         Compute the anisotropic diffusion of the image.
 
@@ -265,8 +273,8 @@ class Image(data.Points):
             Number of iterations
         dpsi_dlambda1 : func
             The diffusion supression function for the first eigenvalue of the
-            structure tensor. If None, use Perona and Malik's inverse square with
-            kappa = 1e-2.
+            structure tensor. If None, use Perona and Malik's inverse square
+            with kappa = 1e-2.
         dpsi_dlambda2 : func
             Same for the second eigenvalue. If None use dpsi_dlambda1
         linear : bool
@@ -286,7 +294,8 @@ class Image(data.Points):
         if constraint==None:
             constraint = lambda x : x
         im = self.get(sp).copy()
-        d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g_func)
+        d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1,
+                                              dpsi_dlambda2, g_func)
         d11 = np.stack((d11, d11, d11), 2)
         d12 = np.stack((d12, d12, d12), 2)
         d22 = np.stack((d22, d22, d22), 2)
@@ -302,7 +311,8 @@ class Image(data.Points):
             im = constraint(im)
 
             if not linear:
-                d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1, dpsi_dlambda2, g_func)
+                d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1,
+                                                      dpsi_dlambda2, g_func)
                 d11 = np.stack((d11, d11, d11), 2)
                 d12 = np.stack((d12, d12, d12), 2)
                 d22 = np.stack((d22, d22, d22), 2)
