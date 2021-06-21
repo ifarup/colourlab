@@ -365,4 +365,4 @@ def christoffel(sp, tensor, dat, du=1e-8):
                                             dgdx[..., a, b, c])
 
     ginv = np.linalg.inv(g)
-    return np.einsum('...ij,...jk', ginv, Gamma) # convert to second kind
+    return np.einsum('...ij,...jkl', ginv, Gamma) # convert to second kind
