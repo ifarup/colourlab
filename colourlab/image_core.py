@@ -26,15 +26,18 @@ import numpy as np
 import sys
 from scipy.signal import correlate2d
 
-try:                            # Hack to use numba only when installed
-    from numba import jit       # (mainly to avoid trouble with Travis)
+# Hack to use numba only when installed
+# (mainly to avoid trouble with Travis)
+try:
+    from numba import jit
 except ImportError:
     def jit(func):
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         return wrapper
 
-if ('sphinx' in sys.modules) or ('coverage' in sys.modules): # Hack to make and coverage avoid using @jit
+# Hack to make numba and coverage avoid using @jit
+if ('sphinx' in sys.modules) or ('coverage' in sys.modules):
     def jit(func):
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
@@ -49,22 +52,22 @@ diff_forward = (
 )
 
 diff_backward = (
-    np.array([[0, -1, 0], [ 0, 1, 0], [0, 0, 0]]),
+    np.array([[0, -1, 0], [0,  1, 0], [0, 0, 0]]),
     np.array([[0,  0, 0], [-1, 1, 0], [0, 0, 0]])
 )
 
 diff_centered = (
-    .5 * np.array([[0, -1, 0], [ 0, 0, 0], [0, 1, 0]]),
+    .5 * np.array([[0, -1, 0], [0,  0, 0], [0, 1, 0]]),
     .5 * np.array([[0,  0, 0], [-1, 0, 1], [0, 0, 0]])
 )
 
 diff_sobel = (
-    .125 * np.array([[-1, -2, -1], [ 0, 0, 0], [ 1, 2, 1]]),
+    .125 * np.array([[-1, -2, -1], [0,  0, 0], [1,  2, 1]]),
     .125 * np.array([[-1,  0,  1], [-2, 0, 2], [-1, 0, 1]])
 )
 
 diff_feldman = (
-    1 / 32 * np.array([[-3, -10, -3], [  0, 0,  0], [ 3, 10, 3]]),
+    1 / 32 * np.array([[-3, -10, -3], [0,   0,  0], [3,  10, 3]]),
     1 / 32 * np.array([[-3,   0,  3], [-10, 0, 10], [-3,  0, 3]])
 )
 
@@ -82,7 +85,7 @@ def dpdl_perona_invsq(lambd, kappa=1e-2):
         Eigenvalue of the structure tensor (single channelimage)
     kappa : float
         Paramter
-    
+
     Returns = 1 / (1 + lambd / kappa**2)
     -------
     ndimage : dpsi / dlambda
@@ -103,7 +106,7 @@ def dpdl_perona_exp(lambd, kappa=1e-2):
         Eigenvalue of the structure tensor (single channelimage)
     kappa : float
         Paramter
-    
+
     Returns
     -------
     ndimage : dpsi / dlambda
@@ -124,14 +127,16 @@ def dpdl_tv(lambd, epsilon=1e-4):
         Eigenvalue of the structure tensor (single channelimage)
     epsilon : float
         Regularisation paramter
-    
+
     Returns
     -------
     ndimage : dpsi / dlambda
     """
     return 1 / np.sqrt(lambd + epsilon)
 
-def diffusion_tensor_from_structure(s_tuple, dpsi_dlambda1=None, dpsi_dlambda2=None):
+
+def diffusion_tensor_from_structure(s_tuple, dpsi_dlambda1=None,
+                                    dpsi_dlambda2=None):
     """
     Compute the diffusion tensor coefficients from the structure
     tensor parameters
@@ -161,10 +166,10 @@ def diffusion_tensor_from_structure(s_tuple, dpsi_dlambda1=None, dpsi_dlambda2=N
 
     # Diffusion tensor
 
-    if dpsi_dlambda1 == None:
-        dpsi_dlambda1 = lambda x : dpdl_perona_invsq(x)
-    
-    if dpsi_dlambda2 == None:
+    if dpsi_dlambda1 is None:
+        def dpsi_dlambda1(x): return dpdl_perona_invsq(x)
+
+    if dpsi_dlambda2 is None:
         dpsi_dlambda2 = dpsi_dlambda1
 
     D1 = dpsi_dlambda1(lambda1)
@@ -179,14 +184,14 @@ def diffusion_tensor_from_structure(s_tuple, dpsi_dlambda1=None, dpsi_dlambda2=N
 
 def correlate(im, filter):
     """
-    Correlation filter for multi-channel image with symmetric boundary conditions.
+    Correlation filter for multi-channel image with symmetric boundaries.
 
     Paramteters
     -----------
     im : ndarray
         M x N x C image
     filter : ndarray
-        
+
     """
     im_c = np.zeros(im.shape)
 
@@ -194,7 +199,7 @@ def correlate(im, filter):
         for c in range(im.shape[2]):
             im_c[..., c] = correlate2d(im[..., c], filter, 'same', 'symm')
     else:
-        im_C = correlate2d(im, filter, 'same', 'symm')
+        im_c = correlate2d(im, filter, 'same', 'symm')
 
     return im_c
 
@@ -209,13 +214,14 @@ def gradient(im, diff=diff_centered):
         M x N x C image
     diff : tuple
         Tuple with the two gradient filters
-    
+
     Returns
     -------
     ndarray : d im / di
     ndarray : d im / dj
     """
     return correlate(im, diff[0]), correlate(im, diff[1])
+
 
 def divergence(imi, imj, diff=diff_centered):
     """
@@ -229,12 +235,13 @@ def divergence(imi, imj, diff=diff_centered):
         M x N x C image
     diff : tuple
         Tuple with the two gradient filters
-    
+
     Returns
     -------
     ndarray : div(imi, imj)
     """
     return correlate(imi, diff[0]) + correlate(imj, diff[1])
+
 
 @jit
 def stress_channel(im, ns=3, nit=5, R=0):
@@ -291,15 +298,15 @@ def stress_channel(im, ns=3, nit=5, R=0):
                                     lut_sin[angle_no])
 
                         if ((u < im.shape[0]) and
-                            (u >= 0) and
-                            (v < im.shape[1]) and
-                            (v >= 0)):
-                            break # "until"
+                                (u >= 0) and
+                                (v < im.shape[1]) and
+                                (v >= 0)):
+                            break  # "until"
 
                     if best_min > im[u, v]:
                         best_min = im[u, v]
                     if best_max < im[u, v]:
-                        best_max = im[u, v] # end samples
+                        best_max = im[u, v]  # end samples
 
                 ran = best_max - best_min
                 if ran == 0:
@@ -308,9 +315,10 @@ def stress_channel(im, ns=3, nit=5, R=0):
                     s = (im[i, j] - best_min) / ran
 
                 res_v[i, j] += s
-                res_r[i, j] += ran # end iterations
+                res_r[i, j] += ran  # end iterations
 
     return res_v / nit, res_r / nit
+
 
 def stress(im, ns=3, nit=5, R=0):
     """
@@ -337,5 +345,6 @@ def stress(im, ns=3, nit=5, R=0):
     stress_im = im.copy()
     range_im = im.copy()
     for c in range(im.shape[2]):
-        stress_im[..., c], range_im[..., c] = stress_channel(im[..., c], ns, nit, R)
+        stress_im[..., c], range_im[..., c] = \
+            stress_channel(im[..., c], ns, nit, R)
     return stress_im, range_im

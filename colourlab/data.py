@@ -23,7 +23,7 @@ import re
 import numpy as np
 import inspect
 from matplotlib.patches import Ellipse
-from . import space, misc
+from . import space
 
 
 # =============================================================================
@@ -280,7 +280,8 @@ class Vectors:
         if sp in self.vectors:
             return self.vectors[sp]
         else:
-            flattened_data = sp.vectors_from_XYZ(self.points, self.flattened_XYZ)
+            flattened_data = sp.vectors_from_XYZ(self.points,
+                                                 self.flattened_XYZ)
             ndata = np.reshape(flattened_data, self.sh)
             self.vectors[sp] = ndata
             return ndata
@@ -416,7 +417,8 @@ class Tensors:
         if sp in self.metrics:
             return self.metrics[sp]
         else:
-            flattened_metrics = sp.metrics_from_XYZ(self.points, self.flattened_XYZ)
+            flattened_metrics = sp.metrics_from_XYZ(self.points,
+                                                    self.flattened_XYZ)
             metrics_ndata = np.reshape(flattened_metrics, self.sh)
             self.metrics[sp] = metrics_ndata
             return metrics_ndata
@@ -519,9 +521,10 @@ class Tensors:
 
     def inner(self, sp, vec1, vec2):
         """
-        Return the inner product of the two vectors computed in the given space.
+        Return the inner product of the two vectors in the given space.
 
-        The result should in theory be invariant with respect to the colour space.
+        The result should in theory be invariant with respect to the
+        colour space.
 
         Parameters
         ----------
@@ -542,9 +545,10 @@ class Tensors:
 
     def norm_sq(self, sp, vec):
         """
-        Compute the squared norm of a vector data set with a given metric tensor.
+        Return the squared norm of a vector data set given the metric tensor.
 
-        The vector set and the tensor data set must have corresponding dimensions.
+        The vector set and the tensor data set must have corresponding
+        dimensions.
 
         Parameters
         ----------
@@ -559,12 +563,13 @@ class Tensors:
             Array with numerical (scalar) values of the squared norm.
         """
         return self.inner(sp, vec, vec)
-    
+
     def norm(self, sp, vec):
         """
         Compute the norm of a vector data set with a given metric tensor.
 
-        The vector set and the tensor data set must have corresponding dimensions.
+        The vector set and the tensor data set must have corresponding
+        dimensions.
 
         Parameters
         ----------
@@ -631,6 +636,7 @@ def read_csv_file(filename, pad=-np.inf):
             else:
                 data[i][j] = float(data[i][j])
     return np.array(data)
+
 
 # White points:
 
@@ -798,14 +804,14 @@ def d_regular(sp, x_val, y_val, z_val):
     z_len = np.shape(z_val)[0]
     tot_len = x_len * y_len * z_len
     ndata = np.zeros((tot_len, 3))
-    l = 0
+    ell = 0
     for i in range(x_len):
         for j in range(y_len):
             for k in range(z_len):
-                ndata[l, 0] = x_val[i]
-                ndata[l, 1] = y_val[j]
-                ndata[l, 2] = z_val[k]
-                l = l + 1
+                ndata[ell, 0] = x_val[i]
+                ndata[ell, 1] = y_val[j]
+                ndata[ell, 2] = z_val[k]
+                ell = ell + 1
     return Points(sp, ndata)
 
 # TODO:

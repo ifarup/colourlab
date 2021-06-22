@@ -356,7 +356,7 @@ def christoffel(sp, tensor, dat, du=1e-8):
     dgdx[..., 1] = (gpdxj - g) / du
     dgdx[..., 2] = (gpdxk - g) / du
 
-    Gamma = np.zeros(dgdx.shape) # first kind
+    Gamma = np.zeros(dgdx.shape)  # first kind
     for c in range(3):
         for a in range(3):
             for b in range(3):
@@ -365,4 +365,4 @@ def christoffel(sp, tensor, dat, du=1e-8):
                                             dgdx[..., a, b, c])
 
     ginv = np.linalg.inv(g)
-    return np.einsum('...ij,...jkl', ginv, Gamma) # convert to second kind
+    return np.einsum('...ij,...jkl', ginv, Gamma)  # convert to second kind

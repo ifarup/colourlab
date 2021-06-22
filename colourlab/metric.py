@@ -42,10 +42,10 @@ def reshape_diff(diff, sh):
     sh : tuple
         The shape of the original data (not the diff)
     """
-    l = len(sh)
-    if l == 1:        # one-dimensional colour data (one colour point)
+    ell = len(sh)
+    if ell == 1:        # one-dimensional colour data (one colour point)
         return diff[0]
-    elif l == 2:       # two-dimensional colour data (list of colours)
+    elif ell == 2:       # two-dimensional colour data (list of colours)
         return diff
     else:                       # three or more dimensions (images++)
         return np.reshape(diff, tuple(np.array(sh)[:-1]))

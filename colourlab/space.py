@@ -529,7 +529,10 @@ class TransformProjective(Transform):
     General projective transform of the XYZ to xyY type.
     """
 
-    def __init__(self, base, M=np.array([[1, 0, 0], [0, 1, 0], [1, 1, 1], [0, 1, 0]])):
+    def __init__(self, base, M=np.array([[1, 0, 0],
+                                         [0, 1, 0],
+                                         [1, 1, 1],
+                                         [0, 1, 0]])):
         """
         Construct instance.
 
@@ -539,7 +542,8 @@ class TransformProjective(Transform):
             Base colour space.
 
         M : ndarray
-            4 x 3 array with the coefficients of the projective transforms, such that
+            4 x 3 array with the coefficients of the projective transforms,
+            such that
             x = (M[0, 0] * X + M[0, 1] * Y + M[0, 2] * Z) / denom
             y = (M[1, 0] * X + M[1, 1] * Y + M[1, 2] * Z) / denom
             denom = M[2, 0] * X + M[2, 1] * Y + M[2, 2] * Z
@@ -577,11 +581,11 @@ class TransformProjective(Transform):
         i = self.M[2, 2]
         j = self.M[3, 0]
         k = self.M[3, 1]
-        l = self.M[3, 2]
+        ell = self.M[3, 2]
         for n in range(xyz.shape[0]):
             A = np.array([[g * x[n] - a, h * x[n] - b, i * x[n] - c],
                           [g * y[n] - d, h * y[n] - e, i * y[n] - f],
-                          [j, k, l]])
+                          [j, k, ell]])
             B = np.array([0, 0, Y[n]])
             XYZ = np.dot(np.linalg.inv(A), B)
             xyz[n, 0] = XYZ[0]
@@ -606,11 +610,17 @@ class TransformProjective(Transform):
         X = ndata[:, 0]
         Y = ndata[:, 1]
         Z = ndata[:, 2]
-        denom = self.M[2,0] * X + self.M[2, 1] * Y + self.M[2, 2] * Z
+        denom = self.M[2, 0] * X + self.M[2, 1] * Y + self.M[2, 2] * Z
         xyY = np.zeros(np.shape(ndata))
-        xyY[:, 0] = (self.M[0, 0] * X + self.M[0, 1] * Y + self.M[0, 2] * Z) / denom # x
-        xyY[:, 1] = (self.M[1, 0] * X + self.M[1, 1] * Y + self.M[1, 2] * Z) / denom # y
-        xyY[:, 2] = self.M[3, 0] * X + self.M[3, 1] * Y + self.M[3, 2] * Z           # Y
+        xyY[:, 0] = (self.M[0, 0] * X +
+                     self.M[0, 1] * Y +
+                     self.M[0, 2] * Z) / denom  # x
+        xyY[:, 1] = (self.M[1, 0] * X +
+                     self.M[1, 1] * Y +
+                     self.M[1, 2] * Z) / denom  # y
+        xyY[:, 2] = (self.M[3, 0] * X +
+                     self.M[3, 1] * Y +
+                     self.M[3, 2] * Z)          # Y
         return xyY
 
     def jacobian_base(self, data):
@@ -641,7 +651,7 @@ class TransformProjective(Transform):
         i = self.M[2, 2]
         j = self.M[3, 0]
         k = self.M[3, 1]
-        l = self.M[3, 2]
+        ell = self.M[3, 2]
 
         xyzdata = data.get_flattened(self.base)
         X = xyzdata[:, 0]
@@ -659,7 +669,7 @@ class TransformProjective(Transform):
         jac[:, 1, 2] = (f * GHI - i * DEF) / GHI**2
         jac[:, 2, 0] = j
         jac[:, 2, 1] = k
-        jac[:, 2, 2] = l
+        jac[:, 2, 2] = ell
         return jac
 
 
@@ -999,7 +1009,8 @@ class TransformCIEDE00(Transform):
         col : ndarray
             Colour data in the base colour space
         """
-        raise RuntimeError('No conversion of CIEDE00 Lab to CIELAB implemented (yet).')
+        raise RuntimeError('No conversion of CIEDE00 Lab to CIELAB ' +
+                           'implemented (yet).')
 
     def from_base(self, ndata):
         """
@@ -2135,6 +2146,7 @@ class TransformPoincareDisk(Transform):
                 jac[i, 2, 2] = tanhC2C[i] + \
                     b[i] * dtanhdC[i] * dCdb[i]  # dy/db
         return jac
+
 
 # =============================================================================
 # Colour space instances

@@ -12,3 +12,4 @@ lena.png
 _build/
 _static/
 _templates/
+.mypy_cache/

@@ -20,7 +20,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from . import data, space, tensor, misc, image_core
+from . import data, space, tensor, image_core
+
 
 class Image(data.Points):
     """
@@ -55,7 +56,7 @@ class Image(data.Points):
         diff : tuple
             Tuple with the two filters for the derivatives. Defaults to
             centered differences
-        
+
         Returns
         -------
         image.data.Vector : The i component of the gradient as a colour vector
@@ -125,10 +126,10 @@ class Image(data.Points):
             g = tensor.euclidean(sp, self)
         else:
             g = g_func(self)
-        
+
         # The structure tensor
 
-        s11 = g.inner(sp, di, di) # components of the structure tensor
+        s11 = g.inner(sp, di, di)  # components of the structure tensor
         s12 = g.inner(sp, di, dj)
         s22 = g.inner(sp, dj, dj)
 
@@ -190,8 +191,8 @@ class Image(data.Points):
             The d22 component of the structure tensor of the image data.
         """
         return image_core.diffusion_tensor_from_structure(
-            self.structure_tensor(sp, g_func, diff, grey), dpsi_dlambda1,
-                                                           dpsi_dlambda2)
+            self.structure_tensor(sp, g_func, diff, grey),
+            dpsi_dlambda1, dpsi_dlambda2)
 
     def c2g_diffusion(self, sp, nit, g_func=None, l_minus=True, scale=1,
                       dt=.25, dpsi_dlambda1=None, dpsi_dlambda2=None):
@@ -239,14 +240,14 @@ class Image(data.Points):
 
         grey_image = self.get(space.cielab)[..., 0] / 100
 
-        d11, d12, d22 = image_core.diffusion_tensor_from_structure(s_tuple,
-                                               dpsi_dlambda1, dpsi_dlambda2)
+        d11, d12, d22 = image_core.diffusion_tensor_from_structure(
+            s_tuple, dpsi_dlambda1, dpsi_dlambda2)
 
         for i in range(nit):
             gi, gj = image_core.gradient(grey_image)
             gi -= vi
             gj -= vj
-            
+
             ti = d11 * gi + d12 * gj
             tj = d12 * gi + d22 * gj
 
@@ -285,13 +286,13 @@ class Image(data.Points):
         constraint : func
             Function returning the constrained image (e.g., gamut or internal
             boundaries, e.g. CFAs or fixed domains for inpainting) in sp
-        
+
         Returns
         -------
         space.Image : the resulting anisotropically diffused image
         """
-        if constraint==None:
-            constraint = lambda x : x
+        if constraint is None:
+            def constraint(x): return x
         im = self.get(sp).copy()
         d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1,
                                               dpsi_dlambda2, g_func)
