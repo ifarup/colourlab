@@ -3,7 +3,7 @@
 """
 test_tensor:  Unittests for all functions in the tensor module.
 
-Copyright (C) 2017 Ivar Farup, Lars Niebuhr, Sahand Lahafdoozian,
+Copyright (C) 2017-2021 Ivar Farup, Lars Niebuhr, Sahand Lahafdoozian,
 Nawar Behenam, Jakob Voigt
 
 This program is free software: you can redistribute it and/or modify

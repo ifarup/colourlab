@@ -3,7 +3,7 @@
 """
 tensor: Compute colour metric tensors. Part of the colourlab package.
 
-Copyright (C) 2013-2017 Ivar Farup
+Copyright (C) 2013-2021 Ivar Farup
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
