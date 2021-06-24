@@ -73,6 +73,5 @@ class TestImage(unittest.TestCase):
         self.assertTrue(isinstance(im_diff1, image.Image))
         im_diff2 = im.anisotropic_diffusion(space.srgb, 5, linear=False)
         self.assertTrue(isinstance(im_diff2, image.Image))
-        im_diff3 = im.anisotropic_diffusion(
-            space.srgb, 5, linear=False, g_func=tensor.dE_00)
+        im_diff3 = im.anisotropic_diffusion(space.srgb, 5, g_func=tensor.dE_00)
         self.assertTrue(isinstance(im_diff3, image.Image))
