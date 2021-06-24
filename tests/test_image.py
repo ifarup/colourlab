@@ -21,10 +21,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import numpy as np
-from colourlab import image, image_core, space, data
+from colourlab import image, image_core, space, data, tensor
 
 im = image.Image(space.srgb, np.random.rand(5, 5, 3))
 im2 = image.Image(space.srgb, np.random.rand(5, 5, 3))
+
 
 class TestImage(unittest.TestCase):
 
@@ -44,7 +45,8 @@ class TestImage(unittest.TestCase):
         self.assertTrue(isinstance(g2, np.ndarray))
 
     def test_structure_tensor(self):
-        s11, s12, s22, lambda1, lambda2, e1i, e1j, e2i, e2j = im.structure_tensor(space.srgb)
+        s11, s12, s22, lambda1, lambda2, e1i, e1j, e2i, e2j = \
+            im.structure_tensor(space.srgb)
         self.assertTrue(isinstance(s11, np.ndarray))
         self.assertTrue(isinstance(s12, np.ndarray))
         self.assertTrue(isinstance(s22, np.ndarray))
@@ -71,3 +73,6 @@ class TestImage(unittest.TestCase):
         self.assertTrue(isinstance(im_diff1, image.Image))
         im_diff2 = im.anisotropic_diffusion(space.srgb, 5, linear=False)
         self.assertTrue(isinstance(im_diff2, image.Image))
+        im_diff3 = im.anisotropic_diffusion(
+            space.srgb, 5, linear=False, g_func=tensor.dE_00)
+        self.assertTrue(isinstance(im_diff3, image.Image))
