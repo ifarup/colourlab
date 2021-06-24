@@ -299,6 +299,8 @@ class Image(data.Points):
         d11 = np.stack((d11, d11, d11), 2)
         d12 = np.stack((d12, d12, d12), 2)
         d22 = np.stack((d22, d22, d22), 2)
+        if g_func is not None:
+            Gamma = tensor.christoffel(sp, g_func, self)
 
         for i in range(nit):
             gi, gj = image_core.gradient(im, image_core.diff_forward)
@@ -306,8 +308,15 @@ class Image(data.Points):
             tj = d12 * gi + d22 * gj
             tv = image_core.divergence(ti, tj, image_core.diff_backward)
 
-            im += dt * tv
+            if g_func is not None:
+                Gamma_uu_11 = np.einsum('...ijk,...j,...k', Gamma, gi, gi)
+                Gamma_uu_12 = np.einsum('...ijk,...j,...k', Gamma, gi, gj)
+                Gamma_uu_22 = np.einsum('...ijk,...j,...k', Gamma, gj, gj)
+                coord_term = (d11 * Gamma_uu_11 + 2 * d12 * Gamma_uu_12 +
+                              d22 * Gamma_uu_22)
+                tv += coord_term
 
+            im += dt * tv
             im = constraint(im)
 
             if not linear:
@@ -316,6 +325,8 @@ class Image(data.Points):
                 d11 = np.stack((d11, d11, d11), 2)
                 d12 = np.stack((d12, d12, d12), 2)
                 d22 = np.stack((d22, d22, d22), 2)
+                if g_func is not None:
+                    Gamma = tensor.christoffel(sp, g_func, self)
 
         return Image(sp, im)
 
