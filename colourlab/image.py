@@ -299,6 +299,7 @@ class Image(data.Points):
         d11 = np.stack((d11, d11, d11), 2)
         d12 = np.stack((d12, d12, d12), 2)
         d22 = np.stack((d22, d22, d22), 2)
+        coord_term = 0
         if g_func is not None:
             Gamma = tensor.christoffel(sp, g_func, self)
 
@@ -314,19 +315,19 @@ class Image(data.Points):
                 Gamma_uu_22 = np.einsum('...ijk,...j,...k', Gamma, gj, gj)
                 coord_term = (d11 * Gamma_uu_11 + 2 * d12 * Gamma_uu_12 +
                               d22 * Gamma_uu_22)
-                tv += coord_term
 
-            im += dt * tv
+            im += dt * (tv + coord_term)
             im = constraint(im)
 
             if not linear:
-                d11, d12, d22 = self.diffusion_tensor(sp, dpsi_dlambda1,
-                                                      dpsi_dlambda2, g_func)
+                tmp_im = Image(sp, im)
+                d11, d12, d22 = tmp_im.diffusion_tensor(sp, dpsi_dlambda1,
+                                                        dpsi_dlambda2, g_func)
                 d11 = np.stack((d11, d11, d11), 2)
                 d12 = np.stack((d12, d12, d12), 2)
                 d22 = np.stack((d22, d22, d22), 2)
                 if g_func is not None:
-                    Gamma = tensor.christoffel(sp, g_func, self)
+                    Gamma = tensor.christoffel(sp, g_func, tmp_im)
 
         return Image(sp, im)
 
